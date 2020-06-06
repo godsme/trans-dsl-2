@@ -10,11 +10,13 @@
 
 TSL_NS_BEGIN
 
-enum class Status : CUB_NS::Status {
-   SUCCESS   = CUB_NS::Status(CUB_NS::CubStatus::SUCCESS),
+using Status = CUB_NS::Status;
 
-   FATAL_BUG = CUB_NS::Status(CUB_NS::CubStatus::FATAL_BUG),
-   FAILED    = CUB_NS::Status(CUB_NS::CubStatus::FAILURE),
+enum class Result : CUB_NS::Status {
+   SUCCESS   = CUB_NS::Status(CUB_NS::Result::SUCCESS),
+
+   FATAL_BUG = CUB_NS::Status(CUB_NS::Result::FATAL_BUG),
+   FAILED    = CUB_NS::Status(CUB_NS::Result::FAILURE),
 
    RESERVED_FAILURE = CUB_NS::CUB_RESERVED_FAILURE,
 

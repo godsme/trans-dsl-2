@@ -1,11 +1,15 @@
 # Prerequisites
 *.d
 
+# IDE
+.idea/*
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+cmake-build-debug/*
 
 # Precompiled Headers
 *.gch

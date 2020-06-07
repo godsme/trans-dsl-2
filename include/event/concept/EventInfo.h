@@ -13,8 +13,7 @@
 
 EV_NS_BEGIN
 
-DEFINE_ROLE(EventInfo)
-{
+DEFINE_ROLE(EventInfo) {
    ABSTRACT(getEventId() const                 -> EventId);
    ABSTRACT(getMsg() const                     -> const void*);
    ABSTRACT(getMsgSize() const                 -> size_t);

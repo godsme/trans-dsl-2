@@ -20,6 +20,7 @@ namespace details
 
 #define DEF_INTERFACE(Intf)  struct Intf : ::CUB_NS::details::Interface<Intf>
 
+#define DEFAULT(...) virtual auto __VA_ARGS__
 #define ABSTRACT(...) virtual auto __VA_ARGS__ = 0
 
 #define OVERRIDE(...) virtual auto __VA_ARGS__ override

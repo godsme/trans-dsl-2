@@ -12,7 +12,7 @@ TSL_NS_BEGIN
 
 struct ActionStatus
 {
-   ActionStatus(Status status) : status(Result(status)) {}
+   ActionStatus(Status status) : status(status) {}
 
    auto isWorking() const -> bool {
       return status == Result::CONTINUE || status == Result::UNKNOWN_EVENT;
@@ -43,7 +43,7 @@ struct ActionStatus
    }
 
 private:
-   Result status;
+   Status status;
 };
 
 TSL_NS_END

@@ -26,6 +26,6 @@ protected:
 
 CUB_NS_END
 
-#define DEF_SINGLETON(object) struct object : ::CUB_NS::Singleton<object>
+#define DEF_SINGLETON(object, ...) struct object : ::CUB_NS::Singleton<object>, ##__VA_ARGS__
 
 #endif //TRANS_DSL_2_SINGLETON_H

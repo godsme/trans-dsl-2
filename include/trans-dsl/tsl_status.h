@@ -12,11 +12,11 @@ TSL_NS_BEGIN
 
 using Status = CUB_NS::Status;
 
-enum class Result : CUB_NS::Status {
-   SUCCESS   = CUB_NS::Status(CUB_NS::Result::SUCCESS),
+enum Result : Status {
+   SUCCESS   = Status(CUB_NS::Result::SUCCESS),
 
-   FATAL_BUG = CUB_NS::Status(CUB_NS::Result::FATAL_BUG),
-   FAILED    = CUB_NS::Status(CUB_NS::Result::FAILURE),
+   FATAL_BUG = Status(CUB_NS::Result::FATAL_BUG),
+   FAILED    = Status(CUB_NS::Result::FAILURE),
 
    RESERVED_FAILURE = CUB_NS::CUB_RESERVED_FAILURE,
 

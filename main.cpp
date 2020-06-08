@@ -1,6 +1,7 @@
 #include <iostream>
 #include <trans-dsl/sched/helper/Sequential.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
+#include <event/concept/Event.h>
 
 using namespace TSL_NS;
 
@@ -10,7 +11,7 @@ struct Action1 : SchedAction {
    }
 
    auto handleEvent(TransactionContext& context, Event& event) -> Status {
-      return Result::FATAL_BUG;
+      return Result::SUCCESS;
    }
 
    auto stop(TransactionContext& context, Status cause) -> Status {
@@ -22,7 +23,7 @@ struct Action1 : SchedAction {
 
 struct Action2 : SchedAction  {
    auto exec(TransactionContext& context) -> Status {
-      return Result::UNKNOWN_EVENT;
+      return Result::SUCCESS;
    }
 
    auto handleEvent(TransactionContext& context, Event& event) -> Status {
@@ -38,14 +39,14 @@ struct Action2 : SchedAction  {
 
 int main() {
    TransactionContext context{};
-   SEQUENTIAL__<Action1, Action2> a;
+   Event event;
+
+   __sequential(Action1, Action2) a;
+
+   //auto r = a.exec(context);
    std::cout << sizeof(a) << std::endl;
-   auto r = a.get(1);
-   if(r != nullptr) {
-      std::cout << r->exec(context) << std::endl;
-   } else {
-      std::cout << "Hello, World!" << std::endl;
-   }
+   std::cout << a.exec(context)  << std::endl;
+   std::cout << a.handleEvent(context, event)  << std::endl;
 
    //std::cout << "Hello, World!" << std::endl;
    return 0;

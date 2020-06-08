@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <algorithm>
 #include <trans-dsl/sched/helper/SchedActionWrapper.h>
+#include <trans-dsl/sched/action/SchedSequential.h>
 
 TSL_NS_BEGIN
 
@@ -38,7 +39,7 @@ struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ, T_HEAD, T_TAIL...> {
 
 template<size_t T_SIZE, size_t T_ALIGN, unsigned int T_SEQ>
 struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
-   struct Inner {
+   struct Inner  {
       auto get(unsigned int seq) -> SchedAction* {
          return nullptr;
       }
@@ -48,9 +49,19 @@ struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
 };
 
 template<typename T_ACTION, typename ... T_ACTIONS>
-struct SEQUENTIAL__ : GenericSequential<0, 0, 0, T_ACTION, T_ACTIONS...>::Inner {
-
+struct SEQUENTIAL__ {
+   using Actions = typename GenericSequential<0, 0, 0, T_ACTION, T_ACTIONS...>::Inner;
+   struct Inner : SchedSequential, private Actions {
+   private:
+      unsigned int index = 0;
+      OVERRIDE(getNext() -> SchedAction*) {
+         return Actions::get(index++);
+      }
+   };
 };
+
+
+#define __sequential(...) TSL_NS::SEQUENTIAL__<__VA_ARGS__>::Inner
 
 TSL_NS_END
 

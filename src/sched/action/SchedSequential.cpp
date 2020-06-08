@@ -7,6 +7,7 @@
 
 TSL_NS_BEGIN
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
    while((current = getNext()) != nullptr) {
       ActionStatus status = current->exec(context);
@@ -18,10 +19,12 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
    return Result::SUCCESS;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
    return forward(context);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event& event) -> Status {
    if(current == nullptr) {
       return Result::UNKNOWN_EVENT;
@@ -40,6 +43,7 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event& event) -> 
    return forward(context);
 }
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
    if(current == nullptr) {
       return Result::FATAL_BUG;
@@ -60,6 +64,7 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
    return finalStatus;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::kill(TransactionContext& context, Status cause) -> void {
    if(current != nullptr) {
       current->kill(context, cause);

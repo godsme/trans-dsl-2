@@ -15,10 +15,12 @@ TSL_NS_BEGIN
 
 struct SchedAction;
 
-template<size_t T_SIZE, size_t T_ALIGN, unsigned int T_SEQ, typename ... T_ACTIONS>
+using SeqInt = unsigned short;
+
+template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename ... T_ACTIONS>
 struct GenericSequential;
 
-template<size_t T_SIZE, size_t T_ALIGN, unsigned int T_SEQ, typename T_HEAD, typename ... T_TAIL>
+template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename T_HEAD, typename ... T_TAIL>
 struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ, T_HEAD, T_TAIL...> {
    using Action = T_HEAD;
    using Next =
@@ -31,16 +33,16 @@ struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ, T_HEAD, T_TAIL...> {
    struct Inner : Next {
       using Next::cache;
 
-      auto get(unsigned int seq) -> SchedAction* {
+      auto get(SeqInt seq) -> SchedAction* {
          return seq == T_SEQ ? new (cache) Action : Next::get(seq);
       }
    };
 };
 
-template<size_t T_SIZE, size_t T_ALIGN, unsigned int T_SEQ>
+template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ>
 struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
    struct Inner  {
-      auto get(unsigned int seq) -> SchedAction* {
+      auto get(SeqInt seq) -> SchedAction* {
          return nullptr;
       }
    protected:
@@ -53,7 +55,7 @@ struct SEQUENTIAL__ {
    using Actions = typename GenericSequential<0, 0, 0, T_ACTION, T_ACTIONS...>::Inner;
    struct Inner : SchedSequential, private Actions {
    private:
-      unsigned int index = 0;
+      SeqInt index = 0;
       OVERRIDE(getNext() -> SchedAction*) {
          return Actions::get(index++);
       }

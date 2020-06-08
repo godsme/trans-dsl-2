@@ -3,6 +3,8 @@ project(trans_dsl_2)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(PythonInterp)
+
 #if(UNIX)
 #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-invalid-offsetof -std=c++17")
 #endif()

@@ -3,6 +3,7 @@
 
 # IDE
 .idea/*
+doc/build/*
 
 # Compiled Object files
 *.slo

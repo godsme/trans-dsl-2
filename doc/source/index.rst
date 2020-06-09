@@ -8,6 +8,7 @@ Transaction DSL简介
    :caption: 目录:
 
    motivation
+   quick-start
 
 索引
 =====

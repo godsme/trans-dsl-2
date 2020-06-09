@@ -5,7 +5,8 @@ Transaction DSL简介
 
 .. toctree::
    :maxdepth: 2
-   :caption: 目录:
+   :numbered:
+   :caption: 目录
 
    motivation
    quick-start

@@ -15,24 +15,28 @@ struct EventInfo;
 
 struct Event
 {
-   Event() = default;
+   Event();
    Event(const EventInfo& info);
 
    auto getEventId() const -> EventId ;
    auto getMsg() const     -> const void*;
    auto getMsgSize() const -> size_t;
 
-   auto matches(const EventId eventId) const -> bool;
+   auto matches(EventId) const -> bool;
 
-   auto updateEventId(const EventId) const -> Status;
+   auto updateEventId(EventId) const -> Status;
    auto assignEventInfoTo(Event&) const -> void;
    auto getEventInfo() const -> const EventInfo&
    {
       return *info;
    }
 
-   auto consume() const    -> void;
-   auto isConsumed() const -> bool;
+   auto consume() const    -> void {
+      consumed = true;
+   }
+   auto isConsumed() const -> bool {
+      return consumed;
+   }
 
 private:
    const EventInfo* info = nullptr;

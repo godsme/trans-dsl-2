@@ -36,7 +36,7 @@ constexpr Status fail_status(uint32_t status)
    return status | CUB_RESERVED_FAILURE;
 }
 
-enum class Result: cub::Status
+enum Result: cub::Status
 {
    SUCCESS   = cub::success_status(0),
 

@@ -12,7 +12,7 @@ EV_NS_BEGIN
 
 using EventId = uint16_t;
 
-const EventId INVALID_EVENT_ID = 0xFFFF;
+constexpr EventId INVALID_EVENT_ID = 0;
 
 constexpr bool is_invalid_event(EventId eventId) {
    return eventId == INVALID_EVENT_ID;

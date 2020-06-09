@@ -6,7 +6,8 @@
 #define TRANS_DSL_2_SYNCACTION_H
 
 #include <trans-dsl/tsl_ns.h>
-#include "SchedAction.h"
+#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/utils/ActionStatus.h>
 
 TSL_NS_BEGIN
 

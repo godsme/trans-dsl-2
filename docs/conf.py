@@ -26,11 +26,11 @@ from sphinx.locale import _
 
 project = u'Read the Docs Sphinx Theme'
 slug = re.sub(r'\W+', '-', project.lower())
-version = '2.0'
-release = '2.0'
-author = u'Darwin Yuan'
+version = '0.5.0rc2'
+release = '0.5.0rc2'
+author = u'Dave Snider, Read the Docs, Inc. & contributors'
 copyright = author
-language = 'zh-CN'
+language = 'en'
 
 extensions = [
     'sphinx.ext.intersphinx',
@@ -80,7 +80,7 @@ htmlhelp_basename = slug
 
 
 latex_documents = [
-    ('index', '{0}.tex'.format(slug), project, author, 'manual'),
+  ('index', '{0}.tex'.format(slug), project, author, 'manual'),
 ]
 
 man_pages = [
@@ -88,7 +88,7 @@ man_pages = [
 ]
 
 texinfo_documents = [
-    ('index', slug, project, author, slug, project, 'Miscellaneous'),
+  ('index', slug, project, author, slug, project, 'Miscellaneous'),
 ]
 
 

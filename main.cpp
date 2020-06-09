@@ -1,7 +1,9 @@
 #include <iostream>
-#include <trans-dsl/sched/helper/Sequential.h>
+#include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <event/concept/Event.h>
+#include <trans-dsl/sched/helper/SyncActionHelper.h>
+#include <trans-dsl/action/TransactionInfo.h>
 
 using namespace TSL_NS;
 
@@ -27,7 +29,7 @@ struct Action2 : SchedAction  {
    }
 
    auto handleEvent(TransactionContext& context, Event& event) -> Status {
-      return Result::FATAL_BUG;
+      return Result::SUCCESS;
    }
 
    auto stop(TransactionContext& context, Status cause) -> Status {
@@ -37,11 +39,52 @@ struct Action2 : SchedAction  {
    auto kill(TransactionContext& context, Status cause) -> void {}
 };
 
+struct StupidTransactionContext : private TransactionInfo, TransactionContext {
+   OVERRIDE(getInstanceId() const -> InstanceId) {
+      return 0;
+   }
+   OVERRIDE(getStatus() const -> Status) {
+      return Result::SUCCESS;
+   }
+   OVERRIDE(getUserContext() const -> Unknown*) {
+      return nullptr;
+   }
+
+private:
+   IMPL_ROLE(TransactionInfo);
+};
+
+
+auto action2(const TransactionInfo&) -> Status {
+   return Result::FAILED;
+}
+
+template<Result V_RESULT>
+struct GAction {
+   Status operator ()(const TransactionInfo&) {
+      return result;
+   }
+   Result result = Result(V_RESULT + 1);
+};
+
+GAction<Result::SUCCESS> action3;
+
+inline auto action1 = [](const TransactionInfo&) ->Status { return Result::FATAL_BUG; };
+
 int main() {
-   TransactionContext context{};
+   StupidTransactionContext context{};
    Event event;
 
-   __sequential(Action1, Action2) a;
+   __call(action1) b;
+   __call(action2) c;
+
+   std::cout << sizeof(b) << std::endl;
+   std::cout << sizeof(c) << std::endl;
+
+   __sequential(Action1, Action2, __call(action1)) a;
+
+   std::cout << b.exec(context) << std::endl;
+   std::cout << c.exec(context) << std::endl;
 
    //auto r = a.exec(context);
    std::cout << sizeof(a) << std::endl;

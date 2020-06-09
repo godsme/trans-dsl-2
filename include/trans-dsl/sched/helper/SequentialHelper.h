@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/7.
 //
 
-#ifndef TRANS_DSL_2_SEQUENTIAL_H
-#define TRANS_DSL_2_SEQUENTIAL_H
+#ifndef TRANS_DSL_2_SEQUENTIALHELPER_H
+#define TRANS_DSL_2_SEQUENTIALHELPER_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <cstddef>
@@ -67,4 +67,4 @@ struct SEQUENTIAL__ {
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_SEQUENTIAL_H
+#endif //TRANS_DSL_2_SEQUENTIALHELPER_H

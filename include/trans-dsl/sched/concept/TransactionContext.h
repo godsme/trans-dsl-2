@@ -9,7 +9,10 @@
 
 TSL_NS_BEGIN
 
+struct TransactionInfo;
+
 struct TransactionContext {
+   HAS_ROLE(TransactionInfo);
 };
 
 TSL_NS_END

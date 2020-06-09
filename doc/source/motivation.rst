@@ -188,7 +188,7 @@
 不难发现，这个过程中的任何步骤发生失败都会导致整个转换失败，只有全部成功之后，整个转换才算成功。
 这就让它成为一个不可分割的原子操作。要么全部成功，要么全部失败（之前通过的考核也统统失去了意义）。
 
-而这正符合一个源自于数据处理的概念： **事务**（Transaction）。下面是 Wikipedia 对 **事务** 的定义:
+而这正符合一个源自于数据处理的概念： **事务** （Transaction）。下面是 Wikipedia 对 **事务** 的定义:
 
    In computer science, transaction processing is information processing that is divided into individual,
    indivisible operations, called transactions. Each transaction must succeed or fail as a complete unit;
@@ -203,13 +203,13 @@
 
 **事物模型** 用来描述状态之间的 **转换过程** ：它可以由一系列的 **同步** 和 **异步** 操作（Action）组成。
 
-而 Transaction DSL 则是一种用来描述事务的语言。它用来定义状态之间的复杂转换过程。
+而 `Transaction DSL` 则是一种用来描述事务的语言。它用来定义状态之间的复杂转换过程。
 从而避免使用状态机来描述状态转换过程中由于异步而导致的 **临时中间状态** 。
 
-Transaction DSL 不是为了取代 **状态模型** ，而是为了提供一种方法，以解决那些本来不应该属于状态模型，
+`Transaction DSL` 不是为了取代 **状态模型** ，而是为了提供一种方法，以解决那些本来不应该属于状态模型，
 却在使用状态模型进行解决的问题。从而大大简化实现的复杂度，并缩小用户视图和实现视图之间的距离，
 让设计和实现更加符合事情的原貌，最终降低开发和维护成本。
 
-在下面的章节里，我们将会展示：我们如何通过Transaction DSL来定义一个事务。
+在下面的章节里，我们将会展示：我们如何通过 `Transaction DSL` 来定义一个事务。
 
 

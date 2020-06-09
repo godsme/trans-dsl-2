@@ -19,12 +19,12 @@ def is_development_build():
 
 if is_development_build():
     sys.path.insert(0, os.path.abspath('..'))
-sys.path.append(os.path.abspath('./demo/'))
+#sys.path.append(os.path.abspath('./demo/'))
 
 import sphinx_rtd_theme
 from sphinx.locale import _
 
-project = u'Read the Docs Sphinx Theme'
+project = u'Transaction DSL'
 slug = re.sub(r'\W+', '-', project.lower())
 version = '2.0'
 release = '2.0'
@@ -73,14 +73,14 @@ if not 'READTHEDOCS' in os.environ:
         range(1, 100)
     ))
 
-html_logo = "demo/static/logo-wordmark-light.svg"
+#html_logo = "demo/static/logo-wordmark-light.svg"
 html_show_sourcelink = True
 
 htmlhelp_basename = slug
 
 
 latex_documents = [
-    ('index', '{0}.tex'.format(slug), project, author, 'manual'),
+  ('index', '{0}.tex'.format(slug), project, author, 'manual'),
 ]
 
 man_pages = [
@@ -88,7 +88,7 @@ man_pages = [
 ]
 
 texinfo_documents = [
-    ('index', slug, project, author, slug, project, 'Miscellaneous'),
+  ('index', slug, project, author, slug, project, 'Miscellaneous'),
 ]
 
 

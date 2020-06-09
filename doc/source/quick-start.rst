@@ -80,6 +80,7 @@
 对于函数调用型的同步操作，其实现非常简单，其返回值为 `SUCCESS` 代表此操作成功，如果返回错误值则表示此操作失败。
 
 .. code-block:: c++
+
   struct Action2 : SyncAction {
     Status exec(const TransactionInfo&) {
       return OtherSystem::func();
@@ -89,6 +90,7 @@
 对于 `Action5` ，尽管它发送了消息，却无需等待任何消息，所以它也是一个同步操作。
 
 .. code-block:: c++
+
   struct Action5 : SyncAction {
     Status exec(const TransactionInfo&) {
       // 构建并发送消息

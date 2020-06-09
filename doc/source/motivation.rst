@@ -166,7 +166,7 @@
 
 .. image:: images/ch-1/recruting-state-1.png
    :align: center
-   :scale: 30 %
+   :scale: 40 %
 
 作为一个 **转换** ，和简单的转换不同的是，它是一个 **异步过程** ，需要大费周章之后才能完成。
 为了能够控制这个异步过程，才不得不引入状态模型。

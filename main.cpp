@@ -4,6 +4,7 @@
 #include <event/concept/Event.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <trans-dsl/action/TransactionInfo.h>
+#include <trans-dsl/action/SimpleAsyncAction.h>
 
 using namespace TSL_NS;
 
@@ -70,6 +71,21 @@ struct GAction {
 GAction<Result::SUCCESS> action3;
 
 inline auto action1 = [](const TransactionInfo&) ->Status { return Result::FATAL_BUG; };
+
+const EventId MSG_1 = 1000;
+struct Msg1 {};
+
+DEF_SIMPLE_ASYNC_ACTION(AsyncAction1) {
+   auto exec(const TransactionInfo&) {
+      return WAIN_ON(MSG_1, handleMsg1);
+   }
+
+   DECL_EVENT_HANDLER(handleMsg1, Msg1);
+};
+
+DEF_EVENT_HANDLER(AsyncAction1, handleMsg1, Msg1) {
+   return Result::SUCCESS;
+}
 
 int main() {
    StupidTransactionContext context{};

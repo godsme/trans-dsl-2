@@ -8,14 +8,14 @@
 #include <trans-dsl/tsl_status.h>
 #include <trans-dsl/sched/concept/EventId.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
+#include "EventHandlerRegistry.h"
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
-struct Event;
 
 template<typename T_REGISTRY>
-struct SimpleAsyncAction {
+struct GenericSimpleAsyncAction {
    auto handleEvent(const TransactionInfo& trans, const Event& event) -> Status {
       return registry.handleEvent(reinterpret_cast<details::DummyAsyncAction*>(this), trans, event);
    }
@@ -26,7 +26,11 @@ struct SimpleAsyncAction {
 
 protected:
    template<typename T>
-   auto waitOn(T* thisPointer, EventId eventId, Status (T::*handler)(const TransactionInfo&, const Event&)) -> Status {
+   auto waitOn(
+      T* thisPointer,
+      EventId eventId,
+      Status (T::*handler)(const TransactionInfo&, const Event&)) -> Status
+   {
       return registry.addHandler(
          eventId,
          reinterpret_cast<details::DummyEventHandler>(handler)
@@ -36,6 +40,33 @@ protected:
 private:
    T_REGISTRY registry;
 };
+
+using SimpleAsyncAction = GenericSimpleAsyncAction<EventHandlerRegistry>;
+
+namespace details
+{
+   template<typename T_ACTION>
+   struct ReflexSimpleAsyncAction: SimpleAsyncAction
+   {
+   protected:
+      typedef T_ACTION ThisType;
+   };
+}
+
+#define DEF_SIMPLE_ASYNC_ACTION(action) \
+struct action : TSL_NS::details::ReflexSimpleAsyncAction<action>
+
+#define WAIN_ON(eventId, handler) waitOn(this, eventId, &ThisType::handler)
+
+#define DECL_EVENT_HANDLER(handler, msgType) \
+auto handler__(const TransactionInfo&, const msgType&) -> Status; \
+auto handler(const TransactionInfo&, const Event&) -> Status
+
+#define DEF_EVENT_HANDLER(cls, handler, msgType) \
+auto cls::handler(const TransactionInfo& trans, const Event& event) -> Status { \
+   return handler__(trans, *static_cast<const msgType*>(event.getMsg()));       \
+}                                                                               \
+auto cls::handler__(const TransactionInfo& trans, const msgType& msg) -> Status
 
 TSL_NS_END
 

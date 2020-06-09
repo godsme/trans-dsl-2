@@ -4,11 +4,12 @@
 我们先通过一系列简单的例子，来对 `Transaction DSL` 有一个直观的认识。
 
 如图所示，站在 US 的角度，一个完整的事务操作，共分为5个步骤:
-  # 从 Other System 1 收到一条请求消息;
-  # 对 Other System 2 进行了一个函数调用;
-  # 对 Other System 3 发送了一条异步消息，并等待其应答消息;
-  # 对 Other System 4 发送了一条异步消息，并等待其应答消息;
-  # 给 Other System 1 发送了一条应答消息。
+
+  1. 从 Other System 1 收到一条请求消息;
+  2. 对 Other System 2 进行了一个函数调用;
+  3. 对 Other System 3 发送了一条异步消息，并等待其应答消息;
+  4. 对 Other System 4 发送了一条异步消息，并等待其应答消息;
+  5. 给 Other System 1 发送了一条应答消息。
 
 2.1  定义事务
 --------------

@@ -42,6 +42,7 @@
 所以，之前的例子可以修改为：
 
 .. code-block:: c++
+
   __def_transaction (
     __sequential
       ( __req(Action1)

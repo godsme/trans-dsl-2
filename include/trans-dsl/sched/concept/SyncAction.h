@@ -10,7 +10,7 @@
 
 TSL_NS_BEGIN
 
-struct SyncActionAdapter : SchedAction  {
+struct SyncAction : SchedAction  {
    OVERRIDE(handleEvent(TransactionContext&, Event&) -> Status) {
       return Result::FATAL_BUG;
    }

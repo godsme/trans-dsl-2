@@ -16,11 +16,10 @@ TSL_NS_BEGIN
 struct TransactionInfo;
 
 template<typename T_ACTION>
-struct SYNC__ : SyncActionAdapter  {
+struct SYNC__ : SyncAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
       return check(action(context.ROLE(TransactionInfo)));
    }
-
 private:
    T_ACTION action;
 };
@@ -28,7 +27,7 @@ private:
 using SyncActionFunc = Status (*)(const TransactionInfo&);
 
 template<SyncActionFunc V_ACTION>
-struct CALL__ : SyncActionAdapter  {
+struct CALL__ : SyncAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
       return check(V_ACTION(context.ROLE(TransactionInfo)));
    }

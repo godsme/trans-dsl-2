@@ -15,17 +15,27 @@ TSL_NS_BEGIN
 
 struct TransactionInfo;
 
+template<typename T_ACTION>
+struct SYNC__ : SyncActionAdapter  {
+   OVERRIDE(exec(TransactionContext& context) -> Status) {
+      return check(action(context.ROLE(TransactionInfo)));
+   }
+
+private:
+   T_ACTION action;
+};
+
 using SyncActionFunc = Status (*)(const TransactionInfo&);
 
 template<SyncActionFunc V_ACTION>
 struct CALL__ : SyncActionAdapter  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
-      ActionStatus r = V_ACTION(context.ROLE(TransactionInfo));
-      return r.isWorking() ? Result::FATAL_BUG : r;
+      return check(V_ACTION(context.ROLE(TransactionInfo)));
    }
 };
 
-#define __call(action) TSL_NS::CALL__<action>
+#define __sync(action) TSL_NS::SYNC__<action>
+#define __call(func) TSL_NS::CALL__<func>
 
 TSL_NS_END
 

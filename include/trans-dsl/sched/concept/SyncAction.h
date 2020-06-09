@@ -18,6 +18,11 @@ struct SyncActionAdapter : SchedAction  {
    OVERRIDE(stop(TransactionContext&, Status) -> Status) {
       return Result::SUCCESS;
    }
+
+protected:
+   Status check(ActionStatus status) {
+      return status.isWorking() ? Result::FATAL_BUG : status;
+   }
 };
 
 TSL_NS_END

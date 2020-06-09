@@ -1,5 +1,6 @@
+====================
 Transaction DSL简介
-*******************
+====================
 
 .. toctree::
    :maxdepth: 2
@@ -8,7 +9,7 @@ Transaction DSL简介
    motivation
 
 索引
-==================
+=====
 
 * :ref:`genindex`
 * :ref:`modindex`

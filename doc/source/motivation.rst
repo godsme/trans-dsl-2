@@ -1,5 +1,5 @@
-动机
-****
+1. 动机
+========
 
 我们先从大家都熟悉的一个例子说起。
 
@@ -10,29 +10,78 @@
 现在，我们用软件实现这个过程，其中，每个角色都是一个独立的系统或子系统，他们之间必须通过 **消息** 或 **事件** 进行通信。
 如果，我们现在需要实现HR子系统，该如何做?
 
-状态机
-=====
+1.1 状态机
+------------
 
 **状态机** 是大多数基于消息的异步系统常用的实现方式。所以HR为一个应聘者设计了如图所示的状态机:
 
 **状态模型** 和 **序列模型** 都能较好的反映一件事情的本质，但不同的是，**序列模型** 更加专注于目标系统的 **行为**，
-而 **状态模型** 更关注被操作对象的 **状态迁移**。
+而 **状态模型** 更关注被操作对象的 **状态迁移** 。
 
-但从实现的角度来看，如果你选择 **序列模型**，当然，你需要实现目标系统的 **行为**；而如果你选择 **状态模型**，那么除了需要管理 **状态机**之外，
-你仍然需要处理目标系统的 **行为**。这就意味着，在实现层面，一旦选择 **状态模型**，就需要做许多额外的工作。
+但从实现的角度来看，如果你选择 **序列模型** ，当然，你需要实现目标系统的 **行为** ；而如果你选择 **状态模型** ，那么除了需要管理 **状态机** 之外，
+你仍然需要处理目标系统的 **行为** 。这就意味着，在实现层面，一旦选择 **状态模型** ，就需要做许多额外的工作。
 
-而这部分额外的工作绝不是轻松和愉快的——
+而这部分额外的工作绝不是轻松和愉快的
 
-首先，**状态机**应该管理每个状态下期望的激励，对于未期望的消息则应该忽略。
+首先，**状态机** 应该管理每个状态下期望的激励，对于未期望的消息则应该忽略。
 比如，在本例中，一个正处于 *“笔试中”* 状态的状态机，如果收到了一个 *“接受offer”* 消息，将是一件很奇怪的事情，所以，只能忽略它。
 一个成熟的团队，对于状态机的管理往往会引入一个状态机引擎。一个典型的引擎需要程序员自己定义一张状态表，然后注册给引擎。
 
-.. codeblock:: c++
+.. code-block:: c++
 
     const StateTable states[] = {
-    // ...
-    { STATE_EXAM, { {EV_EXAM_RESULT, handleExamResult}}},
-    { STATE_INTERVIEW,{ {EV_INTERVIEW_RESULT, handleInterviewResult}}}, // ...
-    { STATE_OFFERED, { {EV_ONBOARD, handleOnBoard}
-                           , {EV_TIMEOUT, handleTimedout} }}
+      // ...
+      { STATE_EXAM,     { {EV_EXAM_RESULT, handleExamResult}}},
+      { STATE_INTERVIEW,{ {EV_INTERVIEW_RESULT, handleInterviewResult}}}, // ...
+      { STATE_OFFERED,  { {EV_ONBOARD, handleOnBoard}
+                        , {EV_TIMEOUT, handleTimedout} }}
     };
+ 
+有些引擎则呈现出另外一种形式，但本质上没有任何不同:
+
+.. code-block:: c++
+
+   Status STATE_OFFERED_Handler(const Event& event) {
+     switch(event.getEventId())
+     {
+       case EV_ONBOARD : return handleOnBoard(event); 
+       case EV_TIMEOUT : return handleTimedout(event); 
+       default: // error log
+     }
+     return SUCCESS; 
+   }
+
+然后，在具体的 **事件处理函数** 中，首先要处理这条消息，然后再根据处理的结果进行状态迁移。比如:
+
+.. code-block:: c++
+
+  Status handleExamResult(const Event& event) {
+    ExamResult* result = (ExamResult*)event.getContent();
+    if(result->pass) {
+      // 处理消息 
+      arrangeInterview();
+      // 状态迁移 
+      gotoState(STATE_INTERVIEW);
+    } else {
+      // 处理消息
+      reject();
+      // 状态迁移 
+      gotoState(STATE_IDLE);
+    }
+    return SUCCESS;
+  }
+
+从上述实现可以看出，对于 **状态模型** 来说，其图形描述和代码实现之间存在很大的鸿沟。
+因为在任何一个成熟的 **状态机引擎** 中，由用户所定义的状态表仅仅描述了一个
+状态机所拥有的所有状态，以及每个状态期望的激励，却没有描述状态之间的 **迁移** 。
+
+这是因为，如果想让状态机也能够描述状态迁移，就必须让状态机的迁移是确定的，
+这就会导致某些状态机的设计不得不进行转换，而转换的结果往往会失去直观性。
+所以，为了拥有灵活性，状态的迁移只能由各个事件处理函数来完成。
+
+因此，为了在代码层面理解一个状态机的设计，必须仔细的阅读相关代码，
+并在不同代码间来回跳转(因为状态一直在跳转)，才能理解一个状态机的全貌。
+
+另外，状态机引擎只能负责状态的管理，功能非常单一。所以，除了状态管理之外的
+所有其它细节，都必须有用户亲自实现。比如，本例中的时间约束，用户就必须亲自操作定时器:
+

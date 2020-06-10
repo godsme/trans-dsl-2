@@ -16,7 +16,7 @@ struct TransactionInfo;
 template<typename T_ACTION>
 struct SYNC__ : SyncAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
-      return check(action(context.ROLE(TransactionInfo)));
+      return check(action.exec(context.ROLE(TransactionInfo)));
    }
 private:
    T_ACTION action;

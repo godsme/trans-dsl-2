@@ -65,7 +65,7 @@ auto action2(const TransactionInfo&) -> Status {
 
 template<Result V_RESULT>
 struct GAction {
-   Status operator ()(const TransactionInfo&) {
+   Status exec(const TransactionInfo&) {
       return result;
    }
    Result result = Result(V_RESULT + 1);

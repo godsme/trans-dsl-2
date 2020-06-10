@@ -75,7 +75,7 @@
 
     Status exec(const TransactionInfo&);
     Status handleEvent(const TransactionInfo&, const Event&);
-    void stop(const TransactionInfo&);
+    void kill(const TransactionInfo&);
 
 对于 **同步操作** ，你需要做的就是定一个原型为 ``Status (const TransactionInfo&)`` 的函数。
 

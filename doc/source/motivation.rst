@@ -140,7 +140,7 @@
   }
 
   Status handleBackgroundResult(const Event& event) {
-    auto* result = (BackgroundResult*)event.getContent();
+    auto result = (BackgroundResult*)event.getContent();
 
     // ...
     if(result->pass) {
@@ -207,13 +207,13 @@
 不难发现，这个过程中的任何步骤发生失败都会导致整个转换失败，只有全部成功之后，整个转换才算成功。
 这就让它成为一个不可分割的原子操作。要么全部成功，要么全部失败（之前通过的考核也统统失去了意义）。
 
-而这正符合一个源自于数据处理的概念： **事务** （Transaction）。下面是 Wikipedia 对 **事务** 的定义:
+而这正符合一个源自于数据处理的概念： **事务** （Transaction）。
 
-.. epigraph::
-
+事务: from `wikipedia`
    In computer science, transaction processing is information processing that is divided into individual,
    indivisible operations, called transactions. Each transaction must succeed or fail as a complete unit;
    it cannot remain in an intermediate state.
+
 
 现在，事物的原貌已经浮出水面：图中描述的才是真正的 **状态机** ，而图中描述的过程则是一个 **事务**。
 

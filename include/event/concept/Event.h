@@ -7,6 +7,7 @@
 
 #include <event/concept/EventId.h>
 #include <event/Status.h>
+#include <event/concept/EventInfo.h>
 #include <cstddef>
 
 EV_NS_BEGIN
@@ -16,16 +17,32 @@ struct EventInfo;
 struct Event
 {
    Event();
-   Event(const EventInfo& info);
+   Event(const EventInfo& info) : info(&info) {}
 
-   auto getEventId() const -> EventId ;
-   auto getMsg() const     -> const void*;
-   auto getMsgSize() const -> size_t;
+   auto getEventId() const -> EventId {
+      return info->getEventId();
+   }
 
-   auto matches(EventId) const -> bool;
+   auto getMsg() const     -> const void* {
+      return info->getMsg();
+   }
 
-   auto updateEventId(EventId) const -> Status;
-   auto assignEventInfoTo(Event&) const -> void;
+   auto getMsgSize() const -> size_t {
+      return info->getMsgSize();
+   }
+
+   auto matches(EventId eventId) const -> bool {
+      return info->getEventId() == eventId;
+   }
+
+   auto updateEventId(EventId eventId) const -> void {
+      info->updateEventId(eventId);
+   }
+
+   auto assignEventInfoTo(Event& another) const -> void {
+      another.info = info;
+   }
+
    auto getEventInfo() const -> const EventInfo&
    {
       return *info;
@@ -34,6 +51,7 @@ struct Event
    auto consume() const    -> void {
       consumed = true;
    }
+
    auto isConsumed() const -> bool {
       return consumed;
    }

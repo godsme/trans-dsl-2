@@ -21,11 +21,11 @@ struct EventHandlerRegistry {
       const TransactionInfo& trans,
       const Event& event) -> Status;
 
-   auto addHandler(EventId eventId, details::DummyEventHandler handler) -> Status;
-
+   auto addHandler(EventId eventId, details::NormalFunction handler) -> Status;
    auto reset() -> void;
+
 private:
-   details::DummyEventHandler handler;
+   details::NormalFunction handler;
    EventId eventId;
 };
 

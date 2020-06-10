@@ -15,6 +15,7 @@ struct TransactionInfo;
 namespace details {
    struct DummyAsyncAction {};
    using DummyEventHandler = Status (DummyAsyncAction::*)(const TransactionInfo&, const Event&);
+   using NormalFunction = Status (*)(DummyAsyncAction*, const TransactionInfo&, const Event&);
 }
 
 TSL_NS_END

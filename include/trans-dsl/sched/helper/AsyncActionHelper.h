@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 template<typename T_ACTION>
 struct ASYNC__ : SchedAction {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
-      return action.handleEvent(context.ROLE(TransactionInfo));
+      return action.exec(context.ROLE(TransactionInfo));
    }
    OVERRIDE(handleEvent(TransactionContext& context, Event& event) -> Status) {
       return action.handleEvent(context.ROLE(TransactionInfo), event);

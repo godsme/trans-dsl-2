@@ -13,7 +13,7 @@ EventHandlerRegistry::EventHandlerRegistry() {
 auto EventHandlerRegistry::handleEvent(details::DummyAsyncAction* this__, const TransactionInfo& trans, const Event& event) -> Status {
    if(this->eventId == event.getEventId()) {
       event.consume();
-      auto result = (this__->*handler)(trans, event);
+      auto result = handler(this__, trans, event);
       reset();
       return result;
    }
@@ -21,8 +21,8 @@ auto EventHandlerRegistry::handleEvent(details::DummyAsyncAction* this__, const 
    return Result::UNKNOWN_EVENT;
 }
 
-auto EventHandlerRegistry::addHandler(EventId eventId, details::DummyEventHandler handler) -> Status {
-   if(handler != nullptr) {
+auto EventHandlerRegistry::addHandler(EventId eventId, details::NormalFunction handler) -> Status {
+   if(this->handler != nullptr) {
       return Result::OUT_OF_SCOPE;
    }
 

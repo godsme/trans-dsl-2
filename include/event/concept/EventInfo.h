@@ -14,10 +14,20 @@
 EV_NS_BEGIN
 
 DEFINE_ROLE(EventInfo) {
-   ABSTRACT(getEventId() const                 -> EventId);
+   explicit EventInfo(const EventId eventId) : eventId(eventId) {}
+
+   auto getEventId() const -> EventId {
+      return eventId;
+   }
+   auto updateEventId(const EventId id) const -> void {
+      this->eventId = id;
+   }
+
    ABSTRACT(getMsg() const                     -> const void*);
    ABSTRACT(getMsgSize() const                 -> size_t);
-   ABSTRACT(updateEventId(const EventId) const -> Status);
+
+private:
+   mutable EventId      eventId;
 };
 
 EV_NS_END

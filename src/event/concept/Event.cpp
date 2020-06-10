@@ -1,0 +1,29 @@
+//
+// Created by Darwin Yuan on 2020/6/9.
+//
+
+#include <event/event_ns.h>
+#include <event/concept/Event.h>
+#include <cub/gof/Singleton.h>
+#include <event/concept/EventInfo.h>
+
+EV_NS_BEGIN
+
+namespace
+{
+   DEF_SINGLETON(NilEventInfo, EventInfo) {
+      NilEventInfo() : EventInfo(INVALID_EVENT_ID) {}
+
+      OVERRIDE(getMsg() const -> const void*) {
+         return 0;
+      }
+
+      OVERRIDE(getMsgSize() const -> size_t) {
+         return 0;
+      }
+   };
+}
+
+Event::Event() : info(&NilEventInfo::getInstance()) {}
+
+EV_NS_END

@@ -9,6 +9,7 @@
 #include <trans-dsl/sched/concept/EventId.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
 #include "EventHandlerRegistry.h"
+#include "P2MFExtractor.h"
 
 TSL_NS_BEGIN
 
@@ -29,12 +30,10 @@ protected:
    auto waitOn(
       T* thisPointer,
       EventId eventId,
-      Status (T::*handler)(const TransactionInfo&, const Event&)) -> Status
+      const P2MF<T>& handler
+      ) -> Status
    {
-      return registry.addHandler(
-         eventId,
-         reinterpret_cast<details::DummyEventHandler>(handler)
-         );
+      return registry.addHandler(eventId, extractP2MF(handler));
    }
 
 private:

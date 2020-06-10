@@ -3,12 +3,12 @@
 
 .. tip:: 所有的 ``stop`` 只有当出错时才会返回错误。
 
-.. note:: ``stop`` ， ``kill`` 的cause，不再传递。如果用户想知道cause，
-   可以通过 ``TransactionInfo.getStatus()`` 从当前运行上下文获取。
+.. note:: ``stop/kill`` 的cause，不再传递。如果用户想知道cause，可以通过 ``TransactionInfo.getStatus()`` 从
+   当前运行上下文获取。
 
 .. hint::
    这就意味着，当一个带有上下文的 ``SchedAction`` ，
-   比如 ``Procedure`` , ``Void`` , ``Concurrent`` , ``Multi-Thread`` 等等，在初次被调用 ``stop`` ， ``kill`` 时，
+   比如 ``Procedure`` , ``Void`` , ``Concurrent`` , ``Multi-Thread`` 等等，在初次被调用 ``stop/kill`` 时，
    应该从parent-runtime-env里读出状态值，并更新到自己的runtime-env里。
 
 .. important::

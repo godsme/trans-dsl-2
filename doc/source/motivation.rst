@@ -209,7 +209,7 @@
 
 而这正符合一个源自于数据处理的概念： **事务** （Transaction）。
 
-事务: from `wikipedia`
+事务: `from` WIKIPEDIA
    In computer science, transaction processing is information processing that is divided into individual,
    indivisible operations, called transactions. Each transaction must succeed or fail as a complete unit;
    it cannot remain in an intermediate state.

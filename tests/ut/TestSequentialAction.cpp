@@ -58,24 +58,44 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
       }
 
-      TEST("after stop, handleEvent should return UNKNOWN_EVENT") {
+      TEST("after stop, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
          ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
+         ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
+      }
+
+      TEST("after success, handleEvent should return UNKNOWN_EVENT") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
          ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event2));
       }
 
-      TEST("after kill, handleEvent should return UNKNOWN_EVENT") {
+      TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
          action.kill(context, Result::FORCE_STOPPED);
-         ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
-      TEST("after kill, handleEvent should return UNKNOWN_EVENT") {
+      TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          action.kill(context, Result::FORCE_STOPPED);
-         ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event1));
+      }
+
+      TEST("after stop, call exec will return FATAL_BUG") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
+         ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
+      }
+
+      TEST("after kill, call exec will return FATAL_BUG") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         action.kill(context, Result::FORCE_STOPPED);
+         ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
    };
 }

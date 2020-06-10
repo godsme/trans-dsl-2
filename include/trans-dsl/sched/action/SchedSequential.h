@@ -20,7 +20,6 @@ private:
 
 private:
    SchedAction* current = nullptr;
-   Status finalStatus = Result::SUCCESS;
    bool stopped = false;
 
 private:

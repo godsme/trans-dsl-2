@@ -13,6 +13,7 @@
      这个错误会一直返回到上一层runtime-env，由其根据自己当时的状态（结束与否），决定是直接返回，还是记录并上报。
 
 
-  免疫上下文:
-     指 ``Void`` 或者 ``Protected Procedure`` ，它们要么完全将错误控制在自己的runtime-env内（ ``Void`` ），
-     要么有修复机会（ ``Protected Procedure`` ），只有等最终无法修复时，才会将最后的错误返回。
+
+免疫上下文:
+  指 ``Void`` 或者 ``Protected Procedure`` ，它们要么完全将错误控制在自己的runtime-env内（ ``Void`` ），
+  要么有修复机会（ ``Protected Procedure`` ），只有等最终无法修复时，才会将最后的错误返回。

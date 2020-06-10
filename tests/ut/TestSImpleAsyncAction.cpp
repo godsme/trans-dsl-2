@@ -10,11 +10,9 @@
 #include "StupidTransactionContext.h"
 
 namespace {
-
    using namespace TSL_NS;
 
    const EventId EV_MSG_1 = 1;
-
    struct Msg1 {
       int a, b;
    };

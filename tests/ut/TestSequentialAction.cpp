@@ -3,10 +3,7 @@
 //
 
 #include <cctest/cctest.h>
-#include <trans-dsl/action/SimpleAsyncAction.h>
 #include <event/impl/ConsecutiveEventInfo.h>
-#include <event/impl/SimpleEventInfo.h>
-#include <event/concept/Event.h>
 #include <trans-dsl/sched/helper/AsyncActionHelper.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"

@@ -21,6 +21,7 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
+   if(stopped) return Result::FATAL_BUG;
    return forward(context);
 }
 
@@ -60,6 +61,8 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
    if(!status.isWorking()) {
       return status;
    }
+
+   current = nullptr;
 
    return finalStatus;
 }

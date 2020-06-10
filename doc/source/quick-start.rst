@@ -114,3 +114,164 @@
 而对于 **异步操作** ，存在一些常用的模式。大多数情况下，你可以根据模式从已存在的基类中继承。
 比如：如果一个异步操作属于简单的 *请求-应答* 模式，你只需要从 ``SimpleAsyncAction`` 继承即可。
 
+.. code-block:: c++
+
+   DEF_SIMPLE_ASYNC_ACTION(Action3) {
+     Status exec(const TransactionInfo&) {
+       // 构建并发送请求消息
+       Reqeust3 request;
+       request.build();
+       Status status = sendRequestTo(OTHER_SYSTEM3_PID, request);
+       if(status != SUCCESS) return status;
+
+       // 声明自己要等待的应答消息类型，以及对应的处理函数；WAIT_ON会返回CONTINUE
+       return WAIT_ON(EV_ACTION3_RSP, handleAction3Rsp);
+     }
+   private:
+     // 定义事件处理函数
+     Status handleAction3Rsp(const TransactionInfo&, const Event& event) {
+       // 处理应答消息 handleRsp(event);
+       // 返回成功，代表此 Action 成功处理结束
+      return SUCCESS;
+     }
+  };
+
+而 ``Action1`` 则属于一个事件触发的操作，所以它不发送消息，只等待那么触发 消息。但它仍然可以继承自 ``SimpleAsyncAction`` 。
+
+.. code-block:: c++
+
+   DEF_SIMPLE_ASYNC_ACTION(Action1) {
+     Status exec(const TransactionInfo&) {
+       // 声明自己要等待的消息类型，以及对应的处理函数
+       return WAIT_ON(EV_ACTION1_REQ, handleAction1Req);
+     }
+   private:
+     // 定义事件处理函数
+     Status handleAction1Req(const TransactionInfo&, const Event& event) {
+       // 处理触发消息 handleReq(event);
+       // 返回成功，代表此 Action 成功处理结束
+       return SUCCESS;
+     }
+  };
+
+对于异步操作的所有函数，其返回值有三种: ``SUCCESS`` 表示此操作成功结束; ``CONTINUE`` 表示此操作尚未结束，需要进一步的处理；
+**错误值** 则表示此操作已经失败。
+
+而函数 ``handleEvent`` 则存在一种额外的返回值： ``UNKNOWN_EVENT`` ，说明当前消息不是自己期待的消息。
+
+约束
+-----
+
+用户自定义的基本操作，如果通过类来定义， `Transaction DSL` 要求它们必须是自满足的。
+即，它们不需要外部通过 **构造函数** 或 ``set`` 函数设置任何外部依赖。所有的依赖，都需要靠类自身到环境中亲自寻找，或亲自创建。
+所以，这些类必须存在 **默认构造函数** 。至于其它带参数的 **构造函数** 或 ``set`` 接口，虽然其存在并不会妨害 `Transaction DSL`
+的编译和运行，但它们永远也不会得到调用。
+
+这样的约束，并不会对设计造成任何妨害。因为这些类本来就靠近系统的边界。而边界的代码本身就应该承担寻找或创建目标对象的职责。
+
+运行
+------
+
+现在我们有了 Transaction，有了基本操作，一个事务就完整了。由于 Transaction 是一个事件驱动的组件。它的基本接口定义如下:
+
+.. code-block:: c++
+
+   Status start();
+   Status start(const Event& event);
+
+   Status handleEvent(const Event& event);
+
+
+所以，你可以选择任何一个 ``start`` 接口来启动一个事务。像一个异步操作一样， 如果其返回值是 ``SUCCESS`` ，
+说明此事务已经成功的执行;如果其返回值是一个 **错误值** ，则说明此事务已经失败；
+而如果其返回了 ``CONTINUE`` ，则说明此事务正在工作状态中，尚未结束，仍然需要进一步的消息激励。
+
+在 ``start`` 接口返回 ``CONTINUE`` 的情况下，随后每次系统收到一个消息，都需要
+调用其 ``handleEvent`` 接口，直到其返回 ``SUCCESS`` 或一个 **错误值** 为止。
+
+一个可能的实现如下所示:
+
+.. code-block:: c++
+
+   Status runTransaction() {
+     // 将之前定义的 Transaction 实例化 Transaction trans;
+     // 启动
+     Status status = trans.start();
+     if(status != CONTINUE) return status;
+
+     // 消息处理循环
+     while(recvEvent(event) == SUCCESS) {
+       status = trans.handleEvent(event);
+       if(status != CONTINUE and status != UNKNOWN_EVENT) {
+          return status;
+       }
+     }
+     return FAILED;
+   }
+
+这个实现是一种简单的处理，主要为了说明一个事务的运行方式。事实上，事务往往不是一个系统的顶层框架，
+一个事务仅仅是对一个处理过程的描述。在复杂系统中，事务与事务之间可以并发，可以抢占。
+但那是事务框架之外的事情。在这里我们就不在详细讨论。
+
+并发
+------
+
+一旦系统因为性能要求，需要同时给不同其它系统/子系统发出请求消息，并同时等待它们的应答，如图所示。
+在这个例子中，``Action3`` 和 ``Action4`` 同时给各自的目标系统发出请求消息，并各自等待应答。
+这种情况下，简单的策略已经无法处理，实现者仍然不得不回到状态机模型中。
+
+使用 `Transaction DSL` ，一个并发过程的定义非常简单，如下所示：
+
+.. code-block:: c++
+
+   __def_transaction
+   ( __sequential
+      ( __req(Action1)
+      , __call(Action2)
+      , __concurrent(__asyn(Action3), __asyn(Action4))
+      , __rsp(Action5))
+   ) Transaction;
+
+
+我们只需要将 ``Action3`` 和 ``Action4`` 放入一个叫做 ``__concurrent`` 的盒子里即可。
+它会保证两者可以得到并发的执行，并发的等待应答，并确保，只有在 ``Action3`` 和 ``Action4`` 都执行结束后，才会执行 ``Action5``。
+
+哦...事实上，最后这条不是它单独保证的，因为 ``__concurrent`` 这个盒子放在了更大的盒子 ``__sequential`` 里面，
+在 ``__sequential`` 看来，它里面有四个操作：分别是 ``Action1`` , ``Action2`` , ``__concurrent`` 和 ``Action4`` ，
+它会来保证这四个操作严格的按照顺序来执行。
+
+时间约束
+------------
+
+既然是异步系统，那么发出去的消息就有可能由于各种原因而一去无回；或至少，很晚才回来。
+为了避免系统被这样的情况挂死，或者不满足实时性要求，设计者往往会对异步过程有着时间的约束；即在一定时间之内，如果一个操作无法完成，
+则当前操作就失败。
+
+下图所示的过程就属于这样的情况。其中，存在两个时间约束：首先，整个操作必须在 250ms 之内完成，而其中的并发异步过程则必须在 200ms
+之内完成。
+
+我们将这个带有时间约束的事务描述如下：
+
+.. code-block:: c++
+
+    const TimerId TIMER_1 = 1;
+    const TimerId TIMER_2 = 2;
+
+    __def_transaction
+    ( __timer_prot(TIMER_1, __sequential
+        ( __req(Action1)
+        , __call(Action2)
+        , __timer_prot(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
+        , __rsp(Action5)))
+    ) Transaction;
+
+
+母语言
+--------
+
+在这段代码里，我们首先定义了两个 ``TimerId`` : ``TIMER_1`` 和 ``TIMER_2`` 。其定义的方式是 `C++` 的常量。
+为什么这里可以使用 `C++` 的语法?
+
+是的，`Transaction DSL` 本身是就是 `C++` 的代码，它可以被任何成熟的 `C++` 编译器编译。
+它是 `C++` 代码这个事实，让它可以在需要时，使用任何 `C++` 的元素。
+

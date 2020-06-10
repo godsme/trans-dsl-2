@@ -65,39 +65,44 @@
 为了让上述代码可以工作，你需要实现其中的基本操作。事实上，无论一个事务有多么复杂，最终总是由基本操作组成，
 你需要做的事情就是定义这些基本操作，然后使用 `Transaction DSL` 来描述它们运行的方式和顺序。
 
-我们之前已经提到，基本操作分为两种： **同步操作** 和 **异步操作** 。定义它们时需要直接或间接从下面两个接口继承。
+我们之前已经提到，基本操作分为两种： **同步操作** 和 **异步操作** 。定义它们时需要实现带有如下方法的类。
 
 .. code-block:: c++
 
-  struct SyncAction {
-    virtual Status exec(const TransactionInfo&) = 0;
-    virtual ~SyncAction() = default;
-  };
+    Status exec(const TransactionInfo&);
 
 .. code-block:: c++
 
-  struct Action : SyncAction {
-    virtual Status handleEvent(const TransactionInfo&, const Event&) = 0;
-    virtual void stop(const TransactionInfo&) = 0;
-    virtual ~Action() = default;
-  };
+    Status exec(const TransactionInfo&);
+    Status handleEvent(const TransactionInfo&, const Event&);
+    void stop(const TransactionInfo&);
 
-对于同步操作，你需要做的就是实现 ``SyncAction`` 接口，它只有一个方法: ``exec``。
+对于 **同步操作** ，你需要做的就是定一个原型为 ``Status (const TransactionInfo&)`` 的函数。
+
+如果你通过类来定一个同步操作，你需要做的就是在你的类中定义一个名为 ``exec`` 的方法。
+
 对于函数调用型的同步操作，其实现非常简单，其返回值为 ``SUCCESS`` 代表此操作成功，如果返回错误值则表示此操作失败。
 
 .. code-block:: c++
 
-  struct Action2 : SyncAction {
-    Status exec(const TransactionInfo&) {
-      return OtherSystem::func();
-    }
-  };
+   Status Action1(const TransactionInfo&) {
+     return OtherSystem::func();
+   }
 
-对于 ``Action5`` ，尽管它发送了消息，却无需等待任何消息，所以它也是一个 **同步操作** 。
+甚至可以是一个 `lambda` ：
 
 .. code-block:: c++
 
-  struct Action5 : SyncAction {
+   auto Action1 = [](const TransactionInfo&) -> Status {
+     return OtherSystem::func();
+   }
+
+对于 ``Action5`` ，尽管它发送了消息，却无需等待任何消息，所以它也是一个 **同步操作** 。
+虽然也可以直接用函数直接定义，但基于举例的目的，这次我们用类来定义它：
+
+.. code-block:: c++
+
+  struct Action5 {
     Status exec(const TransactionInfo&) {
       // 构建并发送消息
       Response1 response;
@@ -106,6 +111,6 @@
     }
   };
 
-而对于异步操作，存在一些常用的模式。大多数情况下，你不需要直接实现 ``Action`` 接口，
-而是根据模式从已存在的基类中继承。比如：如果一个异步操作属于简单的 *请求-应答* 模式，你只需要从 ``SimpleAsyncAction`` 继承即可。
+而对于 **异步操作** ，存在一些常用的模式。大多数情况下，你可以根据模式从已存在的基类中继承。
+比如：如果一个异步操作属于简单的 *请求-应答* 模式，你只需要从 ``SimpleAsyncAction`` 继承即可。
 

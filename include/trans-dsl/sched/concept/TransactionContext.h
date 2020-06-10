@@ -6,6 +6,7 @@
 #define TRANS_DSL_2_TRANSACTIONCONTEXT_H
 
 #include <trans-dsl/tsl_ns.h>
+#include <cub/dci/Role.h>
 
 TSL_NS_BEGIN
 

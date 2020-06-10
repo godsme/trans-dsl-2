@@ -8,8 +8,8 @@
 #include <trans-dsl/tsl_status.h>
 #include <trans-dsl/sched/concept/EventId.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
-#include "EventHandlerRegistry.h"
-#include "P2MFExtractor.h"
+#include <trans-dsl/action/EventHandlerRegistry.h>
+#include <trans-dsl/action/P2MFExtractor.h>
 
 TSL_NS_BEGIN
 
@@ -57,7 +57,8 @@ struct action : TSL_NS::details::ReflexSimpleAsyncAction<action>
 
 #define WAIN_ON(eventId, handler) waitOn(this, eventId, &ThisType::handler)
 
-#define DECL_EVENT_HANDLER(handler, msgType) \
+#define DECL_EVENT_HANDLER(handler, msgType)                      \
+private:                                                          \
 auto handler__(const TransactionInfo&, const msgType&) -> Status; \
 auto handler(const TransactionInfo&, const Event&) -> Status
 
@@ -66,6 +67,13 @@ auto cls::handler(const TransactionInfo& trans, const Event& event) -> Status { 
    return handler__(trans, *static_cast<const msgType*>(event.getMsg()));       \
 }                                                                               \
 auto cls::handler__(const TransactionInfo& trans, const msgType& msg) -> Status
+
+#define DEF_INLINE_EVENT_HANDLER(handler, msgType)                         \
+private:                                                                   \
+auto handler(const TransactionInfo& trans, const Event& event) -> Status { \
+   return handler__(trans, *static_cast<const msgType*>(event.getMsg()));  \
+}                                                                          \
+auto handler__(const TransactionInfo& trans, const msgType& msg) -> Status
 
 TSL_NS_END
 

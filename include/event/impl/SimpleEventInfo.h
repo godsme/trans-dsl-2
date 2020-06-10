@@ -11,7 +11,8 @@ EV_NS_BEGIN
 
 struct SimpleEventInfo : EventInfo
 {
-   explicit SimpleEventInfo(const EventId eventId);
+   explicit SimpleEventInfo(const EventId eventId)
+      : EventInfo(eventId) {}
 
    OVERRIDE(getMsg() const -> const void*) { return nullptr; }
    OVERRIDE(getMsgSize() const -> size_t) { return 0; }

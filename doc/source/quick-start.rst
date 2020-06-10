@@ -85,7 +85,7 @@
 
 .. code-block:: c++
 
-   Status Action1(const TransactionInfo&) {
+   Status Action2(const TransactionInfo&) {
      return OtherSystem::func();
    }
 
@@ -93,7 +93,7 @@
 
 .. code-block:: c++
 
-   auto Action1 = [](const TransactionInfo&) -> Status {
+   auto Action2 = [](const TransactionInfo&) -> Status {
      return OtherSystem::func();
    }
 
@@ -136,7 +136,7 @@
      }
   };
 
-而 ``Action1`` 则属于一个事件触发的操作，所以它不发送消息，只等待那么触发 消息。但它仍然可以继承自 ``SimpleAsyncAction`` 。
+而 ``Action1`` 则属于一个事件触发的操作，所以它不发送消息，只等待那么触发消息。但它仍然可以继承自 ``SimpleAsyncAction`` 。
 
 .. code-block:: c++
 
@@ -169,10 +169,11 @@
 
 这样的约束，并不会对设计造成任何妨害。因为这些类本来就靠近系统的边界。而边界的代码本身就应该承担寻找或创建目标对象的职责。
 
+
 运行
 ------
 
-现在我们有了 Transaction，有了基本操作，一个事务就完整了。由于 Transaction 是一个事件驱动的组件。它的基本接口定义如下:
+现在我们有了 `Transaction`，有了基本操作，一个事务就完整了。由于 `Transaction` 是一个事件驱动的组件。它的基本接口定义如下:
 
 .. code-block:: c++
 
@@ -213,6 +214,7 @@
 一个事务仅仅是对一个处理过程的描述。在复杂系统中，事务与事务之间可以并发，可以抢占。
 但那是事务框架之外的事情。在这里我们就不在详细讨论。
 
+
 并发
 ------
 
@@ -240,6 +242,7 @@
 在 ``__sequential`` 看来，它里面有四个操作：分别是 ``Action1`` , ``Action2`` , ``__concurrent`` 和 ``Action4`` ，
 它会来保证这四个操作严格的按照顺序来执行。
 
+
 时间约束
 ------------
 
@@ -258,16 +261,16 @@
     const TimerId TIMER_2 = 2;
 
     __def_transaction
-    ( __timer_prot(TIMER_1, __sequential
+    ( __timer_guard(TIMER_1, __sequential
         ( __req(Action1)
         , __call(Action2)
-        , __timer_prot(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
+        , __timer_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
         , __rsp(Action5)))
     ) Transaction;
 
 
 母语言
---------
+```````
 
 在这段代码里，我们首先定义了两个 ``TimerId`` : ``TIMER_1`` 和 ``TIMER_2`` 。其定义的方式是 `C++` 的常量。
 为什么这里可以使用 `C++` 的语法?

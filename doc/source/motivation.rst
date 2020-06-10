@@ -180,7 +180,7 @@
 
 .. image:: images/ch-1/recruting-seq.png
    :align: center
-   :scale: 80 %
+   :scale: 50 %
 
 如果控制过程比较简单，而此应答消息正是其期待的唯一消息的话，这无疑是一种非常聪明而简单的处理。
 

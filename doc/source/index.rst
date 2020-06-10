@@ -10,6 +10,7 @@ Transaction DSL简介
 
    motivation
    quick-start
+   error-handling
 
 索引
 =====

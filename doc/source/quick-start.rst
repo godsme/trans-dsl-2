@@ -119,7 +119,7 @@
    DEF_SIMPLE_ASYNC_ACTION(Action3) {
      Status exec(const TransactionInfo&) {
        // 构建并发送请求消息
-       Reqeust3 request;
+       Request3 request;
        request.build();
        Status status = sendRequestTo(OTHER_SYSTEM3_PID, request);
        if(status != SUCCESS) return status;
@@ -127,12 +127,14 @@
        // 声明自己要等待的应答消息类型，以及对应的处理函数；WAIT_ON会返回CONTINUE
        return WAIT_ON(EV_ACTION3_RSP, handleAction3Rsp);
      }
+
    private:
      // 定义事件处理函数
      Status handleAction3Rsp(const TransactionInfo&, const Event& event) {
-       // 处理应答消息 handleRsp(event);
+       // 处理应答消息
+       handleRsp(event);
        // 返回成功，代表此 Action 成功处理结束
-      return SUCCESS;
+       return SUCCESS;
      }
   };
 
@@ -145,10 +147,12 @@
        // 声明自己要等待的消息类型，以及对应的处理函数
        return WAIT_ON(EV_ACTION1_REQ, handleAction1Req);
      }
+
    private:
      // 定义事件处理函数
      Status handleAction1Req(const TransactionInfo&, const Event& event) {
-       // 处理触发消息 handleReq(event);
+       // 处理触发消息
+       handleReq(event);
        // 返回成功，代表此 Action 成功处理结束
        return SUCCESS;
      }
@@ -203,10 +207,11 @@
      // 消息处理循环
      while(recvEvent(event) == SUCCESS) {
        status = trans.handleEvent(event);
-       if(status != CONTINUE and status != UNKNOWN_EVENT) {
+       if(status != CONTINUE && status != UNKNOWN_EVENT) {
           return status;
        }
      }
+
      return FAILED;
    }
 

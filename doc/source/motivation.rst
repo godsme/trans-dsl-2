@@ -63,7 +63,7 @@
 .. code-block:: c++
 
   Status handleExamResult(const Event& event) {
-    ExamResult* result = (ExamResult*)event.getContent();
+    auto result = (ExamResult*)event.getContent();
     if(result->pass) {
       // 处理消息 
       arrangeInterview();
@@ -125,7 +125,7 @@
 .. code-block:: c++
 
   Status handleInterviewResult(const Event& event) {
-    InterviewResult* result = (InterviewResult*)event.getContent();
+    auto result = (InterviewResult*)event.getContent();
 
     // ...
     if(result->pass) {
@@ -140,7 +140,7 @@
   }
 
   Status handleBackgroundResult(const Event& event) {
-    BackgroundResult* result = (BackgroundResult*)event.getContent();
+    auto* result = (BackgroundResult*)event.getContent();
 
     // ...
     if(result->pass) {

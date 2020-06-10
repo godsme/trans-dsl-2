@@ -70,10 +70,10 @@ auto cls::handler__(const TransactionInfo& trans, const msgType& msg) -> Status
 
 #define DEF_INLINE_EVENT_HANDLER(handler, msgType)                         \
 private:                                                                   \
-auto handler(const TransactionInfo& trans, const Event& event) -> Status { \
+auto handler(const TSL_NS::TransactionInfo& trans, const TSL_NS::Event& event) -> TSL_NS::Status { \
    return handler__(trans, *static_cast<const msgType*>(event.getMsg()));  \
 }                                                                          \
-auto handler__(const TransactionInfo& trans, const msgType& msg) -> Status
+auto handler__(const TSL_NS::TransactionInfo& trans, const msgType& msg) -> TSL_NS::Status
 
 TSL_NS_END
 

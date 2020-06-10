@@ -32,7 +32,7 @@ struct CALL__ : SyncAction  {
 };
 
 #define __sync(action) TSL_NS::SYNC__<action>
-#define __call(func) TSL_NS::CALL__<func>
+#define __call(...) TSL_NS::CALL__<__VA_ARGS__>
 
 TSL_NS_END
 

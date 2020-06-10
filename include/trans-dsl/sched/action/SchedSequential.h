@@ -12,8 +12,8 @@ TSL_NS_BEGIN
 struct SchedSequential : SchedAction {
    OVERRIDE(exec(TransactionContext&)                -> Status);
    OVERRIDE(handleEvent(TransactionContext&, Event&) -> Status);
-   OVERRIDE(stop(TransactionContext&, Status)        -> Status);
-   OVERRIDE(kill(TransactionContext&, Status)        -> void);
+   OVERRIDE(stop(TransactionContext&)                -> Status);
+   OVERRIDE(kill(TransactionContext&)                -> void);
 
 private:
    auto forward(TransactionContext&) -> Status;

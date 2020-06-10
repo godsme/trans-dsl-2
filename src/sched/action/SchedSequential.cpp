@@ -45,7 +45,7 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event& event) -> 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
+auto SchedSequential::stop(TransactionContext& context) -> Status {
    if(current == nullptr) {
       return Result::FATAL_BUG;
    }
@@ -56,7 +56,7 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
 
    stopped = true;
 
-   ActionStatus status = current->stop(context, cause);
+   ActionStatus status = current->stop(context);
    if(status.isWorking()) {
       return status;
    }
@@ -67,9 +67,9 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::kill(TransactionContext& context, Status cause) -> void {
+auto SchedSequential::kill(TransactionContext& context) -> void {
    if(current != nullptr) {
-      current->kill(context, cause);
+      current->kill(context);
       current = nullptr;
       stopped = true;
    }

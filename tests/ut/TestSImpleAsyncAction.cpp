@@ -54,7 +54,7 @@ namespace {
 
       TEST("when an action is waiting for an event, if it's killed, handleEvent will return UNKNOWN_EVENT") {
          ASSERT_EQ(Result::CONTINUE, action1.exec(context));
-         action1.kill(context, Result::FAILED);
+         action1.kill(context);
          ASSERT_EQ(Result::UNKNOWN_EVENT, action1.handleEvent(context, event1));
       }
    };

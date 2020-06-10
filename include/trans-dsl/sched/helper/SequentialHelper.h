@@ -8,7 +8,6 @@
 #include <trans-dsl/tsl_ns.h>
 #include <cstddef>
 #include <algorithm>
-#include <trans-dsl/sched/helper/SchedActionWrapper.h>
 #include <trans-dsl/sched/action/SchedSequential.h>
 
 TSL_NS_BEGIN

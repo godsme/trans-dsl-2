@@ -17,7 +17,7 @@ struct TransactionContext;
 DEFINE_ROLE(FinalAction) {
    ABSTRACT(exec(TransactionContext&)                -> Status);
    ABSTRACT(handleEvent(TransactionContext&, Event&) -> Status);
-   ABSTRACT(kill(TransactionContext&, Status)        -> void);
+   ABSTRACT(kill(TransactionContext&)                -> void);
 };
 
 TSL_NS_END

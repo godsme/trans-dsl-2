@@ -21,7 +21,7 @@ struct GenericSimpleAsyncAction {
       return registry.handleEvent(reinterpret_cast<details::DummyAsyncAction*>(this), trans, event);
    }
 
-   auto kill(const TransactionInfo& trans, Status cause) {
+   auto kill(const TransactionInfo& trans) {
       registry.reset();
    }
 

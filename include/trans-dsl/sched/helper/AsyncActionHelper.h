@@ -18,12 +18,12 @@ struct ASYNC__ : SchedAction {
    OVERRIDE(handleEvent(TransactionContext& context, Event& event) -> Status) {
       return action.handleEvent(context.ROLE(TransactionInfo), event);
    }
-   OVERRIDE(stop(TransactionContext& context, Status cause)  -> Status) {
-      action.kill(context.ROLE(TransactionInfo), cause);
+   OVERRIDE(stop(TransactionContext& context)  -> Status) {
+      action.kill(context.ROLE(TransactionInfo));
       return Result::SUCCESS;
    }
-   OVERRIDE(kill(TransactionContext& context, Status cause)        -> void) {
-      action.kill(context.ROLE(TransactionInfo), cause);
+   OVERRIDE(kill(TransactionContext& context)        -> void) {
+      action.kill(context.ROLE(TransactionInfo));
    }
 private:
    T_ACTION action;

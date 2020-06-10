@@ -10,7 +10,7 @@
 TSL_NS_BEGIN
 
 struct SchedAction : FinalAction {
-   ABSTRACT(stop(TransactionContext&, Status) -> Status);
+   ABSTRACT(stop(TransactionContext&) -> Status);
 };
 
 TSL_NS_END

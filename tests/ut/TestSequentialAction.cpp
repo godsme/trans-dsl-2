@@ -55,13 +55,13 @@ namespace {
       TEST("handleEvent(event1) -> stop should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
+         ASSERT_EQ(Result::SUCCESS, action.stop(context));
       }
 
       TEST("after stop, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
+         ASSERT_EQ(Result::SUCCESS, action.stop(context));
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
@@ -75,26 +75,26 @@ namespace {
       TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         action.kill(context, Result::FORCE_STOPPED);
+         action.kill(context);
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
       TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context, Result::FORCE_STOPPED);
+         action.kill(context);
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event1));
       }
 
       TEST("after stop, call exec will return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context, Result::FORCE_STOPPED));
+         ASSERT_EQ(Result::SUCCESS, action.stop(context));
          ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
 
       TEST("after kill, call exec will return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context, Result::FORCE_STOPPED);
+         action.kill(context);
          ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
    };

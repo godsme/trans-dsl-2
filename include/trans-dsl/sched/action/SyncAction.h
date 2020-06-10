@@ -15,9 +15,9 @@ struct SyncAction : SchedAction  {
    OVERRIDE(handleEvent(TransactionContext&, Event&) -> Status) {
       return Result::FATAL_BUG;
    }
-   OVERRIDE(kill(TransactionContext&, Status)        -> void) {}
-   OVERRIDE(stop(TransactionContext&, Status) -> Status) {
-      return Result::SUCCESS;
+   OVERRIDE(kill(TransactionContext&)        -> void) {}
+   OVERRIDE(stop(TransactionContext&) -> Status) {
+      return Result::FATAL_BUG;
    }
 
 protected:

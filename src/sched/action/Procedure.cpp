@@ -22,6 +22,17 @@ DEFINE_ROLE(Procedure::State) {
    DEFAULT(handleEvent(Procedure&, TransactionContext&, const Event&) -> Status) {
       return Result::FATAL_BUG;
    }
+
+   DEFAULT(stop(Procedure&, TransactionContext&) -> Status) {
+      return Result::FATAL_BUG;
+   }
+
+   DEFAULT(kill(Procedure& this__, TransactionContext& context) -> void) {
+      if(this__.action != nullptr) {
+         this__.action->kill(context);
+         (void) this__.gotoState<Done>(context, Result::SUCCESS);
+      }
+   }
 };
 
 #define DEF_STATE(state) DEF_SINGLETON(Procedure::state, Procedure::State)
@@ -46,7 +57,7 @@ DEF_STATE(Idle)  {
       if(status == Result::CONTINUE) {
          return this__.gotoState<Working>(context, status);
       } else {
-         return this__.gotoState<Stopping>(context, status);
+         return this__.gotoState<Final>(context, status);
       }
    }
 };
@@ -57,12 +68,36 @@ DEF_STATE(Working) {
       if(status.isWorking()) {
          return status;
       } else {
+         return this__.gotoState<Final>(context, status);
+      }
+   }
+
+   DEFAULT(stop(Procedure& this__, TransactionContext& context) -> Status) {
+      ActionStatus status = this__.action->stop(context);
+      if(status.isWorking()) {
          return this__.gotoState<Stopping>(context, status);
+      } else {
+         return this__.gotoState<Final>(context, status);
       }
    }
 };
 
 DEF_STATE(Stopping) {
+   OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
+      ActionStatus status = this__.action->handleEvent(context, event);
+      if(status.isWorking()) {
+         return status;
+      } else {
+         return this__.gotoState<Final>(context, status);
+      }
+   }
+
+   OVERRIDE(stop(Procedure& this__, TransactionContext& context) -> Status) {
+      return Result::CONTINUE;
+   }
+};
+
+DEF_STATE(Final) {
    OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
       if(this__.action = this__.getFinalAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
@@ -73,7 +108,7 @@ DEF_STATE(Stopping) {
          return status;
       }
 
-      return this__.gotoState<Final>(context, status);
+      return this__.gotoState<Done>(context, status);
    }
 
    OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
@@ -82,15 +117,21 @@ DEF_STATE(Stopping) {
          return status;
       }
 
-      return this__.gotoState<Final>(context, status);
+      return this__.gotoState<Done>(context, status);
+   }
+
+   OVERRIDE(stop(Procedure& this__, TransactionContext& context) -> Status) {
+      return Result::CONTINUE;
    }
 };
 
-DEF_STATE(Final) {
+DEF_STATE(Done) {
    OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
       this__.action = nullptr;
       return result;
    }
+
+   OVERRIDE(kill(Procedure& this__, TransactionContext& context) -> void) {}
 };
 
 auto Procedure::exec(TransactionContext& context)                -> Status {
@@ -108,12 +149,12 @@ auto Procedure::handleEvent(TransactionContext& context, const Event& event) -> 
    return state->handleEvent(*this, context, event);
 }
 
-auto Procedure::stop(TransactionContext&)                -> Status {
-   return Result::FAILED;
+auto Procedure::stop(TransactionContext& context) -> Status {
+   return state->stop(*this, context);
 }
 
-auto Procedure::kill(TransactionContext&)                -> void {
-
+auto Procedure::kill(TransactionContext& context)  -> void {
+   state->kill(*this, context);
 }
 
 

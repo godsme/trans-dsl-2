@@ -31,6 +31,7 @@ private:
    struct Working;
    struct Stopping;
    struct Final;
+   struct Done;
 
 private:
    template<typename T>

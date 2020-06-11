@@ -14,8 +14,9 @@ TSL_NS_BEGIN
 namespace details {
    using PredFunction = bool (*)(const TransactionInfo&);
 
+   ////////////////////////////////////////////////////////////////
    template<typename T_ACTION>
-   struct OPTIONAL_BASE__ : SchedOptional {
+   struct OptionalBase : SchedOptional {
       OVERRIDE(getAction() -> SchedAction*) {
          return new (cache) T_ACTION;
       }
@@ -24,16 +25,18 @@ namespace details {
       alignas(alignof(T_ACTION)) unsigned char cache[sizeof(T_ACTION)];
    };
 
+   ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, typename T_ACTION>
-   struct OPTIONAL_F__ : OPTIONAL_BASE__<T_ACTION> {
+   struct OptionalFunction : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return V_PRED(context.ROLE(TransactionInfo));
       }
    };
 
+   ////////////////////////////////////////////////////////////////
    template<typename T_PRED, typename T_ACTION>
-   struct OPTIONAL_C__ : OPTIONAL_BASE__<T_ACTION> {
+   struct OptionalClass : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return pred(context.ROLE(TransactionInfo));
@@ -43,18 +46,19 @@ namespace details {
       T_PRED pred;
    };
 
+   ////////////////////////////////////////////////////////////////
    template<typename T, typename T_ACTION>
-   auto DEDUCT_OPTIONAL_TYPE__() {
-      return OPTIONAL_C__<T, T_ACTION>{};
+   auto deductOptionalClass() {
+      return OptionalClass<T, T_ACTION>{};
    }
 
    template<PredFunction V_FUNC, typename T_ACTION>
-   auto DEDUCT_OPTIONAL_TYPE__() {
-      return OPTIONAL_F__<V_FUNC, T_ACTION>{};
+   auto deductOptionalClass() {
+      return OptionalFunction<V_FUNC, T_ACTION>{};
    }
 }
 
-#define __optional(...)   decltype(details::DEDUCT_OPTIONAL_TYPE__<__VA_ARGS__>())
+#define __optional(...)   decltype(details::deductOptionalClass<__VA_ARGS__>())
 
 TSL_NS_END
 

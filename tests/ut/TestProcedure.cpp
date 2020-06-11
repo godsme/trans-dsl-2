@@ -15,8 +15,6 @@
 namespace {
    using namespace TSL_NS;
 
-
-
    FIXTURE(TestProcedure) {
       __procedure(__sequential
         ( __call(SyncAction1)

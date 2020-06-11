@@ -11,23 +11,32 @@
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
+#include <iostream>
 
 namespace {
    using namespace TSL_NS;
 
+
    FIXTURE(TestProcedure) {
-      __procedure(__sequential
-        ( __call(SyncAction1)
-        , __async(AsyncAction1)
-        , __async(FailedAsyncAction3)
-        , __async(AsyncAction2)
-        , __call(SyncAction2)),
-      __finally(__sequential
-        ( __call(SyncAction1)
-        , __async(AsyncAction1)
-        , __call(FailedSyncAction4)
-        , __async(AsyncAction2)
-        , __call(SyncAction2)))
+      using MainActions =
+         __sequential
+           ( __call(SyncAction1)
+           , __async(AsyncAction1)
+           , __async(FailedAsyncAction3)
+           , __async(AsyncAction2)
+           , __call(SyncAction2));
+
+      using FinalActions =
+         __sequential
+           ( __call(SyncAction1)
+           , __async(AsyncAction1)
+           , __call(FailedSyncAction4)
+           , __async(AsyncAction2)
+           , __call(SyncAction2));
+
+      __procedure(
+         MainActions,
+         __finally(FinalActions)
       ) procedure;
 
       StupidTransactionContext context{};
@@ -41,6 +50,7 @@ namespace {
       TSL_NS::Event event3{eventInfo3};
 
       TEST("exec should return CONTINUE") {
+         std::cout << sizeof(procedure) <<  " " << sizeof(FinalActions)  << std::endl;
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
       }
 

@@ -11,27 +11,30 @@
 
 TSL_NS_BEGIN
 
-template<typename T_ACTION, typename T_FINAL>
-struct PROCEDURE__ : SchedProcedure {
-private:
-   OVERRIDE(getAction() -> SchedAction*) {
-      return new(cache) T_ACTION;
-   }
+namespace details {
 
-   OVERRIDE(getFinalAction() -> SchedAction*) {
-      return new(cache) T_FINAL;
-   }
+   template<typename T_ACTION, typename T_FINAL>
+   struct PROCEDURE__ : SchedProcedure {
+   private:
+      OVERRIDE(getAction()->SchedAction *) {
+         return new(cache) T_ACTION;
+      }
 
-private:
-   enum : size_t {
-      alignment = std::max(alignof(T_ACTION), alignof(T_FINAL)),
-      size = std::max(sizeof(T_ACTION), sizeof(T_FINAL))
+      OVERRIDE(getFinalAction()->SchedAction *) {
+         return new(cache) T_FINAL;
+      }
+
+   private:
+      enum : size_t {
+         alignment = std::max(alignof(T_ACTION), alignof(T_FINAL)),
+         size = std::max(sizeof(T_ACTION), sizeof(T_FINAL))
+      };
+
+      alignas(alignment) unsigned char cache[size];
    };
+}
 
-   alignas(alignment) unsigned char cache[size];
-};
-
-#define __procedure(...) TSL_NS::PROCEDURE__<__VA_ARGS__>
+#define __procedure(...) TSL_NS::details::PROCEDURE__<__VA_ARGS__>
 #define __finally(...) __VA_ARGS__
 
 TSL_NS_END

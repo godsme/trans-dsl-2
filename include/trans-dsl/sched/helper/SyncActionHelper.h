@@ -33,14 +33,10 @@ namespace details {
    };
 
    template<typename T>
-   auto DEDUCT_SYNC_TYPE__() {
-      return SYNC__<T>{};
-   }
+   auto DEDUCT_SYNC_TYPE__() { return SYNC__<T>{}; }
 
    template<SyncActionFunc V_FUNC>
-   auto DEDUCT_SYNC_TYPE__() {
-      return CALL__<V_FUNC>{};
-   }
+   auto DEDUCT_SYNC_TYPE__() { return CALL__<V_FUNC>{}; }
 }
 
 #define __sync(action) decltype(TSL_NS::details::DEDUCT_SYNC_TYPE__<action>())

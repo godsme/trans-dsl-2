@@ -47,15 +47,11 @@ namespace details {
    };
 
    ////////////////////////////////////////////////////////////////
-   template<typename T, typename T_ACTION>
-   auto deductOptionalClass() {
-      return OptionalClass<T, T_ACTION>{};
-   }
+   template<typename T, typename T_ACTION, std::enable_if_t<std::is_class_v<T>, int> = 0>
+   auto deductOptionalClass() -> OptionalClass<T, T_ACTION>;
 
    template<PredFunction V_FUNC, typename T_ACTION>
-   auto deductOptionalClass() {
-      return OptionalFunction<V_FUNC, T_ACTION>{};
-   }
+   auto deductOptionalClass() -> OptionalFunction<V_FUNC, T_ACTION>;
 }
 
 #define __optional(...)   decltype(details::deductOptionalClass<__VA_ARGS__>())

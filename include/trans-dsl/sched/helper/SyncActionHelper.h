@@ -14,7 +14,7 @@ struct TransactionInfo;
 
 namespace details {
    template<typename T_ACTION>
-   struct SYNC__ : SchedSyncAction {
+   struct SyncAction : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(action.exec(context.ROLE(TransactionInfo)));
       }
@@ -26,20 +26,21 @@ namespace details {
    using SyncActionFunc = Status (*)(const TransactionInfo &);
 
    template<SyncActionFunc V_ACTION>
-   struct CALL__ : SchedSyncAction {
+   struct CallAction : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(V_ACTION(context.ROLE(TransactionInfo)));
       }
    };
 
    template<typename T, std::enable_if_t<std::is_class_v<T>, int> = 0>
-   auto DEDUCT_SYNC_TYPE__() { return SYNC__<T>{}; }
+   auto deductSyncActionClass() -> SyncAction<T>;
 
    template<SyncActionFunc V_FUNC>
-   auto DEDUCT_SYNC_TYPE__() { return CALL__<V_FUNC>{}; }
+   auto deductSyncActionClass() -> CallAction<V_FUNC>;
+
 }
 
-#define __sync(action) decltype(TSL_NS::details::DEDUCT_SYNC_TYPE__<action>())
+#define __sync(M_action) decltype(TSL_NS::details::deductSyncActionClass<M_action>())
 #define __call(...) __sync(__VA_ARGS__)
 
 TSL_NS_END

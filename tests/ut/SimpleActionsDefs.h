@@ -27,6 +27,7 @@ namespace {
    };
 
    DEF_SIMPLE_ASYNC_ACTION(AsyncAction1) {
+      constexpr AsyncAction1() {}
       auto exec(const TSL_NS::TransactionInfo &) -> TSL_NS::Status {
          return WAIN_ON(EV_MSG_1, handleMsg1);
       }

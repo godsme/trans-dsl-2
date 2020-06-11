@@ -12,26 +12,29 @@ TSL_NS_BEGIN
 
 struct TransactionInfo;
 
-template<typename T_ACTION>
-struct SYNC__ : SchedSyncAction  {
-   OVERRIDE(exec(TransactionContext& context) -> Status) {
-      return check(action.exec(context.ROLE(TransactionInfo)));
-   }
-private:
-   T_ACTION action;
-};
+namespace details {
+   template<typename T_ACTION>
+   struct SYNC__ : SchedSyncAction {
+      OVERRIDE(exec(TransactionContext & context)->Status) {
+         return check(action.exec(context.ROLE(TransactionInfo)));
+      }
 
-using SyncActionFunc = Status (*)(const TransactionInfo&);
+   private:
+      T_ACTION action;
+   };
 
-template<SyncActionFunc V_ACTION>
-struct CALL__ : SchedSyncAction  {
-   OVERRIDE(exec(TransactionContext& context) -> Status) {
-      return check(V_ACTION(context.ROLE(TransactionInfo)));
-   }
-};
+   using SyncActionFunc = Status (*)(const TransactionInfo &);
 
-#define __sync(action) TSL_NS::SYNC__<action>
-#define __call(...) TSL_NS::CALL__<__VA_ARGS__>
+   template<SyncActionFunc V_ACTION>
+   struct CALL__ : SchedSyncAction {
+      OVERRIDE(exec(TransactionContext & context)->Status) {
+         return check(V_ACTION(context.ROLE(TransactionInfo)));
+      }
+   };
+}
+
+#define __sync(action) TSL_NS::details::SYNC__<action>
+#define __call(...) TSL_NS::details::CALL__<__VA_ARGS__>
 
 TSL_NS_END
 

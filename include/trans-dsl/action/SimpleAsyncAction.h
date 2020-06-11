@@ -17,6 +17,8 @@ struct TransactionInfo;
 
 template<typename T_REGISTRY>
 struct GenericSimpleAsyncAction {
+   constexpr GenericSimpleAsyncAction() {}
+
    auto handleEvent(const TransactionInfo& trans, const Event& event) -> Status {
       return registry.handleEvent(reinterpret_cast<details::DummyAsyncAction*>(this), trans, event);
    }
@@ -47,6 +49,7 @@ namespace details
    template<typename T_ACTION>
    struct ReflexSimpleAsyncAction: SimpleAsyncAction
    {
+      constexpr ReflexSimpleAsyncAction() {}
    protected:
       typedef T_ACTION ThisType;
    };

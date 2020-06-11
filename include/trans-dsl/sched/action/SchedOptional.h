@@ -25,7 +25,7 @@ private:
 
 private:
    ABSTRACT(getAction() -> SchedAction*);
-   ABSTRACT(isTrue(TransactionContext&) const -> bool);
+   ABSTRACT(isTrue(TransactionContext&) -> bool);
 };
 
 TSL_NS_END

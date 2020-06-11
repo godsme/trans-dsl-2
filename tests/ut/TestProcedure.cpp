@@ -10,9 +10,12 @@
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include <trans-dsl/sched/helper/OptionalHelper.h>
 
 namespace {
    using namespace TSL_NS;
+
+
 
    FIXTURE(TestProcedure) {
       __procedure(__sequential
@@ -228,6 +231,8 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
       }
+
+
    };
 
 //   FIXTURE(TestProcedure4) {

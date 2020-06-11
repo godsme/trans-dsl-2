@@ -44,17 +44,17 @@ namespace details {
    };
 
    template<typename T, typename T_ACTION>
-   auto getOptionalType() {
+   auto DEDUCT_OPTIONAL_TYPE__() {
       return OPTIONAL_C__<T, T_ACTION>{};
    }
 
    template<PredFunction V_FUNC, typename T_ACTION>
-   auto getOptionalType() {
+   auto DEDUCT_OPTIONAL_TYPE__() {
       return OPTIONAL_F__<V_FUNC, T_ACTION>{};
    }
 }
 
-#define __optional(...)   decltype(details::getOptionalType<__VA_ARGS__>())
+#define __optional(...)   decltype(details::DEDUCT_OPTIONAL_TYPE__<__VA_ARGS__>())
 
 TSL_NS_END
 

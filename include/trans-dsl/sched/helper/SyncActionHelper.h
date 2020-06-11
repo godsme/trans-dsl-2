@@ -31,10 +31,20 @@ namespace details {
          return check(V_ACTION(context.ROLE(TransactionInfo)));
       }
    };
+
+   template<typename T>
+   auto DEDUCT_SYNC_TYPE__() {
+      return SYNC__<T>{};
+   }
+
+   template<SyncActionFunc V_FUNC>
+   auto DEDUCT_SYNC_TYPE__() {
+      return CALL__<V_FUNC>{};
+   }
 }
 
-#define __sync(action) TSL_NS::details::SYNC__<action>
-#define __call(...) TSL_NS::details::CALL__<__VA_ARGS__>
+#define __sync(action) decltype(TSL_NS::details::DEDUCT_SYNC_TYPE__<action>())
+#define __call(...) __sync(__VA_ARGS__)
 
 TSL_NS_END
 

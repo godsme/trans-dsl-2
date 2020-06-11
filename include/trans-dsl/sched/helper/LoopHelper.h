@@ -84,7 +84,7 @@ namespace {
    template<typename T_BREAK, size_t V_SIZE = sizeof(T_BREAK)>
    struct GenericBreakAction : BreakAction<T_BREAK> {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
-         return BreakAction<T_BREAK>::getFinalResult(breakPred(context));
+         return BreakAction<T_BREAK>::getFinalResult(breakPred(context.ROLE(TransactionInfo)));
       }
 
    private:
@@ -135,7 +135,7 @@ namespace details {
    };
 
    template<typename T>
-   using IsBreak = typename std::enable_if_t<std::is_base_of_v<BreakActionSignature, T>>;
+   using IsBreak = typename std::enable_if_t<std::is_base_of_v<BreakActionSignature, T> && (sizeof(T) > 1)>;
 
    template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsBreak<T_HEAD>, T_HEAD, T_TAIL...> {
@@ -162,6 +162,36 @@ namespace details {
 
       private:
          GenericBreakAction<T_HEAD> breakAction;
+      };
+   };
+
+   template<typename T>
+   using IsEmptyBreak =
+      typename std::enable_if_t<std::is_base_of_v<BreakActionSignature, T> && \
+         sizeof(T) == 1>;
+
+   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsEmptyBreak<T_HEAD>, T_HEAD, T_TAIL...> {
+      using Action = GenericBreakAction<T_HEAD>;
+      using Next =
+      typename GenericLoop_<
+         std::max(V_SIZE, sizeof(Action)),
+         std::max(V_ALIGN, alignof(Action)),
+         V_SEQ + 1,
+         void,
+         T_TAIL...>::Inner;
+
+      struct Inner : Next {
+         using Next::cache;
+
+         auto get(LoopSeq seq, int& v) -> SchedAction* {
+            if(seq == V_SEQ) {
+               v = 2;
+               return new (cache) Action;
+            } else {
+               return Next::get(seq, v);
+            }
+         }
       };
    };
 

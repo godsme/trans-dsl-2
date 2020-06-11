@@ -16,8 +16,16 @@ namespace {
 
    bool is_true(const TransactionInfo&) { return true; }
 
+   struct IsTrue {
+      bool operator()(const TransactionInfo&) {
+         return true;
+      }
+
+      int i = 0;
+   };
+
    FIXTURE(TestLoop) {
-     __loop(__async(AsyncAction1), __break_if(is_true, Result::SUCCESS), __sync(SyncAction3)) a;
+     __loop(__async(AsyncAction1), __break_if(IsTrue, Result::SUCCESS), __sync(SyncAction3)) a;
 
      TEST("is") {
         int i = 100;

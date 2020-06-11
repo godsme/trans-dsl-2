@@ -11,16 +11,8 @@
 namespace {
    using namespace TSL_NS;
 
-   struct PredTrue {
-      bool operator()(const TransactionInfo&) { return true; }
-   };
-
-   struct PredFalse {
-      bool operator()(const TransactionInfo&) { return false; }
-   };
-
    bool is_true(const TransactionInfo&) { return true; }
-   auto is_false = [](const TransactionInfo&) { return false; };
+
 
 
    FIXTURE(TestOptional) {
@@ -42,6 +34,8 @@ namespace {
       }
    };
 
+   auto is_false = [](const TransactionInfo&) { return false; };
+
    FIXTURE(TestOptional1) {
       __optional(is_false, __async(AsyncAction1)) optional;
 
@@ -61,6 +55,10 @@ namespace {
       }
    };
 
+   struct PredTrue {
+      bool operator()(const TransactionInfo&) { return true; }
+   };
+
    FIXTURE(TestOptional2) {
       __optional(PredTrue, __async(AsyncAction1)) optional;
 
@@ -78,6 +76,10 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, optional.exec(context));
          ASSERT_EQ(Result::SUCCESS, optional.handleEvent(context, event1));
       }
+   };
+
+   struct PredFalse {
+      bool operator()(const TransactionInfo&) { return false; }
    };
 
    FIXTURE(TestOptional3) {

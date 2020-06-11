@@ -62,13 +62,26 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<typename T, typename T_ACTION>
-   auto deductOptionalClass() -> OptionalClass<T, T_ACTION>;
+   auto deductOptionalClass__() -> OptionalClass<T, T_ACTION>;
 
    template<PredFunction V_FUNC, typename T_ACTION>
-   auto deductOptionalClass() -> OptionalFunction<V_FUNC, T_ACTION>;
+   auto deductOptionalClass__() -> OptionalFunction<V_FUNC, T_ACTION>;
+
+   /////////////////////////////////////////////////////////////////////
+
+   inline auto IsFailed__(const TransactionInfo& info) -> bool {
+      return ActionStatus(info.getStatus()).isFailed();
+   }
+
+   template<Status V_STATUS>
+   inline auto IsStatus__(const TransactionInfo& info) -> bool {
+      return info.getStatus() == V_STATUS;
+   }
 }
 
-#define __optional(...)   decltype(details::deductOptionalClass<__VA_ARGS__>())
+#define __optional(...)   decltype(TSL_NS::details::deductOptionalClass__<__VA_ARGS__>())
+#define __on_fail(...) __optional(TSL_NS::details::IsFailed__, __VA_ARGS__)
+#define __on_status(status, ...) __optional(TSL_NS::details::IsStatus__<status>, __VA_ARGS__)
 
 TSL_NS_END
 

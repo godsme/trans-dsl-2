@@ -10,7 +10,7 @@
 #include <trans-dsl/sched/concept/RuntimeContext.h>
 
 struct StupidTransactionContext
-   : private TSL_NS::RuntimeContext, TSL_NS::TransactionInfo, TSL_NS::TransactionContext {
+   : TSL_NS::RuntimeContext, TSL_NS::TransactionInfo, TSL_NS::TransactionContext {
 
    StupidTransactionContext() {
       TSL_NS::TransactionContext::setRuntimeContext(*this);

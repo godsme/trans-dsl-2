@@ -240,14 +240,58 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
       }
-
-
    };
 
-//   FIXTURE(TestProcedure4) {
-//      __procedure(
-//         __call(FailedSyncAction4),
-//         __finally(__on_fail(__async(AsyncAction1))
-//      ) procedure;
-//   };
+   FIXTURE(TestProcedure4) {
+      __procedure(
+         __sync(FailedSyncAction4),
+         __finally(__on_fail(__async(AsyncAction1)))
+      ) procedure;
+
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      TEST("after exec, should return CONTINUE") {
+         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
+         ASSERT_EQ(Result::FAILED, context.getStatus());
+      }
+
+      TEST("after exec -> event1, should return SUCCESS") {
+         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
+         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FAILED, context.getStatus());
+      }
+   };
+
+   FIXTURE(TestProcedure5) {
+      __procedure(
+         __async(AsyncAction2),
+         __finally(__on_status(Result::INVALID_DATA, __async(AsyncAction1)))
+      ) procedure;
+
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      TEST("after exec -> event2, should return SUCCESS") {
+         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
+         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event2));
+      }
+
+      TEST("after exec, if stop, should return CONTINUE") {
+         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
+         context.reportFailure(Result::INVALID_DATA);
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+      }
+   };
 }

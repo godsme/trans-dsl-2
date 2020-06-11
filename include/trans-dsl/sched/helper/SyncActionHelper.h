@@ -5,7 +5,6 @@
 #ifndef TRANS_DSL_2_SYNCACTIONHELPER_H
 #define TRANS_DSL_2_SYNCACTIONHELPER_H
 
-#include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SyncAction.h>
 

@@ -5,12 +5,19 @@
 #ifndef TRANS_DSL_2_SCHEDACTION_H
 #define TRANS_DSL_2_SCHEDACTION_H
 
-#include <trans-dsl/sched/concept/FinalAction.h>
+#include <cub/dci/Role.h>
+#include <trans-dsl/tsl_status.h>
+#include <trans-dsl/sched/concept/Event.h>
 
 TSL_NS_BEGIN
 
-struct SchedAction : FinalAction {
-   ABSTRACT(stop(TransactionContext&) -> Status);
+struct TransactionContext;
+
+DEFINE_ROLE(SchedAction)  {
+   ABSTRACT(exec(TransactionContext&)                -> Status);
+   ABSTRACT(handleEvent(TransactionContext&, const Event&) -> Status);
+   ABSTRACT(stop(TransactionContext&)                -> Status);
+   ABSTRACT(kill(TransactionContext&)                -> void);
 };
 
 TSL_NS_END

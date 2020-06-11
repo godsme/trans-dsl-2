@@ -15,7 +15,7 @@ struct ASYNC__ : SchedAction {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
       return action.exec(context.ROLE(TransactionInfo));
    }
-   OVERRIDE(handleEvent(TransactionContext& context, Event& event) -> Status) {
+   OVERRIDE(handleEvent(TransactionContext& context, const Event& event) -> Status) {
       return action.handleEvent(context.ROLE(TransactionInfo), event);
    }
    OVERRIDE(stop(TransactionContext& context)  -> Status) {

@@ -13,11 +13,16 @@
 namespace {
    const TSL_NS::EventId EV_MSG_1 = 1;
    const TSL_NS::EventId EV_MSG_2 = 2;
+   const TSL_NS::EventId EV_MSG_3 = 3;
    struct Msg1 {
       int a, b;
    };
 
    struct Msg2 {
+      int a;
+   };
+
+   struct Msg3 {
       int a;
    };
 
@@ -41,6 +46,16 @@ namespace {
       }
    };
 
+   DEF_SIMPLE_ASYNC_ACTION(FailedAsyncAction3) {
+      auto exec(const TSL_NS::TransactionInfo &) -> TSL_NS::Status {
+         return WAIN_ON(EV_MSG_3, handleMsg3);
+      }
+
+   DEF_INLINE_EVENT_HANDLER(handleMsg3, Msg3) {
+         return TSL_NS::Result::FAILED;
+      }
+   };
+
    const auto SyncAction1 = [](const TSL_NS::TransactionInfo&) -> TSL_NS::Status {
       return TSL_NS::Result::SUCCESS;
    };
@@ -58,7 +73,9 @@ namespace {
       TSL_NS::Status result = TSL_NS::Result::SUCCESS;
    };
 
-
+   inline auto FailedSyncAction4(const TSL_NS::TransactionInfo&) -> TSL_NS::Status {
+      return TSL_NS::Result::FAILED;
+   }
 
 }
 

@@ -24,13 +24,15 @@ DEFINE_ROLE(Procedure::State) {
    }
 };
 
+#define DEF_STATE(state) DEF_SINGLETON(Procedure::state, Procedure::State)
+
 template<typename T>
 inline Status Procedure::gotoState(TransactionContext& context, Status status) {
    state = &T::getInstance();
    return state->enter(*this, context, status);
 }
 
-DEF_SINGLETON(Procedure::Idle, Procedure::State)  {
+DEF_STATE(Idle)  {
    OVERRIDE(enter(Procedure& this__, TransactionContext&, Status status) -> Status) {
       if(this__.action = this__.getAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
@@ -49,7 +51,7 @@ DEF_SINGLETON(Procedure::Idle, Procedure::State)  {
    }
 };
 
-DEF_SINGLETON(Procedure::Working, Procedure::State) {
+DEF_STATE(Working) {
    OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
       ActionStatus status = this__.action->handleEvent(context, event);
       if(status.isWorking()) {
@@ -60,7 +62,7 @@ DEF_SINGLETON(Procedure::Working, Procedure::State) {
    }
 };
 
-DEF_SINGLETON(Procedure::Stopping, Procedure::State) {
+DEF_STATE(Stopping) {
    OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
       if(this__.action = this__.getFinalAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
@@ -84,7 +86,7 @@ DEF_SINGLETON(Procedure::Stopping, Procedure::State) {
    }
 };
 
-DEF_SINGLETON(Procedure::Final, Procedure::State) {
+DEF_STATE(Final) {
    OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
       this__.action = nullptr;
       return result;

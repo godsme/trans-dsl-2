@@ -32,7 +32,7 @@ namespace details {
       }
    };
 
-   template<typename T>
+   template<typename T, std::enable_if_t<std::is_class_v<T>, int> = 0>
    auto DEDUCT_SYNC_TYPE__() { return SYNC__<T>{}; }
 
    template<SyncActionFunc V_FUNC>

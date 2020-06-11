@@ -153,19 +153,20 @@ namespace {
       }
    };
 
+   constexpr int* P = nullptr;
    FIXTURE(TestProcedure3) {
       __procedure(__procedure(__sequential
-        ( __call(SyncAction1)
+        ( __sync(SyncAction1)
         , __async(AsyncAction1)
-        , __call(SyncAction2)),
+        , __sync(SyncAction2)),
         __finally(__sequential
-          ( __call(SyncAction1)
+          ( __sync(SyncAction1)
           , __async(AsyncAction2)
-          , __call(SyncAction2)))),
+          , __sync(SyncAction2)))),
       __finally(__sequential
-        ( __call(SyncAction1)
+        ( __sync(SyncAction1)
         , __async(AsyncAction1)
-        , __call(SyncAction2)))
+        , __sync(SyncAction2)))
       ) procedure;
 
       StupidTransactionContext context{};

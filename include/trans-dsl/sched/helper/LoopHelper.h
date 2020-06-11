@@ -15,12 +15,6 @@
 TSL_NS_BEGIN
 
 namespace details {
-
-   template<typename T>
-   using IsSchedAction = std::enable_if_t<std::is_base_of_v<SchedAction, T>>;
-
-   const uint64_t breakSignature = 0x9d3d'ae93'2cde'0924;
-
    template<typename T, Status V_RESULT = Result::UNSPECIFIED, size_t V_SIZE = sizeof(T), typename = void>
    struct BreakAction;
 
@@ -63,7 +57,11 @@ namespace details {
 
    template<PredFunction V_FUNC, Status V_RESULT = Result::UNSPECIFIED>
    auto DeduceBreakType() -> BreakFunc<V_FUNC, V_RESULT>;
+}
 
+#define __break_if(pred, ...) decltype(TSL_NS::details::DeduceBreakType<pred, ##__VA_ARGS__>())
+
+namespace {
 
    struct SchedBreakAction : SchedAction {
       OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status) {
@@ -76,7 +74,7 @@ namespace details {
    };
 
    template<typename T_BREAK>
-   struct MiddleSchedBreakAction : SchedBreakAction {
+   struct BreakAction : SchedBreakAction {
    protected:
       auto getFinalResult(bool satisfied) const -> Status {
          return satisfied ? T_BREAK::FinalResult : Result::UNSATISFIED;
@@ -84,9 +82,9 @@ namespace details {
    };
 
    template<typename T_BREAK, size_t V_SIZE = sizeof(T_BREAK)>
-   struct GenericSchedBreakAction : MiddleSchedBreakAction<T_BREAK> {
+   struct GenericBreakAction : BreakAction<T_BREAK> {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
-         return MiddleSchedBreakAction<T_BREAK>::getFinalResult(breakPred(context));
+         return BreakAction<T_BREAK>::getFinalResult(breakPred(context));
       }
 
    private:
@@ -94,12 +92,17 @@ namespace details {
    };
 
    template<typename T_BREAK>
-   struct GenericSchedBreakAction<T_BREAK, 1> : MiddleSchedBreakAction<T_BREAK> {
+   struct GenericBreakAction<T_BREAK, 1> : BreakAction<T_BREAK> {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
-         return MiddleSchedBreakAction<T_BREAK>::getFinalResult(T_BREAK{}(context.ROLE(TransactionInfo)));
+         return BreakAction<T_BREAK>::getFinalResult(T_BREAK{}(context.ROLE(TransactionInfo)));
       }
    };
+}
 
+namespace details {
+
+   template<typename T>
+   using IsSchedAction = std::enable_if_t<std::is_base_of_v<SchedAction, T>>;
 
    using LoopSeq = unsigned short;
 
@@ -120,8 +123,13 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq) -> SchedAction* {
-            return seq == V_SEQ ? new (cache) Action : Next::get(seq);
+         auto get(LoopSeq seq, int& v) -> SchedAction* {
+            if(seq == V_SEQ) {
+               v = 0;
+               return new (cache) Action;
+            } else {
+               return Next::get(seq, v);
+            }
          }
       };
    };
@@ -143,19 +151,24 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq) -> SchedAction* {
-            return seq == V_SEQ ? &breakAction : Next::get(seq);
+         auto get(LoopSeq seq, int& v) -> SchedAction* {
+            if(seq == V_SEQ) {
+               v = 1;
+               return &breakAction;
+            } else {
+               return Next::get(seq, v);
+            }
          }
 
       private:
-         GenericSchedBreakAction<T_HEAD> breakAction;
+         GenericBreakAction<T_HEAD> breakAction;
       };
    };
 
    template<size_t T_SIZE, size_t T_ALIGN, LoopSeq T_SEQ>
    struct GenericLoop_<T_SIZE, T_ALIGN, T_SEQ> {
       struct Inner  {
-         auto get(LoopSeq seq) -> SchedAction* {
+         auto get(LoopSeq seq, int& i) -> SchedAction* {
             return nullptr;
          }
       protected:
@@ -172,7 +185,7 @@ namespace details {
 }
 
 #define __loop(...) TSL_NS::details::LOOP__<__VA_ARGS__>::Inner
-#define __break_if(pred, ...) decltype(TSL_NS::details::DeduceBreakType<pred, ##__VA_ARGS__>())
+
 
 TSL_NS_END
 

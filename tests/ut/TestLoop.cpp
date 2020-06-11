@@ -20,6 +20,13 @@ namespace {
      __loop(__async(AsyncAction1), __break_if(is_true, Result::SUCCESS), __sync(SyncAction3)) a;
 
      TEST("is") {
+        int i = 100;
+        a.get(0, i);
+        ASSERT_EQ(0, i);
+        a.get(1, i);
+        ASSERT_EQ(1, i);
+        a.get(2, i);
+        ASSERT_EQ(0, i);
      }
    };
 }

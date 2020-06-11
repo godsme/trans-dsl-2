@@ -8,10 +8,12 @@
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedOptional.h>
 #include <type_traits>
+#include <cub/base/IsClass.h>
 
 TSL_NS_BEGIN
 
 namespace details {
+
    using PredFunction = bool (*)(const TransactionInfo&);
 
    ////////////////////////////////////////////////////////////////
@@ -35,8 +37,12 @@ namespace details {
    };
 
    ////////////////////////////////////////////////////////////////
-   template<typename T_PRED, typename T_ACTION>
-   struct OptionalClass : OptionalBase<T_ACTION> {
+   template<typename T_PRED, typename T_ACTION, size_t V_SIZE = sizeof(T_PRED), typename = void>
+   struct OptionalClass;
+
+   ////////////////////////////////////////////////////////////////
+   template<typename T_PRED, typename T_ACTION, size_t V_SIZE>
+   struct OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return pred(context.ROLE(TransactionInfo));
@@ -46,8 +52,16 @@ namespace details {
       T_PRED pred;
    };
 
+   template<typename T_PRED, typename T_ACTION>
+   struct OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
+   private:
+      OVERRIDE(isTrue(TransactionContext& context) -> bool) {
+         return T_PRED{}(context.ROLE(TransactionInfo));
+      }
+   };
+
    ////////////////////////////////////////////////////////////////
-   template<typename T, typename T_ACTION, std::enable_if_t<std::is_class_v<T>, int> = 0>
+   template<typename T, typename T_ACTION>
    auto deductOptionalClass() -> OptionalClass<T, T_ACTION>;
 
    template<PredFunction V_FUNC, typename T_ACTION>

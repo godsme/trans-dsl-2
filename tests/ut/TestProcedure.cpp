@@ -229,4 +229,11 @@ namespace {
          ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
       }
    };
+
+//   FIXTURE(TestProcedure4) {
+//      __procedure(
+//         __call(FailedSyncAction4),
+//         __finally(__on_fail(__async(AsyncAction1))
+//      ) procedure;
+//   };
 }

@@ -6,14 +6,14 @@
 #define TRANS_DSL_2_SYNCACTIONHELPER_H
 
 #include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/action/SyncAction.h>
+#include <trans-dsl/sched/action/SchedSyncAction.h>
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
 
 template<typename T_ACTION>
-struct SYNC__ : SyncAction  {
+struct SYNC__ : SchedSyncAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
       return check(action.exec(context.ROLE(TransactionInfo)));
    }
@@ -24,7 +24,7 @@ private:
 using SyncActionFunc = Status (*)(const TransactionInfo&);
 
 template<SyncActionFunc V_ACTION>
-struct CALL__ : SyncAction  {
+struct CALL__ : SchedSyncAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status) {
       return check(V_ACTION(context.ROLE(TransactionInfo)));
    }

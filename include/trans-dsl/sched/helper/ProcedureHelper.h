@@ -6,13 +6,13 @@
 #define TRANS_DSL_2_PROCEDUREHELPER_H
 
 #include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/action/Procedure.h>
+#include <trans-dsl/sched/action/SchedProcedure.h>
 #include <algorithm>
 
 TSL_NS_BEGIN
 
 template<typename T_ACTION, typename T_FINAL>
-struct PROCEDURE__ : Procedure {
+struct PROCEDURE__ : SchedProcedure {
 private:
    OVERRIDE(getAction() -> SchedAction*) {
       return new(cache) T_ACTION;

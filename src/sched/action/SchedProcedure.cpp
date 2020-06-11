@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/7.
 //
 
-#include <trans-dsl/sched/action/Procedure.h>
+#include <trans-dsl/sched/action/SchedProcedure.h>
 #include <cub/dci/Role.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/sched/concept/SchedAction.h>
@@ -10,24 +10,24 @@
 
 TSL_NS_BEGIN
 
-DEFINE_ROLE(Procedure::State) {
-   DEFAULT(enter(Procedure&, TransactionContext&, Status status) -> Status) {
+DEFINE_ROLE(SchedProcedure::State) {
+   DEFAULT(enter(SchedProcedure&, TransactionContext&, Status status) -> Status) {
       return status;
    }
 
-   DEFAULT(exec(Procedure&, TransactionContext&) -> Status) {
+   DEFAULT(exec(SchedProcedure&, TransactionContext&) -> Status) {
       return Result::FATAL_BUG;
    }
 
-   DEFAULT(handleEvent(Procedure&, TransactionContext&, const Event&) -> Status) {
+   DEFAULT(handleEvent(SchedProcedure&, TransactionContext&, const Event&) -> Status) {
       return Result::FATAL_BUG;
    }
 
-   DEFAULT(stop(Procedure&, TransactionContext&) -> Status) {
+   DEFAULT(stop(SchedProcedure&, TransactionContext&) -> Status) {
       return Result::FATAL_BUG;
    }
 
-   DEFAULT(kill(Procedure& this__, TransactionContext& context) -> void) {
+   DEFAULT(kill(SchedProcedure& this__, TransactionContext& context) -> void) {
       if(this__.action != nullptr) {
          this__.action->kill(context);
          (void) this__.gotoState<Done>(context, Result::SUCCESS);
@@ -35,16 +35,16 @@ DEFINE_ROLE(Procedure::State) {
    }
 };
 
-#define DEF_STATE(state) DEF_SINGLETON(Procedure::state, Procedure::State)
+#define DEF_STATE(state) DEF_SINGLETON(SchedProcedure::state, SchedProcedure::State)
 
 template<typename T>
-inline Status Procedure::gotoState(TransactionContext& context, Status status) {
+inline Status SchedProcedure::gotoState(TransactionContext& context, Status status) {
    state = &T::getInstance();
    return state->enter(*this, context, status);
 }
 
 DEF_STATE(Idle)  {
-   OVERRIDE(enter(Procedure& this__, TransactionContext&, Status status) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext&, Status status) -> Status) {
       if(this__.action = this__.getAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -52,7 +52,7 @@ DEF_STATE(Idle)  {
       return status;
    }
 
-   OVERRIDE(exec(Procedure& this__, TransactionContext& context) -> Status) {
+   OVERRIDE(exec(SchedProcedure& this__, TransactionContext& context) -> Status) {
       auto status = this__.action->exec(context);
       if(status == Result::CONTINUE) {
          return this__.gotoState<Working>(context, status);
@@ -63,7 +63,7 @@ DEF_STATE(Idle)  {
 };
 
 DEF_STATE(Working) {
-   OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this__, TransactionContext& context, const Event& event) -> Status) {
       ActionStatus status = this__.action->handleEvent(context, event);
       if(status.isWorking()) {
          return status;
@@ -72,7 +72,7 @@ DEF_STATE(Working) {
       }
    }
 
-   DEFAULT(stop(Procedure& this__, TransactionContext& context) -> Status) {
+   DEFAULT(stop(SchedProcedure& this__, TransactionContext& context) -> Status) {
       ActionStatus status = this__.action->stop(context);
       if(status.isWorking()) {
          return this__.gotoState<Stopping>(context, status);
@@ -83,7 +83,7 @@ DEF_STATE(Working) {
 };
 
 DEF_STATE(Stopping) {
-   OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this__, TransactionContext& context, const Event& event) -> Status) {
       ActionStatus status = this__.action->handleEvent(context, event);
       if(status.isWorking()) {
          return status;
@@ -92,13 +92,13 @@ DEF_STATE(Stopping) {
       }
    }
 
-   OVERRIDE(stop(Procedure& this__, TransactionContext& context) -> Status) {
+   OVERRIDE(stop(SchedProcedure& this__, TransactionContext& context) -> Status) {
       return Result::CONTINUE;
    }
 };
 
 DEF_STATE(Final) {
-   OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, Status result) -> Status) {
       if(this__.action = this__.getFinalAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -111,7 +111,7 @@ DEF_STATE(Final) {
       return this__.gotoState<Done>(context, status);
    }
 
-   OVERRIDE(handleEvent(Procedure& this__, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this__, TransactionContext& context, const Event& event) -> Status) {
       ActionStatus status = this__.action->handleEvent(context, event);
       if(status.isWorking()) {
          return status;
@@ -120,21 +120,21 @@ DEF_STATE(Final) {
       return this__.gotoState<Done>(context, status);
    }
 
-   OVERRIDE(stop(Procedure& this__, TransactionContext& context) -> Status) {
+   OVERRIDE(stop(SchedProcedure& this__, TransactionContext& context) -> Status) {
       return Result::CONTINUE;
    }
 };
 
 DEF_STATE(Done) {
-   OVERRIDE(enter(Procedure& this__, TransactionContext& context, Status result) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, Status result) -> Status) {
       this__.action = nullptr;
       return result;
    }
 
-   OVERRIDE(kill(Procedure& this__, TransactionContext& context) -> void) {}
+   OVERRIDE(kill(SchedProcedure& this__, TransactionContext& context) -> void) {}
 };
 
-auto Procedure::exec(TransactionContext& context)                -> Status {
+auto SchedProcedure::exec(TransactionContext& context)                -> Status {
    if(state == nullptr) {
       auto status = gotoState<Idle>(context, Result::SUCCESS);
       if(status != Result::SUCCESS) {
@@ -145,15 +145,15 @@ auto Procedure::exec(TransactionContext& context)                -> Status {
    return state->exec(*this, context);
 }
 
-auto Procedure::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedProcedure::handleEvent(TransactionContext& context, const Event& event) -> Status {
    return state->handleEvent(*this, context, event);
 }
 
-auto Procedure::stop(TransactionContext& context) -> Status {
+auto SchedProcedure::stop(TransactionContext& context) -> Status {
    return state->stop(*this, context);
 }
 
-auto Procedure::kill(TransactionContext& context)  -> void {
+auto SchedProcedure::kill(TransactionContext& context)  -> void {
    state->kill(*this, context);
 }
 

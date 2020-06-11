@@ -19,11 +19,11 @@ auto SchedOptional::exec(TransactionContext& context) -> Status {
 }
 
 auto SchedOptional::handleEvent(TransactionContext& context, const Event& event) -> Status {
-   return action == nullptr ? Result::FATAL_BUG : handleEvent(context, event);
+   return action == nullptr ? Result::FATAL_BUG : action->handleEvent(context, event);
 }
 
 auto SchedOptional::stop(TransactionContext& context)  -> Status {
-   return action == nullptr ? Result::FATAL_BUG : stop(context);
+   return action == nullptr ? Result::FATAL_BUG : action->stop(context);
 }
 
 auto SchedOptional::kill(TransactionContext& context) -> void {

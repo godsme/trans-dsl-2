@@ -12,7 +12,7 @@ namespace {
    using namespace TSL_NS;
 
    struct PredTrue {
-      bool operator()(const TransactionInfo&) { return false; }
+      bool operator()(const TransactionInfo&) { return true; }
    };
 
    struct PredFalse {
@@ -20,7 +20,7 @@ namespace {
    };
 
    bool is_true(const TransactionInfo&) { return true; }
-   auto is_false = [](const TransactionInfo&) { return true; };
+   auto is_false = [](const TransactionInfo&) { return false; };
 
 
    FIXTURE(TestOptional) {

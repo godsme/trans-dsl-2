@@ -7,11 +7,12 @@
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/sched/concept/SchedAction.h>
 #include <cub/gof/Singleton.h>
+#include <trans-dsl/sched/concept/TransactionContext.h>
 
 TSL_NS_BEGIN
 
 DEFINE_ROLE(SchedProcedure::State) {
-   DEFAULT(enter(SchedProcedure&, TransactionContext&, Status status) -> Status) {
+   DEFAULT(enter(SchedProcedure&, TransactionContext&, ActionStatus status) -> Status) {
       return status;
    }
 
@@ -44,7 +45,7 @@ inline Status SchedProcedure::gotoState(TransactionContext& context, Status stat
 }
 
 DEF_STATE(Idle)  {
-   OVERRIDE(enter(SchedProcedure& this__, TransactionContext&, Status status) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext&, ActionStatus status) -> Status) {
       if(this__.action = this__.getAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -72,12 +73,14 @@ DEF_STATE(Working) {
       }
    }
 
-   DEFAULT(stop(SchedProcedure& this__, TransactionContext& context) -> Status) {
-      ActionStatus status = this__.action->stop(context);
+   OVERRIDE(stop(SchedProcedure& this_, TransactionContext& context) -> Status) {
+      this_.syncParentFailure();
+
+      ActionStatus status = this_.action->stop(context);
       if(status.isWorking()) {
-         return this__.gotoState<Stopping>(context, status);
+         return this_.gotoState<Stopping>(context, status);
       } else {
-         return this__.gotoState<Final>(context, status);
+         return this_.gotoState<Final>(context, status);
       }
    }
 };
@@ -98,9 +101,13 @@ DEF_STATE(Stopping) {
 };
 
 DEF_STATE(Final) {
-   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, Status result) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, ActionStatus result) -> Status) {
       if(this__.action = this__.getFinalAction(); this__.action == nullptr) {
          return Result::FATAL_BUG;
+      }
+
+      if(result.isFailed()) {
+         this__.reportFailure(result);
       }
 
       ActionStatus status = this__.action->exec(context);
@@ -126,7 +133,7 @@ DEF_STATE(Final) {
 };
 
 DEF_STATE(Done) {
-   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, Status result) -> Status) {
+   OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, ActionStatus result) -> Status) {
       this__.action = nullptr;
       return result;
    }
@@ -134,26 +141,59 @@ DEF_STATE(Done) {
    OVERRIDE(kill(SchedProcedure& this__, TransactionContext& context) -> void) {}
 };
 
-auto SchedProcedure::exec(TransactionContext& context)                -> Status {
+auto SchedProcedure::exec_(TransactionContext& context) -> Status {
    if(state == nullptr) {
       auto status = gotoState<Idle>(context, Result::SUCCESS);
       if(status != Result::SUCCESS) {
          return status;
       }
    }
-
    return state->exec(*this, context);
 }
 
+namespace {
+   struct AutoSwitch {
+      AutoSwitch(TransactionContext& context, RuntimeContext& thisContext)
+         : parentKeeper(context.getRuntimeContext())
+         , contextInfo(context) {
+         contextInfo.setRuntimeContext(thisContext);
+      }
+
+      ~AutoSwitch() {
+         contextInfo.setRuntimeContext(parentKeeper);
+      }
+
+      RuntimeContext& parentKeeper;
+      RuntimeContextInfo& contextInfo;
+   };
+}
+
+#define AUTO_SWITCH()  AutoSwitch{context, *this}
+
+auto SchedProcedure::exec(TransactionContext& context) -> Status {
+   if(parentEnv != nullptr) {
+      return Result::FATAL_BUG;
+   }
+
+   parentEnv = &context.getRuntimeContext();
+   immune = isProtected();
+
+   AUTO_SWITCH();
+   return exec_(context);
+}
+
 auto SchedProcedure::handleEvent(TransactionContext& context, const Event& event) -> Status {
+   AUTO_SWITCH();
    return state->handleEvent(*this, context, event);
 }
 
 auto SchedProcedure::stop(TransactionContext& context) -> Status {
+   AUTO_SWITCH();
    return state->stop(*this, context);
 }
 
 auto SchedProcedure::kill(TransactionContext& context)  -> void {
+   AUTO_SWITCH();
    state->kill(*this, context);
 }
 

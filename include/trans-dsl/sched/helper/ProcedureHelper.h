@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<typename T_ACTION, typename T_FINAL>
+   template<typename T_ACTION, typename T_FINAL, bool V_IS_PROTECTED>
    struct PROCEDURE__ : SchedProcedure {
    private:
       OVERRIDE(getAction()->SchedAction *) {
@@ -22,6 +22,10 @@ namespace details {
 
       OVERRIDE(getFinalAction()->SchedAction *) {
          return new(cache) T_FINAL;
+      }
+
+      OVERRIDE(isProtected() const -> bool) {
+         return V_IS_PROTECTED;
       }
 
    private:
@@ -34,7 +38,7 @@ namespace details {
    };
 }
 
-#define __procedure(...) TSL_NS::details::PROCEDURE__<__VA_ARGS__>
+#define __procedure(...) TSL_NS::details::PROCEDURE__<__VA_ARGS__, false>
 #define __finally(...) __VA_ARGS__
 
 TSL_NS_END

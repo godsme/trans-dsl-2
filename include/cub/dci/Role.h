@@ -7,7 +7,7 @@
 
 #include <cub/base/Keywords.h>
 
-#define DEFINE_ROLE(role) DEF_INTERFACE(role)
+#define DEFINE_ROLE(role, ...) DEF_INTERFACE(role), ##__VA_ARGS__
 
 #define ROLE(role) __dci_get##role()
 #define ROLE_PROTO_TYPE(role) role& ROLE(role) const

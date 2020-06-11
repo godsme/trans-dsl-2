@@ -7,12 +7,28 @@
 
 #include <trans-dsl/tsl_ns.h>
 #include <cub/dci/Role.h>
+#include <assert.h>
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
+struct RuntimeContext;
 
-struct TransactionContext {
+struct RuntimeContextInfo {
+   auto getRuntimeContext() const -> RuntimeContext& {
+      assert(currentRuntimeContext != nullptr);
+      return *currentRuntimeContext;
+   }
+
+   void setRuntimeContext(RuntimeContext& runtimeContext) {
+      currentRuntimeContext = &runtimeContext;
+   }
+
+private:
+   RuntimeContext* currentRuntimeContext = nullptr;
+};
+
+struct TransactionContext: RuntimeContextInfo {
    HAS_ROLE(TransactionInfo);
 };
 

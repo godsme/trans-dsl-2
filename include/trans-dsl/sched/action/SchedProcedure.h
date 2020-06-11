@@ -8,17 +8,24 @@
 #include <trans-dsl/tsl_status.h>
 #include <cub/dci/Role.h>
 #include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/concept/RuntimeContext.h>
 
 TSL_NS_BEGIN
 
 struct TransactionContext;
 struct SchedAction;
 
-struct SchedProcedure : SchedAction {
+struct SchedProcedure
+   : private RuntimeContext
+   , SchedAction {
+
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext&)                      -> Status);
    OVERRIDE(kill(TransactionContext&)                      -> void);
+
+private:
+   auto exec_(TransactionContext&) -> Status;
 
 private:
    struct State;
@@ -39,6 +46,7 @@ private:
 private:
    ABSTRACT(getAction() -> SchedAction*);
    ABSTRACT(getFinalAction() -> SchedAction*);
+   ABSTRACT(isProtected() const -> bool);
 };
 
 TSL_NS_END

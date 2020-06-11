@@ -9,12 +9,11 @@
 #include <trans-dsl/sched/action/SchedOptional.h>
 #include <type_traits>
 #include <cub/base/IsClass.h>
+#include <trans-dsl/sched/helper/Pred.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-
-   using PredFunction = bool (*)(const TransactionInfo&);
 
    ////////////////////////////////////////////////////////////////
    template<typename T_ACTION>

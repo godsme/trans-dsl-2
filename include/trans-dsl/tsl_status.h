@@ -24,6 +24,7 @@ enum Result : Status {
 
    CONTINUE       = CUB_NS::success_status(__TSL_STATUS_BEGIN),
    UNKNOWN_EVENT,
+   UNSATISFIED,
 
    OUT_OF_SCOPE   = CUB_NS::fail_status(__TSL_STATUS_BEGIN),
    DUPTID,
@@ -31,6 +32,7 @@ enum Result : Status {
    TIMEDOUT,
    RESTART_REQUIRED,
    NOTHING_CHANGED,
+   UNSPECIFIED,
 
    FORCE_STOPPED
 };

@@ -26,6 +26,20 @@ struct SchedLoop
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext& ) -> Status);
    OVERRIDE(kill(TransactionContext& ) -> void);
+
+private:
+   auto checkError(LoopActionType type);
+   auto execOne(TransactionContext& context, LoopActionType type) -> Status;
+   auto execOnce(TransactionContext&) -> Status;
+   auto looping(TransactionContext& context) -> Status;
+
+private:
+   SchedAction* action = nullptr;
+   uint16_t sequence = 0;
+   bool errorChecking = true;
+
+private:
+   ABSTRACT(getAction(uint16_t seq, LoopActionType&) -> SchedAction*);
 };
 
 TSL_NS_END

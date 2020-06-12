@@ -27,11 +27,41 @@ namespace {
    FIXTURE(TestLoop) {
      __loop
         ( __async(AsyncAction1)
-        , __break_if(IsTrue, Result::SUCCESS)
+        , __break_if(IsTrue, Result::OUT_OF_SCOPE)
         , __sync(SyncAction3)
-        , __continue_if(IsTrue)) a;
+        , __continue_if(IsTrue)) action;
 
-     TEST("is") {
+     StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+     TEST("exec should return CONTINUE") {
+        ASSERT_EQ(Result::CONTINUE, action.exec(context));
      }
+
+      TEST("exec -> handleEvent should return OUT_OF_SCOPE") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.handleEvent(context, event1));
+      }
+   };
+
+   FIXTURE(TestLoop1) {
+      __loop
+      ( __sync(SyncAction1)
+      , __break_if(IsTrue, Result::OUT_OF_SCOPE)
+      , __sync(AsyncAction1)
+      , __continue_if(IsTrue)) action;
+
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      TEST("exec should return OUT_OF_SCOPE") {
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.exec(context));
+      }
    };
 }

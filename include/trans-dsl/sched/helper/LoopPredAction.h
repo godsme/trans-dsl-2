@@ -34,7 +34,7 @@ namespace details {
       struct Action : Base {
       protected:
          auto getFinalResult(bool satisfied) const -> Status {
-            return satisfied ? T_PRED::FinalResult : Result::UNSATISFIED;
+            return satisfied ? T_PRED::FinalResult : Result::MOVE_ON;
          }
       };
 

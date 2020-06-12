@@ -169,13 +169,17 @@ namespace details {
    struct LOOP__ {
       using Actions = typename GenericLoop_<0, 0, 0, void, T_ACTION, T_ACTIONS...>::Inner;
       struct Inner : private Actions, SchedLoop {
+      private:
+         OVERRIDE(getAction(uint16_t seq, LoopActionType& type) -> SchedAction*) {
+            return Actions::get(seq, type);
+         }
       };
    };
 }
 
 #define __loop(...) TSL_NS::details::LOOP__<__VA_ARGS__>::Inner
 #define __break_if(pred, ...) decltype(TSL_NS::details::BreakPred::DeduceType<pred, ##__VA_ARGS__>())
-#define __continue_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::SUCCESS>())
+#define __continue_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::RESTART_REQUIRED>())
 
 TSL_NS_END
 

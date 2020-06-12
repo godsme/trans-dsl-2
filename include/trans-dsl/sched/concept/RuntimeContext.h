@@ -18,6 +18,14 @@ struct RuntimeContext {
       return finalStatus;
    }
 
+   auto  hasFailure() const -> bool {
+      return finalStatus == Result::SUCCESS;
+   }
+
+   auto cleanUpFailure() -> void {
+      finalStatus = Result::SUCCESS;
+   }
+
    auto reportFailure(ActionStatus status) -> void {
       if(status.isFailed()) {
          finalStatus = status;

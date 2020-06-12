@@ -60,7 +60,7 @@ auto SchedLoop::looping(TransactionContext& context) -> Status {
 
       Status status = execOnce(context);
       if(status != Result::RESTART_REQUIRED) {
-         return status;
+         return status == Result::UNSPECIFIED ? getStatus() : status;
       }
       sequence = 0;
       errorChecking = true;

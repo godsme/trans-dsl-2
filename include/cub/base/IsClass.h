@@ -11,7 +11,7 @@
 CUB_NS_BEGIN
 
 template<typename T>
-using IsClass = std::enable_if_t<std::is_class_v<T>, void>;
+using IsClass = std::enable_if_t<std::is_class_v<T>>;
 
 CUB_NS_END
 

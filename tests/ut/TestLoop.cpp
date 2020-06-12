@@ -119,4 +119,45 @@ namespace {
          ASSERT_EQ(Result::OUT_OF_SCOPE, action.handleEvent(context, event3));
       }
    };
+
+   FIXTURE(TestLoop4) {
+      __loop
+      ( __async(FailedAsyncAction3)
+      , __async(AsyncAction1)
+      , __continue_if(__is_failed)
+      , __async(AsyncAction2)
+      ) action;
+
+      StupidTransactionContext context{};
+
+      const Msg3 msg3{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+      TSL_NS::Event event3{eventInfo3};
+
+      TEST("should return CONTINUE") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
+      }
+   };
+
+   FIXTURE(TestLoop5) {
+      __loop
+      ( __async(FailedAsyncAction3)
+      , __async(AsyncAction1)
+      , __while(__is_succ)
+      ) action;
+
+      StupidTransactionContext context{};
+
+      const Msg3 msg3{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+      TSL_NS::Event event3{eventInfo3};
+
+      TEST("should return FAILED") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event3));
+      }
+   };
 }

@@ -72,11 +72,18 @@ namespace details {
       return ActionStatus(info.getStatus()).isFailed();
    }
 
+   inline auto IsSucc__(const TransactionInfo& info) -> bool {
+      return ActionStatus(info.getStatus()).isDone();
+   }
+
    template<Status V_STATUS>
    inline auto IsStatus__(const TransactionInfo& info) -> bool {
       return info.getStatus() == V_STATUS;
    }
+
 }
+
+#define __is_succ TSL_NS::details::IsSucc__
 #define __is_failed TSL_NS::details::IsFailed__
 #define __optional(...)   decltype(TSL_NS::details::deductOptionalClass__<__VA_ARGS__>())
 #define __on_fail(...) __optional(__is_failed, __VA_ARGS__)

@@ -12,6 +12,7 @@ TSL_NS_BEGIN
 
 struct TransactionContext;
 
+// 40 bytes
 struct SchedProcedure
    : private RuntimeContext
    , SchedAction {

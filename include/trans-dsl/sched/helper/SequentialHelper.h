@@ -54,9 +54,8 @@ struct SEQUENTIAL__ {
    using Actions = typename GenericSequential<0, 0, 0, T_ACTION, T_ACTIONS...>::Inner;
    struct Inner : SchedSequential, private Actions {
    private:
-      SeqInt index = 0;
-      OVERRIDE(getNext() -> SchedAction*) {
-         return Actions::get(index++);
+      OVERRIDE(getNext(uint16_t index) -> SchedAction*) {
+         return Actions::get(index);
       }
    };
 };

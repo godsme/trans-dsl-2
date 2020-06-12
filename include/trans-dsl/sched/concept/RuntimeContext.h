@@ -13,6 +13,7 @@ TSL_NS_BEGIN
 
 struct TransactionContext;
 
+// 16 bytes
 struct RuntimeContext {
    RuntimeContext() = default;
    RuntimeContext(bool immune) : immune(immune) {}

@@ -9,6 +9,7 @@
 
 TSL_NS_BEGIN
 
+// 24 bytes
 struct SchedSequential : SchedAction {
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
@@ -20,10 +21,11 @@ private:
 
 private:
    SchedAction* current = nullptr;
+   uint16_t index = 0;
    bool stopped = false;
 
 private:
-   ABSTRACT(getNext() -> SchedAction*);
+   ABSTRACT(getNext(uint16_t index) -> SchedAction*);
 };
 
 TSL_NS_END

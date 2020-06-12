@@ -19,13 +19,13 @@ enum Result : Status {
    FAILED    = Status(CUB_NS::Result::FAILURE),
 
    RESERVED_FAILURE = CUB_NS::CUB_RESERVED_FAILURE,
-   UNSPECIFIED, // reserved
+   UNSPECIFIED, // reserved (for loop)
 
    __TSL_STATUS_BEGIN = 100,
 
    CONTINUE       = CUB_NS::success_status(__TSL_STATUS_BEGIN),
    UNKNOWN_EVENT,
-   MOVE_ON, // reserved
+   MOVE_ON, // reserved (for loop)
 
    OUT_OF_SCOPE   = CUB_NS::fail_status(__TSL_STATUS_BEGIN),
    DUPTID,
@@ -34,7 +34,6 @@ enum Result : Status {
    USER_FATAL_BUG,
    RESTART_REQUIRED,
    NOTHING_CHANGED,
-
 
    FORCE_STOPPED
 };

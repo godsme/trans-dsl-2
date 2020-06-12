@@ -13,6 +13,7 @@
 
 TSL_NS_BEGIN
 
+// 16 bytes
 struct EventHandlerRegistry {
    EventHandlerRegistry();
 

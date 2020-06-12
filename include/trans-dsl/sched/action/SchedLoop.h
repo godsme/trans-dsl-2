@@ -18,6 +18,7 @@ enum class LoopActionType {
    CONTINUE_PRED
 };
 
+// 40 bytes
 struct SchedLoop
    : private RuntimeContext
    , SchedAction {

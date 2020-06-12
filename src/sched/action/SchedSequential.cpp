@@ -9,7 +9,7 @@ TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
-   while((current = getNext()) != nullptr) {
+   while((current = getNext(index++)) != nullptr) {
       ActionStatus status = current->exec(context);
       if(!status.isDone()) {
          return status;

@@ -25,7 +25,11 @@ namespace {
    };
 
    FIXTURE(TestLoop) {
-     __loop(__async(AsyncAction1), __break_if(IsTrue, Result::SUCCESS), __sync(SyncAction3)) a;
+     __loop
+        ( __async(AsyncAction1)
+        , __break_if(IsTrue, Result::SUCCESS)
+        , __sync(SyncAction3)
+        , __continue_if(IsTrue)) a;
 
      TEST("is") {
         auto i = details::LoopActionType::ACTION;
@@ -35,6 +39,8 @@ namespace {
         ASSERT_EQ(details::LoopActionType::BREAK_PRED, i);
         a.get(2, i);
         ASSERT_EQ(details::LoopActionType::ACTION, i);
+         a.get(3, i);
+         ASSERT_EQ(details::LoopActionType::CONTINUE_PRED, i);
      }
    };
 }

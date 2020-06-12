@@ -35,11 +35,12 @@ private:
    auto execOnce(TransactionContext&) -> Status;
    auto looping(TransactionContext& context) -> Status;
    auto handleEvent_(TransactionContext& context, const Event& event) -> Status;
+   auto checkActionStatus(ActionStatus status) -> Status;
 
 private:
    SchedAction* action = nullptr;
    uint16_t sequence = 0;
-   bool errorChecking = true;
+   bool errorRecovering = true;
    bool stopping = false;
 
 private:

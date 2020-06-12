@@ -149,7 +149,7 @@
    );
 
 .. attention::
-   注意，``do ... until(cond) `` 与 ``do ... while(cond}`` 语意正好相反。
+   ``do ... until(cond)`` 的语意，与 ``do ... while(cond}`` 正好相反。
 
 
 `__redo_if`

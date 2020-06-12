@@ -68,17 +68,18 @@ auto SchedLoop::execOnce(TransactionContext& context) -> Status {
 auto SchedLoop::looping(TransactionContext& context) -> Status {
    int loopTimes = 0;
    while(1) {
-      if(loopTimes > 1) {
-         return Result::USER_FATAL_BUG;
-      }
-
       auto status = execOnce(context);
       if(status != Result::RESTART_REQUIRED) {
          return status == Result::UNSPECIFIED ? getStatus() : status;
       }
+
       sequence = 0;
       errorRecovering = true;
-      ++loopTimes;
+
+      if(++loopTimes > getMaxTime()) {
+         return Result::USER_FATAL_BUG;
+      }
+
    }
 
    // never arrive here.

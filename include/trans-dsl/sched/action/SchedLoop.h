@@ -45,6 +45,7 @@ private:
    bool stopping = false;
 
 private:
+   ABSTRACT(getMaxTime() const -> uint32_t);
    ABSTRACT(getAction(uint16_t seq, LoopActionType&) -> SchedAction*);
 };
 

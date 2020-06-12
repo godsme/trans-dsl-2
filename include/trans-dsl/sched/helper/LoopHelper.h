@@ -165,11 +165,15 @@ namespace details {
       };
    };
 
-   template<typename T_ACTION, typename ... T_ACTIONS>
+   template<uint32_t V_MAX_TIMES, typename T_ACTION, typename ... T_ACTIONS>
    struct LOOP__ {
       using Actions = typename GenericLoop_<0, 0, 0, void, T_ACTION, T_ACTIONS...>::Inner;
       struct Inner : private Actions, SchedLoop {
       private:
+         OVERRIDE(getMaxTime() const -> uint32_t) {
+            return V_MAX_TIMES;
+         }
+
          OVERRIDE(getAction(uint16_t seq, LoopActionType& type) -> SchedAction*) {
             return Actions::get(seq, type);
          }
@@ -177,7 +181,10 @@ namespace details {
    };
 }
 
-#define __loop(...) TSL_NS::details::LOOP__<__VA_ARGS__>::Inner
+#define __loop(...) TSL_NS::details::LOOP__<1, __VA_ARGS__>::Inner
+#define __loop_max(times, ...) TSL_NS::details::LOOP__<times, __VA_ARGS__>::Inner
+#define __forever(...) TSL_NS::details::LOOP__<std::numeric_limits<uint32>::max(), __VA_ARGS__>::Inner
+
 #define __break_if(pred, ...) decltype(TSL_NS::details::BreakPred::DeduceType<pred, ##__VA_ARGS__>())
 #define __until(...) __break_if(__VA_ARGS__)
 #define __redo_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::RESTART_REQUIRED>())

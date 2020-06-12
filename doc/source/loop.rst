@@ -19,7 +19,7 @@
 
 同时，在任意循环里，可以随时随地进行两种循环控制：
 
-``continue`` 或者 ``redo`` ：
+``continue`` ：
    即重新回到循环的起点开始运行。
 ``break`` :
    中断当前的循环，或从当前的循环跳出。
@@ -148,7 +148,9 @@
    , __until(CondSatisfied)
    );
 
-注意，其语意和 ``do{}while(cond}`` 正好相反。
+.. attention::
+   注意，``do ... until(cond) `` 与 ``do ... while(cond}`` 语意正好相反。
+
 
 `__redo_if`
 -------------
@@ -167,3 +169,45 @@
 
 在这个例子中，如果发生了timeout，则不再执行后续的其它Action，而是重新开始循环。
 
+
+用户状态
+---------
+
+用户的状态不应该保存在用户定义的Action中，每一个Action运行结束后，其所保存的状态信息也会立即失效。
+用户唯一可以保存信息的地方是那些用在 ``__break_if`` ，``__redo_if`` 及其语法糖里的 **谓词** 。
+
+`Transaction DSL` 保证，所有这些谓词里所持有的状态信息，和循环的生命周期一致。
+即只要一个循环没有运行结束，无论其在内部循环了多少次，在循环内对于这些状态的修改，始终保持连续有效。
+
+因而，我们就可以定义这样的谓词：
+
+.. code-block:: c++
+
+   struct ShouldRetry {
+      bool operator()(const TransactionInfo& trans) {
+         return IsFailed(trans) && retryTime++ < 5;
+      }
+    private:
+      int retryTimes = 0;
+   }
+
+   __loop(
+   , __sync(Action1)
+   , __async(Action2)
+   , __timer_guard(TIMER_2, Action3)
+   , __concurrent(__async(Action3), __async(Action5))
+   , __while(ShouldRetry)
+   );
+
+这样，整个循环内部的操作在连续失败5次之前，不会结束。
+
+错误处理
+---------
+
+首先，整个 ``__loop`` 有一个自己的 **运行时环境** ，而这个运行时环境是一个 `Sandbox` ，即它内部所发生的任何错误，
+在整个 ``__loop`` 没有结束之前，外界无从感知，因而对外界并无任何影响。
+
+而发生于其内部的错误，在进入一个 **谓词段** 之后，总是可以被 **谓词** 读取，以做为谓词判断的依据之一。
+
+一个之前发生的错误，一旦离开最近的 **谓词段** 之后，便会马上清理。
+此时读取其错误状态，将会得到 ``SUCCESS`` 。除非，随后又发生了一个错误。

@@ -11,6 +11,7 @@ Transaction DSL简介
 
    motivation
    quick-start
+   loop
    error-handling
 
 索引

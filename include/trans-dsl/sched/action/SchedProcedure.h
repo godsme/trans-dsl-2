@@ -5,15 +5,12 @@
 #ifndef TRANS_DSL_2_SCHEDPROCEDURE_H
 #define TRANS_DSL_2_SCHEDPROCEDURE_H
 
-#include <trans-dsl/tsl_status.h>
-#include <cub/dci/Role.h>
 #include <trans-dsl/sched/concept/SchedAction.h>
 #include <trans-dsl/sched/concept/RuntimeContext.h>
 
 TSL_NS_BEGIN
 
 struct TransactionContext;
-struct SchedAction;
 
 struct SchedProcedure
    : private RuntimeContext

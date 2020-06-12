@@ -5,14 +5,14 @@
 #ifndef TRANS_DSL_2_LOOPHELPER_H
 #define TRANS_DSL_2_LOOPHELPER_H
 
+#include <type_traits>
+#include <algorithm>
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedOptional.h>
-#include <type_traits>
-#include <cub/base/IsClass.h>
-#include <algorithm>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>
+#include <trans-dsl/sched/action/SchedLoop.h>
 
 TSL_NS_BEGIN
 
@@ -27,13 +27,6 @@ namespace details {
 }
 
 namespace details {
-
-   enum class LoopActionType {
-      ACTION,
-      BREAK_PRED,
-      CONTINUE_PRED
-   };
-
    using LoopSeq = unsigned short;
 
    template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename = void, typename ... T_ACTIONS>
@@ -175,7 +168,7 @@ namespace details {
    template<typename T_ACTION, typename ... T_ACTIONS>
    struct LOOP__ {
       using Actions = typename GenericLoop_<0, 0, 0, void, T_ACTION, T_ACTIONS...>::Inner;
-      struct Inner : Actions {
+      struct Inner : private Actions, SchedLoop {
       };
    };
 }

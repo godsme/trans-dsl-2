@@ -32,15 +32,6 @@ namespace {
         , __continue_if(IsTrue)) a;
 
      TEST("is") {
-        auto i = details::LoopActionType::ACTION;
-        a.get(0, i);
-        ASSERT_EQ(details::LoopActionType::ACTION, i);
-        a.get(1, i);
-        ASSERT_EQ(details::LoopActionType::BREAK_PRED, i);
-        a.get(2, i);
-        ASSERT_EQ(details::LoopActionType::ACTION, i);
-         a.get(3, i);
-         ASSERT_EQ(details::LoopActionType::CONTINUE_PRED, i);
      }
    };
 }

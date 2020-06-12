@@ -78,17 +78,19 @@ SchedLoop::SchedLoop()
 }
 
 auto SchedLoop::exec(TransactionContext& context) -> Status {
+   Status status = attachToParent(context);
+   if(status != Result::SUCCESS) {
+      return status;
+   }
+
    AUTO_SWITCH();
    return looping(context);
 }
 
 auto SchedLoop::handleEvent_(TransactionContext& context, const Event& event) -> Status {
-   if(action == nullptr) {
-      return Result::FATAL_BUG;
-   }
 
    ActionStatus status = action->handleEvent(context, event);
-   if(status.isWorking()){
+   if (status.isWorking() || stopping) {
       return status;
    } else if(status.isFailed()) {
       reportFailure(status);
@@ -99,16 +101,36 @@ auto SchedLoop::handleEvent_(TransactionContext& context, const Event& event) ->
 }
 
 auto SchedLoop::handleEvent(TransactionContext& context, const Event& event) -> Status {
+   if (action == nullptr) {
+      return Result::FATAL_BUG;
+   }
+
    AUTO_SWITCH();
    return handleEvent_(context, event);
 }
 
 auto SchedLoop::stop(TransactionContext& context) -> Status {
-   AUTO_SWITCH();
+   if(stopping) {
+      return Result::FATAL_BUG;
+   }
+
+   syncParentFailure();
+   stopping = true;
+
+   if(action != nullptr) {
+      AUTO_SWITCH();
+      return action->stop(context);
+   }
+
    return Result::FATAL_BUG;
 }
 
-auto SchedLoop::kill(TransactionContext& ) -> void {
+auto SchedLoop::kill(TransactionContext& context) -> void {
+   if(action != nullptr) {
+      AUTO_SWITCH();
+      action->kill(context);
+      action = nullptr;
+   }
 }
 
 TSL_NS_END

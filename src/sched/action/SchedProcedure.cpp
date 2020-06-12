@@ -155,11 +155,11 @@ auto SchedProcedure::exec_(TransactionContext& context) -> Status {
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
 
 auto SchedProcedure::exec(TransactionContext& context) -> Status {
-   if(parentEnv != nullptr) {
-      return Result::FATAL_BUG;
+   Status status = attachToParent(context);
+   if(status != Result::SUCCESS) {
+      return status;
    }
 
-   parentEnv = &context.getRuntimeContext();
    immune = isProtected();
 
    AUTO_SWITCH();

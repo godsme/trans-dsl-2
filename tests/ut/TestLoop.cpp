@@ -10,6 +10,8 @@
 #include <trans-dsl/sched/helper/LoopHelper.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <iostream>
+#include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include <trans-dsl/sched/helper/SequentialHelper.h>
 
 namespace {
    using namespace TSL_NS;
@@ -158,6 +160,35 @@ namespace {
       TEST("should return FAILED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::FAILED, action.handleEvent(context, event3));
+      }
+   };
+
+   FIXTURE(TestLoop6) {
+      using MainAction =
+         __sequential
+         ( __async(AsyncAction1)
+         , __async(AsyncAction2));
+
+      using ThisAction =
+         __procedure(
+            MainAction,
+            __finally(__on_fail(__throw(Result::OUT_OF_SCOPE))));
+
+      __loop
+      ( ThisAction
+      , __while(__is_succ)
+      ) action;
+
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      TEST("should return SUCCESS") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         context.getRuntimeContext().reportFailure(Result::INVALID_DATA);
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.stop(context));
       }
    };
 }

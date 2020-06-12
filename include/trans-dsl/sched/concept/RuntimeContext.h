@@ -11,6 +11,8 @@
 
 TSL_NS_BEGIN
 
+struct TransactionContext;
+
 struct RuntimeContext {
    RuntimeContext() = default;
    RuntimeContext(bool immune) : immune(immune) {}
@@ -27,21 +29,9 @@ struct RuntimeContext {
       finalStatus = Result::SUCCESS;
    }
 
-   auto reportFailure(ActionStatus status) -> void {
-      if(status.isFailed()) {
-         finalStatus = status;
-
-         if(!immune && parentEnv != nullptr) {
-            parentEnv->reportFailure(status);
-         }
-      }
-   }
-
-   auto syncParentFailure() {
-      if(parentEnv != nullptr) {
-         finalStatus = parentEnv->getStatus();
-      }
-   }
+   auto reportFailure(ActionStatus status) -> void;
+   auto syncParentFailure() -> void;
+   auto attachToParent(TransactionContext& context) -> Status;
 
 protected:
    RuntimeContext* parentEnv = nullptr;

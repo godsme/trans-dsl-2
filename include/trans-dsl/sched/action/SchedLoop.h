@@ -40,6 +40,7 @@ private:
    SchedAction* action = nullptr;
    uint16_t sequence = 0;
    bool errorChecking = true;
+   bool stopping = false;
 
 private:
    ABSTRACT(getAction(uint16_t seq, LoopActionType&) -> SchedAction*);

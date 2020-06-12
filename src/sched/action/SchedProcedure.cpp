@@ -8,6 +8,7 @@
 #include <trans-dsl/sched/concept/SchedAction.h>
 #include <cub/gof/Singleton.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
 
 TSL_NS_BEGIN
 
@@ -151,24 +152,7 @@ auto SchedProcedure::exec_(TransactionContext& context) -> Status {
    return state->exec(*this, context);
 }
 
-namespace {
-   struct AutoSwitch {
-      AutoSwitch(TransactionContext& context, RuntimeContext& thisContext)
-         : parentKeeper(context.getRuntimeContext())
-         , contextInfo(context) {
-         contextInfo.setRuntimeContext(thisContext);
-      }
-
-      ~AutoSwitch() {
-         contextInfo.setRuntimeContext(parentKeeper);
-      }
-
-      RuntimeContext& parentKeeper;
-      RuntimeContextInfo& contextInfo;
-   };
-}
-
-#define AUTO_SWITCH()  AutoSwitch{context, *this}
+#define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
 
 auto SchedProcedure::exec(TransactionContext& context) -> Status {
    if(parentEnv != nullptr) {

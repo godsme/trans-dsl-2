@@ -77,10 +77,11 @@ namespace details {
       return info.getStatus() == V_STATUS;
    }
 }
-
+#define __is_failed TSL_NS::details::IsFailed__
 #define __optional(...)   decltype(TSL_NS::details::deductOptionalClass__<__VA_ARGS__>())
-#define __on_fail(...) __optional(TSL_NS::details::IsFailed__, __VA_ARGS__)
+#define __on_fail(...) __optional(__is_failed, __VA_ARGS__)
 #define __on_status(status, ...) __optional(TSL_NS::details::IsStatus__<status>, __VA_ARGS__)
+
 
 TSL_NS_END
 

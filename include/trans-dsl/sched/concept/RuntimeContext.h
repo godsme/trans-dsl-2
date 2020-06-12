@@ -19,7 +19,7 @@ struct RuntimeContext {
    }
 
    auto  hasFailure() const -> bool {
-      return finalStatus == Result::SUCCESS;
+      return finalStatus != Result::SUCCESS;
    }
 
    auto cleanUpFailure() -> void {

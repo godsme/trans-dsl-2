@@ -3,6 +3,9 @@
 //
 
 #include <trans-dsl/sched/action/SchedLoop.h>
+#include <iostream>
+#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/action/TransactionInfo.h>
 
 TSL_NS_BEGIN
 
@@ -36,10 +39,11 @@ auto SchedLoop::execOnce(TransactionContext& context) -> Status {
    LoopActionType type{};
    while((action = getAction(sequence, type)) != nullptr) {
       checkError(type);
-
-      Status status = execOne(context, type);
-      if(status != Result::MOVE_ON) {
-         return status;
+      if(type != LoopActionType::ACTION || !hasFailure()) {
+         Status status = execOne(context, type);
+         if(status != Result::MOVE_ON) {
+            return status;
+         }
       }
 
       ++sequence;
@@ -68,25 +72,36 @@ auto SchedLoop::looping(TransactionContext& context) -> Status {
    return Result::FATAL_BUG;
 }
 
+#define AUTO_SWITCH()  RuntimeContextAutoSwitch __autoSwitch__{context, *this}
+
 auto SchedLoop::exec(TransactionContext& context) -> Status {
+   AUTO_SWITCH();
    return looping(context);
 }
 
-auto SchedLoop::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedLoop::handleEvent_(TransactionContext& context, const Event& event) -> Status {
    if(action == nullptr) {
       return Result::FATAL_BUG;
    }
 
    ActionStatus status = action->handleEvent(context, event);
-   if(status.isDone()){
-      ++sequence;
-      return looping(context);
+   if(status.isWorking()){
+      return status;
+   } else if(status.isFailed()) {
+      reportFailure(status);
    }
 
-   return status;
+   ++sequence;
+   return looping(context);
 }
 
-auto SchedLoop::stop(TransactionContext& ) -> Status {
+auto SchedLoop::handleEvent(TransactionContext& context, const Event& event) -> Status {
+   AUTO_SWITCH();
+   return handleEvent_(context, event);
+}
+
+auto SchedLoop::stop(TransactionContext& context) -> Status {
+   AUTO_SWITCH();
    return Result::FATAL_BUG;
 }
 

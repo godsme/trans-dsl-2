@@ -91,4 +91,32 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
       }
    };
+
+   FIXTURE(TestLoop3) {
+      __loop
+      ( __async(FailedAsyncAction3)
+      , __async(AsyncAction1)
+      , __break_if(__is_failed, Result::OUT_OF_SCOPE)
+      , __async(AsyncAction2)
+      , __continue_if(IsTrue)) action;
+
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      const Msg3 msg3{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+      TSL_NS::Event event3{eventInfo3};
+
+      TEST("should return OUT_OF_SCOPE") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.handleEvent(context, event3));
+      }
+   };
 }

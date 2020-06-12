@@ -23,6 +23,7 @@ struct StupidTransactionContext
    OVERRIDE(getStatus() const -> TSL_NS::Status) {
       return TransactionContext::getRuntimeContext().getStatus();
    }
+   
    OVERRIDE(getUserContext() const -> TSL_NS::Unknown*) {
       return nullptr;
    }

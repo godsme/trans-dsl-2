@@ -204,7 +204,7 @@
 
 这样，整个循环内部的操作在连续失败5次之前，不会结束。
 
-.. attention::
+.. Important::
    在 ``__loop`` 里，只有与循环控制有关的谓词，其状态的连续性才会得到保证。在正常Action的普通谓词，
    比如：``__optional(__not(ShouldRetry), __sync(Action1))`` ，
    其中的谓词 ``ShouldRetry`` 的状态连续性无法得到保证。

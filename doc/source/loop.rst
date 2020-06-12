@@ -156,6 +156,7 @@
 `Transaction DSL` 所提供的 ``continue`` 语意的关键字是 ``__redo_if`` ，相当于 ``if(cond) continue`` 。
 
 .. code-block:: c++
+
    __loop(
    , __sync(Action1)
    , __async(Action2)

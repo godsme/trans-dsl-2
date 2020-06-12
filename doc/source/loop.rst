@@ -45,8 +45,8 @@
 
 .. code-block:: c++
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
@@ -64,8 +64,8 @@
 
 .. code-block:: c++
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __break_if(__is_timeout)
@@ -102,8 +102,8 @@
    , __concurrent(__async(Action3), __async(Action5))
    );
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
@@ -124,8 +124,8 @@
    , __concurrent(__async(Action3), __async(Action5))
    );
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
@@ -143,8 +143,8 @@
 
 .. code-block:: c++
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
@@ -162,8 +162,8 @@
 
 .. code-block:: c++
 
-   __loop(
-   , __sync(Action1)
+   __loop
+   ( __sync(Action1)
    , __async(Action2)
    , __timer_guard(TIMER_2, Action3)
    , __redo_if(__is_timeout)
@@ -231,7 +231,7 @@
 
    __loop(
    // Action Segment 1
-   , __sync(Action1)
+     __sync(Action1)
    , __async(Action2)
 
    // Predicate Segment 1
@@ -276,7 +276,7 @@
 
    __loop(
    // Predicate Segment 1
-   , __break_if(__is_status(FATAL_BUG))
+     __break_if(__is_status(FATAL_BUG))
    , __redo_if(__is_failed)
 
    // Action Segment 1
@@ -298,5 +298,40 @@ stop
 当一个 ``__loop`` 被stop后，当前正在执行的Action会被stop，此Action被彻底stop后（有可能不能马上结束，
 需要进一步的消息激励后才能结束），返回的状态，则是整个 ``__loop`` 的返回壮状态。
 
+死循环
++++++++
 
+如果一个 ``__loop`` ，运行一次完整的循环，其间却没有任何消息激励，那么很可能这个循环进入了死循环状态，这种情况下 ``__loop`` 会被
+强制终止，并返回 ``USER_FATAL_BUG`` 错误。比如下面的循环将会陷入死循环状态。
+
+.. code-block:: c++
+
+   __loop
+   ( __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
+
+如果用户想避免这样的检查，则可以使用：``__loop_max`` 或者 ``__forever`` 以特别说明这的确是用户有意为之，而不是一个无意中犯下的错误。
+
+比如：
+
+.. code-block:: c++
+
+   __loop_max(1000
+   , __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
+
+或者：
+
+.. code-block:: c++
+
+   __forever
+   ( __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
+
+.. Hint::
+   ``__loop_max`` 与 ``__forever`` 并不意味着循环一定要永远循环下去，或者要循环到最大次数。循环里仍然可以设置谓词，
+   当谓词条件满足时，``__break_if`` 及其语法糖，将可能更早的终止循环。
 

@@ -215,6 +215,9 @@
 首先，整个 ``__loop`` 有一个自己的 **运行时环境** ，而这个运行时环境是一个 `Sandbox` ，即它内部所发生的任何错误，
 在整个 ``__loop`` 没有结束之前，外界无从感知，因而对外界并无任何影响。
 
+动作段与谓词段
++++++++++++++++
+
 在进一步描述 ``__loop`` 的错误处理之前，我们先来看两个概念：
 
 动作段：Action Segment
@@ -248,7 +251,7 @@
    , __concurrent(__async(Action6), __async(Action7))
    );
 
-首先，对于任何一个 **动作段** ，如果执行到某个Action，出了错，则此段后续的所有Action将都会被跳过。比如，本例子中
+对于任何一个 **动作段** ，如果执行到某个Action，出了错，则此段后续的所有Action将都会被跳过。比如，本例子中
 的 `Action Segment 2` 一共包含了3个Action，如果 ``Action3`` 的执行出了错，则后续的 ``Action4`` ， ``Action5`` 都会被跳过。
 
 当然，如果没有任何错误，一个 **动作段** 里的所有Action会依次全部执行。
@@ -261,3 +264,39 @@
 总是会得到 ``SUCCESS`` 。
 
 除非，**动作段3** 里又发生了一个新错误，这样， **动作段3** 将会终止其执行， **谓词段3** 将可以读到新的错误。
+
+对于最后一个 **动作段** 的状态，如果重新回到循环的起始位置，而循环的起始位置是一个 **谓词段** ，则此 **谓词段** 可以读取最后一个
+**动作段** 的状态；如果循环的起始位置是一个 **动作段** ，则最后一个 **动作段** 的错误会首先被清理，以保证起始位置的 **动作段** 可以
+从正确状态开始。比如，本例子中， ``Action Segment 3`` 的错误状态，会在 ``Action Segment 1`` 开始之前被清理。
+
+但是，对于下面的例子， ``Action Segment 2`` 中的错误，在重新回到 ``Predicate Segment 1`` 时，依然可以被读取，直到 ``Predicate Segment 1``
+运行结束，错误才会被清理，以保证 ``Action Segment1`` 可以以正确状态开始。
+
+.. code-block:: c++
+
+   __loop(
+   // Predicate Segment 1
+   , __break_if(__is_status(FATAL_BUG))
+   , __redo_if(__is_failed)
+
+   // Action Segment 1
+   , __async(Action3)
+   , __async(Action4)
+   , __timer_guard(TIMER_2, Action5)
+
+   // Predicate Segment 2
+   , __break_if(__is_timeout)
+   , __redo_if(__is_failed)
+
+   // Action Segment 2
+   , __concurrent(__async(Action6), __async(Action7))
+   );
+
+stop
++++++++
+
+当一个 ``__loop`` 被stop后，当前正在执行的Action会被stop，此Action被彻底stop后（有可能不能马上结束，
+需要进一步的消息激励后才能结束），返回的状态，则是整个 ``__loop`` 的返回壮状态。
+
+
+

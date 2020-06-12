@@ -28,13 +28,13 @@ namespace {
      __loop(__async(AsyncAction1), __break_if(IsTrue, Result::SUCCESS), __sync(SyncAction3)) a;
 
      TEST("is") {
-        int i = 100;
+        auto i = details::LoopActionType::ACTION;
         a.get(0, i);
-        ASSERT_EQ(0, i);
+        ASSERT_EQ(details::LoopActionType::ACTION, i);
         a.get(1, i);
-        ASSERT_EQ(1, i);
+        ASSERT_EQ(details::LoopActionType::BREAK_PRED, i);
         a.get(2, i);
-        ASSERT_EQ(0, i);
+        ASSERT_EQ(details::LoopActionType::ACTION, i);
      }
    };
 }

@@ -16,14 +16,21 @@
 TSL_NS_BEGIN
 
 namespace details {
-   struct BreakActionSignature {};
-   using BreakPred = LoopPred<BreakActionSignature>;
-   using BreakPredAction = LoopPredAction<BreakActionSignature>;
+   struct BreakSignature {};
+   using BreakPred = LoopPred<BreakSignature>;
+   using BreakPredAction = LoopPredAction<BreakSignature>;
 }
 
 #define __break_if(pred, ...) decltype(TSL_NS::details::BreakPred::DeduceType<pred, ##__VA_ARGS__>())
 
 namespace details {
+
+   enum class LoopActionType {
+      ACTION,
+      BREAK_PRED,
+      CONTINUE_PRED
+   };
+
 
    template<typename T>
    using IsSchedAction = std::enable_if_t<std::is_base_of_v<SchedAction, T>>;
@@ -47,9 +54,9 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq, int& v) -> SchedAction* {
+         auto get(LoopSeq seq, LoopActionType& v) -> SchedAction* {
             if(seq == V_SEQ) {
-               v = 0;
+               v = LoopActionType::ACTION;
                return new (cache) Action;
             } else {
                return Next::get(seq, v);
@@ -58,12 +65,21 @@ namespace details {
       };
    };
 
-   template<typename T>
-   using IsBreak = typename std::enable_if_t<std::is_base_of_v<BreakActionSignature, T> && (sizeof(T) > 1)>;
+   template<typename T, typename T_SIGNATURE>
+   using IsLoopPred = typename std::enable_if_t<std::is_base_of_v<T_SIGNATURE, T> && (sizeof(T) > 1)>;
 
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsBreak<T_HEAD>, T_HEAD, T_TAIL...> {
-      using Action = BreakPredAction::GenericAction<T_HEAD>;
+
+
+   template<
+      typename T_SIGNATURE,
+      LoopActionType V_ACTION_TYPE,
+      size_t V_SIZE,
+      size_t V_ALIGN,
+      LoopSeq V_SEQ,
+      typename T_HEAD,
+      typename ... T_TAIL>
+   struct GenericLoopBase_ {
+      using Action = typename LoopPredAction<T_SIGNATURE>::template GenericAction<T_HEAD>;
       using Next =
       typename GenericLoop_<
          V_SIZE,
@@ -75,9 +91,9 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq, int& v) -> SchedAction* {
+         auto get(LoopSeq seq, LoopActionType& v) -> SchedAction* {
             if(seq == V_SEQ) {
-               v = 1;
+               v = V_ACTION_TYPE;
                return &breakAction;
             } else {
                return Next::get(seq, v);
@@ -89,9 +105,14 @@ namespace details {
       };
    };
 
+   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsLoopPred<T_HEAD, BreakSignature>, T_HEAD, T_TAIL...>
+      : GenericLoopBase_<BreakSignature, LoopActionType::BREAK_PRED, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+   {};
+
    template<typename T>
    using IsEmptyBreak =
-      typename std::enable_if_t<std::is_base_of_v<BreakActionSignature, T> && \
+      typename std::enable_if_t<std::is_base_of_v<BreakSignature, T> && \
          sizeof(T) == 1>;
 
    template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
@@ -108,9 +129,9 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq, int& v) -> SchedAction* {
+         auto get(LoopSeq seq, LoopActionType& v) -> SchedAction* {
             if(seq == V_SEQ) {
-               v = 2;
+               v = LoopActionType::BREAK_PRED;
                return new (cache) Action;
             } else {
                return Next::get(seq, v);
@@ -122,7 +143,7 @@ namespace details {
    template<size_t T_SIZE, size_t T_ALIGN, LoopSeq T_SEQ>
    struct GenericLoop_<T_SIZE, T_ALIGN, T_SEQ> {
       struct Inner  {
-         auto get(LoopSeq seq, int& i) -> SchedAction* {
+         auto get(LoopSeq seq, LoopActionType&) -> SchedAction* {
             return nullptr;
          }
       protected:

@@ -13,6 +13,7 @@ TSL_NS_BEGIN
 
 struct RuntimeContext {
    RuntimeContext() = default;
+   RuntimeContext(bool immune) : immune(immune) {}
 
    auto getStatus() const -> Status {
       return finalStatus;

@@ -3,7 +3,6 @@
 //
 
 #include <trans-dsl/sched/action/SchedLoop.h>
-#include <iostream>
 #include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
 #include <trans-dsl/action/TransactionInfo.h>
 
@@ -73,6 +72,10 @@ auto SchedLoop::looping(TransactionContext& context) -> Status {
 }
 
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch __autoSwitch__{context, *this}
+
+SchedLoop::SchedLoop()
+   : RuntimeContext(true) {
+}
 
 auto SchedLoop::exec(TransactionContext& context) -> Status {
    AUTO_SWITCH();

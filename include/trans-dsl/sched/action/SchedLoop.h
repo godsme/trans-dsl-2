@@ -22,6 +22,8 @@ struct SchedLoop
    : private RuntimeContext
    , SchedAction {
 
+   SchedLoop();
+
    OVERRIDE(exec(TransactionContext& ) -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext& ) -> Status);

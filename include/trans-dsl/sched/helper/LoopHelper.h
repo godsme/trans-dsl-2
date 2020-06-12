@@ -179,7 +179,8 @@ namespace details {
 
 #define __loop(...) TSL_NS::details::LOOP__<__VA_ARGS__>::Inner
 #define __break_if(pred, ...) decltype(TSL_NS::details::BreakPred::DeduceType<pred, ##__VA_ARGS__>())
-#define __continue_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::RESTART_REQUIRED>())
+#define __until(...) __break_if(__VA_ARGS__)
+#define __redo_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::RESTART_REQUIRED>())
 #define __while(pred, ...) __break_if(__not(pred), ##__VA_ARGS__)
 
 TSL_NS_END

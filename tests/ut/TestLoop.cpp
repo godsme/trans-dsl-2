@@ -32,7 +32,7 @@ namespace {
         ( __async(AsyncAction1)
         , __break_if(IsTrue, Result::OUT_OF_SCOPE)
         , __sync(SyncAction3)
-        , __continue_if(IsTrue)) action;
+        , __redo_if(IsTrue)) action;
 
      StupidTransactionContext context{};
 
@@ -55,7 +55,7 @@ namespace {
       ( __sync(SyncAction1)
       , __break_if(is_true, Result::OUT_OF_SCOPE)
       , __async(AsyncAction1)
-      , __continue_if(IsTrue)) action;
+      , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
 
@@ -73,7 +73,7 @@ namespace {
       ( __async(AsyncAction1)
       , __break_if(is_false, Result::OUT_OF_SCOPE)
       , __async(AsyncAction2)
-      , __continue_if(IsTrue)) action;
+      , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
 
@@ -100,7 +100,7 @@ namespace {
       , __async(AsyncAction1)
       , __break_if(__is_failed, Result::OUT_OF_SCOPE)
       , __async(AsyncAction2)
-      , __continue_if(IsTrue)) action;
+      , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
 
@@ -126,7 +126,7 @@ namespace {
       __loop
       ( __async(FailedAsyncAction3)
       , __async(AsyncAction1)
-      , __continue_if(__is_failed)
+      , __redo_if(__is_failed)
       , __async(AsyncAction2)
       ) action;
 
@@ -148,7 +148,7 @@ namespace {
       __loop
       ( __async(FailedAsyncAction3)
       , __async(AsyncAction1)
-      , __while(__is_succ)
+      , __until(__is_failed)
       ) action;
 
       StupidTransactionContext context{};

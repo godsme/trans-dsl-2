@@ -13,8 +13,6 @@ namespace {
 
    bool is_true(const TransactionInfo&) { return true; }
 
-
-
    FIXTURE(TestOptional) {
       __optional(is_true, __async(AsyncAction1)) optional;
 

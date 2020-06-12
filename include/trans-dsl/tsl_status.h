@@ -31,6 +31,7 @@ enum Result : Status {
    DUPTID,
    INVALID_DATA,
    TIMEDOUT,
+   USER_FATAL_BUG,
    RESTART_REQUIRED,
    NOTHING_CHANGED,
 

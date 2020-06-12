@@ -49,13 +49,19 @@ auto SchedLoop::execOnce(TransactionContext& context) -> Status {
 }
 
 auto SchedLoop::looping(TransactionContext& context) -> Status {
+   int deadloopTimes = 0;
    while(1) {
+      if(deadloopTimes > 1) {
+         return Result::USER_FATAL_BUG;
+      }
+
       Status status = execOnce(context);
       if(status != Result::RESTART_REQUIRED) {
          return status;
       }
       sequence = 0;
       errorChecking = true;
+      ++deadloopTimes;
    }
 
    // never arrive here.

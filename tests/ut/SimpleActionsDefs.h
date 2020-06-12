@@ -66,7 +66,7 @@ namespace {
    }
 
    struct SyncAction3 {
-      auto exec(const TSL_NS::TransactionInfo&) -> TSL_NS::Status {
+      auto operator()(const TSL_NS::TransactionInfo&) -> TSL_NS::Status {
          return result;
       }
 

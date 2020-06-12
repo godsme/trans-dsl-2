@@ -40,7 +40,7 @@
 当程序员需要在一个Transaction里构建一个循环子过程时，可以使用 ``__loop(...)`` 来进行定义。这也是 `Transaction DSL` 所提供
 的唯一一种循环定义方式，它相当于 `C/C++` 中的 ``while(1){}`` 。
 
-.. code-block::
+.. code-block:: c++
 
    __loop(
    , __sync(Action1)

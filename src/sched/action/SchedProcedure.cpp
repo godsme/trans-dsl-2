@@ -136,7 +136,7 @@ DEF_STATE(Final) {
 DEF_STATE(Done) {
    OVERRIDE(enter(SchedProcedure& this__, TransactionContext& context, ActionStatus result) -> Status) {
       this__.action = nullptr;
-      return result;
+      return (result == SUCCESS && !this__.isProtected()) ? this__.getStatus() : (Status)result;
    }
 
    OVERRIDE(kill(SchedProcedure& this__, TransactionContext& context) -> void) {}

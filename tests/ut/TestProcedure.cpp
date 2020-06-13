@@ -154,10 +154,10 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
       }
 
-      TEST("call exec -> event3 -> event1, should return SUCCESS") {
+      TEST("call exec -> event3 -> event1, should return FAILED") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
       }
    };
 
@@ -222,14 +222,14 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
       }
 
       TEST("after success, if handleEvent, should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FATAL_BUG, procedure.handleEvent(context, event1));
       }
 
@@ -237,7 +237,7 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
       }
    };
@@ -261,7 +261,7 @@ namespace {
 
       TEST("after exec -> event1, should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FAILED, context.getStatus());
       }
    };
@@ -287,11 +287,11 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event2));
       }
 
-      TEST("after exec, if stop, should return CONTINUE") {
+      TEST("after exec, if stop, should return INVALID_DATA") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          context.RuntimeContext::reportFailure(Result::INVALID_DATA);
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::INVALID_DATA, procedure.handleEvent(context, event1));
       }
    };
 }

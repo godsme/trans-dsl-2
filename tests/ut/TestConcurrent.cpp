@@ -114,9 +114,9 @@ namespace {
       const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
       TSL_NS::Event event2{eventInfo2};
 
-      TEST("exec should return CONTINUE") {
+      TEST("exec should return FAILED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event2));
       }
 
       TEST("exec should report Failure") {
@@ -169,7 +169,7 @@ namespace {
       TEST("event3 -> event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event2));
       }
 
       TEST("stop should return CONTINUE") {
@@ -178,16 +178,16 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.stop(context));
       }
 
-      TEST("if not error on runtime-context, stop should return SUCCESS") {
+      TEST("if not error on runtime-context, stop should return FORCE_STOPPED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context));
       }
 
       TEST("after stop, event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          context.RuntimeContext::reportFailure(Result::FAILED);
          ASSERT_EQ(Result::CONTINUE, action.stop(context));
-         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event2));
       }
 
       TEST("after stop, event3 should return UNKNOWN_EVENT") {
@@ -200,7 +200,7 @@ namespace {
       TEST("after stop, event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          context.RuntimeContext::reportFailure(Result::OUT_OF_SCOPE);
-         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.stop(context));
       }
    };
 

@@ -17,16 +17,30 @@
 namespace {
    using namespace TSL_NS;
 
-   using ProcedureAction =
-      __procedure(__async(AsyncAction4), __finally(__async(AsyncAction2)));
 
    FIXTURE(TestConcurrent) {
       __concurrent(__async(AsyncAction1), __async(AsyncAction2)) action;
 
       StupidTransactionContext context{};
 
-      TEST("exec should return CONTINUE") {
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      TEST("event1 -> event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
+      }
+
+      TEST("event2 -> event1 should return SUCCESS") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
       }
    };
 
@@ -35,7 +49,7 @@ namespace {
 
       StupidTransactionContext context{};
 
-      TEST("exec should return CONTINUE") {
+      TEST("exec should return SUCCESS") {
          ASSERT_EQ(Result::SUCCESS, action.exec(context));
       }
    };
@@ -50,13 +64,21 @@ namespace {
       }
    };
 
+   using ProcedureAction =
+   __procedure(__async(AsyncAction4), __finally(__async(AsyncAction2)));
+
    FIXTURE(TestConcurrent3) {
       __concurrent(ProcedureAction, __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
-      TEST("exec should return FAILED") {
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      TEST("exec should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
       }
    };
 }

@@ -19,7 +19,11 @@ struct SchedConcurrent : SchedAction  {
 
 private:
    auto startUp(TransactionContext&) -> Status;
-   auto cleanUp(TransactionContext& context) -> Status;
+   auto cleanUp_(TransactionContext& context, Status& lastError) -> Status;
+   auto hasWorkingChildren(SeqInt from) const;
+   auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
+   auto getFinalStatus(Status lastError, bool hasWorkingAction) -> Status;
+   auto handleEvent_(TransactionContext&, const Event&) -> Status;
 
 private:
    enum class State : uint8_t {
@@ -32,7 +36,7 @@ private:
 private:
    RuntimeContext runtimeContext;
    State state = State::Idle;
-   State states[7]{};
+   State children[7]{};
 
 private:
    ABSTRACT(getNumOfActions() const -> SeqInt);

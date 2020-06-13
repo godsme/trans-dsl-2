@@ -85,9 +85,10 @@ namespace details {
 
 #define __is_succ TSL_NS::details::IsSucc__
 #define __is_failed TSL_NS::details::IsFailed__
+#define __is_status(status) TSL_NS::details::IsStatus__<status>
 #define __optional(...)   decltype(TSL_NS::details::deductOptionalClass__<__VA_ARGS__>())
 #define __on_fail(...) __optional(__is_failed, __VA_ARGS__)
-#define __on_status(status, ...) __optional(TSL_NS::details::IsStatus__<status>, __VA_ARGS__)
+#define __on_status(status, ...) __optional(__is_status(status), __VA_ARGS__)
 
 
 TSL_NS_END

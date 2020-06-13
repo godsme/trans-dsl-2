@@ -4,6 +4,7 @@
 
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <event/concept/Event.h>
+#include <trans-dsl/sched/concept/TransactionContext.h>
 
 TSL_NS_BEGIN
 
@@ -66,7 +67,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status failStatus) ->
    ActionStatus result = cleanUp(context, lastError);
    state = result.isWorking() ? State::Stopping : State::Done;
    if(result.isWorking()) {
-      runtimeContext.reportFailure(ActionStatus(lastError).isFailed() ? lastError : failStatus);
+      context.reportFailure(ActionStatus(lastError).isFailed() ? lastError : failStatus);
    }
 
    return result.isDone() ? Status{result} : failStatus;
@@ -100,10 +101,10 @@ auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    return false;
 }
 
-auto SchedConcurrent::getFinalStatus(Status lastError, bool hasWorkingAction) -> Status {
+auto SchedConcurrent::getFinalStatus(TransactionContext& context, Status lastError, bool hasWorkingAction) -> Status {
    if(hasWorkingAction) {
       if(lastError != Result::SUCCESS) {
-         runtimeContext.reportFailure(lastError);
+         context.reportFailure(lastError);
       }
 
       return Result::CONTINUE;
@@ -136,7 +137,9 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
    }
 
    return getFinalStatus(
-      lastError,hasWorkingAction ? hasWorkingAction : hasWorkingChildren(i));
+      context,
+      lastError,
+      hasWorkingAction ? hasWorkingAction : hasWorkingChildren(i));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

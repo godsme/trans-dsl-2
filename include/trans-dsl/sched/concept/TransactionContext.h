@@ -8,11 +8,11 @@
 #include <trans-dsl/tsl_ns.h>
 #include <cub/dci/Role.h>
 #include <assert.h>
+#include <trans-dsl/sched/concept/RuntimeContext.h>
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
-struct RuntimeContext;
 
 struct RuntimeContextInfo {
    auto getRuntimeContext() const -> RuntimeContext& {
@@ -22,6 +22,10 @@ struct RuntimeContextInfo {
 
    void setRuntimeContext(RuntimeContext& runtimeContext) {
       currentRuntimeContext = &runtimeContext;
+   }
+
+   void reportFailure(const Status status) {
+      currentRuntimeContext->reportFailure(status);
    }
 
 private:

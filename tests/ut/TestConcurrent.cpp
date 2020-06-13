@@ -65,7 +65,7 @@ namespace {
    };
 
    using ProcedureAction =
-   __procedure(__async(AsyncAction4), __finally(__async(AsyncAction2)));
+   __procedure(__async(AsyncAction4), __finally(__on_status(Result::FAILED, __async(AsyncAction2))));
 
    FIXTURE(TestConcurrent3) {
       __concurrent(ProcedureAction, __sync(FailedSyncAction4)) action;
@@ -79,6 +79,12 @@ namespace {
       TEST("exec should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+      }
+
+      TEST("exec should report Failure") {
+         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::FAILED, context.getStatus());
       }
    };
 }

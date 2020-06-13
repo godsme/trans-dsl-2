@@ -289,7 +289,7 @@ namespace {
 
       TEST("after exec, if stop, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         context.reportFailure(Result::INVALID_DATA);
+         context.RuntimeContext::reportFailure(Result::INVALID_DATA);
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
          ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event1));
       }

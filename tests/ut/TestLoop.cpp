@@ -12,6 +12,7 @@
 #include <iostream>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/SequentialHelper.h>
+#include <array>
 
 namespace {
    using namespace TSL_NS;

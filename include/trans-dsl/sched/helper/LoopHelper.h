@@ -11,6 +11,7 @@
 #include <trans-dsl/sched/action/SchedOptional.h>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
+#include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>
 #include <trans-dsl/sched/action/SchedLoop.h>
 
@@ -145,9 +146,6 @@ namespace details {
       using Action = T;
       constexpr static LoopActionType ActionType = LoopActionType::ACTION;
    };
-
-   template<typename T>
-   using IsSchedAction = std::enable_if_t<std::is_base_of_v<SchedAction, T>>;
 
    template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsSchedAction<T_HEAD>, T_HEAD, T_TAIL...>

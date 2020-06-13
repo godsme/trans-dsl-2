@@ -7,14 +7,17 @@
 
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedProcedure.h>
+#include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <algorithm>
 
 TSL_NS_BEGIN
 
 namespace details {
+   template<typename T_ACTION, typename T_FINAL, bool V_IS_PROTECTED, typename = void>
+   struct PROCEDURE__;
 
    template<typename T_ACTION, typename T_FINAL, bool V_IS_PROTECTED>
-   struct PROCEDURE__ : SchedProcedure {
+   struct PROCEDURE__<T_ACTION, T_FINAL, V_IS_PROTECTED, IsBothSchedAction<T_ACTION, T_FINAL>> : SchedProcedure {
    private:
       OVERRIDE(getAction()->SchedAction *) {
          return new(cache) T_ACTION;

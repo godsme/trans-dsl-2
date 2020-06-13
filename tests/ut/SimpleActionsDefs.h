@@ -14,6 +14,7 @@ namespace {
    const TSL_NS::EventId EV_MSG_1 = 1;
    const TSL_NS::EventId EV_MSG_2 = 2;
    const TSL_NS::EventId EV_MSG_3 = 3;
+   const TSL_NS::EventId EV_MSG_4 = 3;
    struct Msg1 {
       int a, b;
    };
@@ -23,6 +24,10 @@ namespace {
    };
 
    struct Msg3 {
+      int a;
+   };
+
+   struct Msg4 {
       int a;
    };
 
@@ -54,6 +59,16 @@ namespace {
 
    DEF_INLINE_EVENT_HANDLER(handleMsg3, Msg3) {
          return TSL_NS::Result::FAILED;
+      }
+   };
+
+   DEF_SIMPLE_ASYNC_ACTION(AsyncAction4) {
+      auto exec(const TSL_NS::TransactionInfo &) -> TSL_NS::Status {
+         return WAIN_ON(EV_MSG_4, handleMsg4);
+      }
+
+   DEF_INLINE_EVENT_HANDLER(handleMsg4, Msg4) {
+         return TSL_NS::Result::SUCCESS;
       }
    };
 

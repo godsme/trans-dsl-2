@@ -48,12 +48,13 @@ WORKING
 - 如果调用 ``kill`` ，Action立即应进入 `DONE` 状态。
 
 
-``STOPPING``
+STOPPING
 +++++++++++++
 
 在 `STOPPING` 状态下，
 
-- ``exec`` 与 ``stop`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
+- ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
+- 如果调用 ``stop``，不应对Action产生任何影响，而直接返回 ``CONTINUE`` ;
 - 如果调用 ``kill`` ，应立即进入 `DONE` 状态
 - 如果调用 ``handleEvent`` , 其可能结果如下：
 
@@ -62,7 +63,7 @@ WORKING
   - ``CONTINUE`` 代表Action依然处于 *STOPPING* 状态；
   - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
 
-``DONE``
+DONE
 +++++++++++++
 
 在 *DONE* 状态下，

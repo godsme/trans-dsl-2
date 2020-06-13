@@ -66,7 +66,7 @@ STOPPING
   - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
   - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
   - ``CONTINUE`` 代表Action依然处于 :ref:`STOPPING` 状态；
-  - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
+  - ``UNKNOWN_EVENT`` 表示消息并未被 :ref:`accepted <accepted>` ；
 
 .. _DONE:
 

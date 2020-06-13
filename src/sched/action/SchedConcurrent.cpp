@@ -66,7 +66,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status failStatus) ->
 
    Status lastError{};
    Status status = cleanUp_(context, lastError);
-   if(status == Result::CONTINUE) {
+   if(Result::CONTINUE == status) {
       context.reportFailure(lastError);
    }
 
@@ -95,9 +95,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    const auto total = getNumOfActions();
    for(SeqInt i = from; i<total; i++) {
-      if(IS_CHILD_WORKING(i)) {
-        return true;
-      }
+      if(IS_CHILD_WORKING(i)) return true;
    }
 
    return false;
@@ -117,14 +115,10 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
          hasWorkingAction = true;
       } else {
          children[i] = State::Done;
-         if(status.isFailed()) {
-            lastError = status;
-         }
+         if(status.isFailed()) lastError = status;
       }
 
-      if(event.isConsumed()) {
-         break;
-      }
+      if(event.isConsumed()) break;
    }
 
    if(!hasWorkingAction && !hasWorkingChildren(i)) {
@@ -148,39 +142,31 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& event) -> Status {
-   if(!IS_WORKING__(state)) {
-      return Result::FATAL_BUG;
-   }
+   if(!IS_WORKING__(state)) return Result::FATAL_BUG;
 
    Status lastError = handleEvent_(context, event);
-   if(!IS_WORKING__(state)) {
-      return lastError;
-   }
+   if(!IS_WORKING__(state)) return lastError;
 
    return event.isConsumed() ? Result::CONTINUE : Result::UNKNOWN_EVENT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context) -> Status {
-   if(state != State::Working) {
-      return Result::FATAL_BUG;
-   }
+   if(state != State::Working) return Result::FATAL_BUG;
 
    return cleanUp(context, Result::SUCCESS);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context) -> void {
-   if(IS_WORKING__(state)) {
-      auto total = getNumOfActions();
-      for(SeqInt i = 0; i<total; i++) {
-         if(IS_CHILD_WORKING(i)) {
-            get(i)->kill(context);
-         }
-      }
+   if(!IS_WORKING__(state)) return;
 
-      state = State::Done;
+   auto total = getNumOfActions();
+   for(SeqInt i = 0; i<total; i++) {
+      if(IS_CHILD_WORKING(i)) get(i)->kill(context);
    }
+
+   state = State::Done;
 }
 
 TSL_NS_END

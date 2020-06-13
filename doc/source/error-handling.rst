@@ -16,38 +16,40 @@ Action从外部看，总共有4个状态，它们的状态转换关系如下图�
 
 下面我们对其进行详细说明。
 
+.. _`IDLE`:
 IDLE
 ++++++++++
 
-任何一个Action ，单纯从外部看，在没有发生任何调用之前，Action必然处于 `IDLE` 状态。
+任何一个Action ，单纯从外部看，在没有发生任何调用之前，Action必然处于 :ref:`IDLE` 状态。
 
-而 `IDLE` 状态下，唯一合法的调用是``exec``，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 `WORKING` 状态。
-而 `WORKING` 的含义是，此Action需要进一步的异步消息激励。
+而 :ref:`IDLE` 状态下，唯一合法的调用是``exec``，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 :ref:`WORKING` 状态。
+而 :ref:`WORKING` 的含义是，此Action需要进一步的异步消息激励。
 
 
+.. _`WORKING`:
 WORKING
 +++++++++++++++
 
-在 `WORKING` 状态下，
+在 :ref:`WORKING` 状态下，
 
 - ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果有事件到达，可以调用 ``handleEvent`` 进行处理；其可能结果如下：
 
-  - ``SUCCESS`` 代表Action进入 `DONE` 状态；
-  - 任何错误值，也代表Action进入 `DONE` 状态；
-  - ``CONTINUE`` 代表Action依然处于 `WORKING` 状态；并且这条消息被Action成功的 `accepted` 并处理，
+  - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
+  - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
+  - ``CONTINUE`` 代表Action依然处于 :ref:`WORKING` 状态；并且这条消息被Action成功的 :ref:`accepted` 并处理，
     只是还需要进一步的消息激励；
   - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
 
 - 如果调用 ``stop`` ，其可能结果如下：
 
-  - 如果返回 ``CONTINUE`` ，表示Action进入 `STOPPING` 状态；
-  - 如果返回 ``SUCCESS`` ，表示Action进入 `DONE` 状态；
-  - 如果返回错误值，表示Action进入 `DONE` 状态；
+  - 如果返回 ``CONTINUE`` ，表示Action进入 :ref:`STOPPING` 状态；
+  - 如果返回 ``SUCCESS`` ，表示Action进入 :ref:`DONE` 状态；
+  - 如果返回错误值，表示Action进入 :ref:`DONE` 状态；
 
-- 如果调用 ``kill`` ，Action立即应进入 `DONE` 状态。
+- 如果调用 ``kill`` ，Action立即应进入 :ref:`DONE` 状态。
 
-
+.. _`STOPPING`:
 STOPPING
 +++++++++++++
 
@@ -55,34 +57,35 @@ STOPPING
 
 - ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果调用 ``stop``，不应对Action产生任何影响，而直接返回 ``CONTINUE`` ;
-- 如果调用 ``kill`` ，应立即进入 `DONE` 状态
+- 如果调用 ``kill`` ，应立即进入 :ref:`DONE` 状态
 - 如果调用 ``handleEvent`` , 其可能结果如下：
 
-  - ``SUCCESS`` 代表Action进入 `DONE` 状态；
-  - 任何错误值，也代表Action进入 `DONE` 状态；
-  - ``CONTINUE`` 代表Action依然处于 *STOPPING* 状态；
+  - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
+  - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
+  - ``CONTINUE`` 代表Action依然处于 :ref:`STOPPING` 状态；
   - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
 
+.. _`DONE`:
 DONE
 +++++++++++++
 
 在 *DONE* 状态下，
 
 - ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
-- 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 *DONE* 状态。
+- 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 :ref:`DONE` 状态。
 
 
+.. _`accepted`:
 .. Hint::
    - 一个Action的 ``handleEvent`` ，只要返回 ``SUCCESS`` ，
      ``CONTINUE`` ，包括大部分错误（某些错误，比如 ``FATAL_BUG`` ，
      表示在此Action已经处于不应该再被调用 ``handleEvent`` 的状态），
-     都代表这条消息被 *accepted* ；
+     都代表这条消息被 **accepted** ；
 
-   - 而返回 ``UNKNOWN_EVENT`` 则明确代表此消息没有被此Action *accepted* 。
+   - 而返回 ``UNKNOWN_EVENT`` 则明确代表此消息没有被此Action **accepted** 。
 
-   - 一个消息被 *accepted* ，并不代表一个消息被 *consumed*。如果没有被 *consumed* ，
+   - 一个消息被 **accepted** ，并不代表一个消息被 **consumed** 。如果没有被 **consumed** ，
      代表此消息依然可以被其它Action处理。
-
 
 
 

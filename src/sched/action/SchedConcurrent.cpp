@@ -44,7 +44,7 @@ auto SchedConcurrent::cleanUp_(TransactionContext &context, Status& lastError) -
    auto hasWorking = false;
    lastError = Result::SUCCESS;
    for(SeqInt i=0; i < total; i++) {
-      if(children[i] == State::Working) {
+      if(IS_CHILD_WORKING(i)) {
          ActionStatus status = get(i)->stop(context);
          if(status.isWorking()) {
             hasWorking = true;
@@ -63,11 +63,13 @@ auto SchedConcurrent::cleanUp_(TransactionContext &context, Status& lastError) -
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::cleanUp(TransactionContext& context, Status failStatus) -> Status {
+   context.reportFailure(failStatus);
+
    Status lastError{};
-   ActionStatus result = cleanUp(context, lastError);
+   ActionStatus result = cleanUp_(context, lastError);
    state = result.isWorking() ? State::Stopping : State::Done;
    if(result.isWorking()) {
-      context.reportFailure(ActionStatus(lastError).isFailed() ? lastError : failStatus);
+      context.reportFailure(lastError);
    }
 
    return result.isDone() ? failStatus : Status{result};
@@ -81,6 +83,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
    ActionStatus status = startUp(context);
    if(status.isFailed()) {
+      context.reportFailure(status);
       return cleanUp(context, status);
    }
 
@@ -101,13 +104,15 @@ auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    return false;
 }
 
-auto SchedConcurrent::getFinalStatus(TransactionContext& context, Status lastError, bool hasWorkingAction) -> Status {
+auto SchedConcurrent::getFinalStatus(TransactionContext& context, Status lastError, bool eventConsumed, bool hasWorkingAction) -> Status {
    if(hasWorkingAction) {
-      if(lastError != Result::SUCCESS) {
+      if(state == State::Working) {
+         return cleanUp(context, lastError);
+      } else {
          context.reportFailure(lastError);
       }
 
-      return Result::CONTINUE;
+      return eventConsumed ? Result::CONTINUE : Result::UNKNOWN_EVENT;
    }
 
    return lastError;
@@ -115,8 +120,8 @@ auto SchedConcurrent::getFinalStatus(TransactionContext& context, Status lastErr
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& event) -> Status {
    const auto total = getNumOfActions();
-   Status lastError = Result::SUCCESS;
    bool hasWorkingAction = false;
+   Status lastError = Result::SUCCESS;
 
    SeqInt i = 0;
    for(; i < total; ++i) {
@@ -136,10 +141,24 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
       }
    }
 
-   return getFinalStatus(
-      context,
-      lastError,
-      hasWorkingAction ? hasWorkingAction : hasWorkingChildren(i));
+   if(!hasWorkingAction) {
+      hasWorkingAction = hasWorkingChildren(i);
+   }
+
+   if(hasWorkingAction) {
+      if (ActionStatus(lastError).isFailed() && state == State::Working) {
+         ActionStatus status = cleanUp(context, lastError);
+         if(status.isFailed()) {
+            return status;
+         }
+      } else {
+         context.reportFailure(lastError);
+      }
+
+      return event.isConsumed() ? Result::CONTINUE : Result::UNKNOWN_EVENT;
+   }
+
+   return lastError;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

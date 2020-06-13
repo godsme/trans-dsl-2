@@ -98,4 +98,23 @@ namespace {
          ASSERT_EQ(Result::FATAL_BUG, optional.handleEvent(context, event1));
       }
    };
+
+   FIXTURE(TestOptional4) {
+      __optional(__is_status(Result::OUT_OF_SCOPE), __async(AsyncAction1)) optional;
+
+      const Msg1 msg1{10, 20};
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      StupidTransactionContext context{};
+      TEST("exec should return SUCCESS") {
+         ASSERT_EQ(Result::SUCCESS, optional.exec(context));
+      }
+
+      TEST("exec should return CONTINUE") {
+         context.RuntimeContext::reportFailure(Result::OUT_OF_SCOPE);
+         ASSERT_EQ(Result::CONTINUE, optional.exec(context));
+         ASSERT_EQ(Result::SUCCESS, optional.handleEvent(context, event1));
+      }
+   };
 }

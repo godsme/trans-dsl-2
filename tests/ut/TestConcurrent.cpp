@@ -102,8 +102,11 @@ namespace {
    using ProcedureAction =
    __procedure(__async(AsyncAction4), __finally(__on_status(Result::FAILED, __async(AsyncAction2))));
 
+   using ProcedureAction1 =
+   __procedure(__async(AsyncAction4), __finally(__async(AsyncAction2)));
+
    FIXTURE(TestConcurrent3) {
-      __concurrent(ProcedureAction, __sync(FailedSyncAction4)) action;
+      __concurrent(ProcedureAction1, __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -175,6 +178,11 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.stop(context));
       }
 
+      TEST("if not error on runtime-context, stop should return SUCCESS") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+      }
+
       TEST("after stop, event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          context.RuntimeContext::reportFailure(Result::FAILED);
@@ -195,4 +203,21 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, action.stop(context));
       }
    };
+
+   using ProcedureAction2 =
+   __procedure(
+      __async(AsyncAction4),
+      __finally(__on_status(Result::FORCE_STOPPED, __async(AsyncAction2))));
+
+   FIXTURE(TestConcurrent6) {
+      __concurrent(__async(FailedAsyncAction3), ProcedureAction2) action;
+
+      StupidTransactionContext context{};
+
+      TEST("after stop, event3 should return UNKNOWN_EVENT") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context));
+      }
+   };
+
 }

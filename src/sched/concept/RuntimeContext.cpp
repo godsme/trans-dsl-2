@@ -21,6 +21,10 @@ auto RuntimeContext::syncParentFailure() -> void {
    if(parentEnv != nullptr) {
       finalStatus = parentEnv->getStatus();
    }
+
+   if(finalStatus == Result::SUCCESS) {
+      finalStatus = Result::FORCE_STOPPED;
+   }
 }
 
 auto RuntimeContext::attachToParent(TransactionContext& context) -> Status {

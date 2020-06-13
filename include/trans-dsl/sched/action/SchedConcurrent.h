@@ -22,7 +22,7 @@ private:
    auto cleanUp_(TransactionContext& context, Status& lastError) -> Status;
    auto hasWorkingChildren(SeqInt from) const;
    auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
-   auto getFinalStatus(TransactionContext& context, Status lastError, bool hasWorkingAction) -> Status;
+   auto getFinalStatus(TransactionContext& context, Status lastError, bool eventConsumed, bool hasWorkingAction) -> Status;
    auto handleEvent_(TransactionContext&, const Event&) -> Status;
 
 private:

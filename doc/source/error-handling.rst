@@ -14,7 +14,7 @@ Action外部行为规范
 而 ``WORKING`` 的含义是，此Action需要进一步的异步消息激励。
 
 ``WORKING``
-++++++++++
++++++++++++++++
 
 在 ``WORKING`` 状态下，
 
@@ -22,7 +22,8 @@ Action外部行为规范
 - 如果有事件到达，可以调用 ``handleEvent`` 进行处理；其可能结果如下：
   - ``SUCCESS`` 代表Action进入 ``DONE`` 状态；
   - 任何错误值，也代表Action进入 ``DONE`` 状态；
-  - ``CONTINUE`` 代表Action依然处于 ``WORKING`` 状态；并且这条消息被Action成功的 ``accepted`` 并处理，只是还需要进一步的消息激励；
+  - ``CONTINUE`` 代表Action依然处于 ``WORKING`` 状态；并且这条消息被Action成功的 ``accepted`` 并处理，
+    只是还需要进一步的消息激励；
   - ``UNKNOWN_EVENT`` 表示消息并未被 ``accepted`` ；
 - 如果调用 ``stop`` ，其可能结果如下：
   - 如果返回 ``CONTINUE`` ，表示Action进入 ``STOPPING`` 状态；
@@ -50,19 +51,19 @@ Action外部行为规范
 在 ``DONE`` 状态下，
 
 - ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
-- 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 ``DONE``状态。
+- 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 ``DONE`` 状态。
 
 
 .. Hint::
-
    - 一个Action的 ``handleEvent`` ，只要返回 ``SUCCESS`` ，
-   ``CONTINUE`` ，包括大部分错误（某些错误，比如 ``FATAL_BUG`` ，
-   表示在此Action已经处于不应该再被调用 ``handleEvent`` 的状态），
-   都代表这条消息被 ``accepted`` ；
+     ``CONTINUE`` ，包括大部分错误（某些错误，比如 ``FATAL_BUG`` ，
+     表示在此Action已经处于不应该再被调用 ``handleEvent`` 的状态），
+     都代表这条消息被 ``accepted`` ；
 
    - 而返回 ``UNKNOWN_EVENT`` 则明确代表此消息没有被此Action ``accepted`` 。
 
-   - 一个消息被 ``accepted`` ，并不代表一个消息被 ``consumed``。如果没有被 ``consumed`` ，代表此消息依然可以被其它Action处理。
+   - 一个消息被 ``accepted`` ，并不代表一个消息被 ``consumed``。如果没有被 ``consumed`` ，
+     代表此消息依然可以被其它Action处理。
 
 
 Action内部行为规范

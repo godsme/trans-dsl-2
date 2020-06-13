@@ -5,6 +5,17 @@
 Action外部行为规范
 --------------------
 
+Action外部状态
+~~~~~~~~~~~~~
+
+Action从外部看，总共有4个状态，它们的状态转换关系如下图所示：
+
+.. image:: ch-4/action-ext-state.png
+   :align: center
+   :scale: 50 %
+
+下面我们对其进行详细说明。
+
 ``IDLE``
 ++++++++++
 
@@ -69,6 +80,8 @@ Action外部行为规范
 
    - 一个消息被 ``accepted`` ，并不代表一个消息被 ``consumed``。如果没有被 ``consumed`` ，
      代表此消息依然可以被其它Action处理。
+
+
 
 
 Action内部行为规范

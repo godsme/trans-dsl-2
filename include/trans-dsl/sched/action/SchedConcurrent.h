@@ -19,7 +19,7 @@ struct SchedConcurrent : SchedAction  {
 
 private:
    auto startUp(TransactionContext&) -> Status;
-   auto cleanUp_(TransactionContext& context, Status& lastError) -> Status;
+   auto cleanUp_(TransactionContext& context) -> Status;
    auto hasWorkingChildren(SeqInt from) const;
    auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
    auto handleEvent_(TransactionContext&, const Event&) -> Status;
@@ -35,8 +35,9 @@ private:
    };
 
 private:
+   Status lastFailure = Result::SUCCESS;
    State state = State::Idle;
-   State children[7]{};
+   State children[11]{};
 
 private:
    ABSTRACT(getNumOfActions() const -> SeqInt);

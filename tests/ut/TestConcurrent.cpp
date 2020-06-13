@@ -85,6 +85,7 @@ namespace {
       StupidTransactionContext context{};
 
       TEST("exec should return SUCCESS") {
+         std::cout << sizeof(action) << std::endl;
          ASSERT_EQ(Result::SUCCESS, action.exec(context));
       }
    };

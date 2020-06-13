@@ -52,7 +52,7 @@ namespace details {
       };
 
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= 7, "# of concurrent actions should be at most 7");
+      static_assert(Num_Of_Actions <= 11, "# of concurrent actions should be at most 11");
 
       struct Inner : SchedConcurrent, private Actions {
       private:

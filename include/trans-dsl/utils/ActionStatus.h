@@ -12,6 +12,7 @@ TSL_NS_BEGIN
 
 struct ActionStatus
 {
+   ActionStatus() = default;
    ActionStatus(Status status) : status(status) {}
 
    auto isWorking() const -> bool {
@@ -43,7 +44,7 @@ struct ActionStatus
    }
 
 private:
-   Status status;
+   Status status = Result::SUCCESS;
 };
 
 TSL_NS_END

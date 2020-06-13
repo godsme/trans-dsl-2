@@ -20,15 +20,19 @@ Action外部行为规范
 
 - ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果有事件到达，可以调用 ``handleEvent`` 进行处理；其可能结果如下：
+
   - ``SUCCESS`` 代表Action进入 ``DONE`` 状态；
   - 任何错误值，也代表Action进入 ``DONE`` 状态；
   - ``CONTINUE`` 代表Action依然处于 ``WORKING`` 状态；并且这条消息被Action成功的 ``accepted`` 并处理，
     只是还需要进一步的消息激励；
   - ``UNKNOWN_EVENT`` 表示消息并未被 ``accepted`` ；
+
 - 如果调用 ``stop`` ，其可能结果如下：
+
   - 如果返回 ``CONTINUE`` ，表示Action进入 ``STOPPING`` 状态；
   - 如果返回 ``SUCCESS`` ，表示Action进入 ``DONE`` 状态；
   - 如果返回错误值，表示Action进入 ``DONE`` 状态；
+
 - 如果调用 ``kill`` ，Action立即应进入 ``DONE`` 状态。
 
 
@@ -40,6 +44,7 @@ Action外部行为规范
 - ``exec`` 与 ``stop`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果调用 ``kill`` ，应立即进入 ``DONE`` 状态
 - 如果调用 ``handleEvent`` , 其可能结果如下：
+
   - ``SUCCESS`` 代表Action进入 ``DONE`` 状态；
   - 任何错误值，也代表Action进入 ``DONE`` 状态；
   - ``CONTINUE`` 代表Action依然处于 ``STOPPING`` 状态；

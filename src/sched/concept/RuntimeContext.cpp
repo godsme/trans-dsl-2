@@ -7,7 +7,7 @@
 TSL_NS_BEGIN
 
 auto RuntimeContext::reportFailure(ActionStatus status) -> void {
-   if(status.isFailed()) {
+   if(finalStatus != status) {
       finalStatus = status;
 
       if(!immune && parentEnv != nullptr) {

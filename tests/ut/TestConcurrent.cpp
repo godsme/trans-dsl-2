@@ -220,9 +220,14 @@ namespace {
 
       StupidTransactionContext context{};
 
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
       TEST("after stop, event3 should return UNKNOWN_EVENT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.stop(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.handleEvent(context, event2));
       }
    };
 

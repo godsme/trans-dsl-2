@@ -4,8 +4,14 @@
 
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/ActionStatus.h>
+#include <trans-dsl/sched/concept/TransactionContext.h>
 
 TSL_NS_BEGIN
+
+///////////////////////////////////////////////////////////////////////////////
+inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
+   return status.isDone() ? lastError : (Status) status;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
@@ -26,7 +32,7 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedSequential::handleEvent_(TransactionContext& context, const Event& event) -> Status {
    if(current == nullptr) {
       return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
@@ -45,6 +51,11 @@ auto SchedSequential::handleEvent(TransactionContext& context, const Event& even
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+auto SchedSequential::handleEvent(TransactionContext& context, const Event& event) -> Status {
+   return getFinalStatus(handleEvent_(context, event));
+}
+
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context) -> Status {
    if(current == nullptr) {
       return Result::FATAL_BUG;
@@ -55,6 +66,7 @@ auto SchedSequential::stop(TransactionContext& context) -> Status {
    }
 
    stopped = true;
+   lastError = context.getRuntimeContext().getStopCause();
 
    ActionStatus status = current->stop(context);
    if(status.isWorking()) {

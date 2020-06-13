@@ -6,6 +6,7 @@
 #define TRANS_DSL_2_SCHEDSEQUENTIAL_H
 
 #include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/utils/ActionStatus.h>
 
 TSL_NS_BEGIN
 
@@ -18,9 +19,12 @@ struct SchedSequential : SchedAction {
 
 private:
    auto forward(TransactionContext&) -> Status;
+   auto getFinalStatus(ActionStatus status) -> Status;
+   auto handleEvent_(TransactionContext& context, const Event& event) -> Status;
 
 private:
    SchedAction* current = nullptr;
+   Status lastError = Result::SUCCESS;
    uint16_t index = 0;
    bool stopped = false;
 

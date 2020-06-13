@@ -18,6 +18,12 @@ namespace details {
    template<SeqInt V_SEQ, typename ... T_ACTIONS>
    struct GenericConcurrent;
 
+//   template<typename T_ACTION>
+//   using IsEmptySchedAction =
+//      std::enable_if_t<
+//         std::is_base_of_v<SchedAction, T_ACTION> &&
+//            sizeof(T_ACTION) == sizeof(SchedAction)>;
+
    template<SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericConcurrent<V_SEQ, T_HEAD, T_TAIL...> {
       using Action = T_HEAD;

@@ -16,7 +16,7 @@ Action从外部看，总共有4个状态，它们的状态转换关系如下图�
 
 下面我们对其进行详细说明。
 
-.. _`IDLE`:
+.. _IDLE:
 IDLE
 ++++++++++
 
@@ -26,7 +26,7 @@ IDLE
 而 :ref:`WORKING` 的含义是，此Action需要进一步的异步消息激励。
 
 
-.. _`WORKING`:
+.. _WORKING:
 WORKING
 +++++++++++++++
 
@@ -49,7 +49,7 @@ WORKING
 
 - 如果调用 ``kill`` ，Action立即应进入 :ref:`DONE` 状态。
 
-.. _`STOPPING`:
+.. _STOPPING:
 STOPPING
 +++++++++++++
 
@@ -65,7 +65,7 @@ STOPPING
   - ``CONTINUE`` 代表Action依然处于 :ref:`STOPPING` 状态；
   - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
 
-.. _`DONE`:
+.. _DONE:
 DONE
 +++++++++++++
 
@@ -75,7 +75,7 @@ DONE
 - 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 :ref:`DONE` 状态。
 
 
-.. _`accepted`:
+.. _accepted:
 .. Hint::
    - 一个Action的 ``handleEvent`` ，只要返回 ``SUCCESS`` ，
      ``CONTINUE`` ，包括大部分错误（某些错误，比如 ``FATAL_BUG`` ，

@@ -39,9 +39,9 @@ WORKING
 
   - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
   - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
-  - ``CONTINUE`` 代表Action依然处于 :ref:`WORKING` 状态；并且这条消息被Action成功的 :ref:`accepted` 并处理，
+  - ``CONTINUE`` 代表Action依然处于 :ref:`WORKING` 状态；并且这条消息被Action成功的 :ref:`accepted <accepted>` 并处理，
     只是还需要进一步的消息激励；
-  - ``UNKNOWN_EVENT`` 表示消息并未被 *accepted* ；
+  - ``UNKNOWN_EVENT`` 表示消息并未被 :ref:`accepted <accepted>` ；
 
 - 如果调用 ``stop`` ，其可能结果如下：
 

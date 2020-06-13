@@ -5,10 +5,16 @@
 Action外部行为规范
 --------------------
 
+``IDLE``
+++++++++++
+
 任何一个 ``Action`` ，单纯从外部看，在没有发生任何调用之前，Action必然处于 ``IDLE`` 状态。
 
 而 ``IDLE`` 状态下，唯一合法的调用是``exec``，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 ``WORKING`` 状态。
 而 ``WORKING`` 的含义是，此Action需要进一步的异步消息激励。
+
+``WORKING``
+++++++++++
 
 在 ``WORKING`` 状态下，
 
@@ -25,6 +31,9 @@ Action外部行为规范
 - 如果调用 ``kill`` ，Action立即应进入 ``DONE`` 状态。
 
 
+``STOPPING``
++++++++++++++
+
 在 ``STOPPING`` 状态下，
 
 - ``exec`` 与 ``stop`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
@@ -35,7 +44,11 @@ Action外部行为规范
   - ``CONTINUE`` 代表Action依然处于 ``STOPPING`` 状态；
   - ``UNKNOWN_EVENT`` 表示消息并未被 ``accepted`` ；
 
+``DONE``
++++++++++++++
+
 在 ``DONE`` 状态下，
+
 - ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 ``DONE``状态。
 

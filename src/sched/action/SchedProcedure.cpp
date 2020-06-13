@@ -65,10 +65,11 @@ DEF_STATE(Idle)  {
 };
 
 DEF_STATE(Working) {
+
    OVERRIDE(handleEvent(SchedProcedure& this__, TransactionContext& context, const Event& event) -> Status) {
       ActionStatus status = this__.action->handleEvent(context, event);
       if(status.isWorking()) {
-         return status;
+         return workingStateCheck(this__, context, status);
       } else {
          return this__.gotoState<Final>(context, status);
       }
@@ -83,6 +84,12 @@ DEF_STATE(Working) {
       } else {
          return this_.gotoState<Final>(context, status);
       }
+   }
+
+private:
+   auto workingStateCheck(SchedProcedure& this_, TransactionContext& context, Status status) -> Status {
+      if(this_.getStatus() == Result::SUCCESS) return status;
+      return this_.gotoState<Stopping>(context, status);
    }
 };
 

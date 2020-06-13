@@ -119,6 +119,11 @@ namespace {
          ASSERT_EQ(Result::FAILED, action.handleEvent(context, event2));
       }
 
+      TEST("exec -> stop should return CONTINUE") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context));
+      }
+
       TEST("exec should report Failure") {
          ASSERT_EQ(Result::SUCCESS, context.getStatus());
          ASSERT_EQ(Result::CONTINUE, action.exec(context));

@@ -16,7 +16,6 @@
 namespace {
    using namespace TSL_NS;
 
-
    FIXTURE(TestProcedure) {
       using MainActions =
          __sequential

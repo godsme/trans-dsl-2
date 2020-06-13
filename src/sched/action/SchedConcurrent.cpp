@@ -152,7 +152,11 @@ auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& even
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context) -> Status {
-   if(state != State::Working) return Result::FATAL_BUG;
+   if(state == State::Stopping) {
+      return CONTINUE;
+   } else if(state != State::Working){
+      return Result::FATAL_BUG;
+   }
 
    return cleanUp(context, Result::SUCCESS);
 }

@@ -70,7 +70,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status failStatus) ->
       context.reportFailure(ActionStatus(lastError).isFailed() ? lastError : failStatus);
    }
 
-   return result.isDone() ? Status{result} : failStatus;
+   return result.isDone() ? failStatus : Status{result};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -153,11 +153,25 @@ auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& even
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context) -> Status {
-   return Result::FATAL_BUG;
+   if(state != State::Working) {
+      return Result::FATAL_BUG;
+   }
+
+   return cleanUp(context, Result::SUCCESS);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context) -> void {
+   if(IS_WORKING__(state)) {
+      auto total = getNumOfActions();
+      for(SeqInt i = 0; i<total; i++) {
+         if(IS_CHILD_WORKING(i)) {
+            get(i)->kill(context);
+         }
+      }
+
+      state = State::Done;
+   }
 }
 
 TSL_NS_END

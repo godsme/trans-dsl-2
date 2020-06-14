@@ -89,8 +89,11 @@ DONE
      代表此消息依然可以被其它Action处理。
 
 
-错误传播方式
+错误传播
 -----------------
+
+方式
++++++++
 
 错误的传播，主要有三种方式：
 
@@ -114,8 +117,8 @@ DONE
   - `stop(cause)`
 
 
-错误处理模式
-----------------
+模式
+++++++++
 
 每一个可嵌套Action都有4种模式：
 
@@ -146,104 +149,16 @@ DONE
 
 
 stop的设计原则
-----------------------------------------
+++++++++++++++++++++++++
 
-``stop`` 的处理原则如下：
+``stop`` (立即结束的情况) 或随后的 ``handleEvent`` （经多次消息激励后的情况）的返回值原则如下：
 
-- 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责，则依然返回 ``SUCCESS`` ；
+- 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责， 则依然返回 ``SUCCESS`` ；
 - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``FORCE_STOPPED`` 。
 - 如果 ``stop`` 导致了的其它失败，则返回其它错误；
 
 
-如果一个action被stop，内部处于：
-- 可以stop状态
-- 不可stop状态
-
-stop有可能并不会引起任何后果：
-比如，自己的运行时环境已经出了错。或者，正在处于不可stop状态。
-
-对于可以stop的状态，如果内部的stop过程：
-- 没有出错，则返回 ``FORCE_STOPPED``
-- 除了错，则返回对应的错误
-
-对于action内部，应该可以查询两个状态：
-
-- 是否被外界 ``FORCE_STOPPED`` （以及Stop Cause？) （上层runtime-context state?)
-- 是否有内部错误。
-
-User Defined Async Action
-++++++++++++++++++++++++++++++++
-
-stop 可能返回如下：
-1. ``FORCE_STOPPED``
-2. failure
-3. ``SUCCESS`` (stop might not produce an error?)
-
-Sequential
-++++++++++++++++++++++++++++++++
-
-当前序列中的Action被stop之后，可能返回3中结果:
-
-1. ``SUCCESS`` -> ``FORCE_STOPPED`` (what about last one return SUCCESS?)
-2. failure -> failure
-3. ``FORCE_STOPPED`` -> ``FORCE_STOPPED``
-
-Procedure
-++++++++++++++++++++++++++++++++
-
-- 运行在normal part
-
-  - stop, wait until it finishes, record its return-value to its own runtime-context.
-    so that final part could read it.
-  - stop状态下的错误，无需马上report to upper runtime-context，要看最后的final结果。
-
-- 运行在final part
-
-  - 不可能接受stop，直接返回 ``CONTINUE`` ；
-  - 因而最后可能会返回 ``SUCCESS`` 。
-
-Concurrent
-++++++++++++++++++++++++++++++++
-
-如果内部某个线程失败，会导致对所有其它正在运行的线程发起stop。自身转入 :ref:`STOPPING` 状态。此时，如果外界再对其进行 ``stop`` ，
-将立即返回 ``continue`` 而不会将 ``stop`` 继续传播。
-
-对于每一个线程，如果结束时返回的是 ``FORCE_STOPPED`` 。 而 ``concurrent`` 记录的last error已经是个错误值，
-则 ``FORCE_STOPPED`` 不应该替换之前的错误值 。
-
-在正常运行下，某个线程内部是否会返回 ``FORCE_STOPPED`` ? 此时应该当作正确还是错误？
-
-如果一个 ``concurrent`` 的确是因为外部发起的stop，而导致进入 :ref:`STOPPING` 状态，而此 `stop` 继续向下传播，
-但最终的结果所有的线程都返回 ``SUCCESS``， 是否，也应该返回 ``SUCCESS`` 。
-如果其中有一个或多个返回 ``FORCE_STOPPED`` ， 但其它的都返回 ``SUCCESS`` ， 应该返回 ``FORCE_STOPPED`` 。
-
-Loop
-++++++++++++++++++++++++++++++++
-
-Loop接收到 ``stop`` ，将会返回当前Action的 ``stop`` 之后，结束时的返回值，如果为 ``SUCCESS`` ，则返回 ``FORCE_STOPPED`` 。
 
 
-错误向上传播
-------------------
-
-一个运行时环境内，如果发生了一个错误，这个错误导致运行时环境所对应的 Action 进入 :ref:`STOPPING` 状态
-（也可能:ref:`WORKING` 状态？），如果此环境不是一个 沙箱环境 ，则此错误应及时向上传播。
-
-``FORCE_STOPPED`` 不应向上传播？
-
-在 :ref:`STOPPING` 状态下的错误不应向上传播？
-
-这个传播，主要会影响到的行为是 `concurrent` 与  `multi-thread` 。会导致它们马上发起对其它处于 :ref:`WORKING` 状态
-线程发起 `stop` 。
-
-对于 `procedure` 无影响。因为它仍然会按照其运行逻辑继续进行。
 
 
-Procedure
-+++++++++++++
-
-错误发生在：
-
-- Normal Action
-- Final Action
-  - 仍然应该向上传播，既然这个错误最终也会为外界所知。

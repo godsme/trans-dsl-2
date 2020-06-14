@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import sphinx_rtd_theme
+import sys
+import os
 
 
 # -- Project information -----------------------------------------------------
@@ -29,6 +29,10 @@ release = '1'
 extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.githubpages',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,6 +61,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
+highlight_language = "c++"
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -74,7 +79,16 @@ pygments_style = 'sphinx'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-#html_static_path = ['_static']
+html_static_path = ['_static']
+templates_path = ["_templates"]
+
+html_css_files = [
+    "css/custom.css",
+]
+
+html_js_files = [
+    "js/custom.js",
+]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -90,7 +104,13 @@ pygments_style = 'sphinx'
 #import sphinx_theme
 #html_theme_path = [sphinx_theme.get_html_theme_path('stanford-theme')]
 
-html_theme = 'neo_rtd_theme'
-import sphinx_theme
-html_theme_path = [sphinx_theme.get_html_theme_path()]
-#html_theme = 'sphinx_rtd_theme'
+#html_theme = 'neo_rtd_theme'
+#import sphinx_theme
+#html_theme_path = [sphinx_theme.get_html_theme_path()]
+
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
+
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+if on_rtd:
+    using_rtd_theme = True

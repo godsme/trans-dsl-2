@@ -1,6 +1,11 @@
 错误处理
 =========
 
+当我们为 `Transaction DSL` 框架添加一个Action时，这个Action会组合其它的Action。比如，``__sequential`` Action，里面会
+放入一系列的其它Action，而``__procedure`` 则会包含两个Action，一个是Normal Action，一个是 ``__finally`` Action。
+
+做为Action的编写者，你不能假设你的Action所组合的是那种具体的Action。因而任何Action都必须遵从某种约定。
+所有的Action，在组合其它Action时，唯一可以作出的假设是每一个Action都遵从这些约定。下面我们将会讨论这些约定。
 
 Action外部行为规范
 --------------------
@@ -89,6 +94,35 @@ DONE
      代表此消息依然可以被其它Action处理。
 
 
+当你的Action组合其它Action时，你对其它Action的假设，只需要符合上述外部行为规范即可。但对于我们将要实现的Action内部，我们也要进行
+一些概念上的定义，以保证Action与Action之间组合时，尤其在进行错误处理时，可以相互协调，保证整个 ``Transaction`` 行为的正确性。
+
+Action内部状态
+-----------------
+
+.. _I-IDLE:
+I-IDLE: Action已经被构造，但尚未调用 ``exec``之前。
+
+.. _I-DONE:
+I-DONE: Action已经结束其处理，无论成功还是失败。
+
+如果一个Action在调用 ``exec`` 之后，直接返回 ``SUCCESS`` 或者任何错误，代表这个Action已经进入 :ref:`I-DONE <I-DONE>` 状态。
+
+如果一个Action在调用 ``exec`` 之后，直接返回 ``CONTINUE`` ，代表这个Action已经
+进入 :ref:`I-WORKING <I-WORKING>` 或者 :ref:`I-STOPPING<I-STOPPING>` 状态。
+这一点与外部的观察并不一致，因为外部无法从 ``CONTINUE`` 返回值辨别出其内部处于二者中的哪一种。
+
+无论是哪一种，从外部看，这个Action都还没有运行结束，因而需要进一步的消息激励。但从内部看，却有着本质的区别：
+
+.. _I-WORKING:
+I_WORKING: 状态却表示其处于正常处理状态；
+.. _I_STOPPING:
+I_STOPPING: 则代表Action内部已经进入异常处理状态。
+
+如果内部处于 :ref:`I-WORKING <I-WORKING>` 状态，如果一个Action未处于 ``免疫模式`` ，
+则 ``stop`` 调用应强迫Action进入失败处理。
+
+
 错误传播
 -----------------
 
@@ -100,7 +134,7 @@ DONE
 1. 最直接，也是最典型的，通过 **返回值** 。这发生于一个Action运行结束，进入 :ref:`DONE` 状态时；这属于一个从内层上下文，向外层上下文
    传播错误的方式。
 2. 但一个Action内部发生错误后，并没有直接进入 :ref:`DONE` 状态，而是需要进一步的消息激励，
-   因而会处于 :ref:`WORKING` 或 :ref:`STOPPING` 状态。但此错误需要立即为外界所感知，从而尽快对此错误作出响应。
+   因而会处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态。但此错误需要立即为外界所感知，从而尽快对此错误作出响应。
    此时，可以通过 **运行时上下文** 的嵌套父子关系，有内层上下文直接逐级上报，向外传播；
 3. 外层上下文由于任何原因，最典型的原因是，通过内层Action的返回值，或者内层上下文的上报，得到了一个错误，需要将错误传递给其它下层上下文。
    此时，可以通过 ``stop`` 调用，带着cause值，将错误有外向内传播。
@@ -109,8 +143,9 @@ DONE
 
 - 由内向外传播
 
-  - 内层Action的返回值（此时Action进入 :ref:`DONE` 状态）
-  - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE``，因而Action处于 :ref:`WORKING` 或 :ref:`STOPPING` 状态 ）
+  - 内层Action的返回值（此时Action进入 :ref:`I-DONE <I-DONE>` 状态）
+  - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE``，因而Action
+    处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态 ）
 
 - 由外向内传播：
 
@@ -142,7 +177,7 @@ DONE
    每一个可嵌套Action的设计，必须遵从如下原则：
 
    - 如果本来处于 ``正常模式`` ，一旦被调用 ``stop`` ，如果 ``stop`` 没有导致
-     其进入 :ref:`DONE` 状态，则必然进入 ``免疫模式`` ; 随后再次调用其 ``stop`` 将会被阻断，
+     其进入 :ref:`I-DONE <I-DONE>` 状态，则必然进入 ``免疫模式`` ; 随后再次调用其 ``stop`` 将会被阻断，
      直接返回 ``CONTINUE`` ，而不会对其产生任何影响；
    - 如果处于 **正常模式** 或 **免疫模式** ，在内部发生错误后，如果随后不能立即结束，则必须通过 *运行时上下文* 及时上报错误；
    - 一旦通过 *运行时上下文* 上报过一次错误，则随后再发生的错误，禁止再通过 *运行时上下文* 上报。这就意味着，
@@ -170,7 +205,7 @@ stop的设计原则
 stop
 ~~~~~~~
 
-当一个 ``__async`` 处于 :ref:`WORKING` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
+当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
 
 1. 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
 2. 否则，返回 ``FORCE_STOPPED`` 。
@@ -178,7 +213,7 @@ stop
 internal error
 ~~~~~~~~~~~~~~~~~
 
-当一个 ``__async`` 处于 :ref:`WORKING` 状态，某次调度时发生一个内部错误，则应该返回此错误，并进入 :ref:``DONE`` 状态。
+当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，某次调度时发生一个内部错误，则应该返回此错误，并进入 :ref:`I-DONE <I-DONE>` 状态。
 
 
 `__sequential`
@@ -187,11 +222,11 @@ internal error
 stop
 ~~~~~~~
 
-当 ``__sequential`` 处于 :ref:`WORKING` 状态，如果此时调用其 ``stop`` ：
+当 ``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时调用其 ``stop`` ：
 
 1. 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
-2. 如果其立即返回错误，则直接将此错误返回；进入 :ref:`DONE` 状态；
-3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`DONE` 状态：
+2. 如果其立即返回错误，则直接将此错误返回；进入 :ref:`I-DONE <I-DONE>` 状态；
+3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
    - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
    - 否则，返回 `FORCE_STOPPED`。
@@ -202,9 +237,9 @@ stop
 internal error
 ~~~~~~~~~~~~~~~~~
 
-当``__sequential`` 处于 :ref:`WORKING` 状态，如果其中某一个action发生错误：
+当``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果其中某一个action发生错误：
 
-1. 直接返回此错误，进入 :ref:`DONE` 状态。
+1. 直接返回此错误，进入 :ref:`I-DONE <I-DONE>` 状态。
 
 
 `__concurrent`
@@ -213,9 +248,9 @@ internal error
 stop
 ~~~~~~~
 
-当 ``__concurrent`` 处于 :ref:`WORKING` 状态，如果此时调用其 ``stop`` ：
+当 ``__concurrent`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时调用其 ``stop`` ：
 
-1. ``stop`` 每一个处于 :ref:`WORKING` 状态的线程， 将 ``cause`` 值继续往内层传递；
+1. ``stop`` 每一个处于 :ref:`I-WORKING <I-WORKING>` 状态的线程， 将 ``cause`` 值继续往内层传递；
 2. 如果所有的线程都最终以 ``SUCCESS`` 结束，则返回 ``SUCCESS`` ；
 3. 如果某个或某些线程返回任何错误，整个 ``__concurrent`` 结束时，返回最后一个错误。
 
@@ -223,20 +258,20 @@ stop
 internal error
 ~~~~~~~~~~~~~~~~~
 
-当 ``__concurrent`` 处于 :ref:`WORKING` 状态，此时某一个线程发生错误：
+当 ``__concurrent`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，此时某一个线程发生错误：
 
 1. 记录下此错误；
-2. 对其余任何还处于 :ref:`WORKING` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
+2. 对其余任何还处于 :ref:`I-WORKING <I-WORKING>` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
 3. 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
 4. 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
 5. 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
    等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
-6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`DONE`状态；
+6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>`状态；
 7. 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
-   直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，由此进入 ``孤岛模式`` 以及 :ref:`STOPPING` 状态。
+   直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，由此进入 ``孤岛模式`` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
 8. 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；仅仅更新自己的last error
   （ ``FORCE_UPDATE`` 除外）；
-9. 最终结束后，返回最后一个错误值。进入 :ref:`DONE` 状态。
+9. 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
 
 `__procedure`
 +++++++++++++++++
@@ -246,7 +281,7 @@ internal error
 .. _procedure_stop:
 stop
 ~~~~~~~~~~~~
-Normal Action的执行如果处于 :ref:`WORKING` 状态，此时进行 ``stop`` :
+Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` :
 
 1. 直接对Normal Action调用 ``stop`` ；
    - 如果直接返回 ``SUCCESS``，则直接以成功状态，进入 ``__finally`` ；
@@ -258,7 +293,7 @@ Normal Action的执行如果处于 :ref:`WORKING` 状态，此时进行 ``stop``
 Internal Error
 ~~~~~~~~~~~~~~~~~~~~~
 
-Normal Action的执行如果处于 :ref:`WORKING` 状态，如果此时其内部上报了一个错误，但Normal Action的执行
+Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时其内部上报了一个错误，但Normal Action的执行
 并没有立即结束（返回 ``CONTINUE`` ） :
 
 1. 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 ``孤岛模式`` ；
@@ -279,7 +314,7 @@ Normal Action的执行如果处于 :ref:`WORKING` 状态，如果此时其内部
 stop
 ~~~~~~~
 
-一个处于 :ref:`WORKING` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure_stop` 相同。
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure_stop` 相同。
 
 internal error
 ~~~~~~~~~~~~~~~~~~~~

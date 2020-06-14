@@ -226,11 +226,11 @@ Loop接收到 ``stop`` ，将会返回当前Action的 ``stop`` 之后，结束�
 ------------------
 
 一个运行时环境内，如果发生了一个错误，这个错误导致运行时环境所对应的 Action 进入 :ref:`STOPPING` 状态
-（也可能:ref:`WORKING`状态？），如果此环境不是一个 沙箱环境 ，则此错误应及时向上传播。
+（也可能:ref:`WORKING` 状态？），如果此环境不是一个 沙箱环境 ，则此错误应及时向上传播。
 
 ``FORCE_STOPPED`` 不应向上传播？
 
-在 :ref:``STOPPING`` 状态下的错误不应向上传播？
+在 :ref:`STOPPING` 状态下的错误不应向上传播？
 
 这个传播，主要会影响到的行为是 `concurrent` 与  `multi-thread` 。会导致它们马上发起对其它处于 :ref:`WORKING` 状态
 线程发起 `stop` 。

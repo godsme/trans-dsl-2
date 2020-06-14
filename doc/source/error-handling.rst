@@ -5,9 +5,6 @@
 Action外部行为规范
 --------------------
 
-Action外部状态
-~~~~~~~~~~~~~~~~~~~~
-
 Action从外部看，总共有4个状态，它们的状态转换关系如下图所示：
 
 .. image:: images/ch-4/action-ext-state.png

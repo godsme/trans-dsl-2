@@ -44,6 +44,7 @@
 的唯一一种循环定义方式，它相当于 `C/C++` 中的 ``while(1){}`` 。
 
 .. code-block:: c++
+   :linenos:
 
    __loop
    ( __sync(Action1)
@@ -63,6 +64,7 @@
 ``__break_if`` 大致相当于 `C/C++` 的 ``if(cond) break`` ，即当 ``cond`` 所设置的条件得到满足时，即可立即跳出循环。
 
 .. code-block:: c++
+   :linenos:
 
    __loop
    ( __sync(Action1)
@@ -77,6 +79,7 @@
 当然，如果用户想在结束循环的同时，让 ``__loop`` 的运行结果为另一个错误值，则可以明确进行指定：
 
 .. code-block:: c++
+   :linenos:
 
    __loop(
    , __sync(Action1)
@@ -94,6 +97,7 @@
 事实上，正如我们之前所讨论的，我们可以使用 ``__loop`` 和 ``__break_if`` 描述 ``while(cond) {}`` 和 ``do{} while(cond`` ：
 
 .. code-block:: c++
+   :linenos:
 
    __loop( __break_if(__not(CondSatisfied))
    , __sync(Action1)
@@ -116,6 +120,7 @@
 为了表达的更加直观， `Transaction DSL` 提供了一个语法糖： ``__while(cond)`` ，其等价于 ``__break_if(__not(cond))`` 。
 
 .. code-block:: c++
+   :linenos:
 
    __loop( __while(CondSatisfied)
    , __sync(Action1)
@@ -142,6 +147,7 @@
 这在循环尾部决定循环是否终止时，更加符合语意理解习惯。
 
 .. code-block:: c++
+   :linenos:
 
    __loop
    ( __sync(Action1)
@@ -161,6 +167,7 @@
 `Transaction DSL` 所提供的 ``continue`` 语意的关键字是 ``__redo_if`` ，相当于 ``if(cond) continue`` 。
 
 .. code-block:: c++
+   :linenos:
 
    __loop
    ( __sync(Action1)
@@ -193,6 +200,9 @@
     private:
       int retryTimes = 0;
    }
+
+.. code-block:: c++
+   :linenos:
 
    __loop(
    , __sync(Action1)
@@ -228,6 +238,7 @@
 比如下面的代码里， ``__loop`` 一共可以划分为5个段：3个 **动作段** ，2个 **谓词段** ：
 
 .. code-block:: c++
+   :linenos:
 
    __loop(
    // Action Segment 1
@@ -273,6 +284,7 @@
 运行结束，错误才会被清理，以保证 ``Action Segment1`` 可以以正确状态开始。
 
 .. code-block:: c++
+   :linenos:
 
    __loop(
    // Predicate Segment 1

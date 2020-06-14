@@ -77,7 +77,7 @@ DONE
 
 
 .. _accepted:
-.. Importance::
+.. attention::
    - 一个Action的 ``handleEvent`` ，只要返回 ``SUCCESS`` ，
      ``CONTINUE`` ，包括大部分错误（某些错误，比如 ``FATAL_BUG`` ，
      表示在此Action已经处于不应该再被调用 ``handleEvent`` 的状态），

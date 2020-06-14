@@ -331,7 +331,7 @@ stop
    , __sync(Action2)
    , __sync(Action3));
 
-.. Importance::
+.. attention::
    ``__loop_max`` 与 ``__forever`` 并不意味着循环一定要永远循环下去，或者要循环到最大次数。循环里仍然可以设置谓词，
    当谓词条件满足时，``__break_if`` 及其语法糖，将可能更早的终止循环。
 

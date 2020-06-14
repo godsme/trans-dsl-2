@@ -231,4 +231,85 @@ namespace {
       }
    };
 
+   using ProcedureAction3 =
+   __procedure(
+      __async(FailedAsyncAction3),
+      __finally(__async(AsyncAction2)));
+
+   FIXTURE(TestConcurrent7) {
+      __concurrent(__async(AsyncAction1), ProcedureAction3) action;
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      const Msg3 msg3{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+      TSL_NS::Event event3{eventInfo3};
+
+      StupidTransactionContext context{};
+
+      TEST("should not process AsyncAction1 if event3 arrives first") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
+         ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event2));
+      }
+   };
+
+   using ProcedureAction4 =
+   __procedure(
+      __sync(SyncAction3),
+      __finally(__async(AsyncAction2)));
+
+   using ProcedureAction5 =
+   __procedure(
+      __sync(SyncAction2),
+      __finally(__async(AsyncAction1)));
+
+   FIXTURE(TestConcurrent8) {
+      __concurrent(ProcedureAction4, ProcedureAction5) action;
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+      TSL_NS::Event event1{eventInfo1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+      TSL_NS::Event event2{eventInfo2};
+
+      StupidTransactionContext context{};
+
+      TEST("stop doesn't work") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+      }
+
+      TEST("stop doesn't work") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+      }
+
+      TEST("stop doesn't work in either order") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
+      }
+
+      TEST("stop doesn't work in either order") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
+      }
+   };
 }

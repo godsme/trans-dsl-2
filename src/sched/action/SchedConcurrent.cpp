@@ -94,6 +94,16 @@ auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    return false;
 }
 
+inline auto SchedConcurrent::checkReportingError(SeqInt i) -> void {
+   if(state == State::Working && ActionStatus(finalStatus).isFailed()) {
+      children[i] = State::Stopping;
+   }
+}
+
+inline auto SchedConcurrent::hasReportedError() const -> bool {
+   return state == State::Working && ActionStatus(finalStatus).isFailed();
+}
+
 auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> void {
    bool hasWorkingAction = false;
 
@@ -105,6 +115,10 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
       ActionStatus status = get(i)->handleEvent(context, event);
       if(status.isWorking()) {
          hasWorkingAction = true;
+         if(hasReportedError()) {
+            children[i] = State::Stopping;
+            break;
+         }
       } else {
          children[i] = State::Done;
          if(status.isFailed()) reportFailure(status);

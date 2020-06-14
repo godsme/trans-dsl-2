@@ -26,6 +26,8 @@ private:
    auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
    auto handleEvent_(TransactionContext&, const Event&) -> Status;
    auto handleEvent__(TransactionContext& context, const Event& event) -> void;
+   auto checkReportingError(SeqInt i) -> void;
+   auto hasReportedError() const -> bool;
 
 private:
    enum class State : uint8_t {

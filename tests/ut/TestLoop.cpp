@@ -189,7 +189,7 @@ namespace {
       TEST("should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          context.getRuntimeContext().reportFailure(Result::INVALID_DATA);
-         ASSERT_EQ(Result::OUT_OF_SCOPE, action.stop(context));
+         ASSERT_EQ(Result::OUT_OF_SCOPE, action.stop(context, Result::DUPTID));
       }
    };
 }

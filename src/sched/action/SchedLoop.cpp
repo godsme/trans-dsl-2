@@ -128,7 +128,7 @@ auto SchedLoop::handleEvent(TransactionContext& context, const Event& event) -> 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-auto SchedLoop::stop(TransactionContext& context) -> Status {
+auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
    if(stopping || action == nullptr) {
       return Result::FATAL_BUG;
    }
@@ -137,7 +137,7 @@ auto SchedLoop::stop(TransactionContext& context) -> Status {
    stopping = true;
 
    AUTO_SWITCH();
-   return action->stop(context);
+   return action->stop(context, cause);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

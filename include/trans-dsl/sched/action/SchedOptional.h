@@ -17,7 +17,7 @@ struct SchedOptional : SchedAction {
 
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
-   OVERRIDE(stop(TransactionContext&)                      -> Status);
+   OVERRIDE(stop(TransactionContext&, Status)              -> Status);
    OVERRIDE(kill(TransactionContext&)                      -> void);
 
 private:

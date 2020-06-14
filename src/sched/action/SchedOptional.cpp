@@ -22,8 +22,8 @@ auto SchedOptional::handleEvent(TransactionContext& context, const Event& event)
    return action == nullptr ? Result::FATAL_BUG : action->handleEvent(context, event);
 }
 
-auto SchedOptional::stop(TransactionContext& context)  -> Status {
-   return action == nullptr ? Result::FATAL_BUG : action->stop(context);
+auto SchedOptional::stop(TransactionContext& context, Status cause)  -> Status {
+   return action == nullptr ? Result::FATAL_BUG : action->stop(context, cause);
 }
 
 auto SchedOptional::kill(TransactionContext& context) -> void {

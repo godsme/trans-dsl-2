@@ -21,9 +21,9 @@ namespace details {
          return action.handleEvent(context.ROLE(TransactionInfo), event);
       }
 
-      OVERRIDE(stop(TransactionContext & context)->Status) {
+      OVERRIDE(stop(TransactionContext & context, Status cause)->Status) {
          action.kill(context.ROLE(TransactionInfo));
-         return Result::SUCCESS;
+         return Result::FORCE_STOPPED;
       }
 
       OVERRIDE(kill(TransactionContext & context)-> void) {

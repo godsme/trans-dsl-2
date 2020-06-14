@@ -11,6 +11,10 @@ EventHandlerRegistry::EventHandlerRegistry() {
 }
 
 auto EventHandlerRegistry::handleEvent(details::DummyAsyncAction* this__, const TransactionInfo& trans, const Event& event) -> Status {
+   if(this->handler == nullptr) {
+      return USER_FATAL_BUG;
+   }
+
    if(this->eventId == event.getEventId()) {
       event.consume();
       auto result = handler(this__, trans, event);

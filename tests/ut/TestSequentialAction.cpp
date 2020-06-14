@@ -52,16 +52,16 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
       }
 
-      TEST("handleEvent(event1) -> stop should return SUCCESS") {
+      TEST("handleEvent(event1) -> stop should return FORCE_STOPPED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("after stop, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
@@ -88,7 +88,7 @@ namespace {
       TEST("after stop, call exec will return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::SUCCESS, action.stop(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
 

@@ -9,7 +9,7 @@
 
 TSL_NS_BEGIN
 
-using SeqInt = unsigned short;
+using SeqInt = unsigned char;
 
 TSL_NS_END
 

@@ -10,7 +10,11 @@ TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
-   return status.isDone() ? lastError : (Status) status;
+   if(stopped && status.isDone()) {
+      return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
+   }
+
+   return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +60,7 @@ auto SchedSequential::handleEvent(TransactionContext& context, const Event& even
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::stop(TransactionContext& context) -> Status {
+auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
    if(current == nullptr) {
       return Result::FATAL_BUG;
    }
@@ -66,16 +70,15 @@ auto SchedSequential::stop(TransactionContext& context) -> Status {
    }
 
    stopped = true;
-   lastError = context.getRuntimeContext().getStopCause();
 
-   ActionStatus status = current->stop(context);
+   ActionStatus status = current->stop(context, cause);
    if(status.isWorking()) {
       return status;
    }
 
    current = nullptr;
 
-   return status;
+   return getFinalStatus(status);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

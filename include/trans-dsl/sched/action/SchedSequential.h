@@ -7,6 +7,7 @@
 
 #include <trans-dsl/sched/concept/SchedAction.h>
 #include <trans-dsl/utils/ActionStatus.h>
+#include <trans-dsl/utils/SeqInt.h>
 
 TSL_NS_BEGIN
 
@@ -14,7 +15,7 @@ TSL_NS_BEGIN
 struct SchedSequential : SchedAction {
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
-   OVERRIDE(stop(TransactionContext&)                      -> Status);
+   OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
    OVERRIDE(kill(TransactionContext&)                      -> void);
 
 private:
@@ -24,12 +25,12 @@ private:
 
 private:
    SchedAction* current = nullptr;
-   Status lastError = Result::SUCCESS;
-   uint16_t index = 0;
+   SeqInt index = 0;
    bool stopped = false;
 
 private:
-   ABSTRACT(getNext(uint16_t index) -> SchedAction*);
+   ABSTRACT(getNumOfActions() -> SeqInt);
+   ABSTRACT(getNext(SeqInt index) -> SchedAction*);
 };
 
 TSL_NS_END

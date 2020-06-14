@@ -16,7 +16,7 @@ struct SchedSyncAction : SchedAction  {
       return Result::FATAL_BUG;
    }
    OVERRIDE(kill(TransactionContext&)        -> void) {}
-   OVERRIDE(stop(TransactionContext&) -> Status) {
+   OVERRIDE(stop(TransactionContext&, Status) -> Status) {
       return Result::FATAL_BUG;
    }
 

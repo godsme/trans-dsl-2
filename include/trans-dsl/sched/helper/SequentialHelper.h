@@ -9,12 +9,11 @@
 #include <cstddef>
 #include <algorithm>
 #include <trans-dsl/sched/action/SchedSequential.h>
+#include <trans-dsl/utils/SeqInt.h>
 
 TSL_NS_BEGIN
 
 struct SchedAction;
-
-using SeqInt = unsigned short;
 
 template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename ... T_ACTIONS>
 struct GenericSequential;
@@ -49,12 +48,19 @@ struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
    };
 };
 
-template<typename T_ACTION, typename ... T_ACTIONS>
+template<typename ... T_ACTIONS>
 struct SEQUENTIAL__ {
-   using Actions = typename GenericSequential<0, 0, 0, T_ACTION, T_ACTIONS...>::Inner;
+   enum { NUM_OF_ACTIONS = sizeof...(T_ACTIONS) };
+   static_assert(NUM_OF_ACTIONS >=2, "__sequential must contain at least 2 actions");
+   static_assert(NUM_OF_ACTIONS <= std::numeric_limits<SeqInt>::max(), "too many actions in a __sequential");
+
+   using Actions = typename GenericSequential<0, 0, 0, T_ACTIONS...>::Inner;
    struct Inner : SchedSequential, private Actions {
    private:
-      OVERRIDE(getNext(uint16_t index) -> SchedAction*) {
+      OVERRIDE(getNumOfActions() -> SeqInt) {
+         return NUM_OF_ACTIONS;
+      }
+      OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
          return Actions::get(index);
       }
    };

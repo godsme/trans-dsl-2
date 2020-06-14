@@ -16,7 +16,7 @@ struct TransactionContext;
 // 16 bytes
 struct RuntimeContext {
    RuntimeContext() = default;
-   RuntimeContext(bool immune) : immune(immune) {}
+   RuntimeContext(bool immune) : sandbox(immune) {}
 
    auto getStatus() const -> Status {
       return finalStatus;
@@ -41,7 +41,7 @@ struct RuntimeContext {
 protected:
    RuntimeContext* parentEnv = nullptr;
    Status finalStatus = Result::SUCCESS;
-   bool immune = false;
+   bool sandbox = false;
 };
 
 TSL_NS_END

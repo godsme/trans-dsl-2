@@ -72,14 +72,14 @@ namespace {
       TEST("call exec -> event1 -> stop, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("call exec -> event1 -> stop -> stop, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("call exec -> event1 -> kill -> event3, should return FATAL_BUG") {
@@ -93,7 +93,7 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
          procedure.kill(context);
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
+         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("call exec -> event1 -> event3 -> event1, should return FAILED") {
@@ -108,7 +108,7 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
          ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
+         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
    };
 
@@ -201,32 +201,32 @@ namespace {
 
       TEST("call exec -> stop, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("call exec -> stop -> stop, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 
       TEST("call exec -> stop -> event2, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
       }
 
       TEST("call exec -> stop -> event2 -> event1, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
          ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
       }
 
       TEST("after success, if handleEvent, should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
          ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
          ASSERT_EQ(Result::FATAL_BUG, procedure.handleEvent(context, event1));
@@ -234,10 +234,10 @@ namespace {
 
       TEST("after success, if stop, should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
          ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context));
+         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
    };
 
@@ -268,7 +268,7 @@ namespace {
    FIXTURE(TestProcedure5) {
       __procedure(
          __async(AsyncAction2),
-         __finally(__on_status(Result::INVALID_DATA, __async(AsyncAction1)))
+         __finally(__on_status(Result::FORCE_STOPPED, __async(AsyncAction1)))
       ) procedure;
 
       StupidTransactionContext context{};
@@ -288,9 +288,8 @@ namespace {
 
       TEST("after exec, if stop, should return INVALID_DATA") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         context.RuntimeContext::reportFailure(Result::INVALID_DATA);
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context));
-         ASSERT_EQ(Result::INVALID_DATA, procedure.handleEvent(context, event1));
+         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
+         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
       }
    };
 }

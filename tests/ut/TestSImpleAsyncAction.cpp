@@ -46,16 +46,16 @@ namespace {
          ASSERT_TRUE(event1.isConsumed());
       }
 
-      TEST("after an action has been done successfully, if passing an event with same type, should return UNKNOWN_EVENT") {
+      TEST("after an action has been done successfully, if passing an event with same type, should return USER_FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action1.exec(context));
          ASSERT_EQ(Result::SUCCESS, action1.handleEvent(context, event1));
-         ASSERT_EQ(Result::UNKNOWN_EVENT, action1.handleEvent(context, event1));
+         ASSERT_EQ(Result::USER_FATAL_BUG, action1.handleEvent(context, event1));
       }
 
-      TEST("when an action is waiting for an event, if it's killed, handleEvent will return UNKNOWN_EVENT") {
+      TEST("when an action is waiting for an event, if it's killed, handleEvent will return USER_FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action1.exec(context));
          action1.kill(context);
-         ASSERT_EQ(Result::UNKNOWN_EVENT, action1.handleEvent(context, event1));
+         ASSERT_EQ(Result::USER_FATAL_BUG, action1.handleEvent(context, event1));
       }
    };
 }

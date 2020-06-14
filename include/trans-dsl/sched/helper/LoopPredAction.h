@@ -24,7 +24,7 @@ namespace details {
          OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status) {
             return Result::FATAL_BUG;
          }
-         OVERRIDE(stop(TransactionContext&)                -> Status) {
+         OVERRIDE(stop(TransactionContext&, Status)   -> Status) {
             return Result::FATAL_BUG;
          }
          OVERRIDE(kill(TransactionContext&)                -> void) {}

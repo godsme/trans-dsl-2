@@ -10,7 +10,7 @@ auto RuntimeContext::reportFailure(ActionStatus status) -> void {
    if(finalStatus != status && status.isFailed()) {
       finalStatus = status;
 
-      if(!immune && parentEnv != nullptr) {
+      if(!sandbox && parentEnv != nullptr) {
          parentEnv->reportFailure(status);
       }
    }

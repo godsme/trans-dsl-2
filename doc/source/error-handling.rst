@@ -116,7 +116,8 @@ I-DONE: Action已经结束其处理，无论成功还是失败。
 
 .. _I-WORKING:
 I_WORKING: 状态却表示其处于正常处理状态；
-.. _I_STOPPING:
+
+.. _I-STOPPING:
 I_STOPPING: 则代表Action内部已经进入异常处理状态。
 
 如果内部处于 :ref:`I-WORKING <I-WORKING>` 状态，如果一个Action未处于 ``免疫模式`` ，
@@ -278,7 +279,7 @@ internal error
 
 ``__procedure`` 分为两个部分：Normal Action，与 ``__finally`` Action。
 
-.. _procedure_stop:
+.. _procedure-stop:
 stop
 ~~~~~~~~~~~~
 Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` :
@@ -314,7 +315,7 @@ Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果�
 stop
 ~~~~~~~
 
-一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure_stop` 相同。
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure-stop <procedure-stop>` 相同。
 
 internal error
 ~~~~~~~~~~~~~~~~~~~~

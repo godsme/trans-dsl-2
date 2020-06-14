@@ -156,8 +156,136 @@ stop的设计原则
    ``stop`` (立即结束的情况) 或随后的 ``handleEvent`` （经多次消息激励后的情况）的返回值原则如下：
 
    - 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责， 则依然返回 ``SUCCESS`` ；
-   - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``FORCE_STOPPED`` 。
+   - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``FORCE_STOPPED`` ；
    - 如果 ``stop`` 导致了的其它失败，则返回其它错误；
+   - 如果一个Action从未被调用过 ``stop``，或者即便被调用，但错误被阻断，则永远也不应该返回 ``FORCE_STOPPED`` 。
+
+
+说明
+-------
+
+`__asyn`
+++++++++++++
+
+stop
+~~~~~~~
+
+当一个 ``__async`` 处于 :ref:`WORKING` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
+
+1. 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
+2. 否则，返回 ``FORCE_STOPPED`` 。
+
+internal error
+~~~~~~~~~~~~~~~~~
+
+当一个 ``__async`` 处于 :ref:`WORKING` 状态，某次调度时发生一个内部错误，则应该返回此错误，并进入 :ref:``DONE`` 状态。
+
+
+`__sequential`
++++++++++++++++++
+
+stop
+~~~~~~~
+
+当 ``__sequential`` 处于 :ref:`WORKING` 状态，如果此时调用其 ``stop`` ：
+
+1. 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
+2. 如果其立即返回错误，则直接将此错误返回；进入 :ref:`DONE` 状态；
+3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`DONE` 状态：
+
+   - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
+   - 否则，返回 `FORCE_STOPPED`。
+
+4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 ``孤岛模式`` ；
+5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
+
+internal error
+~~~~~~~~~~~~~~~~~
+
+当``__sequential`` 处于 :ref:`WORKING` 状态，如果其中某一个action发生错误：
+
+1. 直接返回此错误，进入 :ref:`DONE` 状态。
+
+
+`__concurrent`
++++++++++++++++++++
+
+stop
+~~~~~~~
+
+当 ``__concurrent`` 处于 :ref:`WORKING` 状态，如果此时调用其 ``stop`` ：
+
+1. ``stop`` 每一个处于 :ref:`WORKING` 状态的线程， 将 ``cause`` 值继续往内层传递；
+2. 如果所有的线程都最终以 ``SUCCESS`` 结束，则返回 ``SUCCESS`` ；
+3. 如果某个或某些线程返回任何错误，整个 ``__concurrent`` 结束时，返回最后一个错误。
+
+
+internal error
+~~~~~~~~~~~~~~~~~
+
+当 ``__concurrent`` 处于 :ref:`WORKING` 状态，此时某一个线程发生错误：
+
+1. 记录下此错误；
+2. 对其余任何还处于 :ref:`WORKING` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
+3. 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
+4. 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
+5. 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
+   等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
+6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`DONE`状态；
+7. 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
+   直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，由此进入 ``孤岛模式`` 以及 :ref:`STOPPING` 状态。
+8. 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；仅仅更新自己的last error
+  （ ``FORCE_UPDATE`` 除外）；
+9. 最终结束后，返回最后一个错误值。进入 :ref:`DONE` 状态。
+
+`__procedure`
++++++++++++++++++
+
+``__procedure`` 分为两个部分：Normal Action，与 ``__finally`` Action。
+
+.. _procedure_stop:
+stop
+~~~~~~~~~~~~
+Normal Action的执行如果处于 :ref:`WORKING` 状态，此时进行 ``stop`` :
+
+1. 直接对Normal Action调用 ``stop`` ；
+   - 如果直接返回 ``SUCCESS``，则直接以成功状态，进入 ``__finally`` ；
+   - 如果直接返回错误，则直接以错误进入 ``__finally`` ；
+   - 两种情况下，在 ``__finally`` 里读到的环境状态都是Normal Action结束时的返回值；
+2. 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 ``孤岛模式`` 。
+3. 随后Normal Action的 ``__handleEvent`` 如果返回 ``SUCCESS`` 或错误，其处理方式与1所描述的情况相同；
+
+Internal Error
+~~~~~~~~~~~~~~~~~~~~~
+
+Normal Action的执行如果处于 :ref:`WORKING` 状态，如果此时其内部上报了一个错误，但Normal Action的执行
+并没有立即结束（返回 ``CONTINUE`` ） :
+
+1. 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 ``孤岛模式`` ；
+2. 继续调度Normal Action运行直到其结束；
+3. 如果Normal Action最终返回一个错误（理应返回一个错误），记录下此错误；
+4. Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
+
+
+.. hint::
+   - 无论任何原因，一旦开始执行 ``__finally`` Action，将直接进入 ``免疫模式`` （也可能是 ``孤岛模式`` ）；
+   - 在进入 ``__finally`` 之后，如果仅仅是 ``免疫模式`` ， 而不是``孤岛模式`` ， 则依然可以给外围环境通报错误；
+   - 在 ``__finally`` 里，如果读到的错误码是 ``FORCE_STOPPED`` ，可再读取 ``stop_cause`` 。
+
+
+`__prot_procedure`
+++++++++++++++++++++++++
+
+stop
+~~~~~~~
+
+一个处于 :ref:`WORKING` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure_stop` 相同。
+
+internal error
+~~~~~~~~~~~~~~~~~~~~
+
+``__prot_procedure`` 天然处于 ``沙箱模式`` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
+
 
 
 

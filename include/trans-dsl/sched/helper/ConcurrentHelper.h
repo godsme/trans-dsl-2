@@ -57,10 +57,10 @@ namespace details {
          Num_Of_Actions = sizeof...(T_ACTIONS)
       };
 
-      static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= 11, "# of concurrent actions should be at most 11");
-
       struct Inner : SchedConcurrent, private Actions {
+         enum  {
+            Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children
+         };
       private:
          OVERRIDE(getNumOfActions() const -> SeqInt) {
             return Num_Of_Actions;
@@ -70,6 +70,9 @@ namespace details {
             return Actions::get(index);
          }
       };
+
+      static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
+      static_assert(Num_Of_Actions <= Concurrent__<T_ACTIONS...>::Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 

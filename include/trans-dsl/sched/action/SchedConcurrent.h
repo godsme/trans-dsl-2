@@ -11,7 +11,10 @@
 
 TSL_NS_BEGIN
 
-struct SchedConcurrent : SchedAction  {
+struct SchedConcurrent
+   : private RuntimeContext
+   , SchedAction  {
+
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
@@ -22,8 +25,7 @@ private:
    auto hasWorkingChildren(SeqInt from) const;
    auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
    auto handleEvent_(TransactionContext&, const Event&) -> Status;
-   auto handleEvent__(TransactionContext& context, const Event& event) -> Status;
-   auto updateLastFailure(Status status) -> void;
+   auto handleEvent__(TransactionContext& context, const Event& event) -> void;
 
 private:
    enum class State : uint8_t {
@@ -33,10 +35,14 @@ private:
       Done
    };
 
+protected:
+   enum {
+      Max_Num_Of_Children = 7
+   };
+
 private:
-   Status lastFailure = Result::SUCCESS;
    State state = State::Idle;
-   State children[11]{};
+   State children[Max_Num_Of_Children]{};
 
 private:
    ABSTRACT(getNumOfActions() const -> SeqInt);

@@ -75,8 +75,6 @@ DEF_STATE(Working) {
    }
 
    OVERRIDE(stop(SchedProcedure& this_, TransactionContext& context, Status cause) -> Status) {
-      this_.syncParentFailure();
-
       ActionStatus status = this_.action->stop(context, cause);
       if(status.isWorking()) {
          return this_.gotoState<Stopping>(context, status);

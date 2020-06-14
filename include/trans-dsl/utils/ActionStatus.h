@@ -12,34 +12,34 @@ TSL_NS_BEGIN
 
 struct ActionStatus
 {
-   ActionStatus() = default;
-   ActionStatus(Status status) : status(status) {}
+   constexpr ActionStatus() = default;
+   constexpr ActionStatus(Status status) : status(status) {}
 
-   auto isWorking() const -> bool {
+   constexpr auto isWorking() const -> bool {
       return status == Result::CONTINUE || status == Result::UNKNOWN_EVENT;
    }
 
-   auto isFailed() const -> bool {
+   constexpr auto isFailed() const -> bool {
       return cub::is_failed_status(cub::Status(status));
    }
 
-   auto isDone() const -> bool {
+   constexpr auto isDone() const -> bool {
       return status == Result::SUCCESS;
    }
 
-   auto eventAccepted() const -> bool {
+   constexpr auto eventAccepted() const -> bool {
       return status != Result::UNKNOWN_EVENT;
    }
 
-   auto eventNotAccepted() const -> bool {
+   constexpr auto eventNotAccepted() const -> bool {
       return !eventAccepted();
    }
 
-   auto isNothingChanged() const -> bool {
+   constexpr auto isNothingChanged() const -> bool {
       return status == Result::NOTHING_CHANGED;
    }
 
-   operator Status() const {
+   constexpr operator Status() const {
       return Status(status);
    }
 

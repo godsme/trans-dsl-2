@@ -16,7 +16,7 @@ struct TransactionContext;
 // 16 bytes
 struct RuntimeContext {
    RuntimeContext() = default;
-   RuntimeContext(bool immune) : sandbox(immune) {}
+   RuntimeContext(bool sandbox) : sandbox(sandbox) {}
 
    auto getStatus() const -> Status {
       return finalStatus;
@@ -35,7 +35,6 @@ struct RuntimeContext {
    }
 
    auto reportFailure(ActionStatus status) -> void;
-   auto syncParentFailure() -> void;
    auto attachToParent(TransactionContext& context) -> Status;
 
 protected:

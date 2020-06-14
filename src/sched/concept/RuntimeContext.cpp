@@ -6,24 +6,22 @@
 
 TSL_NS_BEGIN
 
+namespace {
+   bool shouldUpdate(ActionStatus current, ActionStatus newStatus) {
+      if(current == newStatus || !newStatus.isFailed()) return false;
+      return (newStatus == Result::FORCE_STOPPED) ? current == Result::SUCCESS : true;
+   }
+}
+
 auto RuntimeContext::reportFailure(ActionStatus status) -> void {
-   if(finalStatus != status && status.isFailed()) {
+   if(shouldUpdate(finalStatus, status)) {
       finalStatus = status;
 
       if(!sandbox && parentEnv != nullptr) {
          parentEnv->reportFailure(status);
       }
-   }
-}
 
-auto RuntimeContext::syncParentFailure() -> void {
-   assert(parentEnv != nullptr);
-   if(parentEnv != nullptr) {
-      finalStatus = parentEnv->getStatus();
-   }
-
-   if(finalStatus == Result::SUCCESS) {
-      finalStatus = Result::FORCE_STOPPED;
+      sandbox = true;
    }
 }
 

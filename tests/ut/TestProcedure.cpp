@@ -160,16 +160,20 @@ namespace {
       }
    };
 
+   using MainProcedure =
+   __procedure(__sequential
+     ( __sync(SyncAction1)
+     , __async(AsyncAction1)
+     , __sync(SyncAction2)),
+     __finally(__sequential
+        ( __sync(SyncAction1)
+        , __async(AsyncAction2)
+        , __sync(SyncAction2))));
+
    constexpr int* P = nullptr;
    FIXTURE(TestProcedure3) {
-      __procedure(__procedure(__sequential
-        ( __sync(SyncAction1)
-        , __async(AsyncAction1)
-        , __sync(SyncAction2)),
-        __finally(__sequential
-          ( __sync(SyncAction1)
-          , __async(AsyncAction2)
-          , __sync(SyncAction2)))),
+
+      __procedure(MainProcedure,
       __finally(__sequential
         ( __sync(SyncAction1)
         , __async(AsyncAction1)

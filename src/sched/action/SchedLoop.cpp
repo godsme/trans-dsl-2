@@ -133,7 +133,6 @@ auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
       return Result::FATAL_BUG;
    }
 
-   syncParentFailure();
    stopping = true;
 
    AUTO_SWITCH();

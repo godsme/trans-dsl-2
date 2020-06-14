@@ -5,31 +5,11 @@
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <event/concept/Event.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
-#include <iostream>
 
 TSL_NS_BEGIN
 
 #define IS_WORKING__(actionState) (actionState == State::Working || actionState == State::Stopping)
 #define IS_CHILD_WORKING(i) IS_WORKING__(children[i])
-
-///////////////////////////////////////////////////////////////////////////////
-namespace {
-   inline Status getLastError(Status lastError, Status status) {
-      if(status == Result::FORCE_STOPPED && lastError != SUCCESS) {
-         return lastError;
-      }
-
-      return status;
-   }
-}
-
-inline auto SchedConcurrent::updateLastFailure(Status status) -> void {
-   if(status == Result::FORCE_STOPPED && lastFailure != Result::SUCCESS) {
-      return;
-   }
-
-   lastFailure = status;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
@@ -70,7 +50,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
       if(status.isWorking()) {
          hasWorking = true;
       } else if(status.isFailed()) {
-         updateLastFailure(status);
+         reportFailure(status);
       }
 
       children[i] = status.isWorking() ? State::Stopping : State::Done;
@@ -78,7 +58,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
 
    state = hasWorking ? State::Stopping : State::Done;
 
-   return IS_WORKING__(state) ? Result::CONTINUE : lastFailure;
+   return IS_WORKING__(state) ? Result::CONTINUE : finalStatus;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,8 +69,8 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
    ActionStatus status = startUp(context);
    if(status.isFailed()) {
-      lastFailure = status;
-      return cleanUp(context, lastFailure);
+      reportFailure(status);
+      return cleanUp(context, finalStatus);
    }
 
    state = status.isWorking() ? State::Working : State::Done;
@@ -108,10 +88,10 @@ auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    return false;
 }
 
-auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> Status {
-   const auto total = getNumOfActions();
+auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> void {
    bool hasWorkingAction = false;
 
+   const auto total = getNumOfActions();
    SeqInt i = 0;
    for(; i < total; ++i) {
       if(!IS_CHILD_WORKING(i)) continue;
@@ -121,7 +101,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
          hasWorkingAction = true;
       } else {
          children[i] = State::Done;
-         if(status.isFailed()) updateLastFailure(status);
+         if(status.isFailed()) reportFailure(status);
       }
 
       if(event.isConsumed()) break;
@@ -130,23 +110,18 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
    if(!hasWorkingAction && !hasWorkingChildren(i)) {
       state = State::Done;
    }
-
-   return lastFailure;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& event) -> Status {
-   ActionStatus lastError = handleEvent__(context, event);
-   if (state == State::Working && lastError.isFailed()) {
-      if(ActionStatus status = cleanUp(context, lastError); status.isFailed()) {
-         return status;
-      }
+   handleEvent__(context, event);
+   if (state == State::Working && ActionStatus(finalStatus).isFailed()) {
+      cleanUp(context, finalStatus);
    }
 
-   if(!IS_WORKING__(state)) return lastFailure;
+   if(!IS_WORKING__(state)) return finalStatus;
 
    return event.isConsumed() ? Result::CONTINUE : Result::UNKNOWN_EVENT;
-   //return lastError;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

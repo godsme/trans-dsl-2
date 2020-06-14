@@ -101,9 +101,11 @@ Action内部状态
 -----------------
 
 .. _I-IDLE:
+
 I-IDLE: Action已经被构造，但尚未调用 ``exec``之前。
 
 .. _I-DONE:
+
 I-DONE: Action已经结束其处理，无论成功还是失败。
 
 如果一个Action在调用 ``exec`` 之后，直接返回 ``SUCCESS`` 或者任何错误，代表这个Action已经进入 :ref:`I-DONE <I-DONE>` 状态。
@@ -115,10 +117,12 @@ I-DONE: Action已经结束其处理，无论成功还是失败。
 无论是哪一种，从外部看，这个Action都还没有运行结束，因而需要进一步的消息激励。但从内部看，却有着本质的区别：
 
 .. _I-WORKING:
-I_WORKING: 状态却表示其处于正常处理状态；
+
+I-WORKING: 状态却表示其处于正常处理状态；
 
 .. _I-STOPPING:
-I_STOPPING: 则代表Action内部已经进入异常处理状态。
+
+I-STOPPING: 则代表Action内部已经进入异常处理状态。
 
 如果内部处于 :ref:`I-WORKING <I-WORKING>` 状态，如果一个Action未处于 ``免疫模式`` ，
 则 ``stop`` 调用应强迫Action进入失败处理。
@@ -267,12 +271,13 @@ internal error
 4. 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
 5. 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
    等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
-6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>`状态；
+6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>` 状态；
 7. 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
    直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，由此进入 ``孤岛模式`` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
 8. 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；仅仅更新自己的last error
   （ ``FORCE_UPDATE`` 除外）；
 9. 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
+
 
 `__procedure`
 +++++++++++++++++
@@ -280,6 +285,7 @@ internal error
 ``__procedure`` 分为两个部分：Normal Action，与 ``__finally`` Action。
 
 .. _procedure-stop:
+
 stop
 ~~~~~~~~~~~~
 Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` :

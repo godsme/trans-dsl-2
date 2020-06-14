@@ -312,7 +312,7 @@ Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果�
 4. Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
 
 
-.. hint::
+.. attention::
    - 无论任何原因，一旦开始执行 ``__finally`` Action，将直接进入 ``免疫模式`` （也可能是 ``孤岛模式`` ）；
    - 在进入 ``__finally`` 之后，如果仅仅是 ``免疫模式`` ， 而不是``孤岛模式`` ， 则依然可以给外围环境通报错误；
    - 在 ``__finally`` 里，如果读到的错误码是 ``FORCE_STOPPED`` ，可再读取 ``stop_cause`` 。
@@ -324,7 +324,7 @@ Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果�
 stop
 ~~~~~~~
 
-一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure-stop <procedure-stop>` 相同。
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure stop <procedure-stop>` 相同。
 
 internal error
 ~~~~~~~~~~~~~~~~~~~~

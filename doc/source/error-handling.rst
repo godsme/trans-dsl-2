@@ -92,31 +92,70 @@ DONE
      代表此消息依然可以被其它Action处理。
 
 
+stop内部行为
+----------------------------------------
 
-Action内部行为规范
----------------------
+如果一个action被stop，内部处于：
+- 可以stop状态
+- 不可stop状态
 
-.. tip:: 所有的 ``stop`` 只有当出错时才会返回错误。
+对于可以stop的状态，如果内部的stop过程：
+- 没有出错，则返回 ``FORCE_STOPPED``
+- 除了错，则返回对应的错误
 
-.. note:: ``stop/kill`` 的cause，不再传递。如果用户想知道cause，可以通过 ``TransactionInfo.getStatus()`` 从
-   当前运行上下文获取。
+对于action内部，应该可以查询两个状态：
 
-.. hint::
-   这就意味着，当一个带有上下文的 ``SchedAction`` ，
-   比如 ``Procedure`` , ``Void`` , ``Concurrent`` , ``Multi-Thread`` 等等，在初次被调用 ``stop/kill`` 时，
-   应该从parent-runtime-env里读出状态值，并更新到自己的runtime-env里。
+- 是否被外界 ``FORCE_STOPPED`` （以及Stop Cause？) （上层runtime-context state?)
+- 是否有内部错误。
 
-.. important::
-   一个下层runtime-env，在正常运行时出错时，如果当前上下文并没有运行结束，则需要将错误直接report给上层runtime-env，由此层层递归，
-   直到上报到最顶层，或者被 **免疫上下文** 阻断。
+User Defined Async Action
+++++++++++++++++++++++++++++++++
 
-.. attention::
-   一个下层runtime-env，在正常运行时出错时，如果当前runtime-env已经运行结束，则无需report给上层上下文，而是直接将错误返回，
-   这个错误会一直返回到上一层runtime-env，由其根据自己当时的状态（结束与否），决定是直接返回，还是记录并上报。
+stop 可能返回如下：
+1. ``FORCE_STOPPED``
+2. failure
+3. ``SUCCESS`` (stop might not produce an error?)
 
+Sequential
+++++++++++++++++++++++++++++++++
 
+当前序列中的Action被stop之后，可能返回3中结果:
 
-免疫上下文: immune-runtime-context
-  指 ``Void`` 或者 ``Protected Procedure`` ，它们要么完全将错误控制在自己的runtime-env内（ ``Void`` ），
-  要么有修复机会（ ``Protected Procedure`` ），只有等最终无法修复时，才会将最后的错误返回。
+1. ``SUCCESS`` -> ``FORCE_STOPPED`` (what about last one return SUCCESS?)
+2. failure -> failure
+3. ``FORCE_STOPPED`` -> ``FORCE_STOPPED``
+
+Procedure
+++++++++++++++++++++++++++++++++
+
+- 运行在normal part
+
+  - stop, wait until it finishes, record its return-value to its own runtime-context.
+    so that final part could read it.
+  - stop状态下的错误，无需马上report to upper runtime-context，要看最后的final结果。
+
+- 运行在final part
+
+  - 不可能接受stop
+
+Concurrent
+++++++++++++++++++++++++++++++++
+
+如果内部某个线程失败，会导致对所有其它正在运行的线程发起stop。自身转入 :ref:`STOPPING` 状态。此时，如果外界再对其进行 ``stop`` ，
+将立即返回 ``continue`` 而不会将 ``stop`` 继续传播。
+
+对于每一个线程，如果结束时返回的是 ``FORCE_STOPPED`` 。 而 ``concurrent`` 记录的last error已经是个错误值，则``FORCE_STOPPED``
+不应该替换之前的错误值 。
+
+在正常运行下，某个线程内部是否会返回 ``FORCE_STOPPED`` ? 此时应该当作正确还是错误？
+
+如果一个 ``concurrent`` 的确是因为外部发起的stop，而导致进入 :ref:`STOPPING` 状态，而此 `stop` 继续向下传播，
+但最终的结果所有的线程都返回 ``SUCCESS``， 是否，也应该返回 ``SUCCESS`` 。
+如果其中有一个或多个返回 ``FORCE_STOPPED`` ， 但其它的都返回 ``SUCCESS`` ， 应该返回 ``FORCE_STOPPED`` 。
+
+Loop
+++++++++++++++++++++++++++++++++
+
+Loop接收到 ``stop`` ，将会返回当前Action的 ``stop`` 之后，结束时的返回值，如果为 ``SUCCESS`` ，则返回 ``FORCE_STOPPED`` 。
+
 

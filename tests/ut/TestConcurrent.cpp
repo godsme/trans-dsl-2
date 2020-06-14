@@ -125,11 +125,11 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
       }
 
-//      TEST("exec should report Failure") {
-//         ASSERT_EQ(Result::SUCCESS, context.getStatus());
-//         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-//         ASSERT_EQ(Result::FAILED, context.getStatus());
-//      }
+      TEST("exec should report Failure") {
+         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::FAILED, context.getStatus());
+      }
    };
 
    FIXTURE(TestConcurrent4) {
@@ -164,13 +164,13 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
       }
 
-//      TEST("event3 should report failture to runtime context") {
-//         ASSERT_EQ(Result::SUCCESS, context.getStatus());
-//         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-//         ASSERT_EQ(Result::SUCCESS, context.getStatus());
-//         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-//         ASSERT_EQ(Result::FAILED, context.getStatus());
-//      }
+      TEST("event3 should report failture to runtime context") {
+         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
+         ASSERT_EQ(Result::FAILED, context.getStatus());
+      }
 
       TEST("event3 -> event2 should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));

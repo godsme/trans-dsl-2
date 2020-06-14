@@ -5,6 +5,7 @@
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <event/concept/Event.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
 
 TSL_NS_BEGIN
 
@@ -61,12 +62,17 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
    return IS_WORKING__(state) ? Result::CONTINUE : finalStatus;
 }
 
+#define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
+
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::exec(TransactionContext& context) -> Status {
    if(state != State::Idle) {
       return FATAL_BUG;
    }
 
+   attachToParent(context);
+
+   AUTO_SWITCH();
    ActionStatus status = startUp(context);
    if(status.isFailed()) {
       reportFailure(status);
@@ -128,14 +134,17 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& event) -> Status {
    if(!IS_WORKING__(state)) return Result::FATAL_BUG;
 
+   AUTO_SWITCH();
    return handleEvent_(context, event);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
-   case State::Working:
+   case State::Working: {
+      AUTO_SWITCH();
       return cleanUp(context, cause);
+   }
    case State::Stopping:
       return Result::CONTINUE;
    default:
@@ -147,6 +156,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 auto SchedConcurrent::kill(TransactionContext& context) -> void {
    if(!IS_WORKING__(state)) return;
 
+   AUTO_SWITCH();
    auto total = getNumOfActions();
    for(SeqInt i = 0; i<total; i++) {
       if(IS_CHILD_WORKING(i)) get(i)->kill(context);

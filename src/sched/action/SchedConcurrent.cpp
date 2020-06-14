@@ -45,6 +45,8 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Status {
+   enableSandboxMode();
+
    auto hasWorking = false;
 
    for(SeqInt i=0; i < total; i++) {

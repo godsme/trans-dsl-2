@@ -37,6 +37,9 @@ struct RuntimeContext {
    auto reportFailure(ActionStatus status) -> void;
    auto attachToParent(TransactionContext& context) -> Status;
 
+   auto enableSandboxMode() {
+      sandbox = true;
+   }
 protected:
    RuntimeContext* parentEnv = nullptr;
    Status finalStatus = Result::SUCCESS;

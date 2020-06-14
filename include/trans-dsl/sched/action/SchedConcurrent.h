@@ -28,8 +28,9 @@ private:
    auto handleEvent__(TransactionContext& context, const Event& event) -> void;
    auto checkReportingError(SeqInt i) -> void;
    auto hasReportedError() const -> bool;
+   auto notWorking() -> bool;
 
-private:
+public:
    enum class State : uint8_t {
       Idle,
       Working,
@@ -39,10 +40,11 @@ private:
 
 protected:
    enum {
-      Max_Num_Of_Children = 7
+      Max_Num_Of_Children = 6
    };
 
 private:
+   SeqInt total = 0;
    State state = State::Idle;
    State children[Max_Num_Of_Children]{};
 

@@ -9,12 +9,21 @@
 
 TSL_NS_BEGIN
 
-#define IS_WORKING__(actionState) (actionState == State::Working || actionState == State::Stopping)
-#define IS_CHILD_WORKING(i) IS_WORKING__(children[i])
+namespace {
+   inline auto stillWorking(SchedConcurrent::State state) -> bool {
+      return (state == SchedConcurrent::State::Working || state == SchedConcurrent::State::Stopping);
+   }
+}
+
+#define IS_CHILD_WORKING(i) stillWorking(children[i])
+
+///////////////////////////////////////////////////////////////////////////////
+inline auto SchedConcurrent::notWorking() -> bool {
+   return !stillWorking(state);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
-   const auto total = getNumOfActions();
    auto hasWorkingChildren = false;
    for(SeqInt i=0; i < total; i++) {
       auto action = get(i);
@@ -23,16 +32,11 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
       }
 
       ActionStatus status = action->exec(context);
+      children[i] = status.isWorking() ? State::Working : State::Done;
       if(status.isWorking()) {
-         children[i] = State::Working;
          hasWorkingChildren = true;
-      } else if(status.isDone()) {
-         children[i] = State::Done;
       } else if(status.isFailed()) {
-         children[i] = State::Done;
          return status;
-      } else {
-         return Result::FATAL_BUG;
       }
    }
 
@@ -41,7 +45,6 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Status {
-   const auto total = getNumOfActions();
    auto hasWorking = false;
 
    for(SeqInt i=0; i < total; i++) {
@@ -59,7 +62,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
 
    state = hasWorking ? State::Stopping : State::Done;
 
-   return IS_WORKING__(state) ? Result::CONTINUE : finalStatus;
+   return stillWorking(state) ? Result::CONTINUE : finalStatus;
 }
 
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
@@ -70,6 +73,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
       return FATAL_BUG;
    }
 
+   total = getNumOfActions();
    attachToParent(context);
 
    AUTO_SWITCH();
@@ -86,7 +90,6 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
-   const auto total = getNumOfActions();
    for(SeqInt i = from; i<total; i++) {
       if(IS_CHILD_WORKING(i)) return true;
    }
@@ -94,20 +97,19 @@ auto SchedConcurrent::hasWorkingChildren(SeqInt from) const {
    return false;
 }
 
-inline auto SchedConcurrent::checkReportingError(SeqInt i) -> void {
-   if(state == State::Working && ActionStatus(finalStatus).isFailed()) {
-      children[i] = State::Stopping;
-   }
-}
-
+///////////////////////////////////////////////////////////////////////////////
 inline auto SchedConcurrent::hasReportedError() const -> bool {
-   return state == State::Working && ActionStatus(finalStatus).isFailed();
+   return state == State::Working && hasFailure();
 }
 
+///////////////////////////////////////////////////////////////////////////////
+inline auto SchedConcurrent::checkReportingError(SeqInt i) -> void {
+   if(hasReportedError()) children[i] = State::Stopping;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> void {
    bool hasWorkingAction = false;
-
-   const auto total = getNumOfActions();
    SeqInt i = 0;
    for(; i < total; ++i) {
       if(!IS_CHILD_WORKING(i)) continue;
@@ -135,18 +137,18 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& event) -> Status {
    handleEvent__(context, event);
-   if (state == State::Working && ActionStatus(finalStatus).isFailed()) {
+   if (state == State::Working && hasFailure()) {
       cleanUp(context, finalStatus);
    }
 
-   if(!IS_WORKING__(state)) return finalStatus;
+   if(notWorking()) return finalStatus;
 
    return event.isConsumed() ? Result::CONTINUE : Result::UNKNOWN_EVENT;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& event) -> Status {
-   if(!IS_WORKING__(state)) return Result::FATAL_BUG;
+   if(notWorking()) return Result::FATAL_BUG;
 
    AUTO_SWITCH();
    return handleEvent_(context, event);
@@ -168,10 +170,9 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context) -> void {
-   if(!IS_WORKING__(state)) return;
+   if(notWorking()) return;
 
    AUTO_SWITCH();
-   auto total = getNumOfActions();
    for(SeqInt i = 0; i<total; i++) {
       if(IS_CHILD_WORKING(i)) get(i)->kill(context);
    }

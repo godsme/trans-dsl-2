@@ -291,21 +291,21 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
       }
 
-      TEST("stop doesn't work") {
+      TEST("stop doesn't work 2") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
       }
 
-      TEST("stop doesn't work in either order") {
+      TEST("stop doesn't work in any order") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
       }
 
-      TEST("stop doesn't work in either order") {
+      TEST("stop doesn't work in any order 2") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));

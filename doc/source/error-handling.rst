@@ -250,7 +250,7 @@ stop的设计原则
 
 
 .. attention::
-   当``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果其中某一个action发生错误：
+   当 ``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果其中某一个action发生错误：
 
    - 直接返回此错误，进入 :ref:`I-DONE <I-DONE>` 状态。
 
@@ -293,24 +293,24 @@ stop的设计原则
 .. attention::
    Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` ：
 
-   - 直接对Normal Action调用 ``stop`` ；
+   1. 直接对Normal Action调用 ``stop`` ；
 
      - 如果直接返回 ``SUCCESS`` ，则直接以成功状态，进入 ``__finally`` ；
      - 如果直接返回错误，则直接以错误进入 ``__finally`` ；
      - 两种情况下，在 ``__finally`` 里读到的环境状态都是Normal Action结束时的返回值；
 
-   - 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 :ref:`孤岛模式 <island-mode>` 。
-   - 随后Normal Action的 ``__handleEvent`` 如果返回 ``SUCCESS`` 或错误，其处理方式与1所描述的情况相同；
+   2. 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 :ref:`孤岛模式 <island-mode>` 。
+   3. 随后Normal Action的 ``__handleEvent`` 如果返回 ``SUCCESS`` 或错误，其处理方式与1所描述的情况相同；
 
 
 .. attention::
    Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时其内部上报了一个错误，但Normal Action的执行
    并没有立即结束（返回 ``CONTINUE`` ） :
 
-   - 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 :ref:`孤岛模式 <island-mode>` ；
-   - 继续调度Normal Action运行直到其结束；
-   - 如果Normal Action最终返回一个错误（理应返回一个错误），记录下此错误；
-   - Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
+   1. 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 :ref:`孤岛模式 <island-mode>` ；
+   2. 继续调度Normal Action运行直到其结束；
+   3. 如果Normal Action最终返回一个错误（理应返回一个错误），记录下此错误；
+   4. Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
 
 
 .. attention::
@@ -339,8 +339,8 @@ stop的设计原则
 .. attention::
    一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__time_guard`` 被 ``stop`` 后，action会首先被 ``stop`` :
 
-   - 如果 ``stop`` 导致action立即结束，此时timer也会被stop，并返回action的执行结果；
-   - 如果 ``stop`` 后，action依然没有结束运行（返回 ``CONTINUE`` )，则定时器也不终止；但 ``__time_guard`` 立即
+   1. 如果 ``stop`` 导致action立即结束，此时timer也会被stop，并返回action的执行结果；
+   2. 如果 ``stop`` 后，action依然没有结束运行（返回 ``CONTINUE`` )，则定时器也不终止；但 ``__time_guard`` 立即
      进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；

@@ -164,6 +164,7 @@ I-STOPPING:
 
 .. image:: images/ch-4/runtime-env.png
    :align: center
+   :scale: 50 %
 
 模式
 ++++++++

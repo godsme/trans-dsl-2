@@ -36,8 +36,8 @@ WORKING
 
 在 :ref:`WORKING` 状态下，
 
-- ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
-- 如果有事件到达，可以调用 ``handleEvent`` 进行处理；其可能结果如下：
+1. ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
+2. 如果有事件到达，可以调用 ``handleEvent`` 进行处理；其可能结果如下：
 
   - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
   - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
@@ -45,13 +45,13 @@ WORKING
     只是还需要进一步的消息激励；
   - ``UNKNOWN_EVENT`` 表示消息并未被 :ref:`accepted <accepted>` ；
 
-- 如果调用 ``stop`` ，其可能结果如下：
+3. 如果调用 ``stop`` ，其可能结果如下：
 
   - 如果返回 ``CONTINUE`` ，表示Action进入 :ref:`STOPPING` 状态；
   - 如果返回 ``SUCCESS`` ，表示Action进入 :ref:`DONE` 状态；
   - 如果返回错误值，表示Action进入 :ref:`DONE` 状态；
 
-- 如果调用 ``kill`` ，Action立即应进入 :ref:`DONE` 状态。
+4. 如果调用 ``kill`` ，Action立即应进入 :ref:`DONE` 状态。
 
 .. _STOPPING:
 
@@ -60,10 +60,10 @@ STOPPING
 
 在 :ref:`STOPPING` 状态下，
 
-- ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
-- 如果调用 ``stop``，不应对Action产生任何影响，而直接返回 ``CONTINUE`` ;
-- 如果调用 ``kill`` ，应立即进入 :ref:`DONE` 状态
-- 如果调用 ``handleEvent`` , 其可能结果如下：
+1. ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
+2. 如果调用 ``stop``，不应对Action产生任何影响，而直接返回 ``CONTINUE`` ;
+3. 如果调用 ``kill`` ，应立即进入 :ref:`DONE` 状态
+4. 如果调用 ``handleEvent`` , 其可能结果如下：
 
   - ``SUCCESS`` 代表Action进入 :ref:`DONE` 状态；
   - 任何错误值，也代表Action进入 :ref:`DONE` 状态；
@@ -77,8 +77,8 @@ DONE
 
 在 :ref:`DONE` 状态下，
 
-- ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
-- 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 :ref:`DONE` 状态。
+1. ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
+2. 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 :ref:`DONE` 状态。
 
 
 .. _accepted:
@@ -151,13 +151,13 @@ I-STOPPING:
 
 简单的说就是：
 
-- 由内向外传播
+1. 由内向外传播
 
   - 内层Action的返回值（此时Action进入 :ref:`I-DONE <I-DONE>` 状态）
   - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE`` ，因而Action
     处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态 ）
 
-- 由外向内传播：
+2. 由外向内传播：
 
   - ``stop(cause)``
 

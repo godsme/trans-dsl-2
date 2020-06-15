@@ -11,8 +11,14 @@
 #include <trans-dsl/porting/timer/PlatformSpecifiedTimerInfo.h>
 
 struct StupidTransactionContext
-   : TSL_NS::TransactionContext
-   , TSL_NS::PlatformSpecifiedTimerInfo {
+   : TSL_NS::TransactionContext {
+
+   StupidTransactionContext() {
+      updateTimerInfo(&timerInfo);
+   }
+
+private:
+   TSL_NS::PlatformSpecifiedTimerInfo timerInfo;
 };
 
 #endif //TRANS_DSL_2_STUPIDTRANSACTIONCONTEXT_H

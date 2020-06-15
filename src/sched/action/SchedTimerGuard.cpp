@@ -29,16 +29,20 @@ auto SchedTimerGuard::checkInternalError(TransactionContext& context) -> void {
    }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::exec(TransactionContext& context)  -> Status {
-   if(state != State::INIT) return Result::FATAL_BUG;
-
-   TimerInfo* timerInfo = dynamic_cast<TimerInfo*>(&context);
+auto SchedTimerGuard::startTimer(TransactionContext& context) -> Status {
+   TimerInfo* timerInfo = context.getTimerInfo();
    if(timerInfo == nullptr) {
       return Result::FATAL_BUG;
    }
 
-   if(ActionStatus status = ROLE(RelativeTimer).start(*timerInfo); status.isFailed()) {
+   return ROLE(RelativeTimer).start(*timerInfo);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+auto SchedTimerGuard::exec(TransactionContext& context)  -> Status {
+   if(state != State::INIT) return Result::FATAL_BUG;
+
+   if(ActionStatus status = startTimer(context); status.isFailed()) {
       state = State::DONE;
       return status;
    }

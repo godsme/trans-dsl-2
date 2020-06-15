@@ -15,9 +15,15 @@
 
 TSL_NS_BEGIN
 
+struct TimerInfo;
+
 struct TransactionContext
    : TransactionInfo
    , RuntimeContextInfo {
+
+   auto getTimerInfo() -> TimerInfo* {
+      return timerInfo;
+   }
 
 private:
    OVERRIDE(getStatus() const -> Status) {
@@ -27,6 +33,12 @@ private:
 protected:
    using TransactionInfo::updateInstanceId;
    using TransactionInfo::updateUserContext;
+
+   auto updateTimerInfo(TimerInfo* info) -> void {
+      timerInfo = info;
+   }
+private:
+   TimerInfo* timerInfo = nullptr;
 };
 
 TSL_NS_END

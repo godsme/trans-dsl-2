@@ -182,12 +182,12 @@ I-STOPPING:
 
 免疫模式：Immune Mode
    - 错误不可向内传播
-   - 但允许内部的错误通过 *运行时上下文* 或者 ``返回值`` 向外传播
+   - 但允许内部的错误通过 ``运行时上下文`` 或者 ``返回值`` 向外传播
 
 .. _island-mode:
 
 孤岛模式：Island Mode
-   - 同时处于 **沙箱模式** 和 :ref:`免疫模式 <immune-mode>`
+   - 同时处于 :ref:`沙箱模式 <sandbox-mode>` 和 :ref:`免疫模式 <immune-mode>`
 
 
 .. attention::
@@ -219,16 +219,12 @@ stop的设计原则
 `__asyn`
 ++++++++++++
 
-stop
-~~~~~~~
 
 当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
 
-1. 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
-2. 否则，返回 ``FORCE_STOPPED`` 。
+- 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
+- 否则，返回 ``FORCE_STOPPED`` 。
 
-Internal Error
-~~~~~~~~~~~~~~~~~
 
 当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，某次调度时发生一个内部错误，
 则应该返回此错误，并进入 :ref:`I-DONE <I-DONE>` 状态。
@@ -237,60 +233,51 @@ Internal Error
 `__sequential`
 +++++++++++++++++
 
-stop
-~~~~~~~
 
 当 ``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时调用其 ``stop`` ：
 
-1. 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
-2. 如果其立即返回错误，则直接将此错误返回；进入 :ref:`I-DONE <I-DONE>` 状态；
-3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
+- 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
+- 如果其立即返回错误，则直接将此错误返回；进入 :ref:`I-DONE <I-DONE>` 状态；
+- 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
    - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
    - 否则，返回 `FORCE_STOPPED`。
 
-4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
-5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
+- 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
+- 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
 
-Internal Error
-~~~~~~~~~~~~~~~~~
 
 当``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果其中某一个action发生错误：
 
-1. 直接返回此错误，进入 :ref:`I-DONE <I-DONE>` 状态。
+- 直接返回此错误，进入 :ref:`I-DONE <I-DONE>` 状态。
 
 
 `__concurrent`
 +++++++++++++++++++
 
-stop
-~~~~~~~
 
 当 ``__concurrent`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时调用其 ``stop`` ：
 
-1. ``stop`` 每一个处于 :ref:`I-WORKING <I-WORKING>` 状态的线程， 将 ``cause`` 值继续往内层传递；
-2. 如果所有的线程都最终以 ``SUCCESS`` 结束，则返回 ``SUCCESS`` ；
-3. 如果某个或某些线程返回任何错误，整个 ``__concurrent`` 结束时，返回最后一个错误。
+- ``stop`` 每一个处于 :ref:`I-WORKING <I-WORKING>` 状态的线程， 将 ``cause`` 值继续往内层传递；
+- 如果所有的线程都最终以 ``SUCCESS`` 结束，则返回 ``SUCCESS`` ；
+- 如果某个或某些线程返回任何错误，整个 ``__concurrent`` 结束时，返回最后一个错误。
 
-
-Internal Error
-~~~~~~~~~~~~~~~~~
 
 当 ``__concurrent`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，此时某一个线程发生错误：
 
-1. 记录下此错误；
-2. 对其余任何还处于 :ref:`I-WORKING <I-WORKING>` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
-3. 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
-4. 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
-5. 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
+- 记录下此错误；
+- 对其余任何还处于 :ref:`I-WORKING <I-WORKING>` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
+- 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
+- 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
+- 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
    等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
-6. 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>` 状态；
-7. 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
+- 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>` 状态；
+- 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
    直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，
    由此进入 :ref:`孤岛模式 <island-mode>` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
-8. 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；
+- 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；
    仅仅更新自己的last error（ ``FORCE_UPDATE`` 除外）；
-9. 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
+- 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
 
 
 `__procedure`
@@ -300,27 +287,23 @@ Internal Error
 
 .. _procedure-stop:
 
-stop
-~~~~~~~~~~~~
 Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` :
 
-1. 直接对Normal Action调用 ``stop`` ；
+- 直接对Normal Action调用 ``stop`` ；
    - 如果直接返回 ``SUCCESS``，则直接以成功状态，进入 ``__finally`` ；
    - 如果直接返回错误，则直接以错误进入 ``__finally`` ；
    - 两种情况下，在 ``__finally`` 里读到的环境状态都是Normal Action结束时的返回值；
-2. 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 :ref:`孤岛模式 <island-mode>` 。
-3. 随后Normal Action的 ``__handleEvent`` 如果返回 ``SUCCESS`` 或错误，其处理方式与1所描述的情况相同；
+- 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 :ref:`孤岛模式 <island-mode>` 。
+- 随后Normal Action的 ``__handleEvent`` 如果返回 ``SUCCESS`` 或错误，其处理方式与1所描述的情况相同；
 
-Internal Error
-~~~~~~~~~~~~~~~~~~~~~
 
 Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时其内部上报了一个错误，但Normal Action的执行
 并没有立即结束（返回 ``CONTINUE`` ） :
 
-1. 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 :ref:`孤岛模式 <island-mode>` ；
-2. 继续调度Normal Action运行直到其结束；
-3. 如果Normal Action最终返回一个错误（理应返回一个错误），记录下此错误；
-4. Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
+- 记录并继续通过 ``运行时上下文`` 向外传递此错误；并进入 :ref:`孤岛模式 <island-mode>` ；
+- 继续调度Normal Action运行直到其结束；
+- 如果Normal Action最终返回一个错误（理应返回一个错误），记录下此错误；
+- Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
 
 
 .. attention::
@@ -334,14 +317,10 @@ Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果�
 `__prot_procedure`
 ++++++++++++++++++++++++
 
-stop
-~~~~~~~
 
 一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，
 其处理方式与 :ref:`procedure stop <procedure-stop>` 相同。
 
-Internal Error
-~~~~~~~~~~~~~~~~~~~~
 
 ``__prot_procedure`` 天然处于 :ref:`沙箱模式 <sandbox-mode>` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
 
@@ -349,8 +328,6 @@ Internal Error
 `__timer_guard`
 ++++++++++++++++++++
 
-stop
-~~~~~~~
 
 一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__timer_guard`` 被 ``stop`` 后，action会首先被 ``stop`` :
 
@@ -361,8 +338,6 @@ stop
   - 如果期间没有timeout，则以action的最终返回值做为 ``__timer_guard`` 的返回值；
   - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
 
-Internal Error
-~~~~~~~~~~~~~~~~~~
 
 一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__timer_guard`` 在运行期间，监测到一个由action上报的一个内部错误，
 则立即进入 :ref:`免疫模式 <immune-mode>` 。之后，经过一系列的消息激励，直到运行结束：

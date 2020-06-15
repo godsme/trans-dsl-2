@@ -270,13 +270,13 @@ stop的设计原则
 - 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
 - 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
 - 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
-   等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
+  等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
 - 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>` 状态；
 - 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
-   直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，
-   由此进入 :ref:`孤岛模式 <island-mode>` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
+  直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，
+  由此进入 :ref:`孤岛模式 <island-mode>` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
 - 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；
-   仅仅更新自己的last error（ ``FORCE_UPDATE`` 除外）；
+  仅仅更新自己的last error（ ``FORCE_UPDATE`` 除外）；
 - 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
 
 

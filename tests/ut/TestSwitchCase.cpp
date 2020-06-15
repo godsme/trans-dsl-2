@@ -9,14 +9,16 @@
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
+#include <iostream>
 
 namespace {
    using namespace TSL_NS;
 
    FIXTURE(TestTimerGuard) {
-      __switch
-      (__case(__is_status(Result::OUT_OF_SCOPE), __async(AsyncAction1)),
-       __case(__is_status(Result::INVALID_DATA), __async(AsyncAction2)), __otherwise(__async(AsyncAction4))) action;
+      __switch(
+         __case(__is_status(Result::OUT_OF_SCOPE), __async(AsyncAction1)),
+         __case(__is_status(Result::INVALID_DATA), __async(AsyncAction2)),
+         __otherwise(__async(AsyncAction4))) action;
 
       StupidTransactionContext context{};
 

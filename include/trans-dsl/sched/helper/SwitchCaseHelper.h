@@ -107,6 +107,7 @@ namespace details {
 
       static_assert(sizeof...(T_PATHS) >= 2, "should have at least 2 __case, or use __optional instead");
 
+      // 24 bytes
       struct Inner : Switch, SchedSwitchCase {
       private:
          SeqInt i = 0;

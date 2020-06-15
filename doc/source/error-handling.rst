@@ -190,7 +190,7 @@ I-STOPPING:
    - 同时处于 :ref:`沙箱模式 <sandbox-mode>` 和 :ref:`免疫模式 <immune-mode>`
 
 
-.. attention::
+.. Important::
    每一个可嵌套Action的设计，必须遵从如下原则：
 
    - 如果本来处于 :ref:`正常模式 <normal-mode>` ，一旦被调用 ``stop`` ，如果 ``stop`` 没有导致
@@ -204,7 +204,7 @@ I-STOPPING:
 stop的设计原则
 ++++++++++++++++++++++++
 
-.. attention::
+.. Important::
    ``stop`` (立即结束的情况) 或随后的 ``handleEvent`` （经多次消息激励后的情况）的返回值原则如下：
 
    - 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责， 则依然返回 ``SUCCESS`` ；
@@ -306,7 +306,7 @@ Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，如果�
 - Normal Action结束后，直接进入 ``__finally`` ，在 ``__finally`` 里读到的环境状态之前发生的最后一个错误值；
 
 
-.. attention::
+.. Important::
    - 无论任何原因，一旦开始执行 ``__finally`` Action，将直接进入 :ref:`免疫模式 <immune-mode>` （也
      可能是 :ref:`孤岛模式 <island-mode>` ）；
    - 在进入 ``__finally`` 之后，如果仅仅是 :ref:`免疫模式 <immune-mode>` ，

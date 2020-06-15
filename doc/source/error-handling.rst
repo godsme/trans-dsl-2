@@ -2,7 +2,7 @@
 =========
 
 当我们为 `Transaction DSL` 框架添加一个Action时，这个Action会组合其它的Action。比如，``__sequential`` Action，里面会
-放入一系列的其它Action，而``__procedure`` 则会包含两个Action，一个是Normal Action，一个是 ``__finally`` Action。
+放入一系列的其它Action，而 ``__procedure`` 则会包含两个Action，一个是Normal Action，一个是 ``__finally`` Action。
 
 做为Action的编写者，你不能假设你的Action所组合的是那种具体的Action。因而任何Action都必须遵从某种约定。
 所有的Action，在组合其它Action时，唯一可以作出的假设是每一个Action都遵从这些约定。下面我们将会讨论这些约定。

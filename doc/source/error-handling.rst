@@ -1,7 +1,7 @@
 错误处理
 =========
 
-当我们为 `Transaction DSL` 框架添加一个Action时，这个Action会组合其它的Action。比如，``__sequential`` Action，里面会
+当我们为 `Transaction DSL` 框架添加一个Action时，这个Action会组合其它的Action。比如， ``__sequential`` Action，里面会
 放入一系列的其它Action，而 ``__procedure`` 则会包含两个Action，一个是Normal Action，一个是 ``__finally`` Action。
 
 做为Action的编写者，你不能假设你的Action所组合的是那种具体的Action。因而任何Action都必须遵从某种约定。
@@ -25,7 +25,7 @@ IDLE
 
 任何一个Action ，单纯从外部看，在没有发生任何调用之前，Action必然处于 :ref:`IDLE` 状态。
 
-而 :ref:`IDLE` 状态下，唯一合法的调用是``exec``，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 :ref:`WORKING` 状态。
+而 :ref:`IDLE` 状态下，唯一合法的调用是 ``exec`` ，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 :ref:`WORKING` 状态。
 而 :ref:`WORKING` 的含义是，此Action需要进一步的异步消息激励。
 
 
@@ -153,7 +153,7 @@ I-STOPPING:
 - 由内向外传播
 
   - 内层Action的返回值（此时Action进入 :ref:`I-DONE <I-DONE>` 状态）
-  - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE``，因而Action
+  - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE`` ，因而Action
     处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态 ）
 
 - 由外向内传播：
@@ -210,7 +210,7 @@ stop的设计原则
    - 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责， 则依然返回 ``SUCCESS`` ；
    - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``FORCE_STOPPED`` ；
    - 如果 ``stop`` 导致了的其它失败，则返回其它错误；
-   - 如果一个Action从未被调用过 ``stop``，或者即便被调用，但错误被阻断，则永远也不应该返回 ``FORCE_STOPPED`` 。
+   - 如果一个Action从未被调用过 ``stop`` ，或者即便被调用，但错误被阻断，则永远也不应该返回 ``FORCE_STOPPED`` 。
 
 
 已有action行为定义
@@ -222,7 +222,7 @@ stop的设计原则
 
 当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
 
-- 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
+- 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG`` 。
 - 否则，返回 ``FORCE_STOPPED`` 。
 
 
@@ -241,7 +241,7 @@ stop的设计原则
 - 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
    - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
-   - 否则，返回 `FORCE_STOPPED`。
+   - 否则，返回 `FORCE_STOPPED` 。
 
 - 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
 - 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
@@ -290,7 +290,7 @@ stop的设计原则
 Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` ：
 
 - 直接对Normal Action调用 ``stop`` ；
-   - 如果直接返回 ``SUCCESS``，则直接以成功状态，进入 ``__finally`` ；
+   - 如果直接返回 ``SUCCESS`` ，则直接以成功状态，进入 ``__finally`` ；
    - 如果直接返回错误，则直接以错误进入 ``__finally`` ；
    - 两种情况下，在 ``__finally`` 里读到的环境状态都是Normal Action结束时的返回值；
 - 如果Normal Action返回 ``CONTINUE`` ，则 ``__procedure`` 进入 :ref:`孤岛模式 <island-mode>` 。

@@ -19,9 +19,14 @@ namespace {
       const EV_NS::SimpleEventInfo timerEventInfo{TIMER_EVENT_ID_1};
       const EV_NS::Event timerEvent{timerEventInfo};
 
-     TEST("exec should return TIMEDOUT") {
+     TEST("handleEvent should return TIMEDOUT") {
         ASSERT_EQ(Result::CONTINUE, action.exec(context));
         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, timerEvent));
+     }
+
+     TEST("stop should return FORCE_STOPPED") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::TIMEDOUT));
      }
    };
 

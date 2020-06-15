@@ -340,15 +340,22 @@ internal error
 stop
 ~~~~~~~
 
-一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 被 ``stop`` 后，action会首先被 ``stop`` :
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__timer_guard`` 被 ``stop`` 后，action会首先被 ``stop`` :
 
 - 如果 ``stop`` 导致action立即结束，此时timer也会被stop，并返回action的执行结果；
 - 如果 ``stop`` 后，action依然没有结束运行（返回 ``CONTINUE`` )，则定时器也不终止；但 ``__timer_guard`` 立即
-  进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励后，
+  进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
 
   - 如果期间没有timeout，则以action的最终返回值做为 ``__timer_guard`` 的返回值；
-  - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` ，则返回 ``TIMEDOUT`` 。
+  - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
 
+internal error
+~~~~~~~~~~~~~~~~~~
 
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__timer_guard`` 在运行期间，监测到一个由action上报的一个内部错误，
+则立即进入 :ref`免疫模式 <immune-mode>` 。之后，经过一系列的消息激励，直到运行结束：
+
+  - 如果期间没有timeout，则以action的最终返回值做为 ``__timer_guard`` 的返回值；
+  - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
 
 

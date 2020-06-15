@@ -225,7 +225,7 @@
 
 一旦系统因为性能要求，需要同时给不同其它系统/子系统发出请求消息，并同时等待它们的应答，如图所示。
 
-.. image:: images/ch-1/concurrent.png
+.. image:: images/ch-2/concurrent.png
    :align: center
 
 在这个例子中，``Action3`` 和 ``Action4`` 同时给各自的目标系统发出请求消息，并各自等待应答。
@@ -262,7 +262,7 @@
 下图所示的过程就属于这样的情况。其中，存在两个时间约束：首先，整个操作必须在 250ms 之内完成，而其中的并发异步过程则必须在 200ms
 之内完成。
 
-.. image:: images/ch-1/timer-seq.png
+.. image:: images/ch-2/timer-seq.png
    :align: center
 
 我们将这个带有时间约束的事务描述如下：

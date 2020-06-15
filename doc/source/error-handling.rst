@@ -190,7 +190,7 @@ I-STOPPING:
    - 同时处于 :ref:`沙箱模式 <sandbox-mode>` 和 :ref:`免疫模式 <immune-mode>`
 
 
-.. Important::
+.. attention::
    每一个可嵌套Action的设计，必须遵从如下原则：
 
    - 如果本来处于 :ref:`正常模式 <normal-mode>` ，一旦被调用 ``stop`` ，如果 ``stop`` 没有导致

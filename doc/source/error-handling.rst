@@ -174,7 +174,7 @@ I-STOPPING:
 .. _normal-mode:
 
 正常模式：Normal Mode
-   错误既可以向内传播，也可以向内传播；
+   错误既可以向内传播，也可以向外传播；
 
 .. _sandbox-mode:
 

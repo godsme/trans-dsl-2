@@ -11,6 +11,11 @@
 #include <event/concept/Event.h>
 
 namespace {
+   constexpr TSL_NS::TimerId TIMER_1 = 1;
+   constexpr TSL_NS::TimerId TIMER_2 = 2;
+   constexpr TSL_NS::EventId TIMER_EVENT_ID_1 = 400 + 1;
+   constexpr TSL_NS::EventId TIMER_EVENT_ID_2 = 400 + 2;
+
    const TSL_NS::EventId EV_MSG_1 = 1;
    const TSL_NS::EventId EV_MSG_2 = 2;
    const TSL_NS::EventId EV_MSG_3 = 3;

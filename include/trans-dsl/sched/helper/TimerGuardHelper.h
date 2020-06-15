@@ -25,7 +25,7 @@ namespace details {
          IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
       private:
          T_ACTION action;
-         PlatformSpecificTimer timer{V_TIMER_ID};
+         PlatformSpecifiedTimer timer{V_TIMER_ID};
       };
    };
 }

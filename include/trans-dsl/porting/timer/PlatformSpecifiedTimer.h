@@ -9,7 +9,7 @@
 
 TSL_NS_BEGIN
 
-struct PlatformSpecificTimer : RelativeTimer
+struct PlatformSpecifiedTimer : RelativeTimer
 {
    using RelativeTimer::RelativeTimer;
 

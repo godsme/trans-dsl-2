@@ -24,7 +24,7 @@ private:
    auto checkInternalError(TransactionContext& context) -> void;
 
 private:
-   enum class State { INIT, WORKING, STOPPING, DONE };
+   enum class State { INIT, WORKING, STOPPING, TIMEOUT, DONE };
    State state = State::INIT;
 
 private:

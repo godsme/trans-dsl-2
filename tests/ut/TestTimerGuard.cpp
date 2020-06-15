@@ -10,14 +10,18 @@
 
 namespace {
    using namespace TSL_NS;
-   const TimerId TIMER_1 = 401;
 
    FIXTURE(TestTimerGuard) {
      __timer_guard(TIMER_1, __async(AsyncAction1)) action;
 
       StupidTransactionContext context{};
-     TEST("exec should return CONTINUE") {
+
+      const EV_NS::SimpleEventInfo timerEventInfo{TIMER_EVENT_ID_1};
+      const EV_NS::Event timerEvent{timerEventInfo};
+
+     TEST("exec should return TIMEDOUT") {
         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+        ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, timerEvent));
      }
    };
 

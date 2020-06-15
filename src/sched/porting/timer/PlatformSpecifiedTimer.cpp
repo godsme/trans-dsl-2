@@ -16,24 +16,24 @@ namespace
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool PlatformSpecificTimer::isTimerEvent(const ev::Event& event) const
+bool PlatformSpecifiedTimer::isTimerEvent(const ev::Event& event) const
 {
    return event.getEventId() >= TIMER_EVENT_START && event.getEventId() < TIMER_EVENT_END;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-auto PlatformSpecificTimer::startTimer_(const TimerId, TimeLength) -> Status
+auto PlatformSpecifiedTimer::startTimer_(const TimerId, TimeLength) -> Status
 {
    return Result::SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-void PlatformSpecificTimer::stopTimer_(const TimerId)
+void PlatformSpecifiedTimer::stopTimer_(const TimerId)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool PlatformSpecificTimer::matches_(const Event& event, const TimerId timerId) const
+bool PlatformSpecifiedTimer::matches_(const Event& event, const TimerId timerId) const
 {
    return timerId + TIMER_EVENT_START == event.getEventId();
 }

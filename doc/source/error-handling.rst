@@ -287,7 +287,7 @@ stop的设计原则
 
 .. _procedure-stop:
 
-Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` :
+Normal Action的执行如果处于 :ref:`I-WORKING <I-WORKING>` 状态，此时进行 ``stop`` ：
 
 - 直接对Normal Action调用 ``stop`` ；
    - 如果直接返回 ``SUCCESS``，则直接以成功状态，进入 ``__finally`` ；

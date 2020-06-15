@@ -10,40 +10,23 @@
 #include <assert.h>
 #include <trans-dsl/sched/concept/RuntimeContext.h>
 #include <trans-dsl/utils/ActionStatus.h>
+#include <trans-dsl/action/TransactionInfo.h>
+#include "RuntimeContextInfo.h"
 
 TSL_NS_BEGIN
 
-struct TransactionInfo;
-
-struct RuntimeContextInfo {
-   auto getRuntimeContext() const -> RuntimeContext& {
-      assert(currentRuntimeContext != nullptr);
-      return *currentRuntimeContext;
-   }
-
-   auto setRuntimeContext(RuntimeContext& runtimeContext) -> void {
-      currentRuntimeContext = &runtimeContext;
-   }
-
-   auto reportFailure(const Status status) -> void {
-      currentRuntimeContext->reportFailure(status);
-   }
-
-   auto getStatus() const -> Status {
-      assert(currentRuntimeContext != nullptr);
-      return currentRuntimeContext->getStatus();
-   }
-
-   auto hasFailure() const -> bool {
-      return ActionStatus(getStatus()).isFailed();
-   }
+struct TransactionContext
+   : TransactionInfo
+   , RuntimeContextInfo {
 
 private:
-   RuntimeContext* currentRuntimeContext = nullptr;
-};
+   OVERRIDE(getStatus() const -> Status) {
+      return RuntimeContextInfo::getRuntimeEnvStatus();
+   }
 
-struct TransactionContext: RuntimeContextInfo {
-   HAS_ROLE(TransactionInfo);
+protected:
+   using TransactionInfo::updateInstanceId;
+   using TransactionInfo::updateUserContext;
 };
 
 TSL_NS_END

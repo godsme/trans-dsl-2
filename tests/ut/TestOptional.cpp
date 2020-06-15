@@ -112,7 +112,7 @@ namespace {
       }
 
       TEST("exec should return CONTINUE") {
-         context.RuntimeContext::reportFailure(Result::OUT_OF_SCOPE);
+         context.reportFailure(Result::OUT_OF_SCOPE);
          ASSERT_EQ(Result::CONTINUE, optional.exec(context));
          ASSERT_EQ(Result::SUCCESS, optional.handleEvent(context, event1));
       }

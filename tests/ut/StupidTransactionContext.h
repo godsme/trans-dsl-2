@@ -11,29 +11,8 @@
 #include <trans-dsl/porting/timer/PlatformSpecifiedTimerInfo.h>
 
 struct StupidTransactionContext
-   : TSL_NS::RuntimeContext
-   , TSL_NS::TransactionInfo
-   , TSL_NS::TransactionContext
+   : TSL_NS::TransactionContext
    , TSL_NS::PlatformSpecifiedTimerInfo {
-
-   StupidTransactionContext() {
-      TSL_NS::TransactionContext::setRuntimeContext(*this);
-   }
-
-   OVERRIDE(getInstanceId() const -> TSL_NS::InstanceId) {
-      return 0;
-   }
-
-   OVERRIDE(getStatus() const -> TSL_NS::Status) {
-      return TransactionContext::getRuntimeContext().getStatus();
-   }
-   
-   OVERRIDE(getUserContext() const -> TSL_NS::Unknown*) {
-      return nullptr;
-   }
-
-private:
-   IMPL_ROLE(TransactionInfo);
 };
 
 #endif //TRANS_DSL_2_STUPIDTRANSACTIONCONTEXT_H

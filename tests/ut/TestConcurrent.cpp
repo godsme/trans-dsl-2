@@ -126,9 +126,9 @@ namespace {
       }
 
       TEST("exec should report Failure") {
-         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::SUCCESS, context.getRuntimeEnvStatus());
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::FAILED, context.getStatus());
+         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
       }
    };
 
@@ -165,11 +165,11 @@ namespace {
       }
 
       TEST("event3 should report failture to runtime context") {
-         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::SUCCESS, context.getRuntimeEnvStatus());
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::SUCCESS, context.getStatus());
+         ASSERT_EQ(Result::SUCCESS, context.getRuntimeEnvStatus());
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-         ASSERT_EQ(Result::FAILED, context.getStatus());
+         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
       }
 
       TEST("event3 -> event2 should return SUCCESS") {
@@ -180,7 +180,7 @@ namespace {
 
       TEST("stop should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         context.RuntimeContext::reportFailure(Result::FAILED);
+         context.reportFailure(Result::FAILED);
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
       }
 
@@ -198,7 +198,7 @@ namespace {
 
       TEST("after stop, event3 should return UNKNOWN_EVENT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         context.RuntimeContext::reportFailure(Result::FAILED);
+         context.reportFailure(Result::FAILED);
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event3));
       }

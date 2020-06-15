@@ -31,7 +31,7 @@ namespace details {
    struct OptionalFunction : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return V_PRED(context.ROLE(TransactionInfo));
+         return V_PRED(context);
       }
    };
 
@@ -44,7 +44,7 @@ namespace details {
    struct OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return pred(context.ROLE(TransactionInfo));
+         return pred(context);
       }
 
    private:
@@ -55,7 +55,7 @@ namespace details {
    struct OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return T_PRED{}(context.ROLE(TransactionInfo));
+         return T_PRED{}(context);
       }
    };
 

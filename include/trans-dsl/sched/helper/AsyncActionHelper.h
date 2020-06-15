@@ -14,20 +14,20 @@ namespace details {
    template<typename T_ACTION>
    struct ASYNC__ : SchedAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
-         return action.exec(context.ROLE(TransactionInfo));
+         return action.exec(context);
       }
 
       OVERRIDE(handleEvent(TransactionContext & context, const Event &event) -> Status) {
-         return action.handleEvent(context.ROLE(TransactionInfo), event);
+         return action.handleEvent(context, event);
       }
 
       OVERRIDE(stop(TransactionContext & context, Status cause)->Status) {
-         action.kill(context.ROLE(TransactionInfo), cause);
+         action.kill(context, cause);
          return Result::FORCE_STOPPED;
       }
 
       OVERRIDE(kill(TransactionContext & context, Status cause)-> void) {
-         action.kill(context.ROLE(TransactionInfo), cause);
+         action.kill(context, cause);
       }
 
    private:

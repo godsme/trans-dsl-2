@@ -21,7 +21,7 @@ namespace details {
    template<typename T_ACTION, size_t V_SIZE>
    struct SyncAction<T_ACTION, V_SIZE, CUB_NS::IsClass<T_ACTION>> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
-         return check(action(context.ROLE(TransactionInfo)));
+         return check(action(context));
       }
 
    private:
@@ -31,7 +31,7 @@ namespace details {
    template<typename T_ACTION>
    struct SyncAction<T_ACTION, 1, CUB_NS::IsClass<T_ACTION>> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
-         return check(T_ACTION{}(context.ROLE(TransactionInfo)));
+         return check(T_ACTION{}(context));
       }
    };
 
@@ -41,7 +41,7 @@ namespace details {
    template<SyncActionFunc V_ACTION>
    struct CallAction : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
-         return check(V_ACTION(context.ROLE(TransactionInfo)));
+         return check(V_ACTION(context));
       }
    };
 

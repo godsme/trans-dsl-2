@@ -14,7 +14,7 @@ auto SchedSwitchCase::exec(TransactionContext& context) -> Status {
    if(action != nullptr) return Result::FATAL_BUG;
 
    for(auto path = getNext(); path != nullptr; path = getNext()) {
-      if(path->shouldExecute(context.ROLE(TransactionInfo))) {
+      if(path->shouldExecute(context)) {
          action = &path->getAction();
          return action->exec(context);
       }

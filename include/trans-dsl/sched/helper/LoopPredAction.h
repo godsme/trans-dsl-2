@@ -42,7 +42,7 @@ namespace details {
       template<typename T_BREAK, size_t V_SIZE = sizeof(T_BREAK)>
       struct GenericAction : Action<T_BREAK> {
          OVERRIDE(exec(TransactionContext& context) -> Status) {
-            return Action<T_BREAK>::getFinalResult(breakPred(context.ROLE(TransactionInfo)));
+            return Action<T_BREAK>::getFinalResult(breakPred(context));
          }
 
       private:
@@ -52,7 +52,7 @@ namespace details {
       template<typename T_BREAK>
       struct GenericAction<T_BREAK, 1> : Action<T_BREAK> {
          OVERRIDE(exec(TransactionContext& context) -> Status) {
-            return Action<T_BREAK>::getFinalResult(T_BREAK{}(context.ROLE(TransactionInfo)));
+            return Action<T_BREAK>::getFinalResult(T_BREAK{}(context));
          }
       };
    };

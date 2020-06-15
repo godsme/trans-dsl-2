@@ -13,15 +13,24 @@ TSL_NS_BEGIN
 
 DEFINE_ROLE(TransactionInfo)
 {
-   ABSTRACT(getInstanceId() const -> InstanceId);
+   auto getInstanceId() const  -> InstanceId { return instanceId; }
+   auto getUserContext() const -> Unknown* { return userContext; }
+
    ABSTRACT(getStatus() const -> Status);
-   ABSTRACT(getUserContext() const -> Unknown*);
 
    template <typename ROLE>
    ROLE* toRole() const
    {
       return dynamic_cast<ROLE*>(getUserContext());
    }
+
+protected:
+   auto updateInstanceId(InstanceId id) -> void { instanceId = id; }
+   auto updateUserContext(Unknown* context) -> void { userContext = context; }
+
+private:
+   InstanceId instanceId = 0;
+   Unknown* userContext = nullptr;
 };
 
 TSL_NS_END

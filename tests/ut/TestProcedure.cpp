@@ -259,13 +259,13 @@ namespace {
 
       TEST("after exec, should return CONTINUE") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FAILED, context.getStatus());
+         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
       }
 
       TEST("after exec -> event1, should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FAILED, context.getStatus());
+         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
       }
    };
 

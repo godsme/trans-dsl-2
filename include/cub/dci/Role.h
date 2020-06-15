@@ -21,4 +21,10 @@ ROLE_PROTO_TYPE(role) override                                \
    return const_cast<role&>(static_cast<const role&>(*this)); \
 }
 
+///////////////////////////////////////////////////////////////
+#define IMPL_ROLE_WITH_VAR(role, var) \
+ROLE_PROTO_TYPE(role) override { \
+   return const_cast<role&>(static_cast<const role&>(var)); \
+}
+
 #endif //TRANS_DSL_2_ROLE_H

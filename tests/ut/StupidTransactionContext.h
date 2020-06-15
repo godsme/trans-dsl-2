@@ -8,9 +8,13 @@
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/action/TransactionInfo.h>
 #include <trans-dsl/sched/concept/RuntimeContext.h>
+#include <trans-dsl/porting/timer/PlatformSpecifiedTimerInfo.h>
 
 struct StupidTransactionContext
-   : TSL_NS::RuntimeContext, TSL_NS::TransactionInfo, TSL_NS::TransactionContext {
+   : TSL_NS::RuntimeContext
+   , TSL_NS::TransactionInfo
+   , TSL_NS::TransactionContext
+   , TSL_NS::PlatformSpecifiedTimerInfo {
 
    StupidTransactionContext() {
       TSL_NS::TransactionContext::setRuntimeContext(*this);

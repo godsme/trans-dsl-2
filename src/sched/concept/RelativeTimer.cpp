@@ -3,7 +3,7 @@
 //
 
 #include <trans-dsl/sched/concept/RelativeTimer.h>
-#include <trans-dsl/porting/timer/TimerInfo.h>
+#include <trans-dsl/sched/concept/TimerInfo.h>
 
 TSL_NS_BEGIN
 

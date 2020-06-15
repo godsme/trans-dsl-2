@@ -9,6 +9,7 @@
 #include <cub/dci/Role.h>
 #include <assert.h>
 #include <trans-dsl/sched/concept/RuntimeContext.h>
+#include <trans-dsl/utils/ActionStatus.h>
 
 TSL_NS_BEGIN
 
@@ -20,12 +21,21 @@ struct RuntimeContextInfo {
       return *currentRuntimeContext;
    }
 
-   void setRuntimeContext(RuntimeContext& runtimeContext) {
+   auto setRuntimeContext(RuntimeContext& runtimeContext) -> void {
       currentRuntimeContext = &runtimeContext;
    }
 
-   void reportFailure(const Status status) {
+   auto reportFailure(const Status status) -> void {
       currentRuntimeContext->reportFailure(status);
+   }
+
+   auto getStatus() const -> Status {
+      assert(currentRuntimeContext != nullptr);
+      return currentRuntimeContext->getStatus();
+   }
+
+   auto hasFailure() const -> bool {
+      return ActionStatus(getStatus()).isFailed();
    }
 
 private:

@@ -36,9 +36,9 @@ auto SchedSwitchCase::stop(TransactionContext& context, Status cause) -> Status 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSwitchCase::kill(TransactionContext& context) -> void {
+auto SchedSwitchCase::kill(TransactionContext& context, Status cause) -> void {
    if(action != nullptr) {
-      action->kill(context);
+      action->kill(context, cause);
    }
 }
 

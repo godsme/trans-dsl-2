@@ -16,7 +16,7 @@ struct SchedSequential : SchedAction {
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
-   OVERRIDE(kill(TransactionContext&)                      -> void);
+   OVERRIDE(kill(TransactionContext&, Status cause)        -> void);
 
 private:
    auto forward(TransactionContext&) -> Status;

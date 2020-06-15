@@ -50,7 +50,7 @@ namespace {
 
       TEST("after killed, start again should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context);
+         action.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
 
@@ -62,7 +62,7 @@ namespace {
 
       TEST("after killed, handleEvent again should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context);
+         action.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event1));
       }
 

@@ -26,9 +26,9 @@ auto SchedOptional::stop(TransactionContext& context, Status cause)  -> Status {
    return action == nullptr ? Result::FATAL_BUG : action->stop(context, cause);
 }
 
-auto SchedOptional::kill(TransactionContext& context) -> void {
+auto SchedOptional::kill(TransactionContext& context, Status cause) -> void {
    if(action != nullptr) {
-      action->kill(context);
+      action->kill(context, cause);
       action = nullptr;
    }
 }

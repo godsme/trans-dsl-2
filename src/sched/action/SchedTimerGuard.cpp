@@ -109,12 +109,12 @@ auto SchedTimerGuard::stop(TransactionContext& context, Status cause)  -> Status
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto  SchedTimerGuard::kill(TransactionContext& context) -> void {
+auto  SchedTimerGuard::kill(TransactionContext& context, Status cause) -> void {
    if(!isStillWorking()) return;
 
-   if(state == State::WORKING) ROLE(RelativeTimer).stop();
+   ROLE(RelativeTimer).stop();
 
-   ROLE(SchedAction).kill(context);
+   ROLE(SchedAction).kill(context, cause);
    state = State::DONE;
 }
 

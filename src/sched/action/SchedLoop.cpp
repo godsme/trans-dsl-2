@@ -140,10 +140,10 @@ auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-auto SchedLoop::kill(TransactionContext& context) -> void {
+auto SchedLoop::kill(TransactionContext& context, Status cause) -> void {
    if(action != nullptr) {
       AUTO_SWITCH();
-      action->kill(context);
+      action->kill(context, cause);
       action = nullptr;
    }
 }

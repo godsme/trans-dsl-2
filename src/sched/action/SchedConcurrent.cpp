@@ -105,11 +105,6 @@ inline auto SchedConcurrent::hasReportedError() const -> bool {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-inline auto SchedConcurrent::checkReportingError(SeqInt i) -> void {
-   if(hasReportedError()) children[i] = State::Stopping;
-}
-
-///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> void {
    bool hasWorkingAction = false;
    SeqInt i = 0;
@@ -171,12 +166,12 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedConcurrent::kill(TransactionContext& context) -> void {
+auto SchedConcurrent::kill(TransactionContext& context, Status cause) -> void {
    if(notWorking()) return;
 
    AUTO_SWITCH();
    for(SeqInt i = 0; i<total; i++) {
-      if(IS_CHILD_WORKING(i)) get(i)->kill(context);
+      if(IS_CHILD_WORKING(i)) get(i)->kill(context, cause);
    }
 
    state = State::Done;

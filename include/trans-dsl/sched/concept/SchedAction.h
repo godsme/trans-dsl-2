@@ -17,7 +17,7 @@ DEFINE_ROLE(SchedAction)  {
    ABSTRACT(exec(TransactionContext&)                      -> Status);
    ABSTRACT(handleEvent(TransactionContext&, const Event&) -> Status);
    ABSTRACT(stop(TransactionContext&, Status cause)        -> Status);
-   ABSTRACT(kill(TransactionContext&)                      -> void);
+   ABSTRACT(kill(TransactionContext&, Status cause = Result::FAILED) -> void);
 };
 
 TSL_NS_END

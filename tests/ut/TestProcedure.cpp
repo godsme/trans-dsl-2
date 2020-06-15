@@ -85,14 +85,14 @@ namespace {
       TEST("call exec -> event1 -> kill -> event3, should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         procedure.kill(context);
+         procedure.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, procedure.handleEvent(context, event3));
       }
 
       TEST("call exec -> event1 -> kill -> stop, should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
          ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         procedure.kill(context);
+         procedure.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
       }
 

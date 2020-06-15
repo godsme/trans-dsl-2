@@ -28,7 +28,7 @@ struct SchedLoop
    OVERRIDE(exec(TransactionContext& ) -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status) -> Status);
-   OVERRIDE(kill(TransactionContext& ) -> void);
+   OVERRIDE(kill(TransactionContext&, Status) -> void);
 
 private:
    auto checkError(LoopActionType type);

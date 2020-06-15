@@ -75,13 +75,13 @@ namespace {
       TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         action.kill(context);
+         action.kill(context, Result::FAILED);
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
       TEST("after kill, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context);
+         action.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event1));
       }
 
@@ -94,7 +94,7 @@ namespace {
 
       TEST("after kill, call exec will return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         action.kill(context);
+         action.kill(context, Result::DUPTID);
          ASSERT_EQ(Result::FATAL_BUG, action.exec(context));
       }
    };

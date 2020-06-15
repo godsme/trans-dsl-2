@@ -19,8 +19,8 @@ struct SchedProcedure
 
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
-   OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
-   OVERRIDE(kill(TransactionContext&)                      -> void);
+   OVERRIDE(stop(TransactionContext&, Status)              -> Status);
+   OVERRIDE(kill(TransactionContext&, Status)              -> void);
 
 private:
    auto exec_(TransactionContext&) -> Status;

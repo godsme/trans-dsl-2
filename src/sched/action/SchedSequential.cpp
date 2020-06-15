@@ -82,9 +82,9 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::kill(TransactionContext& context) -> void {
+auto SchedSequential::kill(TransactionContext& context, Status cause) -> void {
    if(current != nullptr) {
-      current->kill(context);
+      current->kill(context, cause);
       current = nullptr;
       stopped = true;
    }

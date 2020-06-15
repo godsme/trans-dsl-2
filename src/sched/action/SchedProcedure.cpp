@@ -29,9 +29,9 @@ DEFINE_ROLE(SchedProcedure::State) {
       return Result::FATAL_BUG;
    }
 
-   DEFAULT(kill(SchedProcedure& this_, TransactionContext& context) -> void) {
+   DEFAULT(kill(SchedProcedure& this_, TransactionContext& context, Status cause) -> void) {
       if(this_.action != nullptr) {
-         this_.action->kill(context);
+         this_.action->kill(context, cause);
          (void) this_.gotoState<Done>(context, Result::SUCCESS);
       }
    }
@@ -143,7 +143,7 @@ DEF_STATE(Done) {
       return (result == SUCCESS && !this_.isProtected()) ? this_.getStatus() : (Status)result;
    }
 
-   OVERRIDE(kill(SchedProcedure& this_, TransactionContext& context) -> void) {}
+   OVERRIDE(kill(SchedProcedure& this_, TransactionContext& context, Status) -> void) {}
 };
 
 auto SchedProcedure::exec_(TransactionContext& context) -> Status {
@@ -183,9 +183,9 @@ auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
    return state->stop(*this, context, cause);
 }
 
-auto SchedProcedure::kill(TransactionContext& context)  -> void {
+auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
    AUTO_SWITCH();
-   state->kill(*this, context);
+   state->kill(*this, context, cause);
 }
 
 

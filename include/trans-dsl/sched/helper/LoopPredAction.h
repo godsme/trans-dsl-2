@@ -24,10 +24,10 @@ namespace details {
          OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status) {
             return Result::FATAL_BUG;
          }
-         OVERRIDE(stop(TransactionContext&, Status)   -> Status) {
+         OVERRIDE(stop(TransactionContext&, Status) -> Status) {
             return Result::FATAL_BUG;
          }
-         OVERRIDE(kill(TransactionContext&)                -> void) {}
+         OVERRIDE(kill(TransactionContext&, Status) -> void) {}
       };
 
       template<typename T_PRED>

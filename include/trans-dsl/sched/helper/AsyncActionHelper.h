@@ -22,12 +22,12 @@ namespace details {
       }
 
       OVERRIDE(stop(TransactionContext & context, Status cause)->Status) {
-         action.kill(context.ROLE(TransactionInfo));
+         action.kill(context.ROLE(TransactionInfo), cause);
          return Result::FORCE_STOPPED;
       }
 
-      OVERRIDE(kill(TransactionContext & context)-> void) {
-         action.kill(context.ROLE(TransactionInfo));
+      OVERRIDE(kill(TransactionContext & context, Status cause)-> void) {
+         action.kill(context.ROLE(TransactionInfo), cause);
       }
 
    private:

@@ -154,7 +154,7 @@ I-STOPPING:
 1. 由内向外传播
 
   - 内层Action的返回值（此时Action进入 :ref:`I-DONE <I-DONE>` 状态）
-  - 内层上下问向外层上下文的直接传递（此时调用返回值是 ``CONTINUE`` ，因而Action
+  - ``内层上下文`` 向 ``外层上下文`` 的直接传递（此时调用返回值是 ``CONTINUE`` ，因而Action
     处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态 ）
 
 2. 由外向内传播：

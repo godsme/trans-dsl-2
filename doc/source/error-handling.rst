@@ -162,6 +162,9 @@ I-STOPPING:
   - ``stop(cause)``
 
 
+.. image:: images/ch-4/runtime-env.png
+   :align: center
+
 模式
 ++++++++
 

@@ -5,7 +5,6 @@
 #ifndef TRANS_DSL_2_SCHEDSYNCACTION_H
 #define TRANS_DSL_2_SCHEDSYNCACTION_H
 
-#include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/concept/SchedAction.h>
 #include <trans-dsl/utils/ActionStatus.h>
 

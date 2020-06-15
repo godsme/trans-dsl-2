@@ -247,7 +247,7 @@ stop的设计原则
    3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
      - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
-     - 否则，返回 `FORCE_STOPPED` 。
+     - 否则，返回 ``FORCE_STOPPED`` 。
 
    4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
    5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。

@@ -221,7 +221,7 @@ stop
 1. 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG``。
 2. 否则，返回 ``FORCE_STOPPED`` 。
 
-internal error
+Internal Error
 ~~~~~~~~~~~~~~~~~
 
 当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，某次调度时发生一个内部错误，则应该返回此错误，并进入 :ref:`I-DONE <I-DONE>` 状态。
@@ -245,7 +245,7 @@ stop
 4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 ``孤岛模式`` ；
 5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
 
-internal error
+Internal Error
 ~~~~~~~~~~~~~~~~~
 
 当``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果其中某一个action发生错误：
@@ -266,7 +266,7 @@ stop
 3. 如果某个或某些线程返回任何错误，整个 ``__concurrent`` 结束时，返回最后一个错误。
 
 
-internal error
+Internal Error
 ~~~~~~~~~~~~~~~~~
 
 当 ``__concurrent`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，此时某一个线程发生错误：
@@ -328,7 +328,7 @@ stop
 
 一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，其处理方式与 :ref:`procedure stop <procedure-stop>` 相同。
 
-internal error
+Internal Error
 ~~~~~~~~~~~~~~~~~~~~
 
 ``__prot_procedure`` 天然处于 ``沙箱模式`` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
@@ -349,7 +349,7 @@ stop
   - 如果期间没有timeout，则以action的最终返回值做为 ``__timer_guard`` 的返回值；
   - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
 
-internal error
+Internal Error
 ~~~~~~~~~~~~~~~~~~
 
 一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__timer_guard`` 在运行期间，监测到一个由action上报的一个内部错误，

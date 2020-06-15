@@ -16,7 +16,13 @@ struct ActionStatus
    constexpr ActionStatus(Status status) : status(status) {}
 
    constexpr auto isWorking() const -> bool {
-      return status == Result::CONTINUE || status == Result::UNKNOWN_EVENT;
+      switch (status) {
+         case Result::CONTINUE:
+         case Result::UNKNOWN_EVENT:
+            return true;
+         default:
+            return false;
+      }
    }
 
    constexpr auto isFailed() const -> bool {
@@ -25,6 +31,16 @@ struct ActionStatus
 
    constexpr auto isDone() const -> bool {
       return status == Result::SUCCESS;
+   }
+
+   constexpr auto isDoneOrForceStopped() const {
+      switch (status) {
+         case Result::SUCCESS:
+         case Result::FORCE_STOPPED:
+            return true;
+         default:
+            return false;
+      }
    }
 
    constexpr auto eventAccepted() const -> bool {

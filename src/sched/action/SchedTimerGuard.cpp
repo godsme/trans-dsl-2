@@ -25,7 +25,6 @@ auto SchedTimerGuard::isStillWorking() const -> bool {
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimerGuard::checkInternalError(TransactionContext& context) -> void {
    if(state == State::WORKING && context.hasFailure()) {
-      ROLE(RelativeTimer).stop();
       state = State::STOPPING;
    }
 }
@@ -65,7 +64,7 @@ auto SchedTimerGuard::handleEvent_(TransactionContext& context, const Event& eve
       return status;
    }
 
-   if(state == State::TIMEOUT && (status.isDone() || status == Result::FORCE_STOPPED)) {
+   if(state == State::TIMEOUT && status.isDoneOrForceStopped()) {
       status = Result::TIMEDOUT;
    }
 
@@ -81,7 +80,10 @@ auto SchedTimerGuard::stop_(TransactionContext& context, Status cause)  -> Statu
 
    ActionStatus status = ROLE(SchedAction).stop(context, cause);
    state = status.isWorking() ? State::STOPPING : State::DONE;
-   ROLE(RelativeTimer).stop();
+
+   if(state == State::DONE) {
+      ROLE(RelativeTimer).stop();
+   }
 
    return status;
 }
@@ -92,7 +94,7 @@ auto SchedTimerGuard::handleEvent(TransactionContext& context, const Event& even
 
    if(ROLE(RelativeTimer).matches(event)) {
       ActionStatus status = stop_(context, Result::TIMEDOUT);
-      if(status == Result::FORCE_STOPPED) return Result::TIMEDOUT;
+      if(status.isDoneOrForceStopped()) return Result::TIMEDOUT;
       else if(status.isWorking()) state = State::TIMEOUT;
       return status;
    } else {

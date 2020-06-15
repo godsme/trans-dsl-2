@@ -174,6 +174,8 @@ I-STOPPING:
    - 可能允许通过 *返回值* 返回最终的错误；
    - 允许外部的错误通过 ``stop`` 传播进来；
 
+.. _immune-mode:
+
 免疫模式：Immune Mode
    - 错误不可向内传播
    - 但允许内部的错误通过 *运行时上下文* 或者 ``返回值`` 向外传播
@@ -332,7 +334,20 @@ internal error
 ``__prot_procedure`` 天然处于 ``沙箱模式`` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
 
 
+`__timer_guard`
+++++++++++++++++++++
 
+stop
+~~~~~~~
+
+一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 被 ``stop`` 后，action会首先被 ``stop`` :
+
+- 如果 ``stop`` 导致action立即结束，此时timer也会被stop，并返回action的执行结果；
+- 如果 ``stop`` 后，action依然没有结束运行（返回 ``CONTINUE`` )，则定时器也不终止；但 ``__timer_guard`` 立即
+  进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励后，
+
+  - 如果期间没有timeout，则以action的最终返回值做为 ``__timer_guard`` 的返回值；
+  - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` ，则返回 ``TIMEDOUT`` 。
 
 
 

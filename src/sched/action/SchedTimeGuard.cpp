@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/15.
 //
 
-#include <trans-dsl/sched/action/SchedTimerGuard.h>
+#include <trans-dsl/sched/action/SchedTimeGuard.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/concept/RelativeTimer.h>
@@ -11,7 +11,7 @@
 TSL_NS_BEGIN
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::isStillWorking() const -> bool {
+auto SchedTimeGuard::isStillWorking() const -> bool {
    switch (state) {
       case State::WORKING:
       case State::STOPPING:
@@ -23,13 +23,13 @@ auto SchedTimerGuard::isStillWorking() const -> bool {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::checkInternalError(TransactionContext& context) -> void {
+auto SchedTimeGuard::checkInternalError(TransactionContext& context) -> void {
    if(state == State::WORKING && context.hasFailure()) {
       state = State::STOPPING;
    }
 }
 
-auto SchedTimerGuard::startTimer(TransactionContext& context) -> Status {
+auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
    TimerInfo* timerInfo = context.getTimerInfo();
    if(timerInfo == nullptr) {
       return Result::FATAL_BUG;
@@ -39,7 +39,7 @@ auto SchedTimerGuard::startTimer(TransactionContext& context) -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::exec(TransactionContext& context)  -> Status {
+auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    if(state != State::INIT) return Result::FATAL_BUG;
 
    if(ActionStatus status = startTimer(context); status.isFailed()) {
@@ -61,7 +61,7 @@ auto SchedTimerGuard::exec(TransactionContext& context)  -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::handleEvent_(TransactionContext& context, const Event& event) -> Status {
+auto SchedTimeGuard::handleEvent_(TransactionContext& context, const Event& event) -> Status {
    ActionStatus status = ROLE(SchedAction).handleEvent(context, event);
    if(status.isWorking()) {
       checkInternalError(context);
@@ -80,7 +80,7 @@ auto SchedTimerGuard::handleEvent_(TransactionContext& context, const Event& eve
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::stop_(TransactionContext& context, Status cause)  -> Status {
+auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status {
    if(state != State::WORKING) return Result::CONTINUE;
 
    ActionStatus status = ROLE(SchedAction).stop(context, cause);
@@ -94,7 +94,7 @@ auto SchedTimerGuard::stop_(TransactionContext& context, Status cause)  -> Statu
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedTimeGuard::handleEvent(TransactionContext& context, const Event& event) -> Status {
    if(!isStillWorking()) return FATAL_BUG;
 
    if(ROLE(RelativeTimer).matches(event)) {
@@ -108,12 +108,12 @@ auto SchedTimerGuard::handleEvent(TransactionContext& context, const Event& even
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimerGuard::stop(TransactionContext& context, Status cause)  -> Status {
+auto SchedTimeGuard::stop(TransactionContext& context, Status cause)  -> Status {
    return stop_(context, cause);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto  SchedTimerGuard::kill(TransactionContext& context, Status cause) -> void {
+auto  SchedTimeGuard::kill(TransactionContext& context, Status cause) -> void {
    if(!isStillWorking()) return;
 
    ROLE(RelativeTimer).stop();

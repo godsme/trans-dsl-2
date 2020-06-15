@@ -9,7 +9,7 @@
 #include <trans-dsl/sched/helper/AsyncActionHelper.h>
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/helper/ConcurrentHelper.h>
-#include <trans-dsl/sched/helper/TimerGuardHelper.h>
+#include <trans-dsl/sched/helper/TimeGuardHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>

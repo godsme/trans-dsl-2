@@ -275,10 +275,10 @@
     const TimerId TIMER_2 = 2;
 
     __def_transaction
-    ( __timer_guard(TIMER_1, __sequential
+    ( __time_guard(TIMER_1, __sequential
         ( __req(Action1)
         , __call(Action2)
-        , __timer_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
+        , __time_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
         , __rsp(Action5)))
     ) Transaction;
 

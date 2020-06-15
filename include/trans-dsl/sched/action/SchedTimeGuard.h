@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/15.
 //
 
-#ifndef TRANS_DSL_2_SCHEDTIMERGUARD_H
-#define TRANS_DSL_2_SCHEDTIMERGUARD_H
+#ifndef TRANS_DSL_2_SCHEDTIMEGUARD_H
+#define TRANS_DSL_2_SCHEDTIMEGUARD_H
 
 #include <trans-dsl/sched/concept/SchedAction.h>
 
@@ -11,7 +11,7 @@ TSL_NS_BEGIN
 
 struct RelativeTimer;
 
-struct SchedTimerGuard : SchedAction {
+struct SchedTimeGuard : SchedAction {
    OVERRIDE(exec(TransactionContext&)  -> Status);
    OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause) -> Status);
@@ -43,4 +43,4 @@ private:
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_SCHEDTIMERGUARD_H
+#endif //TRANS_DSL_2_SCHEDTIMEGUARD_H

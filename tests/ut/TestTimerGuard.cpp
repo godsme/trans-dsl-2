@@ -6,7 +6,7 @@
 #include <trans-dsl/sched/helper/AsyncActionHelper.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
-#include <trans-dsl/sched/helper/TimerGuardHelper.h>
+#include <trans-dsl/sched/helper/TimeGuardHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 
@@ -14,7 +14,7 @@ namespace {
    using namespace TSL_NS;
 
    FIXTURE(TestTimerGuard) {
-     __timer_guard(TIMER_1, __async(AsyncAction1)) action;
+     __time_guard(TIMER_1, __async(AsyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -39,7 +39,7 @@ namespace {
          __sync(SyncAction2),
          __finally(__async(AsyncAction1)));
 
-      __timer_guard(TIMER_1, ProcedureAction) action;
+      __time_guard(TIMER_1, ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -76,7 +76,7 @@ namespace {
          __async(AsyncAction2),
          __finally(__async(AsyncAction1)));
 
-      __timer_guard(TIMER_1, ProcedureAction) action;
+      __time_guard(TIMER_1, ProcedureAction) action;
 
       StupidTransactionContext context{};
 

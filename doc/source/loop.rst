@@ -49,7 +49,7 @@
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    );
 
@@ -69,7 +69,7 @@
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout)
    , __concurrent(__async(Action3), __async(Action5))
    );
@@ -84,7 +84,7 @@
    __loop(
    , __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout, SUCCESS)
    , __concurrent(__async(Action3), __async(Action5))
    );
@@ -102,14 +102,14 @@
    __loop( __break_if(__not(CondSatisfied))
    , __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    );
 
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    , __break_if(__not(CondSatisfied))
    );
@@ -125,14 +125,14 @@
    __loop( __while(CondSatisfied)
    , __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    );
 
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    , __while(CondSatisfied)
    );
@@ -152,7 +152,7 @@
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    , __until(CondSatisfied)
    );
@@ -172,7 +172,7 @@
    __loop
    ( __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __redo_if(__is_timeout)
    , __concurrent(__async(Action3), __async(Action5))
    );
@@ -207,7 +207,7 @@
    __loop(
    , __sync(Action1)
    , __async(Action2)
-   , __timer_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, Action3)
    , __concurrent(__async(Action3), __async(Action5))
    , __while(ShouldRetry)
    );
@@ -252,7 +252,7 @@
    // Action Segment 2
    , __async(Action3)
    , __async(Action4)
-   , __timer_guard(TIMER_2, Action5)
+   , __time_guard(TIMER_2, Action5)
 
    // Predicate Segment 2
    , __break_if(__is_timeout)
@@ -294,7 +294,7 @@
    // Action Segment 1
    , __async(Action3)
    , __async(Action4)
-   , __timer_guard(TIMER_2, Action5)
+   , __time_guard(TIMER_2, Action5)
 
    // Predicate Segment 2
    , __break_if(__is_timeout)

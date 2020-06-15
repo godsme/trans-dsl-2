@@ -58,7 +58,7 @@ WORKING
 STOPPING
 +++++++++++++
 
-在 `STOPPING` 状态下，
+在 :ref:`STOPPING` 状态下，
 
 - ``exec`` 不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果调用 ``stop``，不应对Action产生任何影响，而直接返回 ``CONTINUE`` ;
@@ -75,7 +75,7 @@ STOPPING
 DONE
 +++++++++++++
 
-在 *DONE* 状态下，
+在 :ref:`DONE` 状态下，
 
 - ``exec`` ， ``stop`` , ``handleEvent`` 都不可再被调用，否则应返回 ``FATAL_BUG`` ；
 - 如果调用 ``kill`` ，应该对Action状态无任何影响，依然处于 :ref:`DONE` 状态。
@@ -128,7 +128,7 @@ I-WORKING:
 I-STOPPING:
    则代表Action内部已经进入异常处理状态。
 
-如果内部处于 :ref:`I-WORKING <I-WORKING>` 状态，如果一个Action未处于 ``免疫模式`` ，
+如果内部处于 :ref:`I-WORKING <I-WORKING>` 状态，如果一个Action未处于 :ref:`免疫模式 <immune-mode>` ，
 则 ``stop`` 调用应强迫Action进入失败处理。
 
 
@@ -141,11 +141,11 @@ I-STOPPING:
 .. attention::
    错误的传播，主要有三种方式：
 
-   1. 最直接，也是最典型的，通过 **返回值** 。这发生于一个Action运行结束，进入 :ref:`DONE` 状态时；这属于一个从内层上下文，向外层上下文
-      传播错误的方式。
-   2. 但一个Action内部发生错误后，并没有直接进入 :ref:`DONE` 状态，而是需要进一步的消息激励，
+   1. 最直接，也是最典型的，通过 ``返回值`` 。这发生于一个Action运行结束，进入 :ref:`I-DONE <I-DONE>` 状态时；
+      这属于一个从 ``内层上下文`` 向 ``外层上下文`` 传播错误的方式。
+   2. 但一个Action内部发生错误后，并没有直接进入 :ref:`I-DONE <I-DONE>` 状态，而是需要进一步的消息激励，
       因而会处于 :ref:`I-WORKING <I-WORKING>` 或 :ref:`I-STOPPING <I-STOPPING>` 状态。但此错误需要立即为外界所感知，从而尽快对此错误作出响应。
-      此时，可以通过 **运行时上下文** 的嵌套父子关系，有内层上下文直接逐级上报，向外传播；
+      此时，可以通过 ``运行时上下文`` 的嵌套父子关系，有内层上下文直接逐级上报，向外传播；
    3. 外层上下文由于任何原因，最典型的原因是，通过内层Action的返回值，或者内层上下文的上报，得到了一个错误，需要将错误传递给其它下层上下文。
       此时，可以通过 ``stop`` 调用，带着cause值，将错误有外向内传播。
 
@@ -175,8 +175,8 @@ I-STOPPING:
 .. _sandbox-mode:
 
 沙箱模式：Sandbox Mode
-   - 错误不可通过 *运行时上下文* 向外传播
-   - 可能允许通过 *返回值* 返回最终的错误；
+   - 错误不可通过 ``运行时上下文`` 向外传播
+   - 可能允许通过 ``返回值`` 返回最终的错误；
    - 允许外部的错误通过 ``stop`` 传播进来；
 
 .. _immune-mode:
@@ -197,8 +197,8 @@ I-STOPPING:
    - 如果本来处于 :ref:`正常模式 <normal-mode>` ，一旦被调用 ``stop`` ，如果 ``stop`` 没有导致
      其进入 :ref:`I-DONE <I-DONE>` 状态，则必然进入 :ref:`免疫模式 <immune-mode>` ; 随后再次调用其 ``stop`` 将会被阻断，
      直接返回 ``CONTINUE`` ，而不会对其产生任何影响；
-   - 如果处于 :ref:`正常模式 <normal-mode>` 或 :ref:`免疫模式 <immune-mode>` ，在内部发生错误后，如果随后不能立即结束，则必须通过 *运行时上下文* 及时上报错误；
-   - 一旦通过 *运行时上下文* 上报过一次错误，则随后再发生的错误，禁止再通过 *运行时上下文* 上报。这就意味着，
+   - 如果处于 :ref:`正常模式 <normal-mode>` 或 :ref:`免疫模式 <immune-mode>` ，在内部发生错误后，如果随后不能立即结束，则必须通过 ``运行时上下文`` 及时上报错误；
+   - 一旦通过 ``运行时上下文`` 上报过一次错误，则随后再发生的错误，禁止再通过 ``运行时上下文`` 上报。这就意味着，
      进入了 :ref:`沙箱模式 <sandbox-mode>` （从 :ref:`正常模式 <normal-mode>` ）或 :ref:`孤岛模式 <island-mode>` （从 :ref:`免疫模式 <immune-mode>` ）。
 
 
@@ -238,15 +238,15 @@ stop的设计原则
 .. attention::
    当 ``__sequential`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，如果此时调用其 ``stop`` ：
 
-   - 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
-   - 如果其立即返回错误，则直接将此错误返回；进入 :ref:`I-DONE <I-DONE>` 状态；
-   - 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
+   1. 立即对当前action调用 ``stop`` ，将 ``cause`` 值透传；
+   2. 如果其立即返回错误，则直接将此错误返回；进入 :ref:`I-DONE <I-DONE>` 状态；
+   3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
      - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
      - 否则，返回 `FORCE_STOPPED` 。
 
-   - 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
-   - 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
+   4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
+   5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
 
 
 .. attention::

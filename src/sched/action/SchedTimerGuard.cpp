@@ -64,11 +64,12 @@ auto SchedTimerGuard::handleEvent_(TransactionContext& context, const Event& eve
       return status;
    }
 
-   if(state == State::TIMEOUT && status.isDoneOrForceStopped()) {
+   if(state != State::TIMEOUT) {
+      ROLE(RelativeTimer).stop();
+   } else if(status.isDoneOrForceStopped()) {
       status = Result::TIMEDOUT;
    }
 
-   ROLE(RelativeTimer).stop();
    state = State::DONE;
 
    return status;

@@ -24,7 +24,15 @@ private:
    auto checkInternalError(TransactionContext& context) -> void;
 
 private:
-   enum class State { INIT, WORKING, STOPPING, TIMEOUT, DONE };
+   enum class State {
+      INIT,
+      WORKING,  // normally working
+      STOPPING, // action is stopped either by stop or by an internal error
+                // but action is not done, timer doesn't timeout either.
+      TIMEOUT,  // timeout either in WORKING or STOPPING state
+                // but action is not done yet.
+      DONE
+   };
    State state = State::INIT;
 
 private:

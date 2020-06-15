@@ -344,7 +344,7 @@ stop的设计原则
 
    1. 如果 ``stop`` 导致action立即结束，此时timer也会被stop，并返回action的执行结果；
    2. 如果 ``stop`` 后，action依然没有结束运行（返回 ``CONTINUE`` )，则定时器也不终止；但 ``__time_guard`` 立即
-     进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
+      进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；
      - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。

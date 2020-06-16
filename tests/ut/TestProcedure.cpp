@@ -11,6 +11,7 @@
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
+#include <trans-dsl/sched/helper/WaitHelper.h>
 #include <iostream>
 
 namespace {
@@ -295,5 +296,23 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
       }
+
+//      TEST("abc") {
+//         __procedure
+//            ( __sequential
+//               ( __wait(1)
+//               , __wait(2)
+//               , __wait(3)
+//               , __wait(4)
+//               , __wait(5)
+//               , __wait(6)
+//               )
+//            , __finally( __sequential(__wait(3), __wait(4), __wait(5)))
+//            ) a;
+//
+//         std::cout << sizeof(a) << std::endl;
+//      }
    };
+
+
 }

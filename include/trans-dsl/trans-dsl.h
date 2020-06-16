@@ -15,6 +15,7 @@
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
 #include <trans-dsl/sched/helper/SafeHelper.h>
 #include <trans-dsl/sched/helper/VoidHelper.h>
+#include <trans-dsl/sched/helper/WaitHelper.h>
 #include <trans-dsl/sched/helper/ThrowHelper.h>
 #include <trans-dsl/sched/helper/FragmentHelper.h>
 

@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_PLATFORMSPECIFIEDTIMERINFO_H
 #define TRANS_DSL_2_PLATFORMSPECIFIEDTIMERINFO_H
 
-#include <trans-dsl/sched/concept/TimerInfo.h>
+#include <trans-dsl/sched/domain/TimerInfo.h>
 
 TSL_NS_BEGIN
 

@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_SCHEDSEQUENTIAL_H
 #define TRANS_DSL_2_SCHEDSEQUENTIAL_H
 
-#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/utils/SeqInt.h>
 

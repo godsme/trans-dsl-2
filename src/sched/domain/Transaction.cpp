@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/15.
 //
 
-#include <trans-dsl/sched/concept/Transaction.h>
+#include <trans-dsl/sched/domain/Transaction.h>
 #include <trans-dsl/utils/ActionStatus.h>
 
 TSL_NS_BEGIN

@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_ISSCHEDACTION_H
 
 #include <type_traits>
-#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
 
 TSL_NS_BEGIN
 

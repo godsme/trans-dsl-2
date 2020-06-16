@@ -4,7 +4,7 @@
 
 #include <trans-dsl/sched/action/SchedVoid.h>
 #include <trans-dsl/utils/ActionStatus.h>
-#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 
 TSL_NS_BEGIN
 

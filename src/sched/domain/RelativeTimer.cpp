@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/15.
 //
 
-#include <trans-dsl/sched/concept/RelativeTimer.h>
-#include <trans-dsl/sched/concept/TimerInfo.h>
+#include <trans-dsl/sched/domain/RelativeTimer.h>
+#include <trans-dsl/sched/domain/TimerInfo.h>
 
 TSL_NS_BEGIN
 

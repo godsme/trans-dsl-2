@@ -5,11 +5,6 @@
 #ifndef TRANS_DSL_2_LOOPHELPER_H
 #define TRANS_DSL_2_LOOPHELPER_H
 
-#include <type_traits>
-#include <algorithm>
-#include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/action/SchedOptional.h>
-#include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>

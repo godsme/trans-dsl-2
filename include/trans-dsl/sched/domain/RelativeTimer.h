@@ -9,7 +9,7 @@
 #include <trans-dsl/porting/timer/TimerId.h>
 #include <trans-dsl/porting/timer/TimeLength.h>
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/Event.h>
+#include <trans-dsl/sched/domain/Event.h>
 #include <cub/base/Keywords.h>
 #include <cub/dci/Role.h>
 

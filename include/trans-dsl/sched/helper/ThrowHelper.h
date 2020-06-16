@@ -5,9 +5,7 @@
 #ifndef TRANS_DSL_2_THROWHELPER_H
 #define TRANS_DSL_2_THROWHELPER_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedSyncAction.h>
-#include <cub/base/IsClass.h>
 
 TSL_NS_BEGIN
 

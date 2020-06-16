@@ -1,8 +1,8 @@
 //
 // Created by Darwin Yuan on 2020/6/12.
 //
-#include <trans-dsl/sched/concept/RuntimeContext.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/domain/RuntimeContext.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
 
 TSL_NS_BEGIN
 

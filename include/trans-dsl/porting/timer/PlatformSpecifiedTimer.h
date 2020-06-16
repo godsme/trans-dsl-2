@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_PLATFORMSPECIFIEDTIMER_H
 #define TRANS_DSL_2_PLATFORMSPECIFIEDTIMER_H
 
-#include <trans-dsl/sched/concept/RelativeTimer.h>
+#include <trans-dsl/sched/domain/RelativeTimer.h>
 
 TSL_NS_BEGIN
 

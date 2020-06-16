@@ -5,8 +5,8 @@
 #ifndef TRANS_DSL_2_ASYNCACTIONHELPER_H
 #define TRANS_DSL_2_ASYNCACTIONHELPER_H
 
-#include <trans-dsl/sched/concept/SchedAction.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
 
 TSL_NS_BEGIN
 

@@ -4,9 +4,9 @@
 
 #include <trans-dsl/sched/action/SchedTimeGuard.h>
 #include <trans-dsl/utils/ActionStatus.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/concept/RelativeTimer.h>
-#include <trans-dsl/sched/concept/TimerInfo.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
+#include <trans-dsl/sched/domain/RelativeTimer.h>
+#include <trans-dsl/sched/domain/TimerInfo.h>
 
 TSL_NS_BEGIN
 

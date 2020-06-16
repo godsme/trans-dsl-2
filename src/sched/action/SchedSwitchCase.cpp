@@ -4,7 +4,7 @@
 
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
 #include <trans-dsl/utils/ActionStatus.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/action/ActionPath.h>
 
 TSL_NS_BEGIN

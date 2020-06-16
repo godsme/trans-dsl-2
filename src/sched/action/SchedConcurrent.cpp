@@ -4,8 +4,8 @@
 
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <event/concept/Event.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
+#include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 
 TSL_NS_BEGIN
 

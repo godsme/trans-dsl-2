@@ -5,10 +5,8 @@
 #ifndef TRANS_DSL_2_PROCEDUREHELPER_H
 #define TRANS_DSL_2_PROCEDUREHELPER_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedProcedure.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
-#include <algorithm>
 
 TSL_NS_BEGIN
 

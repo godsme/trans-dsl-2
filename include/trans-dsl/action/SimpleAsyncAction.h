@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_SIMPLEASYNCACTION_H
 
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/EventId.h>
+#include <trans-dsl/sched/domain/EventId.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
 #include <trans-dsl/action/EventHandlerRegistry.h>
 #include <trans-dsl/action/P2MFExtractor.h>

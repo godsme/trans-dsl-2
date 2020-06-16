@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_SCHEDTIMEGUARD_H
 #define TRANS_DSL_2_SCHEDTIMEGUARD_H
 
-#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
 
 TSL_NS_BEGIN
 

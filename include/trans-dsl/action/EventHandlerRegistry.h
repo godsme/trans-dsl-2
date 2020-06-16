@@ -6,10 +6,10 @@
 #define TRANS_DSL_2_EVENTHANDLERREGISTRY_H
 
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/EventId.h>
+#include <trans-dsl/sched/domain/EventId.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
+#include <trans-dsl/sched/domain/Event.h>
 #include <cstddef>
-#include <trans-dsl/sched/concept/Event.h>
 
 TSL_NS_BEGIN
 

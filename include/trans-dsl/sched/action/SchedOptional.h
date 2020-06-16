@@ -7,7 +7,7 @@
 
 #include <trans-dsl/tsl_status.h>
 #include <cub/dci/Role.h>
-#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
 
 TSL_NS_BEGIN
 

@@ -5,10 +5,10 @@
 #include <trans-dsl/sched/action/SchedProcedure.h>
 #include <cub/dci/Role.h>
 #include <trans-dsl/utils/ActionStatus.h>
-#include <trans-dsl/sched/concept/SchedAction.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
 #include <cub/gof/Singleton.h>
-#include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
+#include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 
 TSL_NS_BEGIN
 

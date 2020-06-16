@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_RUNTIMECONTEXTINFO_H
 #define TRANS_DSL_2_RUNTIMECONTEXTINFO_H
 
-#include <trans-dsl/sched/concept/RuntimeContext.h>
+#include <trans-dsl/sched/domain/RuntimeContext.h>
 #include <trans-dsl/utils/ActionStatus.h>
 
 TSL_NS_BEGIN

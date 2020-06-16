@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_P2MFEXTRACTOR_H
 
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/Event.h>
+#include <trans-dsl/sched/domain/Event.h>
 #include <trans-dsl/action/DummyAsyncAction.h>
 
 TSL_NS_BEGIN

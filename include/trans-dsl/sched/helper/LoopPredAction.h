@@ -5,11 +5,6 @@
 #ifndef TRANS_DSL_2_LOOPPREDACTION_H
 #define TRANS_DSL_2_LOOPPREDACTION_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
-#include <trans-dsl/sched/action/SchedOptional.h>
-#include <type_traits>
-#include <cub/base/IsClass.h>
-#include <algorithm>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
 

@@ -5,9 +5,9 @@
 #ifndef TRANS_DSL_2_TRANSACTIONINFO_H
 #define TRANS_DSL_2_TRANSACTIONINFO_H
 
-#include <trans-dsl/sched/concept/Unknown.h>
+#include <trans-dsl/sched/domain/Unknown.h>
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/InstanceId.h>
+#include <trans-dsl/sched/domain/InstanceId.h>
 
 TSL_NS_BEGIN
 

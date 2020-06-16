@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_RUNTIMECONTEXTAUTOSWITCH_H
 #define TRANS_DSL_2_RUNTIMECONTEXTAUTOSWITCH_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
 
 TSL_NS_BEGIN
 

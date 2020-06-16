@@ -3,7 +3,7 @@
 //
 
 #include <trans-dsl/sched/action/SchedLoop.h>
-#include <trans-dsl/sched/concept/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 #include <trans-dsl/action/TransactionInfo.h>
 
 TSL_NS_BEGIN

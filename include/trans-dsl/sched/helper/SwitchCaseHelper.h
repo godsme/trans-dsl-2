@@ -5,13 +5,11 @@
 #ifndef TRANS_DSL_2_SWITCHCASEHELPER_H
 #define TRANS_DSL_2_SWITCHCASEHELPER_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
 #include <trans-dsl/sched/action/ActionPath.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <cub/base/IsClass.h>
 #include <trans-dsl/utils/SeqInt.h>
-#include <algorithm>
 #include <trans-dsl/sched/helper/Pred.h>
 
 TSL_NS_BEGIN

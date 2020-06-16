@@ -5,8 +5,8 @@
 #ifndef TRANS_DSL_2_SCHEDPROCEDURE_H
 #define TRANS_DSL_2_SCHEDPROCEDURE_H
 
-#include <trans-dsl/sched/concept/SchedAction.h>
-#include <trans-dsl/sched/concept/RuntimeContext.h>
+#include <trans-dsl/sched/domain/SchedAction.h>
+#include <trans-dsl/sched/domain/RuntimeContext.h>
 
 TSL_NS_BEGIN
 

@@ -7,7 +7,7 @@
 
 #include <cub/dci/Role.h>
 #include <trans-dsl/tsl_status.h>
-#include <trans-dsl/sched/concept/Event.h>
+#include <trans-dsl/sched/domain/Event.h>
 
 TSL_NS_BEGIN
 

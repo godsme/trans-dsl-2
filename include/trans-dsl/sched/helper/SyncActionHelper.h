@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_SYNCACTIONHELPER_H
 #define TRANS_DSL_2_SYNCACTIONHELPER_H
 
-#include <trans-dsl/sched/concept/TransactionContext.h>
+#include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedSyncAction.h>
 #include <cub/base/IsClass.h>
 

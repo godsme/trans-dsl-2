@@ -3,8 +3,8 @@
 //
 
 #include <trans-dsl/porting/timer/PlatformSpecifiedTimer.h>
-#include <trans-dsl/sched/concept/EventId.h>
-#include <trans-dsl/sched/concept/Event.h>
+#include <trans-dsl/sched/domain/EventId.h>
+#include <trans-dsl/sched/domain/Event.h>
 
 TSL_NS_BEGIN
 

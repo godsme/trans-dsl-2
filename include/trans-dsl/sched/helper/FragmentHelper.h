@@ -11,6 +11,7 @@
 #define __action(T_ACTION) typename T_ACTION
 #define __params(...) template <__VA_ARGS__>
 #define __def(fragment, ...) __VA_ARGS__ using fragment
+#define __as(...) = __VA_ARGS__
 
 #define __with(...) < __VA_ARGS__ >
 #define __apply(fragment, ...) fragment __VA_ARGS__

@@ -11,8 +11,7 @@
 namespace {
    using namespace TSL_NS;
 
-   __def(Fragment1) = __async(AsyncAction1);
-
+   __def(Fragment1) __as(__async(AsyncAction1));
 
    FIXTURE(TestOptional) {
       Fragment1 action1;
@@ -29,7 +28,9 @@ namespace {
       }
    };
 
-   __def(Fragment2, __params(__action(T1), __action(T2))) = __sequential(T1, T2);
+   __def(Fragment2, __params(__action(T1), __action(T2))) __as (
+      __sequential(T1, T2)
+   );
 
    FIXTURE(TestOptional1) {
       __apply(Fragment2, __with(__async(AsyncAction1), __async(AsyncAction2))) fragment;

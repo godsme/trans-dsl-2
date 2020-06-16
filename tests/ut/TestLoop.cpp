@@ -14,6 +14,7 @@
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/helper/ThrowHelper.h>
 #include <array>
+#include <trans-dsl/sched/concepts/C_IsAction.h>
 
 namespace {
    using namespace TSL_NS;

@@ -6,7 +6,6 @@
 #define TRANS_DSL_2_SAFEHELPER_H
 
 #include <trans-dsl/sched/action/SchedSafe.h>
-#include <cub/base/IsClass.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 
 TSL_NS_BEGIN

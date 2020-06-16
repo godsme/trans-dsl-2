@@ -2,7 +2,11 @@
 Transaction DSL简介
 ========================
 
-.. tip:: Transaction DSL 是一套使用C++编写的领域专用语言，通过它，可以简单直观的描述任意复杂的异步通信过程。
+.. note:: Transaction DSL 是一套使用C++编写的领域专用语言，通过它，可以简单直观的描述任意复杂的异步通信过程。
+
+2.0 版本相对于1.x版本的重大改进有：
+
+极小的内存占用:
 
 .. code-block:: c++
 
@@ -21,13 +25,13 @@ Transaction DSL简介
          , __wait(5)))
    ) a;
 
-on 1.0:
+1.0:
   `sizeof(a) = 432`
 
-on 2.0:
+2.0:
   `sizeof(a) = 48`
 
-The best part is, if we add 2 more ``__wait``:
+如果我们增加两个 ``__wait``:
 
 .. code-block:: c++
 
@@ -48,11 +52,23 @@ The best part is, if we add 2 more ``__wait``:
          , __wait(6)))
    ) a;
 
-on 1.0:
+1.0:
   `sizeof(a) = 496`
 
-on 2.0:
+2.0:
   `sizeof(a) = 48`
+
+更快的性能:
+
+新的循环设计:
+    允许任意复杂度的循环控制
+
+清晰一致的错误处理策略:
+
+简化了用户的定义方式:
+   - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
+   - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
+
 
 .. toctree::
    :maxdepth: 2

@@ -17,6 +17,7 @@ struct SchedWait : SchedAction  {
 
 private:
    ABSTRACT(getEventId() const -> EV_NS::EventId);
+   ABSTRACT(isWait() const -> bool);
 };
 
 TSL_NS_END

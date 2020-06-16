@@ -10,17 +10,21 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<EV_NS::EventId V_EVENT_ID>
+   template<bool V_IS_WAIT, EV_NS::EventId V_EVENT_ID>
    struct Wait_ : SchedWait {
    private:
       OVERRIDE(getEventId() const -> EV_NS::EventId) {
          return V_EVENT_ID;
+      }
+      OVERRIDE(isWait() const -> bool) {
+         return V_IS_WAIT;
       }
    };
 }
 
 TSL_NS_END
 
-#define __wait(eventId) TSL_NS::details::Wait_<eventId>
+#define __wait(eventId) TSL_NS::details::Wait_<true, eventId>
+#define __peek(eventId) TSL_NS::details::Wait_<false, eventId>
 
 #endif //TRANS_DSL_2_WAITHELPER_H

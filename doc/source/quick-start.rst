@@ -361,7 +361,7 @@ Timer ID
               ( __asyn(Exam)
               , __asyn(Interview)))
       , __asyn(OfferNegotiation)
-      , __timer_prot(TIMER_ONBOARD, __asyn(OnBoard)))
+      , __time_guard(TIMER_ONBOARD, __asyn(OnBoard)))
    ) Recruiting;
 
 

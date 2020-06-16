@@ -27,6 +27,33 @@ on 1.0:
 on 2.0:
   `sizeof(a) = 48`
 
+The best part is, if we add 2 more ``__wait``:
+
+.. code-block:: c++
+
+   __procedure
+   ( __sequential
+     ( __wait(1)
+     , __wait(2)
+     , __wait(3)
+     , __wait(4)
+     , __wait(5)
+     , __wait(6))
+     , __wait(7))
+     , __finally
+       ( __sequential
+         ( __wait(3)
+         , __wait(4)
+         , __wait(5)
+         , __wait(6)))
+   ) a;
+
+on 1.0:
+  `sizeof(a) = 496`
+
+on 2.0:
+  `sizeof(a) = 48`
+
 .. toctree::
    :maxdepth: 2
    :numbered:

@@ -297,7 +297,7 @@ namespace {
          ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
       }
 
-//      TEST("abc") {
+      TEST("abc") {
 //         __procedure
 //            ( __sequential
 //               ( __wait(1)
@@ -306,12 +306,13 @@ namespace {
 //               , __wait(4)
 //               , __wait(5)
 //               , __wait(6)
+//               , __wait(7)
 //               )
-//            , __finally( __sequential(__wait(3), __wait(4), __wait(5)))
+//            , __finally( __sequential(__wait(3), __wait(4), __wait(5), __wait(6)))
 //            ) a;
 //
 //         std::cout << sizeof(a) << std::endl;
-//      }
+      }
    };
 
 

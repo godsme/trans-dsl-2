@@ -51,14 +51,10 @@ namespace details {
 
    template<SyncActionFunc V_FUNC>
    auto deductSyncActionClass() -> CallAction<V_FUNC>;
-
-   template<Status V_RESULT>
-   auto THROW__(const TransactionInfo&) -> Status { return V_RESULT; }
 }
 
 #define __sync(M_action) decltype(TSL_NS::details::deductSyncActionClass<M_action>())
 #define __call(...) __sync(__VA_ARGS__)
-#define __throw(code) __sync(TSL_NS::details::THROW__<code>)
 
 TSL_NS_END
 

@@ -1,0 +1,18 @@
+//
+// Created by Darwin Yuan on 2020/6/16.
+//
+
+#ifndef TRANS_DSL_2_FRAGMENTHELPER_H
+#define TRANS_DSL_2_FRAGMENTHELPER_H
+
+#include <trans-dsl/tsl_ns.h>
+
+#define __timer_id(V_TIMERID) TSL_NS::TimerId V_TIMERID
+#define __action(T_ACTION) typename T_ACTION
+#define __params(...) template <__VA_ARGS__>
+#define __def(fragment, ...) __VA_ARGS__ using fragment
+
+#define __with(...) < __VA_ARGS__ >
+#define __apply(fragment, ...) fragment __VA_ARGS__
+
+#endif //TRANS_DSL_2_FRAGMENTHELPER_H

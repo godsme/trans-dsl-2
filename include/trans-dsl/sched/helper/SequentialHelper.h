@@ -67,7 +67,7 @@ struct SEQUENTIAL__ {
 };
 
 
-#define __sequential(...) TSL_NS::SEQUENTIAL__<__VA_ARGS__>::Inner
+#define __sequential(...) typename TSL_NS::SEQUENTIAL__<__VA_ARGS__>::Inner
 
 TSL_NS_END
 

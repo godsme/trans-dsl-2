@@ -13,6 +13,8 @@
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include <trans-dsl/sched/helper/SafeHelper.h>
 #include <trans-dsl/sched/helper/ThrowHelper.h>
+#include <trans-dsl/sched/helper/FragmentHelper.h>
 
 #endif //TRANS_DSL_2_TRANS_DSL_H

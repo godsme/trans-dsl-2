@@ -12,7 +12,7 @@
 #include <cub/base/IsClass.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <algorithm>
-#include "Pred.h"
+#include <trans-dsl/sched/helper/Pred.h>
 
 TSL_NS_BEGIN
 
@@ -117,7 +117,7 @@ namespace details {
       };
    };
 
-   auto IsTrue__(const TransactionInfo&) -> bool { return true; }
+   inline auto IsTrue__(const TransactionInfo&) -> bool { return true; }
 }
 
 TSL_NS_END

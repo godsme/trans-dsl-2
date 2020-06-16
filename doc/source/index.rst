@@ -7,8 +7,7 @@ Transaction DSL简介
 2.0 版本相对于1.x版本的重大改进有：
 
 极小的内存占用:
-
-  比如下面的例子，做为1.x的对象和2.x的对象，在64位机器上的大小。
+    比如下面的例子，做为1.x的对象和2.x的对象，在64位机器上的大小。
 
 .. code-block:: c++
 
@@ -61,15 +60,13 @@ Transaction DSL简介
   `sizeof(a) = 48`
 
 更快的性能:
-
-  TODO
+  to be writting
 
 新的循环设计:
     允许任意复杂度的循环控制
 
 清晰一致的错误处理策略:
-
-  TODO
+    to be writting
 
 简化了用户的定义方式:
    - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；

@@ -72,11 +72,11 @@ Transaction DSL简介
 
 3. 新的循环设计
 
-   允许任意复杂度的循环控制
+   参见 :ref:`loop`
 
 4. 清晰一致的错误处理策略
 
-    to be writting
+   参见 :ref:`error-handling`
 
 5. 简化了用户的定义方式:
 

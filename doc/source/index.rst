@@ -6,8 +6,9 @@ Transaction DSL简介
 
 2.0 版本相对于1.x版本的重大改进有：
 
-极小的内存占用:
-    比如下面的例子，做为1.x的对象和2.x的对象，在64位机器上的大小。
+1. 极小的内存占用
+
+   比如下面的例子，做为1.x的对象和2.x的对象，在64位机器上的大小。
 
 .. code-block:: c++
 
@@ -21,9 +22,9 @@ Transaction DSL简介
      , __wait(6))
      , __finally
        ( __sequential
-         ( __wait(3)
-         , __wait(4)
-         , __wait(5)))
+         ( __wait(7)
+         , __wait(8)
+         , __wait(9)))
    ) a;
 
 1.0:
@@ -47,28 +48,38 @@ Transaction DSL简介
      , __wait(7))
      , __finally
        ( __sequential
-         ( __wait(3)
-         , __wait(4)
-         , __wait(5)
-         , __wait(6)))
+         ( __wait(7)
+         , __wait(8)
+         , __wait(9)
+         , __wait(1)))
    ) a;
 
 1.0:
-  `sizeof(a) = 496`
+  ``sizeof(a) = 496``
 
 2.0:
-  `sizeof(a) = 48`
+  ``sizeof(a) = 48``
 
-更快的性能:
-  to be writting
+2. 更快的性能
 
-新的循环设计:
-    允许任意复杂度的循环控制
+   对于上面的action，在我同样的设备上的运行耗时为：
 
-清晰一致的错误处理策略:
+1.0:
+  ``2573 ns``
+
+2.0:
+  ``1124 ns``
+
+3. 新的循环设计
+
+   允许任意复杂度的循环控制
+
+4. 清晰一致的错误处理策略
+
     to be writting
 
-简化了用户的定义方式:
+5. 简化了用户的定义方式:
+
    - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
    - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
 

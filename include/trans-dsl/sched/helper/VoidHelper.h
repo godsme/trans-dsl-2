@@ -15,7 +15,7 @@ namespace details {
    struct Void_;
 
    template<typename T_ACTION>
-   struct Void_<T_ACTION, IsSchedAction<T_ACTION>> : SchedVoid {
+   struct Void_<T_ACTION, SchedActionConcept<T_ACTION>> : SchedVoid {
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;

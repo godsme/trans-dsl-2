@@ -7,7 +7,7 @@
 
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
 #include <trans-dsl/sched/action/ActionPath.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <cub/base/IsClass.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/helper/Pred.h>
@@ -20,7 +20,7 @@ namespace details {
    struct GenericActionPathClass;
 
    template<typename T_PRED, typename T_ACTION>
-   struct GenericActionPathClass<T_PRED, T_ACTION, IsSchedAction<T_ACTION>> {
+   struct GenericActionPathClass<T_PRED, T_ACTION, SchedActionConcept<T_ACTION>> {
       struct Inner : ActionPath {
          OVERRIDE(shouldExecute(const TransactionInfo& trans) -> bool) {
             auto pred = new (cache) T_PRED;

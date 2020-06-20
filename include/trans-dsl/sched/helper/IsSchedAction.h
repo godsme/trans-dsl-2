@@ -11,9 +11,6 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T>
-   using IsSchedAction = std::enable_if_t<std::is_base_of_v<TSL_NS::SchedAction, T>>;
-
    template<typename T1, typename T2>
    using IsBothSchedAction =
       std::enable_if_t<

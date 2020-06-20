@@ -15,7 +15,7 @@ namespace details {
    struct Safe_;
 
    template<typename T_ACTION>
-   struct Safe_<T_ACTION, IsSchedAction<T_ACTION>> : SchedSafe {
+   struct Safe_<T_ACTION, SchedActionConcept<T_ACTION>> : SchedSafe {
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;

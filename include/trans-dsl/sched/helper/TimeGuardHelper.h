@@ -7,7 +7,7 @@
 
 #include <trans-dsl/sched/action/SchedTimeGuard.h>
 #include <trans-dsl/porting/timer/TimerId.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/porting/timer/PlatformSpecifiedTimer.h>
 
 TSL_NS_BEGIN
@@ -18,7 +18,7 @@ namespace details {
    struct TimeGuard;
 
    template<TimerId V_TIMER_ID, typename T_ACTION>
-   struct TimeGuard<V_TIMER_ID, T_ACTION, IsSchedAction<T_ACTION>> {
+   struct TimeGuard<V_TIMER_ID, T_ACTION, SchedActionConcept<T_ACTION>> {
       struct Inner : SchedTimeGuard {
       private:
          IMPL_ROLE_WITH_VAR(SchedAction, action);

@@ -19,15 +19,20 @@ namespace details {
 
 #if __CONCEPT_ENABLED
 #define VOID_PLACEHOLDER
+#define VOID_DECL_PLACEHOLDER
+
+#define CONCEPT_C(c, t) c t
+#define ENABLE_C(c, t)
+#define DEF_CONCEPT(c, expr) concept c = expr
 #else
 #define VOID_PLACEHOLDER void,
+#define VOID_DECL_PLACEHOLDER typename = void,
+#define CONCEPT_C(c, t) typename t
+#define ENABLE_C(c, t) c<t>,
+#define DEF_CONCEPT(c, expr) using c = std::enable_if_t<expr>
 #endif
 
-#if __CONCEPT_ENABLED
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename ... T_ACTIONS>
-#else
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename = void, typename ... T_ACTIONS>
-#endif
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, VOID_DECL_PLACEHOLDER typename ... T_ACTIONS>
    struct GenericLoop_;
 
    ///////////////////////////////////////////////////////////////
@@ -113,40 +118,44 @@ namespace details {
    template<typename T>
    constexpr bool IsEmptyLoopPred = IsLoopPred<T> && (sizeof(T) == 1);
 
-#if __CONCEPT_ENABLED
-      template<typename T>
-      concept NonEmptyLoopPredConcept = IsNonEmptyLoopPred<T>;
-
-      template<typename T>
-      concept EmptyLoopPredConcept = IsEmptyLoopPred<T>;
-#else
    template<typename T>
-   using EnableIfNonEmptyLoopPred = std::enable_if_t<IsNonEmptyLoopPred<T>>;
+   DEF_CONCEPT(NonEmptyLoopPredConcept, IsNonEmptyLoopPred<T>);
 
    template<typename T>
-   using EnableIfEmptyLoopPred = std::enable_if_t<IsEmptyLoopPred<T>>;
-#endif
+   DEF_CONCEPT(EmptyLoopPredConcept,IsEmptyLoopPred<T>);
 
    /////////////////////////////////////////////////////////////////////////////////////////
-#if __CONCEPT_ENABLED
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, NonEmptyLoopPredConcept T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
-#else
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, EnableIfNonEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
-#endif
+   template<
+      size_t V_SIZE,
+      size_t V_ALIGN,
+      SeqInt V_SEQ,
+      CONCEPT_C(NonEmptyLoopPredConcept, T_HEAD),
+      typename ... T_TAIL>
+   struct GenericLoop_<
+      V_SIZE,
+      V_ALIGN,
+      V_SEQ,
+      ENABLE_C(NonEmptyLoopPredConcept, T_HEAD)
+      T_HEAD,
+      T_TAIL...>
       : GenericLoopPred<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
    {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
 
-#if __CONCEPT_ENABLED
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, EmptyLoopPredConcept T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
-#else
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, EnableIfEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
-#endif
+   template<
+      size_t V_SIZE,
+      size_t V_ALIGN,
+      SeqInt V_SEQ,
+      CONCEPT_C(EmptyLoopPredConcept, T_HEAD),
+      typename ... T_TAIL>
+   struct GenericLoop_<
+      V_SIZE,
+      V_ALIGN,
+      V_SEQ,
+      ENABLE_C(EmptyLoopPredConcept, T_HEAD)
+      T_HEAD,
+      T_TAIL...>
       : GenericLoopEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
    {};
 
@@ -157,13 +166,19 @@ namespace details {
       constexpr static bool isAction = true;
    };
 
-#if __CONCEPT_ENABLED
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, SchedActionConcept T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
-#else
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsSchedAction<T_HEAD>, T_HEAD, T_TAIL...>
-#endif
+   template<
+      size_t V_SIZE,
+      size_t V_ALIGN,
+      SeqInt V_SEQ,
+      CONCEPT_C(SchedActionConcept, T_HEAD),
+      typename ... T_TAIL>
+   struct GenericLoop_<
+      V_SIZE,
+      V_ALIGN,
+      V_SEQ,
+      ENABLE_C(SchedActionConcept, T_HEAD)
+      T_HEAD,
+      T_TAIL...>
       : GenericLoopEmpty_<ActionTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////

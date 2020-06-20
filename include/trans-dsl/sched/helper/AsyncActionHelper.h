@@ -9,17 +9,13 @@
 #include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/concepts/ActionConcept.h>
+#include <trans-dsl/sched/concepts/ConceptHelper.h>
 
 TSL_NS_BEGIN
 
 namespace details {
 
-#if __CONCEPT_ENABLED
-   template<ActionConcept T_ACTION>
-#else
-   template<typename T_ACTION>
-#endif
-
+   template<CONCEPT_C(ActionConcept, T_ACTION)>
    struct ASYNC__ : SchedAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return action.exec(context);

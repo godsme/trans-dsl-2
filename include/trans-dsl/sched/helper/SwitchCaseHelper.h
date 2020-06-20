@@ -16,11 +16,17 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<typename T_PRED, typename T_ACTION, typename = void>
+   template<typename T_PRED, typename T_ACTION VOID_CONCEPT>
    struct GenericActionPathClass;
 
-   template<typename T_PRED, typename T_ACTION>
-   struct GenericActionPathClass<T_PRED, T_ACTION, SchedActionConcept<T_ACTION>> {
+   template<
+      typename T_PRED,
+      CONCEPT_C(SchedActionConcept,
+      T_ACTION)>
+   struct GenericActionPathClass<
+      T_PRED,
+      T_ACTION
+      ENABLE_C(SchedActionConcept, T_ACTION)> {
       struct Inner : ActionPath {
          OVERRIDE(shouldExecute(const TransactionInfo& trans) -> bool) {
             auto pred = new (cache) T_PRED;
@@ -62,21 +68,32 @@ namespace details {
    auto DeduceActionPath() -> typename GenericActionPathFunc<V_PRED, T_ACTION>::Inner;
 
    //////////////////////////////////////////////////////////////////////////////////////////
-   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename = void, typename ... T_PATH>
+   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ  VOID_CONCEPT, typename ... T_PATH>
    struct GenericSwitch;
 
    template<typename T>
-   using IsActionPath = std::enable_if_t<std::is_base_of_v<ActionPath, T>>;
+   DEF_CONCEPT(ActionPathConcept, std::is_base_of_v<ActionPath, T>);
 
-   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericSwitch<T_SIZE, T_ALIGN, T_SEQ, IsActionPath<T_HEAD>, T_HEAD, T_TAIL...> {
+   template<
+      size_t T_SIZE,
+      size_t T_ALIGN,
+      SeqInt T_SEQ,
+      CONCEPT_C(ActionPathConcept, T_HEAD),
+      typename ... T_TAIL>
+   struct GenericSwitch<
+      T_SIZE,
+      T_ALIGN,
+      T_SEQ
+      ENABLE_C(ActionPathConcept, T_HEAD),
+      T_HEAD,
+      T_TAIL...> {
       using Path  = T_HEAD;
       using Next =
       typename GenericSwitch<
          std::max(T_SIZE, sizeof(Path)),
          std::max(T_ALIGN, alignof(Path)),
-         T_SEQ + 1,
-         void,
+         T_SEQ + 1
+         VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -101,7 +118,7 @@ namespace details {
 
    template<typename ... T_PATHS>
    struct SWITCH__  {
-      using Switch = typename GenericSwitch<0, 0, 0, void, T_PATHS...>::Inner;
+      using Switch = typename GenericSwitch<0, 0, 0 VOID_PLACEHOLDER, T_PATHS...>::Inner;
 
       static_assert(sizeof...(T_PATHS) >= 2, "should have at least 2 __case, or use __optional instead");
 

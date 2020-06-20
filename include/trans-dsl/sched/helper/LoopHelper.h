@@ -12,27 +12,13 @@
 #include <trans-dsl/sched/action/SchedLoop.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
+#include <trans-dsl/sched/concepts/ConceptHelper.h>
 
 TSL_NS_BEGIN
 
 namespace details {
 
-#if __CONCEPT_ENABLED
-#define VOID_PLACEHOLDER
-#define VOID_DECL_PLACEHOLDER
-
-#define CONCEPT_C(c, t) c t
-#define ENABLE_C(c, t)
-#define DEF_CONCEPT(c, expr) concept c = expr
-#else
-#define VOID_PLACEHOLDER void,
-#define VOID_DECL_PLACEHOLDER typename = void,
-#define CONCEPT_C(c, t) typename t
-#define ENABLE_C(c, t) c<t>,
-#define DEF_CONCEPT(c, expr) using c = std::enable_if_t<expr>
-#endif
-
-   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, VOID_DECL_PLACEHOLDER typename ... T_ACTIONS>
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ  VOID_CONCEPT, typename ... T_ACTIONS>
    struct GenericLoop_;
 
    ///////////////////////////////////////////////////////////////
@@ -49,8 +35,8 @@ namespace details {
       typename GenericLoop_<
          V_SIZE,
          V_ALIGN,
-         V_SEQ + 1,
-         VOID_PLACEHOLDER
+         V_SEQ + 1
+         VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -84,8 +70,8 @@ namespace details {
       typename GenericLoop_<
          std::max(V_SIZE, sizeof(Action)),
          std::max(V_ALIGN, alignof(Action)),
-         V_SEQ + 1,
-         VOID_PLACEHOLDER
+         V_SEQ + 1
+         VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -134,8 +120,8 @@ namespace details {
    struct GenericLoop_<
       V_SIZE,
       V_ALIGN,
-      V_SEQ,
-      ENABLE_C(NonEmptyLoopPredConcept, T_HEAD)
+      V_SEQ
+      ENABLE_C(NonEmptyLoopPredConcept, T_HEAD),
       T_HEAD,
       T_TAIL...>
       : GenericLoopPred<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
@@ -152,8 +138,8 @@ namespace details {
    struct GenericLoop_<
       V_SIZE,
       V_ALIGN,
-      V_SEQ,
-      ENABLE_C(EmptyLoopPredConcept, T_HEAD)
+      V_SEQ
+      ENABLE_C(EmptyLoopPredConcept, T_HEAD),
       T_HEAD,
       T_TAIL...>
       : GenericLoopEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
@@ -175,8 +161,8 @@ namespace details {
    struct GenericLoop_<
       V_SIZE,
       V_ALIGN,
-      V_SEQ,
-      ENABLE_C(SchedActionConcept, T_HEAD)
+      V_SEQ
+      ENABLE_C(SchedActionConcept, T_HEAD),
       T_HEAD,
       T_TAIL...>
       : GenericLoopEmpty_<ActionTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>{};
@@ -196,7 +182,7 @@ namespace details {
    template<uint32_t V_MAX_TIMES, typename ... T_ACTIONS>
    struct LOOP__ {
       static_assert(sizeof...(T_ACTIONS) > 0, "loop cannot be empty");
-      using Actions = typename GenericLoop_<0, 0, 0, VOID_PLACEHOLDER T_ACTIONS...>::Inner;
+      using Actions = typename GenericLoop_<0, 0, 0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
       struct Inner : private Actions, SchedLoop {
       private:
          OVERRIDE(getMaxTime() const -> uint32_t) {

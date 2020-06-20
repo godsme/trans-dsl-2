@@ -10,22 +10,35 @@
 #include <algorithm>
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/SeqInt.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 
 TSL_NS_BEGIN
 
 struct SchedAction;
 
-template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename ... T_ACTIONS>
+template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ  VOID_CONCEPT, typename ... T_ACTIONS>
 struct GenericSequential;
 
-template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ, typename T_HEAD, typename ... T_TAIL>
-struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ, T_HEAD, T_TAIL...> {
+template<
+   size_t T_SIZE,
+   size_t T_ALIGN,
+   SeqInt T_SEQ,
+   typename T_HEAD,
+   typename ... T_TAIL>
+struct GenericSequential<
+   T_SIZE,
+   T_ALIGN,
+   T_SEQ
+   ENABLE_C(SchedActionConcept, T_HEAD),
+   T_HEAD,
+   T_TAIL...> {
    using Action = T_HEAD;
    using Next =
       typename GenericSequential<
          std::max(T_SIZE, sizeof(Action)),
          std::max(T_ALIGN, alignof(Action)),
-         T_SEQ + 1,
+         T_SEQ + 1
+         VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
    struct Inner : Next {
@@ -48,13 +61,13 @@ struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
    };
 };
 
-template<typename ... T_ACTIONS>
+template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
 struct SEQUENTIAL__ {
    enum { NUM_OF_ACTIONS = sizeof...(T_ACTIONS) };
    static_assert(NUM_OF_ACTIONS >=2, "__sequential must contain at least 2 actions");
    static_assert(NUM_OF_ACTIONS <= std::numeric_limits<SeqInt>::max(), "too many actions in a __sequential");
 
-   using Actions = typename GenericSequential<0, 0, 0, T_ACTIONS...>::Inner;
+   using Actions = typename GenericSequential<0, 0, 0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
    struct Inner : SchedSequential, private Actions {
    private:
       OVERRIDE(getNumOfActions() -> SeqInt) {

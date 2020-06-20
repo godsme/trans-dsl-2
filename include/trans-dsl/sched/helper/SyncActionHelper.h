@@ -7,19 +7,22 @@
 
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/action/SchedSyncAction.h>
-#include <cub/base/IsClass.h>
+#include <trans-dsl/sched/concepts/ConceptHelper.h>
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
 
 namespace details {
+   template<typename T>
+   DEF_CONCEPT(ClassConcept, std::is_class_v<T>);
+
    /////////////////////////////////////////////////////////////////////////
-   template<typename T_ACTION, size_t V_SIZE=sizeof(T_ACTION), typename = void>
+   template<typename T_ACTION, size_t V_SIZE=sizeof(T_ACTION) VOID_CONCEPT>
    struct SyncAction;
 
-   template<typename T_ACTION, size_t V_SIZE>
-   struct SyncAction<T_ACTION, V_SIZE, CUB_NS::IsClass<T_ACTION>> : SchedSyncAction {
+   template<CONCEPT_C(ClassConcept, T_ACTION), size_t V_SIZE>
+   struct SyncAction<T_ACTION, V_SIZE ENABLE_C(ClassConcept, T_ACTION)> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(action(context));
       }
@@ -28,8 +31,8 @@ namespace details {
       T_ACTION action;
    };
 
-   template<typename T_ACTION>
-   struct SyncAction<T_ACTION, 1, CUB_NS::IsClass<T_ACTION>> : SchedSyncAction {
+   template<CONCEPT_C(ClassConcept, T_ACTION)>
+   struct SyncAction<T_ACTION, 1 ENABLE_C(ClassConcept, T_ACTION)> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(T_ACTION{}(context));
       }

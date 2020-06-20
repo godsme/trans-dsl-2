@@ -11,11 +11,11 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T_ACTION, typename = void>
+   template<typename T_ACTION VOID_CONCEPT>
    struct Safe_;
 
-   template<typename T_ACTION>
-   struct Safe_<T_ACTION, SchedActionConcept<T_ACTION>> : SchedSafe {
+   template<CONCEPT_C(SchedActionConcept, T_ACTION)>
+   struct Safe_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> : SchedSafe {
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;

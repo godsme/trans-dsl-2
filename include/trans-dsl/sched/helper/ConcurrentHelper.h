@@ -17,15 +17,16 @@ TSL_NS_BEGIN
 struct SchedAction;
 
 namespace details {
-   template<SeqInt V_SEQ, typename ... T_ACTIONS>
+   template<SeqInt V_SEQ VOID_CONCEPT, typename ... T_ACTIONS>
    struct GenericConcurrent;
 
    template<SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericConcurrent<V_SEQ, T_HEAD, T_TAIL...> {
+   struct GenericConcurrent<V_SEQ ENABLE_C(SchedActionConcept, T_HEAD), T_HEAD, T_TAIL...> {
       using Action = T_HEAD;
       using Next =
       typename GenericConcurrent<
-         V_SEQ + 1,
+         V_SEQ + 1
+         VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -46,14 +47,9 @@ namespace details {
       };
    };
 
-#if __CONCEPT_ENABLED
-   template<SchedActionConcept ... T_ACTIONS>
-#else
-   template<typename ... T_ACTIONS>
-#endif
-
-   struct Concurrent__ {
-      using Actions = typename GenericConcurrent<0, T_ACTIONS...>::Inner;
+   template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
+   struct Concurrent {
+      using Actions = typename GenericConcurrent<0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
       enum {
          Num_Of_Actions = sizeof...(T_ACTIONS)
       };
@@ -73,11 +69,11 @@ namespace details {
       };
 
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= Concurrent__<T_ACTIONS...>::Num_Of_Actions, "too much actions in __concurrent");
+      static_assert(Num_Of_Actions <= Concurrent<T_ACTIONS...>::Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 
-#define __concurrent(...) TSL_NS::details::Concurrent__<__VA_ARGS__>::Inner
+#define __concurrent(...) typename TSL_NS::details::Concurrent<__VA_ARGS__>::Inner
 
 TSL_NS_END
 

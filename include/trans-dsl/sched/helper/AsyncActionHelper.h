@@ -16,7 +16,7 @@ TSL_NS_BEGIN
 namespace details {
 
    template<CONCEPT_C(ActionConcept, T_ACTION)>
-   struct ASYNC__ : SchedAction {
+   struct Async : SchedAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return action.exec(context);
       }
@@ -39,7 +39,7 @@ namespace details {
    };
 }
 
-#define __asyn(action) TSL_NS::details::ASYNC__<action>
+#define __asyn(action) TSL_NS::details::Async<action>
 
 TSL_NS_END
 

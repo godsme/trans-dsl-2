@@ -19,8 +19,8 @@
 #define VOID_PLACEHOLDER , void
 #define VOID_CONCEPT , typename = void
 #define CONCEPT_C(c, t) typename t
-#define ENABLE_C(c, t) , c<t>
-#define DEF_CONCEPT(c, ...) using c = std::enable_if_t<__VA_ARGS__>
+#define ENABLE_C(c, ...) , std::enable_if_t<c<__VA_ARGS__>>
+#define DEF_CONCEPT(c, ...) constexpr bool c = __VA_ARGS__
 #define CONCEPT(c) typename
 #endif
 

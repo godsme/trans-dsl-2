@@ -96,19 +96,13 @@ namespace details {
    };
 
    template<typename T>
-   constexpr bool IsLoopPred = std::is_base_of_v<LoopPredSignature, T>;
+   DEF_CONCEPT(LoopPredConcept, std::is_base_of_v<LoopPredSignature, T>);
 
    template<typename T>
-   constexpr bool IsNonEmptyLoopPred = IsLoopPred<T> && (sizeof(T) > 1);
+   DEF_CONCEPT(NonEmptyLoopPredConcept, LoopPredConcept<T> && (sizeof(T) > 1));
 
    template<typename T>
-   constexpr bool IsEmptyLoopPred = IsLoopPred<T> && (sizeof(T) == 1);
-
-   template<typename T>
-   DEF_CONCEPT(NonEmptyLoopPredConcept, IsNonEmptyLoopPred<T>);
-
-   template<typename T>
-   DEF_CONCEPT(EmptyLoopPredConcept,IsEmptyLoopPred<T>);
+   DEF_CONCEPT(EmptyLoopPredConcept, LoopPredConcept<T> && (sizeof(T) == 1));
 
    /////////////////////////////////////////////////////////////////////////////////////////
    template<
@@ -180,7 +174,7 @@ namespace details {
    };
 
    template<typename T>
-   DEF_CONCEPT(LoopElemConcept, IsLoopPred<T> || IsSchedAction<T>);
+   DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
    struct Loop {

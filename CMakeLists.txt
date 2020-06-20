@@ -21,42 +21,51 @@ add_library(trans-dsl STATIC
         include/cub/base/Status.h
         include/cub/cub_ns.h
         include/trans-dsl/tsl_status.h
-        include/event/event_ns.h include/event/concept/EventId.h include/cub/dci/Role.h include/cub/base/Keywords.h include/event/concept/EventInfo.h include/event/Status.h include/event/concept/Event.h include/cub/gof/Singleton.h include/cub/base/Unclonable.h include/trans-dsl/sched/domain/RuntimeContext.h include/trans-dsl/sched/action/SchedProcedure.h src/sched/action/SchedProcedure.cpp include/trans-dsl/utils/ActionStatus.h include/trans-dsl/sched/domain/Event.h
+        include/event/event_ns.h include/event/concept/EventId.h include/cub/dci/Role.h
+        include/cub/base/Keywords.h include/event/concept/EventInfo.h include/event/Status.h
+        include/event/concept/Event.h include/cub/gof/Singleton.h include/cub/base/Unclonable.h
+        include/trans-dsl/sched/domain/RuntimeContext.h include/trans-dsl/sched/action/SchedProcedure.h
+        src/sched/action/SchedProcedure.cpp include/trans-dsl/utils/ActionStatus.h
+        include/trans-dsl/sched/domain/Event.h
         include/trans-dsl/sched/domain/SchedAction.h include/trans-dsl/sched/helper/SequentialHelper.h
         include/trans-dsl/sched/domain/TransactionContext.h include/trans-dsl/sched/action/SchedSequential.h
-        src/sched/action/SchedSequential.cpp include/trans-dsl/sched/helper/SyncActionHelper.h include/trans-dsl/action/TransactionInfo.h include/trans-dsl/sched/domain/Unknown.h include/trans-dsl/sched/domain/InstanceId.h include/trans-dsl/sched/action/SchedSyncAction.h include/trans-dsl/sched/helper/AsyncActionHelper.h
+        src/sched/action/SchedSequential.cpp include/trans-dsl/sched/helper/SyncActionHelper.h
+        include/trans-dsl/action/TransactionInfo.h include/trans-dsl/sched/domain/Unknown.h
+        include/trans-dsl/sched/domain/InstanceId.h include/trans-dsl/sched/action/SchedSyncAction.h
+        include/trans-dsl/sched/helper/AsyncActionHelper.h
         include/trans-dsl/action/SimpleAsyncAction.h
         include/trans-dsl/sched/domain/EventId.h
         include/trans-dsl/action/DummyAsyncAction.h
         include/trans-dsl/action/EventHandlerRegistry.h
         src/action/EventHandlerRegistry.cpp src/event/concept/Event.cpp
         include/trans-dsl/action/P2MFExtractor.h include/event/impl/SimpleEventInfo.h
-        include/event/impl/ConsecutiveEventInfo.h tests/ut/TestSImpleAsyncAction.cpp
-        tests/ut/StupidTransactionContext.h tests/ut/TestSequentialAction.cpp
-        tests/ut/SimpleActionsDefs.h include/trans-dsl/sched/helper/ProcedureHelper.h
-        tests/ut/TestProcedure.cpp include/trans-dsl/sched/helper/OptionalHelper.h
+        include/event/impl/ConsecutiveEventInfo.h
+        include/trans-dsl/sched/helper/ProcedureHelper.h
+        include/trans-dsl/sched/helper/OptionalHelper.h
         include/trans-dsl/sched/action/SchedOptional.h src/sched/action/SchedOptional.cpp
-        tests/ut/TestOptional.cpp include/cub/base/IsClass.h include/trans-dsl/sched/helper/LoopHelper.h
-        include/trans-dsl/sched/helper/Pred.h tests/ut/TestLoop.cpp include/trans-dsl/sched/helper/LoopPred.h
-        include/trans-dsl/sched/helper/LoopPredAction.h include/trans-dsl/sched/action/SchedLoop.h src/sched/action/SchedLoop.cpp include/trans-dsl/sched/domain/RuntimeContextAutoSwitch.h
+        include/cub/base/IsClass.h include/trans-dsl/sched/helper/LoopHelper.h
+        include/trans-dsl/sched/helper/Pred.h
+        include/trans-dsl/sched/helper/LoopPred.h
+        include/trans-dsl/sched/helper/LoopPredAction.h include/trans-dsl/sched/action/SchedLoop.h
+        src/sched/action/SchedLoop.cpp include/trans-dsl/sched/domain/RuntimeContextAutoSwitch.h
         src/sched/domain/RuntimeContext.cpp include/trans-dsl/sched/helper/ConcurrentHelper.h
         include/trans-dsl/utils/SeqInt.h include/trans-dsl/sched/action/SchedConcurrent.h
-        src/sched/action/SchedConcurrent.cpp tests/ut/TestConcurrent.cpp
+        src/sched/action/SchedConcurrent.cpp
         include/trans-dsl/sched/helper/IsSchedAction.h include/trans-dsl/sched/action/SchedTimeGuard.h
         include/trans-dsl/sched/domain/TimerInfo.h include/trans-dsl/porting/timer/TimeLength.h
         include/trans-dsl/porting/timer/TimerId.h include/trans-dsl/sched/domain/RelativeTimer.h
         src/sched/domain/RelativeTimer.cpp include/trans-dsl/porting/timer/PlatformSpecifiedTimer.h
         src/sched/porting/timer/PlatformSpecifiedTimer.cpp src/sched/action/SchedTimeGuard.cpp
-        include/trans-dsl/sched/helper/TimeGuardHelper.h tests/ut/TestTimerGuard.cpp
+        include/trans-dsl/sched/helper/TimeGuardHelper.h
         include/trans-dsl/porting/timer/PlatformSpecifiedTimerInfo.h
         src/sched/porting/timer/PlatformSpecifiedTimerInfo.cpp
         include/trans-dsl/sched/action/ActionPath.h include/trans-dsl/sched/action/SchedSwitchCase.h
         src/sched/action/SchedSwitchCase.cpp include/trans-dsl/sched/helper/SwitchCaseHelper.h
-        tests/ut/TestSwitchCase.cpp include/trans-dsl/trans-dsl.h include/trans-dsl/sched/helper/ThrowHelper.h
+        include/trans-dsl/trans-dsl.h include/trans-dsl/sched/helper/ThrowHelper.h
         include/trans-dsl/sched/action/SchedSafe.h src/sched/action/SchedSafe.cpp
         include/trans-dsl/sched/helper/SafeHelper.h include/trans-dsl/sched/domain/Transaction.h
         include/trans-dsl/sched/domain/RuntimeContextInfo.h src/sched/domain/Transaction.cpp
-        include/trans-dsl/sched/helper/FragmentHelper.h tests/ut/TestFragment.cpp
+        include/trans-dsl/sched/helper/FragmentHelper.h
         include/trans-dsl/sched/action/SchedVoid.h src/sched/action/SchedVoid.cpp
         include/trans-dsl/sched/helper/VoidHelper.h include/trans-dsl/sched/action/SchedWait.h
         src/sched/action/SchedWait.cpp include/trans-dsl/sched/helper/WaitHelper.h
@@ -64,7 +73,11 @@ add_library(trans-dsl STATIC
 
 add_custom_target(trans-dsl-test ALL
         COMMAND g++ -O3 -std=c++17 -I/usr/local/include -I${CMAKE_CURRENT_SOURCE_DIR}/include -lcctest_main -lcctest
-        DEPENDS trans-dsl)
+        DEPENDS trans-dsl
+        SOURCES tests/ut/TestSwitchCase.cpp tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp
+        tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp tests/ut/TestConcurrent.cpp
+        tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
+        tests/ut/TestSequentialAction.cpp tests/ut/SimpleActionsDefs.h )
 
 add_executable(trans-dsl-bench
         tests/pt/dsl-test.cpp)

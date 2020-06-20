@@ -1,4 +1,4 @@
-auto类型推演
+**auto** 类型推演
 ===================
 
 ``auto`` 类型推演脱胎于模版函数的类型推演，它们的能力几乎等价（除了初始化列表的情况）。
@@ -90,7 +90,7 @@ auto类型推演
    auto* p3 = foo;  // Error: foo is not a pointer
 
 
-普世引用
+通用引用
 ---------------
 
 更为特殊的是 ``auto&& v = expr`` 的表达式。这并不必然导致 ``v`` 是一个右值引用。而是取决于 ``expr`` 的类别。
@@ -99,8 +99,11 @@ auto类型推演
 - 如果 ``expr`` 是一个 **右值** 表达式（参见 :ref:`prvalue_material`），那么 ``v`` 将会是右值引用类型。
 
 .. code-block:: c++
+   :linenos:
 
    Foo foo{1};
+   Foo&   ref = foo;
+   Foo&& rref = Foo{2};
    Foo&& getRref();
    Foo& getRef();
    Foo getFoo();
@@ -110,8 +113,13 @@ auto类型推演
    auto&& v3 = getRref();      // v3 type: Foo&&
    auto&& v4 = getRef();       // v4 type: Foo&
    auto&& v5 = getFoo();       // v5 type: Foo&&
+   auto&& v6 = ref;            // v6 type: Foo&
+   atuo&& v7 = rref;           // v7 type: Foo&&
 
-正是因为这样的写法，允许等号右侧是任意合法的表达式，而等号左侧总是可以根据表达式类别，推演出合适的引用类型。所以这种写法被称做 **普世引用** 。
+正是因为这样的写法，允许等号右侧是任意合法的表达式，而等号左侧总是可以根据表达式类别，推演出合适的引用类型。所以这种写法被称做 **通用引用** 。
+
+其中，我们可以清晰的看出，虽然 ``ref`` 和 ``rref`` 分别被定义为 **左值引用** 和 **右值引用** ，但它们做为左值来讲，是等价的。都是左值引用。
+具体可参考 :ref:`右值引用变量 <rvalue-ref-var>` 。
 
 初始化列表
 -------------
@@ -155,4 +163,70 @@ decltype(auto)
    decltype(auto)   v1 = foo;    // Foo
    decltype(auto)   v2 = (foo);  // Foo&
    decltype(auto)   v7 = (a > 0 ? Foo{0}.a : Foo{1}.a); // int&&
+
+
+函数返回值类型的自动推演
+--------------------------
+
+到了 ``C++14`` 之后，对于普通函数的返回值自动推演，可以通过 ``auto`` 来完成，比如：
+
+.. code-block:: c++
+
+   auto f() { return Foo{1}.a; } // 返回值类型为int
+
+当然，如果希望返回值类型运用 ``decltype`` 规则，则可以用 ``decltype(auto)`` 。比如：
+
+.. code-block:: c++
+
+   auto f() -> decltype(auto) { // 返回值为int&&
+     return (Foo{1}.a);
+   }
+
+
+非类型模版参数
+--------------------
+
+.. code-block:: c++
+
+   template <auto V>
+   struct C
+   {
+      // ....
+   };
+
+   C<10>   a; // C<int>
+   C<'c'>  b; // C<char>
+   C<true> c; // C<bool>
+
+
+函数模版的便捷写法
+-------------------
+
+.. code-block:: c++
+
+   template <typename T1, typename T2>
+   auto add(T1 lhs, T2 rhs) {
+      return lhs + rhs;
+   }
+
+
+到了 ``C++20`` ，允许让普通函数可以有更加便捷的写法：
+
+.. code-block:: c++
+
+   auto add(auto lhs, auto rhs) {
+      return lhs + rhs;
+   }
+
+
+当然，如果你想指明两个参数属于同一种类型，但另外的参数没有这样的约束，则仍然需要写模版头：
+
+.. code-block:: c++
+
+   template <typename T>
+   auto f(T a, auto b, T c, auto d); // a, c 必须同一类型，b, d 各自有各自类型
+
+
+
+
 

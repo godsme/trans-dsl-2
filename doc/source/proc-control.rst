@@ -168,7 +168,7 @@ Transaction DSL 提供了 ``__procedure`` 来定义一个过程，无论这个�
   __procedure
     ( __sequential
         ( __req(Action1)
-        , __call(Action2)
+        , __sync(Action2)
         , __concurrent(__asyn(Action3), __asyn(Action4)))
     , __finally
         ( __sequential

@@ -14,7 +14,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-#ifdef __CONCEPT_ENABLED
+#if __CONCEPT_ENABLED
    template<ActionConcept T_ACTION>
 #else
    template<typename T_ACTION>

@@ -5,13 +5,21 @@
 #ifndef TRANS_DSL_2_ASYNCACTIONHELPER_H
 #define TRANS_DSL_2_ASYNCACTIONHELPER_H
 
+#include <trans-dsl/tsl_config.h>
 #include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
+#include <trans-dsl/sched/concepts/ActionConcept.h>
 
 TSL_NS_BEGIN
 
 namespace details {
+
+#ifdef __CONCEPT_ENABLED
+   template<ActionConcept T_ACTION>
+#else
    template<typename T_ACTION>
+#endif
+
    struct ASYNC__ : SchedAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return action.exec(context);

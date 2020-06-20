@@ -29,7 +29,7 @@ namespace details {
       struct Action : Base {
       protected:
          auto getFinalResult(bool satisfied) const -> Status {
-            return satisfied ? T_PRED::FinalResult : Result::MOVE_ON;
+            return satisfied ? Status(T_PRED::FinalResult) : Status(Result::MOVE_ON);
          }
       };
 

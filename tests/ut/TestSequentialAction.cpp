@@ -15,11 +15,11 @@ namespace {
 
    FIXTURE(TestSequentialAction) {
       __sequential(
-         __call(SyncAction1),
+         __syn(SyncAction1),
          __asyn(AsyncAction1),
          __syn(SyncAction3),
          __asyn(AsyncAction2),
-         __call(SyncAction2)
+         __syn(SyncAction2)
          ) action;
 
       StupidTransactionContext context{};

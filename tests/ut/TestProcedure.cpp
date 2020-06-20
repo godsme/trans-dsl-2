@@ -20,19 +20,19 @@ namespace {
    FIXTURE(TestProcedure) {
       using MainActions =
          __sequential
-           (__call(SyncAction1)
+           ( __syn(SyncAction1)
            , __asyn(AsyncAction1)
            , __asyn(FailedAsyncAction3)
            , __asyn(AsyncAction2)
-           , __call(SyncAction2));
+           , __syn(SyncAction2));
 
       using FinalActions =
          __sequential
-           (__call(SyncAction1)
+           (__syn(SyncAction1)
            , __asyn(AsyncAction1)
-           , __call(FailedSyncAction4)
+           , __syn(FailedSyncAction4)
            , __asyn(AsyncAction2)
-           , __call(SyncAction2));
+           , __syn(SyncAction2));
 
       __procedure(
          MainActions,
@@ -115,14 +115,14 @@ namespace {
 
    FIXTURE(TestProcedure1) {
       __procedure(__sequential
-        (__call(SyncAction1)
+        ( __syn(SyncAction1)
         , __asyn(FailedAsyncAction3)
         , __asyn(AsyncAction2)
-        , __call(SyncAction2)),
+        , __syn(SyncAction2)),
         __finally(__sequential
-          (__call(SyncAction1)
+          ( __syn(SyncAction1)
           , __asyn(AsyncAction1)
-          , __call(SyncAction2)))
+          , __syn(SyncAction2)))
       ) procedure;
 
       StupidTransactionContext context{};

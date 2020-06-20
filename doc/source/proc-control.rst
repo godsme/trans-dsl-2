@@ -173,5 +173,5 @@ Transaction DSL 提供了 ``__procedure`` 来定义一个过程，无论这个�
     , __finally
         ( __sequential
             ( __rsp(Action5)
-            , __on_fail(__sync(Rollback)))));
+            , __on_fail(__syn(Rollback)))));
 

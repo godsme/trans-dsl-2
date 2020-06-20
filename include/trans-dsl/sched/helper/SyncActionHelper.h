@@ -53,8 +53,8 @@ namespace details {
    auto deductSyncActionClass() -> CallAction<V_FUNC>;
 }
 
-#define __sync(M_action) decltype(TSL_NS::details::deductSyncActionClass<M_action>())
-#define __call(...) __sync(__VA_ARGS__)
+#define __syn(M_action) decltype(TSL_NS::details::deductSyncActionClass<M_action>())
+#define __call(...) __syn(__VA_ARGS__)
 
 TSL_NS_END
 

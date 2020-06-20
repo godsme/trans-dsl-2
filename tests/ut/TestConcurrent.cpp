@@ -19,7 +19,7 @@ namespace {
 
 
    FIXTURE(TestConcurrent) {
-      __concurrent(__async(AsyncAction1), __async(AsyncAction2)) action;
+      __concurrent(__asyn(AsyncAction1), __asyn(AsyncAction2)) action;
 
       StupidTransactionContext context{};
 
@@ -80,7 +80,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent1) {
-      __concurrent(__sync(SyncAction1), __sync(SyncAction1)) action;
+      __concurrent(__syn(SyncAction1), __syn(SyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -91,7 +91,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent2) {
-      __concurrent(__async(AsyncAction1), __sync(FailedSyncAction4)) action;
+      __concurrent(__asyn(AsyncAction1), __syn(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -101,13 +101,13 @@ namespace {
    };
 
    using ProcedureAction =
-   __procedure(__async(AsyncAction4), __finally(__on_status(Result::FORCE_STOPPED, __async(AsyncAction2))));
+   __procedure(__asyn(AsyncAction4), __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
 
    using ProcedureAction1 =
-   __procedure(__async(AsyncAction4), __finally(__async(AsyncAction2)));
+   __procedure(__asyn(AsyncAction4), __finally(__asyn(AsyncAction2)));
 
    FIXTURE(TestConcurrent3) {
-      __concurrent(ProcedureAction1, __sync(FailedSyncAction4)) action;
+      __concurrent(ProcedureAction1, __syn(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -133,7 +133,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent4) {
-      __concurrent(__sync(FailedSyncAction4), ProcedureAction) action;
+      __concurrent(__syn(FailedSyncAction4), ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -143,7 +143,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent5) {
-      __concurrent(__async(FailedAsyncAction3), ProcedureAction) action;
+      __concurrent(__asyn(FailedAsyncAction3), ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -212,11 +212,11 @@ namespace {
 
    using ProcedureAction2 =
    __procedure(
-      __async(AsyncAction4),
-      __finally(__on_status(Result::FORCE_STOPPED, __async(AsyncAction2))));
+      __asyn(AsyncAction4),
+      __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
 
    FIXTURE(TestConcurrent6) {
-      __concurrent(__async(FailedAsyncAction3), ProcedureAction2) action;
+      __concurrent(__asyn(FailedAsyncAction3), ProcedureAction2) action;
 
       StupidTransactionContext context{};
 
@@ -233,11 +233,11 @@ namespace {
 
    using ProcedureAction3 =
    __procedure(
-      __async(FailedAsyncAction3),
-      __finally(__async(AsyncAction2)));
+      __asyn(FailedAsyncAction3),
+      __finally(__asyn(AsyncAction2)));
 
    FIXTURE(TestConcurrent7) {
-      __concurrent(__async(AsyncAction1), ProcedureAction3) action;
+      __concurrent(__asyn(AsyncAction1), ProcedureAction3) action;
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -263,13 +263,13 @@ namespace {
 
    using ProcedureAction4 =
    __procedure(
-      __sync(SyncAction3),
-      __finally(__async(AsyncAction2)));
+      __syn(SyncAction3),
+      __finally(__asyn(AsyncAction2)));
 
    using ProcedureAction5 =
    __procedure(
-      __sync(SyncAction2),
-      __finally(__async(AsyncAction1)));
+      __syn(SyncAction2),
+      __finally(__asyn(AsyncAction1)));
 
    FIXTURE(TestConcurrent8) {
       __concurrent(ProcedureAction4, ProcedureAction5) action;

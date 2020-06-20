@@ -14,7 +14,7 @@ namespace {
    using namespace TSL_NS;
 
    FIXTURE(TestTimerGuard) {
-     __time_guard(TIMER_1, __async(AsyncAction1)) action;
+     __time_guard(TIMER_1, __asyn(AsyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -36,8 +36,8 @@ namespace {
    FIXTURE(TestTimerGuard2) {
       using ProcedureAction =
       __procedure(
-         __sync(SyncAction2),
-         __finally(__async(AsyncAction1)));
+         __syn(SyncAction2),
+         __finally(__asyn(AsyncAction1)));
 
       __time_guard(TIMER_1, ProcedureAction) action;
 
@@ -73,8 +73,8 @@ namespace {
    FIXTURE(TestTimerGuard3) {
       using ProcedureAction =
       __procedure(
-         __async(AsyncAction2),
-         __finally(__async(AsyncAction1)));
+         __asyn(AsyncAction2),
+         __finally(__asyn(AsyncAction1)));
 
       __time_guard(TIMER_1, ProcedureAction) action;
 

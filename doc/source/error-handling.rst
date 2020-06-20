@@ -229,14 +229,14 @@ stop的设计原则
 ++++++++++++
 
 .. attention::
-   当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
+   当一个 ``__asyn`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
 
    - 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG`` 。
    - 否则，返回 ``FORCE_STOPPED`` 。
 
 
 .. attention::
-   当一个 ``__async`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，某次调度时发生一个内部错误，
+   当一个 ``__asyn`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，某次调度时发生一个内部错误，
    则应该返回此错误，并进入 :ref:`I-DONE <I-DONE>` 状态。
 
 

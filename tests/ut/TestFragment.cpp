@@ -11,7 +11,7 @@
 namespace {
    using namespace TSL_NS;
 
-   __def(Fragment1) __as(__async(AsyncAction1));
+   __def(Fragment1) __as(__asyn(AsyncAction1));
 
    FIXTURE(TestOptional) {
       Fragment1 action1;
@@ -33,7 +33,7 @@ namespace {
    );
 
    FIXTURE(TestOptional1) {
-      __apply(Fragment2, __with(__async(AsyncAction1), __async(AsyncAction2))) fragment;
+      __apply(Fragment2, __with(__asyn(AsyncAction1), __asyn(AsyncAction2))) fragment;
 
       StupidTransactionContext context{};
 

@@ -16,9 +16,9 @@ namespace {
 
    FIXTURE(TestTimerGuard) {
       __switch(
-         __case(__is_status(Result::OUT_OF_SCOPE), __async(AsyncAction1)),
-         __case(__is_status(Result::INVALID_DATA), __async(AsyncAction2)),
-         __otherwise(__async(AsyncAction4))) action;
+         __case(__is_status(Result::OUT_OF_SCOPE), __asyn(AsyncAction1)),
+         __case(__is_status(Result::INVALID_DATA), __asyn(AsyncAction2)),
+         __otherwise(__asyn(AsyncAction4))) action;
 
       StupidTransactionContext context{};
 

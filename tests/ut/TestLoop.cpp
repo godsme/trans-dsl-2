@@ -31,9 +31,9 @@ namespace {
 
    FIXTURE(TestLoop) {
      __loop
-        ( __async(AsyncAction1)
+        (__asyn(AsyncAction1)
         , __break_if(IsTrue, Result::OUT_OF_SCOPE)
-        , __sync(SyncAction3)
+        , __syn(SyncAction3)
         , __redo_if(IsTrue)) action;
 
      StupidTransactionContext context{};
@@ -54,9 +54,9 @@ namespace {
 
    FIXTURE(TestLoop1) {
       __loop
-      ( __sync(SyncAction1)
+      (__syn(SyncAction1)
       , __break_if(is_true, Result::OUT_OF_SCOPE)
-      , __async(AsyncAction1)
+      , __asyn(AsyncAction1)
       , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
@@ -72,9 +72,9 @@ namespace {
 
    FIXTURE(TestLoop2) {
       __loop
-      ( __async(AsyncAction1)
+      (__asyn(AsyncAction1)
       , __break_if(is_false, Result::OUT_OF_SCOPE)
-      , __async(AsyncAction2)
+      , __asyn(AsyncAction2)
       , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
@@ -98,10 +98,10 @@ namespace {
 
    FIXTURE(TestLoop3) {
       __loop
-      ( __async(FailedAsyncAction3)
-      , __async(AsyncAction1)
+      (__asyn(FailedAsyncAction3)
+      , __asyn(AsyncAction1)
       , __break_if(__is_failed, Result::OUT_OF_SCOPE)
-      , __async(AsyncAction2)
+      , __asyn(AsyncAction2)
       , __redo_if(IsTrue)) action;
 
       StupidTransactionContext context{};
@@ -126,10 +126,10 @@ namespace {
 
    FIXTURE(TestLoop4) {
       __loop
-      ( __async(FailedAsyncAction3)
-      , __async(AsyncAction1)
+      (__asyn(FailedAsyncAction3)
+      , __asyn(AsyncAction1)
       , __redo_if(__is_failed)
-      , __async(AsyncAction2)
+      , __asyn(AsyncAction2)
       ) action;
 
       StupidTransactionContext context{};
@@ -148,8 +148,8 @@ namespace {
 
    FIXTURE(TestLoop5) {
       __loop
-      ( __async(FailedAsyncAction3)
-      , __async(AsyncAction1)
+      (__asyn(FailedAsyncAction3)
+      , __asyn(AsyncAction1)
       , __until(__is_failed)
       ) action;
 
@@ -168,8 +168,8 @@ namespace {
    FIXTURE(TestLoop6) {
       using MainAction =
          __sequential
-         ( __async(AsyncAction1)
-         , __async(AsyncAction2));
+         (__asyn(AsyncAction1)
+         , __asyn(AsyncAction2));
 
       using ThisAction =
          __procedure(

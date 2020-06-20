@@ -51,10 +51,10 @@
    :linenos:
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
 这是一个死循环，它自身永远也不会终止，即便内部的某些 `Action` 出现运行时错误，它也不会停止循环。
@@ -71,11 +71,11 @@
    :linenos:
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
 这个例子中，如果在 ``__break_if`` 之前，发生了 ``TIMEDOUT`` 错误，则循环终止，而整个 ``__loop`` 的运行结果也是 ``TIMEDOUT`` 。
@@ -86,11 +86,11 @@
    :linenos:
 
    __loop(
-   , __sync(Action1)
-   , __async(Action2)
+   , __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout, SUCCESS)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
 这样， ``__loop`` 的运行结果将是 ``SUCCESS`` 。
@@ -104,17 +104,17 @@
    :linenos:
 
    __loop( __break_if(__not(CondSatisfied))
-   , __sync(Action1)
-   , __async(Action2)
+   , __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    , __break_if(__not(CondSatisfied))
    );
 
@@ -127,17 +127,17 @@
    :linenos:
 
    __loop( __while(CondSatisfied)
-   , __sync(Action1)
-   , __async(Action2)
+   , __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    , __while(CondSatisfied)
    );
 
@@ -154,10 +154,10 @@
    :linenos:
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    , __until(CondSatisfied)
    );
 
@@ -174,11 +174,11 @@
    :linenos:
 
    __loop
-   ( __sync(Action1)
-   , __async(Action2)
+   ( __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __redo_if(__is_timeout)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
 在这个例子中，如果发生了timeout，则不再执行后续的其它Action，而是重新开始循环。
@@ -209,10 +209,10 @@
    :linenos:
 
    __loop(
-   , __sync(Action1)
-   , __async(Action2)
+   , __syn(Action1)
+   , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__async(Action3), __async(Action5))
+   , __concurrent(__asyn(Action3), __asyn(Action5))
    , __while(ShouldRetry)
    );
 
@@ -220,7 +220,7 @@
 
 .. attention::
    在 ``__loop`` 里，只有与循环控制有关的谓词，其状态的连续性才会得到保证。在正常Action的普通谓词，
-   比如：``__optional(__not(ShouldRetry), __sync(Action1))`` ，
+   比如：``__optional(__not(ShouldRetry), __syn(Action1))`` ，
    其中的谓词 ``ShouldRetry`` 的状态连续性无法得到保证。
 
 错误处理
@@ -246,16 +246,16 @@
 
    __loop(
    // Action Segment 1
-     __sync(Action1)
-   , __async(Action2)
+     __syn(Action1)
+   , __asyn(Action2)
 
    // Predicate Segment 1
    , __break_if(__is_status(FATAL_BUG))
    , __redo_if(__is_failed)
 
    // Action Segment 2
-   , __async(Action3)
-   , __async(Action4)
+   , __asyn(Action3)
+   , __asyn(Action4)
    , __time_guard(TIMER_2, Action5)
 
    // Predicate Segment 2
@@ -263,7 +263,7 @@
    , __redo_if(__is_failed)
 
    // Action Segment 3
-   , __concurrent(__async(Action6), __async(Action7))
+   , __concurrent(__asyn(Action6), __asyn(Action7))
    );
 
 对于任何一个 **动作段** ，如果执行到某个Action，出了错，则此段后续的所有Action将都会被跳过。比如，本例子中
@@ -296,8 +296,8 @@
    , __redo_if(__is_failed)
 
    // Action Segment 1
-   , __async(Action3)
-   , __async(Action4)
+   , __asyn(Action3)
+   , __asyn(Action4)
    , __time_guard(TIMER_2, Action5)
 
    // Predicate Segment 2
@@ -305,7 +305,7 @@
    , __redo_if(__is_failed)
 
    // Action Segment 2
-   , __concurrent(__async(Action6), __async(Action7))
+   , __concurrent(__asyn(Action6), __asyn(Action7))
    );
 
 **stop**
@@ -323,9 +323,9 @@
 .. code-block:: c++
 
    __loop
-   ( __sync(Action1)
-   , __sync(Action2)
-   , __sync(Action3));
+   ( __syn(Action1)
+   , __syn(Action2)
+   , __syn(Action3));
 
 如果用户想避免这样的检查，则可以使用： ``__loop_max`` 或者 ``__forever`` 以特别说明这的确是用户有意为之，而不是一个无意中犯下的错误。
 
@@ -334,18 +334,18 @@
 .. code-block:: c++
 
    __loop_max(1000
-   , __sync(Action1)
-   , __sync(Action2)
-   , __sync(Action3));
+   , __syn(Action1)
+   , __syn(Action2)
+   , __syn(Action3));
 
 或者：
 
 .. code-block:: c++
 
    __forever
-   ( __sync(Action1)
-   , __sync(Action2)
-   , __sync(Action3));
+   ( __syn(Action1)
+   , __syn(Action2)
+   , __syn(Action3));
 
 .. attention::
    ``__loop_max`` 与 ``__forever`` 并不意味着循环一定要永远循环下去，或者要循环到最大次数。循环里仍然可以设置谓词，

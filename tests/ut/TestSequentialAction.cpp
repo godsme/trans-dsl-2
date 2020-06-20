@@ -16,9 +16,9 @@ namespace {
    FIXTURE(TestSequentialAction) {
       __sequential(
          __call(SyncAction1),
-         __async(AsyncAction1),
-         __sync(SyncAction3),
-         __async(AsyncAction2),
+         __asyn(AsyncAction1),
+         __syn(SyncAction3),
+         __asyn(AsyncAction2),
          __call(SyncAction2)
          ) action;
 

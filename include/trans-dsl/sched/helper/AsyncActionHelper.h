@@ -35,7 +35,7 @@ namespace details {
    };
 }
 
-#define __async(action) TSL_NS::details::ASYNC__<action>
+#define __asyn(action) TSL_NS::details::ASYNC__<action>
 
 TSL_NS_END
 

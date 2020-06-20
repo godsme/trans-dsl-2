@@ -68,12 +68,12 @@ namespace {
       using ProcedureAction1 =
       __procedure(
          __wait(1),
-         __finally(__async(AsyncAction2)));
+         __finally(__asyn(AsyncAction2)));
 
       using ProcedureAction2 =
       __procedure(
          __wait(2),
-         __finally(__async(AsyncAction1)));
+         __finally(__asyn(AsyncAction1)));
 
       using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2);
 

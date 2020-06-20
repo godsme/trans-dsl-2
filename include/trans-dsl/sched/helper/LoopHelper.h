@@ -24,8 +24,8 @@ namespace details {
       SeqInt V_SEQ,
       typename T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoopNonEmpty_ {
-      using Action = typename T_TRAITS<T_HEAD>::Action;
+   struct GenericLoopPred {
+      using Pred = typename T_TRAITS<T_HEAD>::Action;
       using Next =
       typename GenericLoop_<
          V_SIZE,
@@ -39,15 +39,15 @@ namespace details {
 
          auto get(SeqInt seq, bool& isAction) -> SchedAction* {
             if(seq == V_SEQ) {
-               isAction = T_TRAITS<T_HEAD>::isAction;
-               return &action;
+               isAction = false;
+               return &pred;
             } else {
                return Next::get(seq, isAction);
             }
          }
 
       private:
-         Action action;
+         Pred pred;
       };
    };
 
@@ -102,7 +102,7 @@ namespace details {
    /////////////////////////////////////////////////////////////////////////////////////////
    template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsNonEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
-      : GenericLoopNonEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+      : GenericLoopPred<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
    {};
 
    ///////////////////////////////////////////////////////////////////////////////////////

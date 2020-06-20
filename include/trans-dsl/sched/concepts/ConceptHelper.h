@@ -13,7 +13,7 @@
 
 #define CONCEPT_C(c, t) c t
 #define ENABLE_C(c, t)
-#define DEF_CONCEPT(c, expr) concept c = expr
+#define DEF_CONCEPT(c, ...) concept c = __VA_ARGS__
 #else
 #define VOID_PLACEHOLDER , void
 #define VOID_CONCEPT , typename = void

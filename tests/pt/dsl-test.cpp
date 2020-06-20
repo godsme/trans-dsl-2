@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/17.
 //
 
-#include <nanobench/nanobench.h>
+#include <nanobench.h>
 #include <cctest/cctest.h>
 #include "../ut/StupidTransactionContext.h"
 #include "../ut/SimpleActionsDefs.h"

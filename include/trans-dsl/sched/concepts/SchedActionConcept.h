@@ -15,12 +15,15 @@
 
 TSL_NS_BEGIN
 
+template<typename T>
+constexpr bool IsSchedAction = std::is_base_of_v<SchedAction, T>;
+
 #if __CONCEPT_ENABLED
 template<typename T>
-concept SchedActionConcept = std::is_base_of_v<SchedAction, T>;
+concept SchedActionConcept = IsSchedAction<T>;
 #else
 template<typename T>
-using SchedActionConcept = std::enable_if_t<std::is_base_of_v<TSL_NS::SchedAction, T>>;
+using SchedActionConcept = std::enable_if_t<IsSchedAction<T>>;
 #endif
 
 TSL_NS_END

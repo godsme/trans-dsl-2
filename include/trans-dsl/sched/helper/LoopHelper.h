@@ -179,8 +179,11 @@ namespace details {
       };
    };
 
-   template<uint32_t V_MAX_TIMES, typename ... T_ACTIONS>
-   struct LOOP__ {
+   template<typename T>
+   DEF_CONCEPT(LoopElemConcept, IsLoopPred<T> || IsSchedAction<T>);
+
+   template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
+   struct Loop {
       static_assert(sizeof...(T_ACTIONS) > 0, "loop cannot be empty");
       using Actions = typename GenericLoop_<0, 0, 0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
       struct Inner : private Actions, SchedLoop {
@@ -196,7 +199,7 @@ namespace details {
    };
 }
 
-#define __loop(...) TSL_NS::details::LOOP__<1, __VA_ARGS__>::Inner
+#define __loop(...) TSL_NS::details::Loop<1, __VA_ARGS__>::Inner
 #define __loop_max(times, ...) TSL_NS::details::LOOP__<times, __VA_ARGS__>::Inner
 #define __forever(...) TSL_NS::details::LOOP__<std::numeric_limits<uint32>::max(), __VA_ARGS__>::Inner
 

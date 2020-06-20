@@ -7,16 +7,11 @@
 
 #include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/sched/domain/RuntimeContext.h>
+#include <trans-dsl/utils/SeqInt.h>
 
 TSL_NS_BEGIN
 
 struct TransactionContext;
-
-enum class LoopActionType {
-   ACTION,
-   BREAK_PRED,
-   CONTINUE_PRED
-};
 
 // 40 bytes
 struct SchedLoop
@@ -31,8 +26,8 @@ struct SchedLoop
    OVERRIDE(kill(TransactionContext&, Status) -> void);
 
 private:
-   auto checkError(LoopActionType type);
-   auto execOne(TransactionContext& context, LoopActionType type) -> Status;
+   auto checkError(bool isAction);
+   auto execOne(TransactionContext& context, bool isPred) -> Status;
    auto execOnce(TransactionContext&) -> Status;
    auto looping(TransactionContext& context) -> Status;
    auto handleEvent_(TransactionContext& context, const Event& event) -> Status;
@@ -46,7 +41,7 @@ private:
 
 private:
    ABSTRACT(getMaxTime() const -> uint32_t);
-   ABSTRACT(getAction(uint16_t seq, LoopActionType&) -> SchedAction*);
+   ABSTRACT(getAction(SeqInt seq, bool& isAction) -> SchedAction*);
 };
 
 TSL_NS_END

@@ -8,17 +8,17 @@
 
 TSL_NS_BEGIN
 
-auto SchedLoop::checkError(LoopActionType type) {
+auto SchedLoop::checkError(bool isAction) {
    // while in error recovering mode, once meet the 1st action,
    // cleanup the failure.
    if(errorRecovering) {
-      if(type == LoopActionType::ACTION) {
+      if(isAction) {
          cleanUpFailure();
          errorRecovering = false;
       }
    } else {
       // once meets the 1st pred, enters error recovering mode.
-      if(type != LoopActionType::ACTION) {
+      if(isAction) {
          errorRecovering = true;
       }
    }
@@ -35,14 +35,14 @@ auto SchedLoop::checkActionStatus(ActionStatus status) -> Status {
    return status;
 }
 
-auto SchedLoop::execOne(TransactionContext& context, LoopActionType type) -> Status {
+auto SchedLoop::execOne(TransactionContext& context, bool isAction) -> Status {
    // skipp all actions after a failure, until meet a pred.
-   if(type == LoopActionType::ACTION && hasFailure()) {
+   if(isAction && hasFailure()) {
       return Result::MOVE_ON;
    }
 
    auto status = action->exec(context);
-   if(type == LoopActionType::ACTION) {
+   if(isAction) {
       return checkActionStatus(status);
    }
 
@@ -50,11 +50,11 @@ auto SchedLoop::execOne(TransactionContext& context, LoopActionType type) -> Sta
 }
 
 auto SchedLoop::execOnce(TransactionContext& context) -> Status {
-   LoopActionType type{};
-   while((action = getAction(sequence, type)) != nullptr) {
-      checkError(type);
+   bool isAction{};
+   while((action = getAction(sequence, isAction)) != nullptr) {
+      checkError(isAction);
 
-      auto status = execOne(context, type);
+      auto status = execOne(context, isAction);
       if(status != Result::MOVE_ON) {
          return status;
       }

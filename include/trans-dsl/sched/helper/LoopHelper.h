@@ -9,30 +9,19 @@
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>
 #include <trans-dsl/sched/action/SchedLoop.h>
+#include <trans-dsl/utils/SeqInt.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-   struct BreakSignature {};
-   using BreakPred = LoopPred<BreakSignature>;
-   using BreakPredAction = LoopPredAction<BreakSignature>;
-
-   struct ContinueSignature {};
-   using ContinuePred = LoopPred<ContinueSignature>;
-   using ContinuePredAction = LoopPredAction<ContinueSignature>;
-}
-
-namespace details {
-   using LoopSeq = unsigned short;
-
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename = void, typename ... T_ACTIONS>
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename = void, typename ... T_ACTIONS>
    struct GenericLoop_;
 
    template<
       template<typename T> typename T_TRAITS,
       size_t V_SIZE,
       size_t V_ALIGN,
-      LoopSeq V_SEQ,
+      SeqInt V_SEQ,
       typename T_HEAD,
       typename ... T_TAIL>
    struct GenericLoopNonEmpty_ {
@@ -48,12 +37,12 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq, LoopActionType& v) -> SchedAction* {
+         auto get(SeqInt seq, bool& isAction) -> SchedAction* {
             if(seq == V_SEQ) {
-               v = T_TRAITS<T_HEAD>::ActionType;
+               isAction = T_TRAITS<T_HEAD>::isAction;
                return &action;
             } else {
-               return Next::get(seq, v);
+               return Next::get(seq, isAction);
             }
          }
 
@@ -62,39 +51,12 @@ namespace details {
       };
    };
 
-   template<typename T, typename T_SIGNATURE>
-   using IsLoopPred = typename std::enable_if_t<std::is_base_of_v<T_SIGNATURE, T> && (sizeof(T) > 1)>;
-
-   template<typename T_SIGNATURE, LoopActionType V_ACTION_TYPE, typename T_ACTION>
-   struct LoopPredTraits {
-      using Action = typename LoopPredAction<T_SIGNATURE>::template GenericAction<T_ACTION>;
-      constexpr static LoopActionType ActionType = V_ACTION_TYPE;
-   };
-
-   /////////////////////////////////////////////////////////////////////////////////////////
-   template<typename T>
-   using BreakTraits = LoopPredTraits<BreakSignature, LoopActionType::BREAK_PRED, T>;
-
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsLoopPred<T_HEAD, BreakSignature>, T_HEAD, T_TAIL...>
-      : GenericLoopNonEmpty_<BreakTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
-   {};
-
-   /////////////////////////////////////////////////////////////////////////////////////////
-   template<typename T>
-   using ContinueTraits = LoopPredTraits<ContinueSignature, LoopActionType::CONTINUE_PRED, T>;
-
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsLoopPred<T_HEAD, ContinueSignature>, T_HEAD, T_TAIL...>
-      : GenericLoopNonEmpty_<ContinueTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
-   {};
-
    ///////////////////////////////////////////////////////////////////////////////////////
    template<
       template<typename T> typename T_TRAITS,
       size_t V_SIZE,
       size_t V_ALIGN,
-      LoopSeq V_SEQ,
+      SeqInt V_SEQ,
       typename T_HEAD,
       typename ... T_TAIL>
    struct GenericLoopEmpty_ {
@@ -110,47 +72,62 @@ namespace details {
       struct Inner : Next {
          using Next::cache;
 
-         auto get(LoopSeq seq, LoopActionType& v) -> SchedAction* {
+         auto get(SeqInt seq, bool& isAction) -> SchedAction* {
             if(seq == V_SEQ) {
-               v = T_TRAITS<T_HEAD>::ActionType;
+               isAction = T_TRAITS<T_HEAD>::isAction;
                return new (cache) Action;
             } else {
-               return Next::get(seq, v);
+               return Next::get(seq, isAction);
             }
          }
       };
    };
 
+   /////////////////////////////////////////////////////////////////////////////////////////
+   template<typename T_PRED>
+   struct LoopPredTraits {
+      using Action = GenericLoopAction<T_PRED>;
+      constexpr static bool isAction = false;
+   };
+
+   template<typename T>
+   constexpr bool IsLoopPred = std::is_base_of_v<LoopPredSignature, T>;
+
+   template<typename T>
+   using IsNonEmptyLoopPred = std::enable_if_t<IsLoopPred<T> && (sizeof(T) > 1)>;
+
+   template<typename T>
+   using IsEmptyLoopPred = std::enable_if_t<IsLoopPred<T> && sizeof(T) == 1>;
+
+   /////////////////////////////////////////////////////////////////////////////////////////
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsNonEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+      : GenericLoopNonEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+   {};
+
    ///////////////////////////////////////////////////////////////////////////////////////
-   template<typename T, typename T_SIGNATURE>
-   using IsEmptyLoopPred =
-   typename std::enable_if_t<std::is_base_of_v<T_SIGNATURE, T> && \
-         sizeof(T) == 1>;
 
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsEmptyLoopPred<T_HEAD, BreakSignature>, T_HEAD, T_TAIL...>
-      : GenericLoopEmpty_<BreakTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>{};
-
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsEmptyLoopPred<T_HEAD, ContinueSignature>, T_HEAD, T_TAIL...>
-      : GenericLoopEmpty_<ContinueTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...> {};
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+      : GenericLoopEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+   {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T>
    struct ActionTraits {
       using Action = T;
-      constexpr static LoopActionType ActionType = LoopActionType::ACTION;
+      constexpr static bool isAction = true;
    };
 
-   template<size_t V_SIZE, size_t V_ALIGN, LoopSeq V_SEQ, typename T_HEAD, typename ... T_TAIL>
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsSchedAction<T_HEAD>, T_HEAD, T_TAIL...>
       : GenericLoopEmpty_<ActionTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////
-   template<size_t T_SIZE, size_t T_ALIGN, LoopSeq T_SEQ>
+   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ>
    struct GenericLoop_<T_SIZE, T_ALIGN, T_SEQ> {
       struct Inner  {
-         auto get(LoopSeq seq, LoopActionType&) -> SchedAction* {
+         auto get(SeqInt seq, bool& isAction) -> SchedAction* {
             return nullptr;
          }
       protected:
@@ -168,8 +145,8 @@ namespace details {
             return V_MAX_TIMES;
          }
 
-         OVERRIDE(getAction(uint16_t seq, LoopActionType& type) -> SchedAction*) {
-            return Actions::get(seq, type);
+         OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
+            return Actions::get(seq, isAction);
          }
       };
    };
@@ -179,9 +156,9 @@ namespace details {
 #define __loop_max(times, ...) TSL_NS::details::LOOP__<times, __VA_ARGS__>::Inner
 #define __forever(...) TSL_NS::details::LOOP__<std::numeric_limits<uint32>::max(), __VA_ARGS__>::Inner
 
-#define __break_if(pred, ...) decltype(TSL_NS::details::BreakPred::DeduceType<pred, ##__VA_ARGS__>())
+#define __break_if(pred, ...) decltype(TSL_NS::details::DeduceLoopPredType<pred, ##__VA_ARGS__>())
 #define __until(...) __break_if(__VA_ARGS__)
-#define __redo_if(pred) decltype(TSL_NS::details::ContinuePred::DeduceType<pred, TSL_NS::Result::RESTART_REQUIRED>())
+#define __redo_if(pred) decltype(TSL_NS::details::DeduceLoopPredType<pred, TSL_NS::Result::RESTART_REQUIRED>())
 #define __while(pred, ...) __break_if(__not(pred), ##__VA_ARGS__)
 
 TSL_NS_END

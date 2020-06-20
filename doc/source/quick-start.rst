@@ -51,7 +51,7 @@
   __def_transaction (
     __sequential
       ( __req(Action1)
-      , __call(Action2)
+      , __sync(Action2)
       , __asyn(Action3)
       , __asyn(Action4)
       , __rsp(Action5))
@@ -75,7 +75,7 @@
 
     Status exec(const TransactionInfo&);
     Status handleEvent(const TransactionInfo&, const Event&);
-    void kill(const TransactionInfo&);
+    void kill(const TransactionInfo&, Status cause);
 
 对于 **同步操作** ，你需要做的就是定一个原型为 ``Status (const TransactionInfo&)`` 的函数。
 
@@ -239,7 +239,7 @@
    __def_transaction
    ( __sequential
       ( __req(Action1)
-      , __call(Action2)
+      , __sync(Action2)
       , __concurrent(__asyn(Action3), __asyn(Action4))
       , __rsp(Action5))
    ) Transaction;
@@ -277,7 +277,7 @@
     __def_transaction
     ( __time_guard(TIMER_1, __sequential
         ( __req(Action1)
-        , __call(Action2)
+        , __sync(Action2)
         , __time_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
         , __rsp(Action5)))
     ) Transaction;

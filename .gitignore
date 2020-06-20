@@ -3,6 +3,7 @@
 
 # IDE
 .idea/*
+build/*
 doc/build/*
 .DS_Store
 

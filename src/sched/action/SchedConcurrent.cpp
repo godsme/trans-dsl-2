@@ -114,7 +114,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& ev
       ActionStatus status = get(i)->handleEvent(context, event);
       if(status.isWorking()) {
          hasWorkingAction = true;
-         if(hasReportedError()) {
+         if(status == Result::CONTINUE && hasReportedError()) {
             children[i] = State::Stopping;
             break;
          }

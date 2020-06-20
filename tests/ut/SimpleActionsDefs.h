@@ -16,10 +16,10 @@ namespace {
    constexpr TSL_NS::EventId TIMER_EVENT_ID_1 = 400 + 1;
    constexpr TSL_NS::EventId TIMER_EVENT_ID_2 = 400 + 2;
 
-   const TSL_NS::EventId EV_MSG_1 = 1;
-   const TSL_NS::EventId EV_MSG_2 = 2;
-   const TSL_NS::EventId EV_MSG_3 = 3;
-   const TSL_NS::EventId EV_MSG_4 = 3;
+   const TSL_NS::EventId EV_MSG_1 = 101;
+   const TSL_NS::EventId EV_MSG_2 = 102;
+   const TSL_NS::EventId EV_MSG_3 = 103;
+   const TSL_NS::EventId EV_MSG_4 = 104;
    struct Msg1 {
       int a, b;
    };

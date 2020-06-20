@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.15)
 project(trans_dsl_2)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -71,15 +71,16 @@ add_library(trans-dsl STATIC
         src/sched/action/SchedWait.cpp include/trans-dsl/sched/helper/WaitHelper.h
         include/trans-dsl/sched/concepts/C_IsAction.h)
 
-add_custom_target(trans-dsl-test ALL
-        COMMAND g++ -O3 -std=c++17 -I/usr/local/include -I${CMAKE_CURRENT_SOURCE_DIR}/include -lcctest_main -lcctest
-        DEPENDS trans-dsl
-        SOURCES tests/ut/TestSwitchCase.cpp tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp
+add_executable(trans-dsl-test
+        tests/ut/TestSwitchCase.cpp tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp
         tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp tests/ut/TestConcurrent.cpp
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
-        tests/ut/TestSequentialAction.cpp tests/ut/SimpleActionsDefs.h )
+        tests/ut/TestSequentialAction.cpp)
+
+target_link_libraries(trans-dsl-test trans-dsl cctest_main cctest)
 
 add_executable(trans-dsl-bench
+        tests/pt/nanobench.cpp
         tests/pt/dsl-test.cpp)
 
-target_link_libraries(trans-dsl-bench ${CMAKE_CURRENT_SOURCE_DIR}/tests/pt/nanobench.o trans-dsl)
+target_link_libraries(trans-dsl-bench trans-dsl cctest_main cctest)

@@ -311,5 +311,11 @@ namespace {
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
       }
+
+      TEST("normal-case") {
+         ASSERT_EQ(Result::CONTINUE, action.exec(context));
+         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
+      }
    };
 }

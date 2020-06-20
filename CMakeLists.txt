@@ -12,6 +12,7 @@ find_package(PythonInterp)
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "/usr/local/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/pt"
 )
 
 LINK_DIRECTORIES(/usr/local/lib)

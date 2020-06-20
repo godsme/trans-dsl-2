@@ -5,18 +5,32 @@
 #ifndef TRANS_DSL_2_LOOPHELPER_H
 #define TRANS_DSL_2_LOOPHELPER_H
 
+#include <trans-dsl/tsl_config.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>
 #include <trans-dsl/sched/action/SchedLoop.h>
 #include <trans-dsl/utils/SeqInt.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 
 TSL_NS_BEGIN
 
 namespace details {
+
+#if __CONCEPT_ENABLED
+#define VOID_PLACEHOLDER
+#else
+#define VOID_PLACEHOLDER void,
+#endif
+
+#if __CONCEPT_ENABLED
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename ... T_ACTIONS>
+#else
    template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename = void, typename ... T_ACTIONS>
+#endif
    struct GenericLoop_;
 
+   ///////////////////////////////////////////////////////////////
    template<
       template<typename T> typename T_TRAITS,
       size_t V_SIZE,
@@ -31,7 +45,7 @@ namespace details {
          V_SIZE,
          V_ALIGN,
          V_SEQ + 1,
-         void,
+         VOID_PLACEHOLDER
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -66,7 +80,7 @@ namespace details {
          std::max(V_SIZE, sizeof(Action)),
          std::max(V_ALIGN, alignof(Action)),
          V_SEQ + 1,
-         void,
+         VOID_PLACEHOLDER
          T_TAIL...>::Inner;
 
       struct Inner : Next {
@@ -94,21 +108,45 @@ namespace details {
    constexpr bool IsLoopPred = std::is_base_of_v<LoopPredSignature, T>;
 
    template<typename T>
-   using IsNonEmptyLoopPred = std::enable_if_t<IsLoopPred<T> && (sizeof(T) > 1)>;
+   constexpr bool IsNonEmptyLoopPred = IsLoopPred<T> && (sizeof(T) > 1);
 
    template<typename T>
-   using IsEmptyLoopPred = std::enable_if_t<IsLoopPred<T> && sizeof(T) == 1>;
+   constexpr bool IsEmptyLoopPred = IsLoopPred<T> && (sizeof(T) == 1);
+
+#if __CONCEPT_ENABLED
+      template<typename T>
+      concept NonEmptyLoopPredConcept = IsNonEmptyLoopPred<T>;
+
+      template<typename T>
+      concept EmptyLoopPredConcept = IsEmptyLoopPred<T>;
+#else
+   template<typename T>
+   using EnableIfNonEmptyLoopPred = std::enable_if_t<IsNonEmptyLoopPred<T>>;
+
+   template<typename T>
+   using EnableIfEmptyLoopPred = std::enable_if_t<IsEmptyLoopPred<T>>;
+#endif
 
    /////////////////////////////////////////////////////////////////////////////////////////
+#if __CONCEPT_ENABLED
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, NonEmptyLoopPredConcept T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+#else
    template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsNonEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, EnableIfNonEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+#endif
       : GenericLoopPred<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
    {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
 
+#if __CONCEPT_ENABLED
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, EmptyLoopPredConcept T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+#else
    template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, EnableIfEmptyLoopPred<T_HEAD>, T_HEAD, T_TAIL...>
+#endif
       : GenericLoopEmpty_<LoopPredTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
    {};
 
@@ -119,8 +157,13 @@ namespace details {
       constexpr static bool isAction = true;
    };
 
+#if __CONCEPT_ENABLED
+   template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, SchedActionConcept T_HEAD, typename ... T_TAIL>
+   struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>
+#else
    template<size_t V_SIZE, size_t V_ALIGN, SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
    struct GenericLoop_<V_SIZE, V_ALIGN, V_SEQ, IsSchedAction<T_HEAD>, T_HEAD, T_TAIL...>
+#endif
       : GenericLoopEmpty_<ActionTraits, V_SIZE, V_ALIGN, V_SEQ, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////

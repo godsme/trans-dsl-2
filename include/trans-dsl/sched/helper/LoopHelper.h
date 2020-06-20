@@ -158,9 +158,10 @@ namespace details {
       };
    };
 
-   template<uint32_t V_MAX_TIMES, typename T_ACTION, typename ... T_ACTIONS>
+   template<uint32_t V_MAX_TIMES, typename ... T_ACTIONS>
    struct LOOP__ {
-      using Actions = typename GenericLoop_<0, 0, 0, void, T_ACTION, T_ACTIONS...>::Inner;
+      static_assert(sizeof...(T_ACTIONS) > 0, "loop cannot be empty");
+      using Actions = typename GenericLoop_<0, 0, 0, void, T_ACTIONS...>::Inner;
       struct Inner : private Actions, SchedLoop {
       private:
          OVERRIDE(getMaxTime() const -> uint32_t) {

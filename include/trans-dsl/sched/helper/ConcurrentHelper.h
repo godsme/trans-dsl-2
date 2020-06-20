@@ -5,10 +5,12 @@
 #ifndef TRANS_DSL_2_CONCURRENTHELPER_H
 #define TRANS_DSL_2_CONCURRENTHELPER_H
 
+#include <trans-dsl/tsl_config.h>
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 
 TSL_NS_BEGIN
 
@@ -44,7 +46,12 @@ namespace details {
       };
    };
 
+#if __CONCEPT_ENABLED
+   template<SchedActionConcept ... T_ACTIONS>
+#else
    template<typename ... T_ACTIONS>
+#endif
+
    struct Concurrent__ {
       using Actions = typename GenericConcurrent<0, T_ACTIONS...>::Inner;
       enum {

@@ -36,7 +36,7 @@ namespace {
    FIXTURE(TestTimerGuard2) {
       using ProcedureAction =
       __procedure(
-         __syn(SyncAction2),
+         __sync(SyncAction2),
          __finally(__asyn(AsyncAction1)));
 
       __time_guard(TIMER_1, ProcedureAction) action;

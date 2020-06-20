@@ -20,19 +20,19 @@ namespace {
    FIXTURE(TestProcedure) {
       using MainActions =
          __sequential
-           ( __syn(SyncAction1)
+           (__sync(SyncAction1)
            , __asyn(AsyncAction1)
            , __asyn(FailedAsyncAction3)
            , __asyn(AsyncAction2)
-           , __syn(SyncAction2));
+           , __sync(SyncAction2));
 
       using FinalActions =
          __sequential
-           (__syn(SyncAction1)
+           (__sync(SyncAction1)
            , __asyn(AsyncAction1)
-           , __syn(FailedSyncAction4)
+           , __sync(FailedSyncAction4)
            , __asyn(AsyncAction2)
-           , __syn(SyncAction2));
+           , __sync(SyncAction2));
 
       __procedure(
          MainActions,
@@ -115,14 +115,14 @@ namespace {
 
    FIXTURE(TestProcedure1) {
       __procedure(__sequential
-        ( __syn(SyncAction1)
+        (__sync(SyncAction1)
         , __asyn(FailedAsyncAction3)
         , __asyn(AsyncAction2)
-        , __syn(SyncAction2)),
+        , __sync(SyncAction2)),
         __finally(__sequential
-          ( __syn(SyncAction1)
+          (__sync(SyncAction1)
           , __asyn(AsyncAction1)
-          , __syn(SyncAction2)))
+          , __sync(SyncAction2)))
       ) procedure;
 
       StupidTransactionContext context{};
@@ -163,22 +163,22 @@ namespace {
 
    using MainProcedure =
    __procedure(__sequential
-     (__syn(SyncAction1)
+     (__sync(SyncAction1)
      , __asyn(AsyncAction1)
-     , __syn(SyncAction2)),
+     , __sync(SyncAction2)),
      __finally(__sequential
-        (__syn(SyncAction1)
+        (__sync(SyncAction1)
         , __asyn(AsyncAction2)
-        , __syn(SyncAction2))));
+        , __sync(SyncAction2))));
 
    constexpr int* P = nullptr;
    FIXTURE(TestProcedure3) {
 
       __procedure(MainProcedure,
       __finally(__sequential
-        (__syn(SyncAction1)
+        (__sync(SyncAction1)
         , __asyn(AsyncAction1)
-        , __syn(SyncAction2)))
+        , __sync(SyncAction2)))
       ) procedure;
 
       StupidTransactionContext context{};
@@ -248,7 +248,7 @@ namespace {
 
    FIXTURE(TestProcedure4) {
       __procedure(
-         __syn(FailedSyncAction4),
+         __sync(FailedSyncAction4),
          __finally(__on_fail(__asyn(AsyncAction1)))
       ) procedure;
 

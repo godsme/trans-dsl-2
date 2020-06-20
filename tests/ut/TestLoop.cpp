@@ -33,7 +33,7 @@ namespace {
      __loop
         (__asyn(AsyncAction1)
         , __break_if(IsTrue, Result::OUT_OF_SCOPE)
-        , __syn(SyncAction3)
+        , __sync(SyncAction3)
         , __redo_if(IsTrue)) action;
 
      StupidTransactionContext context{};
@@ -54,7 +54,7 @@ namespace {
 
    FIXTURE(TestLoop1) {
       __loop
-      (__syn(SyncAction1)
+      (__sync(SyncAction1)
       , __break_if(is_true, Result::OUT_OF_SCOPE)
       , __asyn(AsyncAction1)
       , __redo_if(IsTrue)) action;

@@ -51,7 +51,7 @@
    :linenos:
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
@@ -71,7 +71,7 @@
    :linenos:
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout)
@@ -86,7 +86,7 @@
    :linenos:
 
    __loop(
-   , __syn(Action1)
+   , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout, SUCCESS)
@@ -104,14 +104,14 @@
    :linenos:
 
    __loop( __break_if(__not(CondSatisfied))
-   , __syn(Action1)
+   , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
@@ -127,14 +127,14 @@
    :linenos:
 
    __loop( __while(CondSatisfied)
-   , __syn(Action1)
+   , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
@@ -154,7 +154,7 @@
    :linenos:
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
@@ -174,7 +174,7 @@
    :linenos:
 
    __loop
-   ( __syn(Action1)
+   ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __redo_if(__is_timeout)
@@ -209,7 +209,7 @@
    :linenos:
 
    __loop(
-   , __syn(Action1)
+   , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
@@ -220,7 +220,7 @@
 
 .. attention::
    在 ``__loop`` 里，只有与循环控制有关的谓词，其状态的连续性才会得到保证。在正常Action的普通谓词，
-   比如：``__optional(__not(ShouldRetry), __syn(Action1))`` ，
+   比如：``__optional(__not(ShouldRetry), __sync(Action1))`` ，
    其中的谓词 ``ShouldRetry`` 的状态连续性无法得到保证。
 
 错误处理
@@ -246,7 +246,7 @@
 
    __loop(
    // Action Segment 1
-     __syn(Action1)
+     __sync(Action1)
    , __asyn(Action2)
 
    // Predicate Segment 1
@@ -323,9 +323,9 @@
 .. code-block:: c++
 
    __loop
-   ( __syn(Action1)
-   , __syn(Action2)
-   , __syn(Action3));
+   ( __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
 
 如果用户想避免这样的检查，则可以使用： ``__loop_max`` 或者 ``__forever`` 以特别说明这的确是用户有意为之，而不是一个无意中犯下的错误。
 
@@ -334,18 +334,18 @@
 .. code-block:: c++
 
    __loop_max(1000
-   , __syn(Action1)
-   , __syn(Action2)
-   , __syn(Action3));
+   , __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
 
 或者：
 
 .. code-block:: c++
 
    __forever
-   ( __syn(Action1)
-   , __syn(Action2)
-   , __syn(Action3));
+   ( __sync(Action1)
+   , __sync(Action2)
+   , __sync(Action3));
 
 .. attention::
    ``__loop_max`` 与 ``__forever`` 并不意味着循环一定要永远循环下去，或者要循环到最大次数。循环里仍然可以设置谓词，

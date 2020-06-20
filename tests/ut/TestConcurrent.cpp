@@ -80,7 +80,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent1) {
-      __concurrent(__syn(SyncAction1), __syn(SyncAction1)) action;
+      __concurrent(__sync(SyncAction1), __sync(SyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -91,7 +91,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent2) {
-      __concurrent(__asyn(AsyncAction1), __syn(FailedSyncAction4)) action;
+      __concurrent(__asyn(AsyncAction1), __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -107,7 +107,7 @@ namespace {
    __procedure(__asyn(AsyncAction4), __finally(__asyn(AsyncAction2)));
 
    FIXTURE(TestConcurrent3) {
-      __concurrent(ProcedureAction1, __syn(FailedSyncAction4)) action;
+      __concurrent(ProcedureAction1, __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -133,7 +133,7 @@ namespace {
    };
 
    FIXTURE(TestConcurrent4) {
-      __concurrent(__syn(FailedSyncAction4), ProcedureAction) action;
+      __concurrent(__sync(FailedSyncAction4), ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -263,12 +263,12 @@ namespace {
 
    using ProcedureAction4 =
    __procedure(
-      __syn(SyncAction3),
+      __sync(SyncAction3),
       __finally(__asyn(AsyncAction2)));
 
    using ProcedureAction5 =
    __procedure(
-      __syn(SyncAction2),
+      __sync(SyncAction2),
       __finally(__asyn(AsyncAction1)));
 
    FIXTURE(TestConcurrent8) {

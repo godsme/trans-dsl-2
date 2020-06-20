@@ -15,11 +15,13 @@ struct TransactionInfo;
 using PredFunction = bool (*)(const TransactionInfo&);
 
 namespace details {
-   template<typename T_PRED, size_t V_SIZE=sizeof(T_PRED), typename = void>
+   template <size_t V_SIZE> struct TypeSize {};
+
+   template<typename T_PRED, typename T_SIZE=TypeSize<sizeof(T_PRED)>, typename = void>
    struct ClassNot__;
 
    template<typename T_PRED>
-   struct ClassNot__<T_PRED, sizeof(T_PRED), CUB_NS::IsClass<T_PRED>> {
+   struct ClassNot__<T_PRED, TypeSize<sizeof(T_PRED)>, CUB_NS::IsClass<T_PRED>> {
       bool operator()(const TransactionInfo& context) {
          return !pred(context);
       }
@@ -29,7 +31,7 @@ namespace details {
    };
 
    template<typename T_PRED>
-   struct ClassNot__<T_PRED, 1, CUB_NS::IsClass<T_PRED>> {
+   struct ClassNot__<T_PRED, TypeSize<1>, CUB_NS::IsClass<T_PRED>> {
       bool operator()(const TransactionInfo& context) {
          return !T_PRED{}(context);
       }

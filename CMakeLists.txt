@@ -11,6 +11,7 @@ find_package(PythonInterp)
 
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
         "/usr/local/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/tests/pt"
 )
@@ -82,6 +83,7 @@ target_link_libraries(trans-dsl-test trans-dsl cctest_main cctest)
 
 add_executable(trans-dsl-bench
         tests/pt/nanobench.cpp
-        tests/pt/dsl-test.cpp)
+        tests/pt/dsl-test.cpp
+        tests/pt/catch.cpp)
 
-target_link_libraries(trans-dsl-bench trans-dsl cctest_main cctest)
+target_link_libraries(trans-dsl-bench trans-dsl)

@@ -74,12 +74,18 @@ add_library(trans-dsl SHARED
         include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h)
 
 add_executable(trans-dsl-test
-        tests/ut/TestSwitchCase.cpp tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp
+        tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp
         tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp tests/ut/TestConcurrent.cpp
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
         tests/ut/TestSequentialAction.cpp)
 
 target_link_libraries(trans-dsl-test trans-dsl cctest_main cctest)
+
+add_executable(trans-dsl-test-catch
+        tests/ut/TestSwitchCase.cpp
+        tests/pt/catch.cpp)
+
+target_link_libraries(trans-dsl-test-catch trans-dsl)
 
 add_executable(trans-dsl-bench
         tests/pt/nanobench.cpp

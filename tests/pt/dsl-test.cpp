@@ -3,6 +3,7 @@
 //
 
 #include <nanobench.h>
+//#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include <catch.hpp>
 #include "../ut/StupidTransactionContext.h"
 #include "../ut/SimpleActionsDefs.h"
@@ -90,17 +91,12 @@ namespace {
          REQUIRE(Result::CONTINUE == action.handleEvent(context, Event{se_2}));
          REQUIRE(Result::CONTINUE == action.handleEvent(context, Event{eventInfo1}));
          REQUIRE(Result::SUCCESS  == action.handleEvent(context, Event{eventInfo2}));
-
-//         action.exec(context);
-//         action.handleEvent(context, Event{se_1});
-//         action.handleEvent(context, Event{se_2});
-//         action.handleEvent(context, Event{eventInfo1});
-//         action.handleEvent(context, Event{eventInfo2});
       };
 
       SECTION("functional") {
          runConcurrent();
       }
+
       SECTION("performance") {
          ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
             runConcurrent();

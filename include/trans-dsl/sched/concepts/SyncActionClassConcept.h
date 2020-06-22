@@ -19,7 +19,7 @@ TSL_NS_BEGIN
 template<typename T>
 concept SyncActionClassConcept = ClassConcept<T> &&
    requires( T t, TransactionInfo& trans) {
-      { t(trans) }  -> std::convertible_to<TSL_NS::Status>;
+      { t(trans) }  -> std::same_as<TSL_NS::Status>;
    };
 #else
 

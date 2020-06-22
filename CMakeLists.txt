@@ -71,7 +71,7 @@ add_library(trans-dsl SHARED
         include/trans-dsl/sched/action/SchedVoid.h src/sched/action/SchedVoid.cpp
         include/trans-dsl/sched/helper/VoidHelper.h include/trans-dsl/sched/action/SchedWait.h
         src/sched/action/SchedWait.cpp include/trans-dsl/sched/helper/WaitHelper.h
-        include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h)
+        include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h include/trans-dsl/sched/concepts/SyncActionClassConcept.h include/trans-dsl/sched/concepts/ClassConcept.h)
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp tests/ut/TestSImpleAsyncAction.cpp

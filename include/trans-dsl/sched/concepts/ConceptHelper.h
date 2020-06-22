@@ -39,7 +39,7 @@ namespace details {
 
 template<typename C, typename T>
 constexpr static bool IsTypeClass =
-   std::is_same_v<
+   std::is_convertible_v<
       typename details::DeduceFunctionResultType<decltype(C::template deduceType<T>)>::Type
       , const std::true_type::value_type&>;
 

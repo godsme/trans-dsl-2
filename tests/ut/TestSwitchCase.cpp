@@ -36,20 +36,16 @@ namespace {
          context.getRuntimeContext().reportFailure(Result::OUT_OF_SCOPE);
          REQUIRE(Result::CONTINUE == action.exec(context));
 
-         THEN("should choose path1") {
+         THEN("should choose path 1") {
             REQUIRE(Result::SUCCESS  == action.handleEvent(context, __EVENT(1)));
          }
 
-         WHEN("event2 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
-            }
+         WHEN("event2 received, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
          }
 
-         WHEN("event 1 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
-            }
+         WHEN("event 1 received, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
          }
       }
 
@@ -61,16 +57,12 @@ namespace {
             REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(2)));
          }
 
-         WHEN("event 1 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
-            }
+         WHEN("event 1 received, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
          }
 
-         WHEN("event 4 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
-            }
+         WHEN("event 4 received, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
          }
       }
 
@@ -78,42 +70,30 @@ namespace {
          context.getRuntimeContext().reportFailure(Result::TIMEDOUT);
          REQUIRE(Result::CONTINUE == action.exec(context));
 
-         WHEN("event 4 received") {
-            THEN("should return SUCCESS") {
+         THEN("should choose default path") {
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
+         }
+
+         WHEN("event 1 received,should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
+
+            AND_WHEN("event 4 received, should return SUCCESS") {
                REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
             }
-         }
 
-         WHEN("event 1 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
-               AND_WHEN("event 4 received") {
-                  THEN("should return SUCCESS") {
-                     REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
-                  }
-               }
-               AND_WHEN("event 2 received") {
-                  THEN("should return UNKNOWN_EVENT") {
-                     REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
-                     AND_WHEN("event 4 received") {
-                        THEN("should return SUCCESS") {
-                           REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
-                        }
-                     }
-                  }
+            AND_WHEN("event 2 received, should return UNKNOWN_EVENT") {
+               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
+               AND_WHEN("event 4 received, should return SUCCESS") {
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
                }
             }
          }
 
-         WHEN("event 2 received") {
-            THEN("should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
+         WHEN("event 2 received, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
 
-               AND_WHEN("event 4 received") {
-                  THEN("should return SUCCESS") {
-                     REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
-                  }
-               }
+            AND_WHEN("event 4 received, should return SUCCESS") {
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
             }
          }
       }

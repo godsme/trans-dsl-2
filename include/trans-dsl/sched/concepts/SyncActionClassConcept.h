@@ -16,11 +16,13 @@ TSL_NS_BEGIN
    struct TransactionInfo;
 
 #if __CONCEPT_ENABLED
+
 template<typename T>
 concept SyncActionClassConcept = ClassConcept<T> &&
    requires( T t, TransactionInfo& trans) {
       { t(trans) }  -> std::same_as<TSL_NS::Status>;
    };
+
 #else
 
 struct SyncActionTypeClass {

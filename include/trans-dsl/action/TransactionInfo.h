@@ -25,6 +25,15 @@ DEFINE_ROLE(TransactionInfo)
    }
 
 protected:
+   TransactionInfo() = default;
+
+private:
+   TransactionInfo(const TransactionInfo&) = delete;
+   TransactionInfo(TransactionInfo&&) = delete;
+   TransactionInfo& operator=(const TransactionInfo&) = delete;
+   TransactionInfo& operator=(TransactionInfo&&) = delete;
+
+protected:
    auto updateInstanceId(InstanceId id) -> void { instanceId = id; }
    auto updateUserContext(Unknown* context) -> void { userContext = context; }
 

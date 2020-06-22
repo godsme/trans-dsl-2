@@ -9,19 +9,17 @@
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 
-#define __EVENT(n) eventInfo##n
-
 namespace {
    using namespace TSL_NS;
 
    const Msg1 msg1{ 10, 20 };
-   const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+   const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
    const Msg2 msg2{ 30 };
-   const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+   const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
    const Msg4 msg4{ 30 };
-   const EV_NS::ConsecutiveEventInfo eventInfo4{EV_MSG_4, msg4};
+   const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
 
    SCENARIO("__switch test", "[switch]") {
@@ -37,15 +35,15 @@ namespace {
          REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("should choose path 1") {
-            REQUIRE(Result::SUCCESS  == action.handleEvent(context, __EVENT(1)));
+            REQUIRE(Result::SUCCESS  == action.handleEvent(context, event1));
          }
 
          WHEN("event2 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
          }
 
          WHEN("event 1 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
          }
       }
 
@@ -54,15 +52,15 @@ namespace {
          REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("should choose path 2") {
-            REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(2)));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
          }
 
          WHEN("event 1 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event1));
          }
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(4)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
          }
       }
 
@@ -71,29 +69,29 @@ namespace {
          REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("should choose default path") {
-            REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
          }
 
          WHEN("event 1 received,should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(1)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event1));
 
             AND_WHEN("event 4 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
             }
 
             AND_WHEN("event 2 received, should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
+               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
                AND_WHEN("event 4 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }
             }
          }
 
          WHEN("event 2 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, __EVENT(2)));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
 
             AND_WHEN("event 4 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == action.handleEvent(context, __EVENT(4)));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
             }
          }
       }

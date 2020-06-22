@@ -64,7 +64,7 @@ namespace {
          }
       }
 
-      GIVEN("the runtime env has an TIMEDOUT error") {
+      GIVEN("the runtime env has a TIMEOUT error") {
          context.getRuntimeContext().reportFailure(Result::TIMEDOUT);
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -81,6 +81,7 @@ namespace {
 
             AND_WHEN("event 2 received, should return UNKNOWN_EVENT") {
                REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
+
                AND_WHEN("event 4 received, should return SUCCESS") {
                   REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }

@@ -9,7 +9,7 @@
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 
-#define __EVENT(n) Event{eventInfo##n}
+#define __EVENT(n) eventInfo##n
 
 namespace {
    using namespace TSL_NS;

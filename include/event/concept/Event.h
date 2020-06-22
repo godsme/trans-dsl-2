@@ -19,6 +19,11 @@ struct Event
    Event();
    Event(const EventInfo& info) : info(&info) {}
 
+   Event(const Event&) = delete;
+   Event(Event&&) = delete;
+   Event& operator=(const Event&) = delete;
+   Event& operator=(Event&&) = delete;
+
    auto getEventId() const -> EventId {
       return info->getEventId();
    }

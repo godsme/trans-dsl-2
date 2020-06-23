@@ -27,9 +27,9 @@ concept SyncActionClassConcept = ClassConcept<T> &&
 
 struct SyncActionTypeClass {
    template<typename T>
-   __DEF_TYPE_CLASS(T action, const TransactionInfo& trans) __AS(
-      __METHOD(TSL_NS::Status, action(trans))
-   );
+   __DEF_TYPE_CLASS(T action, const TransactionInfo& trans) {
+      __METHOD(TSL_NS::Status, action(trans));
+   }
 };
 
 template<typename T>

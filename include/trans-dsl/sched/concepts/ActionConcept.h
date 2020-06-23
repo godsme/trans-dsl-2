@@ -28,17 +28,17 @@ concept ActionConcept = requires
           Status cause) {
     { t.exec(trans) }               -> std::same_as<Status>;
     { t.handleEvent(trans, event) } -> std::same_as<Status>;
-    { t.kill(trans, cause) }        -> std::same_as<void>;
+    { t.kill(trans, cause) }        -> std::same_as<Status>;
 };
 #else
 
 struct ActionTypeClass {
    template<typename T>
-   __DEF_TYPE_CLASS(T action, const TransactionInfo& trans, const Event& event, Status cause) __AS(
-      __METHOD(Status, action.exec(trans)),
-      __METHOD(Status, action.handleEvent(trans, event)),
-      __METHOD(void,   action.kill(trans, cause))
-   );
+   __DEF_TYPE_CLASS(T action, const TransactionInfo& trans, const Event& event, Status cause) {
+      __METHOD(Status, action.exec(trans));
+      __METHOD(Status, action.handleEvent(trans, event));
+      __METHOD(Status, action.kill(trans, cause));
+   }
 };
 
 template<typename T>

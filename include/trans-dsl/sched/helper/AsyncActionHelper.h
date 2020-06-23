@@ -27,12 +27,12 @@ namespace details {
       }
 
       OVERRIDE(stop(TransactionContext & context, Status cause)->Status) {
-         action.kill(context, cause);
-         return Result::FORCE_STOPPED;
+         Status status = action.kill(context, cause);
+         return status == Result::SUCCESS ? Result::FORCE_STOPPED : Result::USER_FATAL_BUG;
       }
 
       OVERRIDE(kill(TransactionContext & context, Status cause)-> void) {
-         action.kill(context, cause);
+         (void) action.kill(context, cause);
       }
 
    private:

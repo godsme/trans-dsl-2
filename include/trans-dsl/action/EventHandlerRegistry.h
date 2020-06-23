@@ -24,7 +24,9 @@ struct EventHandlerRegistry {
 
    auto addHandler(EventId eventId, details::NormalFunction handler) -> Status;
    auto reset() -> void;
-
+   auto isWaiting() -> bool {
+      return handler != nullptr;
+   }
 private:
    details::NormalFunction handler;
    EventId eventId;

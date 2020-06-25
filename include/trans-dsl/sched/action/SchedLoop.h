@@ -21,7 +21,7 @@ struct SchedLoop
    SchedLoop();
 
    OVERRIDE(exec(TransactionContext& ) -> Status);
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status) -> Status);
    OVERRIDE(kill(TransactionContext&, Status) -> void);
 
@@ -30,7 +30,7 @@ private:
    auto execOne(TransactionContext& context, bool isPred) -> Status;
    auto execOnce(TransactionContext&) -> Status;
    auto looping(TransactionContext& context) -> Status;
-   auto handleEvent_(TransactionContext& context, const Event& event) -> Status;
+   auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
    auto checkActionStatus(ActionStatus status) -> Status;
 
 private:

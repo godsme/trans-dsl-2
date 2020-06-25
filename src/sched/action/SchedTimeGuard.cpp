@@ -61,7 +61,7 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::handleEvent_(TransactionContext& context, const Event& event) -> Status {
+auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    ActionStatus status = ROLE(SchedAction).handleEvent(context, event);
    if(status.isWorking()) {
       checkInternalError(context);
@@ -94,7 +94,7 @@ auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(!isStillWorking()) return FATAL_BUG;
 
    if(ROLE(RelativeTimer).matches(event)) {

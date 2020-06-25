@@ -7,7 +7,7 @@
 
 TSL_NS_BEGIN
 
-auto Transaction::startWithEvent(const Event& event) -> Status {
+auto Transaction::startWithEvent(Event const& event) -> Status {
    ActionStatus status = start();
    if(!status.isWorking()) {
       return status;

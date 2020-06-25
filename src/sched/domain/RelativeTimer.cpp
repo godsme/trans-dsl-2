@@ -13,7 +13,7 @@ RelativeTimer::RelativeTimer(TimerId timerId)
 {}
 
 /////////////////////////////////////////////////////////////////
-Status RelativeTimer::start(const TimerInfo& info) {
+Status RelativeTimer::start(TimerInfo const& info) {
    stop();
 
    TimeLength len = info.getTimeLength(timerId);
@@ -38,7 +38,7 @@ void RelativeTimer::stop() {
 }
 
 /////////////////////////////////////////////////////////////////
-bool RelativeTimer::matches(const ev::Event& event) const {
+bool RelativeTimer::matches(Event const& event) const {
    if(!started || !isTimerEvent(event)) return false;
    return matches_(event, timerId);
 }

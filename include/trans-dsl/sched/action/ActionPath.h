@@ -14,7 +14,7 @@ struct TransactionInfo;
 struct SchedAction;
 
 DEFINE_ROLE(ActionPath) {
-   ABSTRACT(shouldExecute(const TransactionInfo&) -> bool);
+   ABSTRACT(shouldExecute(TransactionInfo const&) -> bool);
    ABSTRACT(getAction() -> SchedAction&);
 };
 

@@ -11,7 +11,7 @@
 TSL_NS_BEGIN
 
 struct SchedSyncAction : SchedAction  {
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status) {
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status) {
       return Result::FATAL_BUG;
    }
    OVERRIDE(kill(TransactionContext&, Status) -> void) {}

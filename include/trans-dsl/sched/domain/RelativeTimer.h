@@ -21,20 +21,20 @@ DEFINE_ROLE(RelativeTimer)
 {
    explicit RelativeTimer(TimerId timerId);
 
-   Status start(const TimerInfo&);
+   Status start(TimerInfo const&);
    void stop();
 
-   bool matches(const Event& event) const;
+   bool matches(Event const& event) const;
 
 private:
    const TimerId timerId;
    bool started = false;
 
 private:
-   ABSTRACT(isTimerEvent(const Event&) const -> bool);
+   ABSTRACT(isTimerEvent(Event const&) const -> bool);
    ABSTRACT(startTimer_(TimerId, TimeLength timerLen) -> Status);
    ABSTRACT(stopTimer_(TimerId) -> void);
-   ABSTRACT(matches_(const Event&, TimerId) const -> bool);
+   ABSTRACT(matches_(Event const&, TimerId) const -> bool);
 };
 
 TSL_NS_END

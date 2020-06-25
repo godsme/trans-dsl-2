@@ -12,7 +12,7 @@ TSL_NS_BEGIN
 
 struct SchedSafe : SchedAction  {
    OVERRIDE(exec(TransactionContext& context) -> Status);
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(kill(TransactionContext&, Status) -> void);
    OVERRIDE(stop(TransactionContext&, Status) -> Status);
 

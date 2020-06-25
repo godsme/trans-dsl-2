@@ -19,11 +19,11 @@ template<typename T_REGISTRY>
 struct GenericSimpleAsyncAction {
    constexpr GenericSimpleAsyncAction() {}
 
-   auto handleEvent(const TransactionInfo& trans, const Event& event) -> Status {
+   auto handleEvent(TransactionInfo const& trans, Event const& event) -> Status {
       return registry.handleEvent(reinterpret_cast<details::DummyAsyncAction*>(this), trans, event);
    }
 
-   auto kill(const TransactionInfo& trans, Status cause) -> Status {
+   auto kill(TransactionInfo const& trans, Status cause) -> Status {
       if(registry.isWaiting()) {
          registry.reset();
          return Result::SUCCESS;
@@ -36,7 +36,7 @@ protected:
    auto waitOn(
       T* thisPointer,
       EventId eventId,
-      const P2MF<T>& handler
+      P2MF<T> const& handler
       ) -> Status
    {
       return registry.addHandler(eventId, extractP2MF(handler));
@@ -77,10 +77,10 @@ auto cls::handler__(const TransactionInfo& trans, const msgType& msg) -> Status
 
 #define DEF_INLINE_EVENT_HANDLER(handler, msgType)                         \
 private:                                                                   \
-auto handler(const TSL_NS::TransactionInfo& trans, const TSL_NS::Event& event) -> TSL_NS::Status { \
+auto handler(TSL_NS::TransactionInfo const& trans, TSL_NS::Event const& event) -> TSL_NS::Status { \
    return handler__(trans, *static_cast<const msgType*>(event.getMsg()));  \
 }                                                                          \
-auto handler__(const TSL_NS::TransactionInfo& trans, const msgType& msg) -> TSL_NS::Status
+auto handler__(TSL_NS::TransactionInfo const& trans, msgType const& msg) -> TSL_NS::Status
 
 TSL_NS_END
 

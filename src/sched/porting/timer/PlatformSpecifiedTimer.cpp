@@ -16,7 +16,7 @@ namespace
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool PlatformSpecifiedTimer::isTimerEvent(const ev::Event& event) const
+bool PlatformSpecifiedTimer::isTimerEvent(Event const& event) const
 {
    return event.getEventId() >= TIMER_EVENT_START && event.getEventId() < TIMER_EVENT_END;
 }
@@ -33,7 +33,7 @@ void PlatformSpecifiedTimer::stopTimer_(const TimerId)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool PlatformSpecifiedTimer::matches_(const Event& event, const TimerId timerId) const
+bool PlatformSpecifiedTimer::matches_(Event const& event, TimerId timerId) const
 {
    return timerId + TIMER_EVENT_START == event.getEventId();
 }

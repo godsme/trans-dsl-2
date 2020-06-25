@@ -66,16 +66,16 @@ namespace details {
 
    /////////////////////////////////////////////////////////////////////
 
-   inline auto IsFailed__(const TransactionInfo& info) -> bool {
+   inline auto IsFailed__(TransactionInfo const& info) -> bool {
       return ActionStatus(info.getStatus()).isFailed();
    }
 
-   inline auto IsSucc__(const TransactionInfo& info) -> bool {
+   inline auto IsSucc__(TransactionInfo const& info) -> bool {
       return ActionStatus(info.getStatus()).isDone();
    }
 
    template<Status V_STATUS>
-   inline auto IsStatus__(const TransactionInfo& info) -> bool {
+   inline auto IsStatus__(TransactionInfo const& info) -> bool {
       return info.getStatus() == V_STATUS;
    }
 

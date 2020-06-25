@@ -10,7 +10,7 @@ EventHandlerRegistry::EventHandlerRegistry() {
    reset();
 }
 
-auto EventHandlerRegistry::handleEvent(details::DummyAsyncAction* this__, const TransactionInfo& trans, const Event& event) -> Status {
+auto EventHandlerRegistry::handleEvent(details::DummyAsyncAction* this__, TransactionInfo const& trans, Event const& event) -> Status {
    if(this->handler == nullptr) {
       return USER_FATAL_BUG;
    }

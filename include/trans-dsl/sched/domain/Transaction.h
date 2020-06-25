@@ -13,11 +13,11 @@ TSL_NS_BEGIN
 
 DEFINE_ROLE(Transaction) {
   ABSTRACT(start() -> Status);
-  ABSTRACT(handleEvent(const Event&) -> Status);
+  ABSTRACT(handleEvent(Event const&) -> Status);
   ABSTRACT(stop(Status = Result::FORCE_STOPPED) -> Status);
   ABSTRACT(kill(Status = Result::FORCE_STOPPED) -> void);
 
-  auto startWithEvent(const Event&) -> Status;
+  auto startWithEvent(Event const&) -> Status;
 };
 
 TSL_NS_END

@@ -24,7 +24,7 @@ auto SchedSwitchCase::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSwitchCase::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedSwitchCase::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(action == nullptr) return FATAL_BUG;
    return action->handleEvent(context, event);
 }

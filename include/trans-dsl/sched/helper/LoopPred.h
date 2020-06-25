@@ -25,7 +25,7 @@ namespace details {
    template<typename T, Status V_RESULT, size_t V_SIZE>
    struct LoopPredClassPred<T, V_RESULT, V_SIZE, CUB_NS::IsClass<T>>
       : LoopPredBase<V_RESULT> {
-      auto operator()(const TransactionInfo& context) -> bool {
+      auto operator()(TransactionInfo const& context) -> bool {
          return pred(context);
       }
 
@@ -36,14 +36,14 @@ namespace details {
    template<typename T, Status V_RESULT>
    struct LoopPredClassPred<T, V_RESULT, 1, CUB_NS::IsClass<T>>
       : LoopPredBase<V_RESULT> {
-      auto operator()(const TransactionInfo& context) -> bool {
+      auto operator()(TransactionInfo const& context) -> bool {
          return T{}(context);
       }
    };
 
    template<PredFunction V_FUNC, Status V_RESULT>
    struct LoopPredFuncPred : LoopPredBase<V_RESULT> {
-      auto operator()(const TransactionInfo& context) -> bool {
+      auto operator()(TransactionInfo const& context) -> bool {
          return V_FUNC(context);
       }
    };

@@ -15,7 +15,7 @@ struct TransactionContext;
 
 DEFINE_ROLE(SchedAction)  {
    ABSTRACT(exec(TransactionContext&)                      -> Status);
-   ABSTRACT(handleEvent(TransactionContext&, const Event&) -> Status);
+   ABSTRACT(handleEvent(TransactionContext&, Event const&) -> Status);
    ABSTRACT(stop(TransactionContext&, Status cause)        -> Status);
    ABSTRACT(kill(TransactionContext&, Status cause)        -> void);
 };

@@ -15,14 +15,14 @@ struct TransactionInfo;
 struct DummyAsyncAction;
 
 template<typename T>
-using P2MF = Status (T::*)(const TransactionInfo&, const Event&);
+using P2MF = Status (T::*)(TransactionInfo const&, Event const&);
 
 template<typename T>
-inline details::NormalFunction extractP2MF(const P2MF<T>& p) {
+inline details::NormalFunction extractP2MF(P2MF<T> const& p) {
    // the size of a pointer-to-mem-function is double as normal one.
    // 'coz it has to store offset of `this` pointer when multi-inheritance.
    union U{
-      U(const P2MF<T>& v) : f(v) {}
+      U(P2MF<T> const& v) : f(v) {}
 
       P2MF<T> f;
       unsigned long ll[2];

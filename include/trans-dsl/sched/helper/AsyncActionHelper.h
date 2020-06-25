@@ -14,6 +14,7 @@
 TSL_NS_BEGIN
 
 namespace details {
+
    template<typename T VOID_CONCEPT> struct Async;
 
    template<CONCEPT_C(ActionConcept, T_ACTION)>
@@ -22,7 +23,7 @@ namespace details {
          return action.exec(context);
       }
 
-      OVERRIDE(handleEvent(TransactionContext & context, const Event &event) -> Status) {
+      OVERRIDE(handleEvent(TransactionContext & context, Event const& event) -> Status) {
          return action.handleEvent(context, event);
       }
 

@@ -28,7 +28,7 @@ namespace details {
       T_ACTION
       ENABLE_C(SchedActionConcept, T_ACTION)> {
       struct Inner : ActionPath {
-         OVERRIDE(shouldExecute(const TransactionInfo& trans) -> bool) {
+         OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
             auto pred = new (cache) T_PRED;
             return (*pred)(trans);
          }
@@ -47,7 +47,7 @@ namespace details {
    template<PredFunction V_PRED, typename T_ACTION>
    struct GenericActionPathFunc {
       struct Inner : ActionPath {
-         OVERRIDE(shouldExecute(const TransactionInfo& trans) -> bool) {
+         OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
             return V_PRED(trans);
          }
 

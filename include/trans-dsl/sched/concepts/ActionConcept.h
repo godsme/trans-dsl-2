@@ -34,7 +34,7 @@ concept ActionConcept = requires
 
 struct ActionTypeClass {
    template<typename T>
-   __DEF_TYPE_CLASS(T action, const TransactionInfo& trans, const Event& event, Status cause) {
+   __DEF_TYPE_CLASS(T action, TransactionInfo const& trans, Event const& event, Status cause) {
       __METHOD(Status, action.exec(trans));
       __METHOD(Status, action.handleEvent(trans, event));
       __METHOD(Status, action.kill(trans, cause));

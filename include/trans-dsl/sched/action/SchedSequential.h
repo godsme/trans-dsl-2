@@ -14,14 +14,14 @@ TSL_NS_BEGIN
 // 24 bytes
 struct SchedSequential : SchedAction {
    OVERRIDE(exec(TransactionContext&)                      -> Status);
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
    OVERRIDE(kill(TransactionContext&, Status cause)        -> void);
 
 private:
    auto forward(TransactionContext&) -> Status;
    auto getFinalStatus(ActionStatus status) -> Status;
-   auto handleEvent_(TransactionContext& context, const Event& event) -> Status;
+   auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
 
 private:
    SchedAction* current = nullptr;

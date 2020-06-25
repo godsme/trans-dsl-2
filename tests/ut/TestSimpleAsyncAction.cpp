@@ -13,11 +13,9 @@ namespace {
    const Msg1 msg1{10, 20};
    const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
-
    SCENARIO("SimpleAsyncAction") {
       AsyncAction1 action;
       StupidTransactionContext context{};
-
 
       GIVEN("exec has not been invoked") {
          WHEN("event1 is received, should return USER_FATAL_BUG") {

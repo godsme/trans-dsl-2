@@ -14,7 +14,7 @@ namespace
    DEF_SINGLETON(NilEventInfo, EventInfo) {
       NilEventInfo() : EventInfo(INVALID_EVENT_ID) {}
 
-      OVERRIDE(getMsg() const -> const void*) {
+      OVERRIDE(getMsg() const -> void const*) {
          return 0;
       }
 

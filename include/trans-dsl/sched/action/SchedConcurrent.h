@@ -16,7 +16,7 @@ struct SchedConcurrent
    , SchedAction  {
 
    OVERRIDE(exec(TransactionContext&)                      -> Status);
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause)        -> Status);
    OVERRIDE(kill(TransactionContext&, Status cause)        -> void);
 
@@ -24,8 +24,8 @@ private:
    auto startUp(TransactionContext&) -> Status;
    auto hasWorkingChildren(SeqInt from) const;
    auto cleanUp(TransactionContext& context, Status failStatus) -> Status;
-   auto handleEvent_(TransactionContext&, const Event&) -> Status;
-   auto handleEvent__(TransactionContext& context, const Event& event) -> void;
+   auto handleEvent_(TransactionContext&, Event const&) -> Status;
+   auto handleEvent__(TransactionContext& context, Event const& event) -> void;
    auto hasReportedError() const -> bool;
    auto notWorking() -> bool;
 

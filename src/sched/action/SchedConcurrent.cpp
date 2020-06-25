@@ -105,7 +105,7 @@ inline auto SchedConcurrent::hasReportedError() const -> bool {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedConcurrent::handleEvent__(TransactionContext& context, const Event& event) -> void {
+auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& event) -> void {
    bool hasWorkingAction = false;
    SeqInt i = 0;
    for(; i < total; ++i) {
@@ -144,7 +144,7 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedConcurrent::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(notWorking()) return Result::FATAL_BUG;
 
    AUTO_SWITCH();

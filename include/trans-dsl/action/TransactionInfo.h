@@ -28,9 +28,9 @@ protected:
    TransactionInfo() = default;
 
 private:
-   TransactionInfo(const TransactionInfo&) = delete;
+   TransactionInfo(TransactionInfo const&) = delete;
    TransactionInfo(TransactionInfo&&) = delete;
-   TransactionInfo& operator=(const TransactionInfo&) = delete;
+   TransactionInfo& operator=(TransactionInfo const&) = delete;
    TransactionInfo& operator=(TransactionInfo&&) = delete;
 
 protected:

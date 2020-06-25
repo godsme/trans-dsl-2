@@ -22,7 +22,7 @@ namespace details {
 
    template<typename T_PRED>
    struct ClassNot__<T_PRED, TypeSize<sizeof(T_PRED)>, CUB_NS::IsClass<T_PRED>> {
-      bool operator()(const TransactionInfo& context) {
+      bool operator()(TransactionInfo const& context) {
          return !pred(context);
       }
 
@@ -32,14 +32,14 @@ namespace details {
 
    template<typename T_PRED>
    struct ClassNot__<T_PRED, TypeSize<1>, CUB_NS::IsClass<T_PRED>> {
-      bool operator()(const TransactionInfo& context) {
+      bool operator()(TransactionInfo const& context) {
          return !T_PRED{}(context);
       }
    };
 
    template<PredFunction V_FUNC>
    struct FuncNot__ {
-      bool operator()(const TransactionInfo& context) {
+      bool operator()(TransactionInfo const& context) {
          return !V_FUNC(context);
       }
    };

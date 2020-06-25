@@ -19,7 +19,7 @@ struct RuntimeContextInfo {
       currentRuntimeContext = &runtimeContext;
    }
 
-   auto reportFailure(const Status status) -> void {
+   auto reportFailure(Status status) -> void {
       currentRuntimeContext->reportFailure(status);
    }
 

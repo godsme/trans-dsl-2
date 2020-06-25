@@ -19,8 +19,8 @@ struct EventHandlerRegistry {
 
    auto handleEvent(
       details::DummyAsyncAction* this__,
-      const TransactionInfo& trans,
-      const Event& event) -> Status;
+      TransactionInfo const& trans,
+      Event const& event) -> Status;
 
    auto addHandler(EventId eventId, details::NormalFunction handler) -> Status;
    auto reset() -> void;

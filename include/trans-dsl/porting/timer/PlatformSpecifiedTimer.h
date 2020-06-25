@@ -13,10 +13,10 @@ struct PlatformSpecifiedTimer : RelativeTimer
 {
    using RelativeTimer::RelativeTimer;
 
-   OVERRIDE(isTimerEvent(const Event&) const -> bool);
+   OVERRIDE(isTimerEvent(Event const&) const -> bool);
    OVERRIDE(startTimer_(TimerId, TimeLength timerLen) -> Status);
    OVERRIDE(stopTimer_(TimerId) -> void);
-   OVERRIDE(matches_(const Event&, TimerId) const -> bool);
+   OVERRIDE(matches_(Event const&, TimerId) const -> bool);
 };
 
 TSL_NS_END

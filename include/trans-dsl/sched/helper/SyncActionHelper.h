@@ -39,7 +39,7 @@ namespace details {
    };
 
    /////////////////////////////////////////////////////////////////////////
-   using SyncActionFunc = Status (*)(const TransactionInfo &);
+   using SyncActionFunc = Status (*)(TransactionInfo const&);
 
    template<SyncActionFunc V_ACTION>
    struct CallAction : SchedSyncAction {

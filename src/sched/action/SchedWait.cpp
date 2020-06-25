@@ -13,7 +13,7 @@ auto SchedWait::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedWait::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(event.matches(getEventId()))
    {
       if(isWait()) event.consume();

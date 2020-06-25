@@ -36,7 +36,7 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::handleEvent_(TransactionContext& context, const Event& event) -> Status {
+auto SchedSequential::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    if(current == nullptr) {
       return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
@@ -55,7 +55,7 @@ auto SchedSequential::handleEvent_(TransactionContext& context, const Event& eve
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
    return getFinalStatus(handleEvent_(context, event));
 }
 

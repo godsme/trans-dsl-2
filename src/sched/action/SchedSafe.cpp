@@ -16,7 +16,7 @@ auto SchedSafe::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSafe::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedSafe::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(state != State::WORKING) return FATAL_BUG;
    ActionStatus status = ROLE(SchedAction).handleEvent(context, event);
    if(status.isWorking()) {

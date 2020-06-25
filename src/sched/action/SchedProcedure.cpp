@@ -21,7 +21,7 @@ DEFINE_ROLE(SchedProcedure::State) {
       return Result::FATAL_BUG;
    }
 
-   DEFAULT(handleEvent(SchedProcedure&, TransactionContext&, const Event&) -> Status) {
+   DEFAULT(handleEvent(SchedProcedure&, TransactionContext&, Event const&) -> Status) {
       return Result::FATAL_BUG;
    }
 
@@ -65,7 +65,7 @@ DEF_STATE(Idle)  {
 };
 
 DEF_STATE(Working) {
-   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, Event const& event) -> Status) {
       ActionStatus status = this_.action->handleEvent(context, event);
       if(status.isWorking()) {
          return workingStateCheck(this_, context, status);
@@ -91,7 +91,7 @@ private:
 };
 
 DEF_STATE(Stopping) {
-   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, Event const& event) -> Status) {
       ActionStatus status = this_.action->handleEvent(context, event);
       if(status.isWorking()) {
          return status;
@@ -123,7 +123,7 @@ DEF_STATE(Final) {
       return this_.gotoState<Done>(context, status);
    }
 
-   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, const Event& event) -> Status) {
+   OVERRIDE(handleEvent(SchedProcedure& this_, TransactionContext& context, Event const& event) -> Status) {
       ActionStatus status = this_.action->handleEvent(context, event);
       if(status.isWorking()) {
          return status;
@@ -173,7 +173,7 @@ auto SchedProcedure::exec(TransactionContext& context) -> Status {
    return exec_(context);
 }
 
-auto SchedProcedure::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedProcedure::handleEvent(TransactionContext& context, Event const& event) -> Status {
    AUTO_SWITCH();
    return state->handleEvent(*this, context, event);
 }

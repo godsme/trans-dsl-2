@@ -13,13 +13,13 @@ struct RelativeTimer;
 
 struct SchedTimeGuard : SchedAction {
    OVERRIDE(exec(TransactionContext&)  -> Status);
-   OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status);
+   OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status cause) -> Status);
    OVERRIDE(kill(TransactionContext&, Status cause) -> void);
 
 private:
    auto isStillWorking() const -> bool;
-   auto handleEvent_(TransactionContext &, const Event &) -> Status;
+   auto handleEvent_(TransactionContext &, Event const&) -> Status;
    auto stop_(TransactionContext&, Status cause)  -> Status;
    auto checkInternalError(TransactionContext& context) -> void;
    auto startTimer(TransactionContext& context) -> Status;

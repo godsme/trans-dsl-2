@@ -105,7 +105,7 @@ auto SchedLoop::exec(TransactionContext& context) -> Status {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-auto SchedLoop::handleEvent_(TransactionContext& context, const Event& event) -> Status {
+auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    ActionStatus status = action->handleEvent(context, event);
    if (status.isWorking() || stopping) {
       return status;
@@ -118,7 +118,7 @@ auto SchedLoop::handleEvent_(TransactionContext& context, const Event& event) ->
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
-auto SchedLoop::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedLoop::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if (action == nullptr) {
       return Result::FATAL_BUG;
    }

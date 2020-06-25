@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 namespace details {
 
    struct LoopPredActionBase : SchedAction {
-      OVERRIDE(handleEvent(TransactionContext&, const Event&) -> Status) {
+      OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status) {
          return Result::FATAL_BUG;
       }
       OVERRIDE(stop(TransactionContext&, Status) -> Status) {

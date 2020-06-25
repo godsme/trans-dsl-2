@@ -12,7 +12,7 @@
 
 
 #define SIMPLE_EVENT(n) \
-const EV_NS::SimpleEventInfo se_## n{n}
+EV_NS::SimpleEventInfo const se_## n{n}
 
 SIMPLE_EVENT(1);
 SIMPLE_EVENT(2);

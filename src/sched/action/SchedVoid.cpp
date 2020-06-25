@@ -34,7 +34,7 @@ auto SchedVoid::exec(TransactionContext& context) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedVoid::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedVoid::handleEvent(TransactionContext& context, Event const& event) -> Status {
    __CALL(handleEvent(context, event));
 }
 

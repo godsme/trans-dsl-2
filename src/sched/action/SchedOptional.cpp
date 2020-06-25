@@ -18,7 +18,7 @@ auto SchedOptional::exec(TransactionContext& context) -> Status {
    return Result::SUCCESS;
 }
 
-auto SchedOptional::handleEvent(TransactionContext& context, const Event& event) -> Status {
+auto SchedOptional::handleEvent(TransactionContext& context, Event const& event) -> Status {
    return action == nullptr ? Result::FATAL_BUG : action->handleEvent(context, event);
 }
 

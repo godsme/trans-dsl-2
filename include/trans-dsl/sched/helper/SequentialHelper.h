@@ -47,30 +47,32 @@ namespace details {
          return NUM_OF_ACTIONS;
       }
 
-#define GeT_AcToOn__(n) case n: return get<n>()
+#define GeT_AcTiOn__(n) case n: return get<n>()
 
       OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
+         // switch-case would generate jump table,
+         // performance would be better than recursion.
          switch (index) {
-            GeT_AcToOn__(0);
-            GeT_AcToOn__(1);
-            GeT_AcToOn__(2);
-            GeT_AcToOn__(3);
-            GeT_AcToOn__(4);
-            GeT_AcToOn__(5);
-            GeT_AcToOn__(6);
-            GeT_AcToOn__(7);
-            GeT_AcToOn__(8);
-            GeT_AcToOn__(9);
-            GeT_AcToOn__(10);
-            GeT_AcToOn__(11);
-            GeT_AcToOn__(12);
-            GeT_AcToOn__(13);
-            GeT_AcToOn__(14);
-            GeT_AcToOn__(15);
-            GeT_AcToOn__(16);
-            GeT_AcToOn__(17);
-            GeT_AcToOn__(18);
-            GeT_AcToOn__(19);
+            GeT_AcTiOn__(0);
+            GeT_AcTiOn__(1);
+            GeT_AcTiOn__(2);
+            GeT_AcTiOn__(3);
+            GeT_AcTiOn__(4);
+            GeT_AcTiOn__(5);
+            GeT_AcTiOn__(6);
+            GeT_AcTiOn__(7);
+            GeT_AcTiOn__(8);
+            GeT_AcTiOn__(9);
+            GeT_AcTiOn__(10);
+            GeT_AcTiOn__(11);
+            GeT_AcTiOn__(12);
+            GeT_AcTiOn__(13);
+            GeT_AcTiOn__(14);
+            GeT_AcTiOn__(15);
+            GeT_AcTiOn__(16);
+            GeT_AcTiOn__(17);
+            GeT_AcTiOn__(18);
+            GeT_AcTiOn__(19);
             default:
                return nullptr;
          }

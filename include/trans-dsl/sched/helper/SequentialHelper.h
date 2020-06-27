@@ -9,81 +9,76 @@
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
-#include <cstddef>
-#include <algorithm>
+#include <trans-dsl/sched/helper/MaxSizeCalc.h>
+#include <trans-dsl/sched/helper/TypeExtractor.h>
 
 TSL_NS_BEGIN
 
 struct SchedAction;
 
 namespace details {
-   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ VOID_CONCEPT, typename ... T_ACTIONS>
-   struct GenericSequential;
-
-   template<
-      size_t T_SIZE,
-      size_t T_ALIGN,
-      SeqInt T_SEQ,
-      typename T_HEAD,
-      typename ... T_TAIL>
-   struct GenericSequential<
-      T_SIZE,
-      T_ALIGN,
-      T_SEQ ENABLE_C(SchedActionConcept, T_HEAD),
-      T_HEAD,
-      T_TAIL...> {
-      using Action = T_HEAD;
-      using Next =
-      typename GenericSequential<
-         std::max(T_SIZE, sizeof(Action)),
-         std::max(T_ALIGN, alignof(Action)),
-         T_SEQ + 1 VOID_PLACEHOLDER,
-         T_TAIL...>::Inner;
-
-      struct Inner : Next {
-         using Next::cache;
-
-         auto get(SeqInt seq) -> SchedAction * {
-            return seq == T_SEQ ? new(cache) Action : Next::get(seq);
-         }
-      };
-   };
-
-   template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ>
-   struct GenericSequential<T_SIZE, T_ALIGN, T_SEQ> {
-      struct Inner {
-         auto get(SeqInt seq) -> SchedAction * {
-            return nullptr;
-         }
-
-      protected:
-         alignas(T_ALIGN) char cache[T_SIZE];
-      };
-   };
-
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   struct Sequential {
+   struct Sequential : SchedSequential {
+   private:
       enum { NUM_OF_ACTIONS = sizeof...(T_ACTIONS) };
       static_assert(NUM_OF_ACTIONS >= 2, "__sequential must contain at least 2 actions");
-      static_assert(NUM_OF_ACTIONS <= std::numeric_limits<SeqInt>::max(), "too many actions in a __sequential");
+      static_assert(NUM_OF_ACTIONS <= 20, "too many actions in a __sequential");
 
-      using Actions = typename GenericSequential<0, 0, 0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
-
-      struct Inner : SchedSequential, private Actions {
-      private:
-         OVERRIDE(getNumOfActions()->SeqInt) {
-            return NUM_OF_ACTIONS;
-         }
-
-         OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
-            return Actions::get(index);
-         }
+   private:
+      enum {
+         SIZE  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) ),
+         ALIGN = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) )
       };
+
+      alignas(ALIGN) char cache[SIZE];
+
+      template <size_t N>
+      auto get() -> SchedAction* {
+         if constexpr(N < sizeof...(T_ACTIONS)) {
+            using Action = typename TypeExtractor<N, T_ACTIONS...>::type;
+            return new (cache) Action;
+         } else {
+            return nullptr;
+         }
+      }
+
+   private:
+      OVERRIDE(getNumOfActions()->SeqInt) {
+         return NUM_OF_ACTIONS;
+      }
+
+#define GeT_AcToOn__(n) case n: return get<n>()
+
+      OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
+         switch (index) {
+            GeT_AcToOn__(0);
+            GeT_AcToOn__(1);
+            GeT_AcToOn__(2);
+            GeT_AcToOn__(3);
+            GeT_AcToOn__(4);
+            GeT_AcToOn__(5);
+            GeT_AcToOn__(6);
+            GeT_AcToOn__(7);
+            GeT_AcToOn__(8);
+            GeT_AcToOn__(9);
+            GeT_AcToOn__(10);
+            GeT_AcToOn__(11);
+            GeT_AcToOn__(12);
+            GeT_AcToOn__(13);
+            GeT_AcToOn__(14);
+            GeT_AcToOn__(15);
+            GeT_AcToOn__(16);
+            GeT_AcToOn__(17);
+            GeT_AcToOn__(18);
+            GeT_AcToOn__(19);
+            default:
+               return nullptr;
+         }
+      }
    };
 }
 
-
-#define __sequential(...) typename TSL_NS::details::Sequential<__VA_ARGS__>::Inner
+#define __sequential(...) TSL_NS::details::Sequential<__VA_ARGS__>
 
 TSL_NS_END
 

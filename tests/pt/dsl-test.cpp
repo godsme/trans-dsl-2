@@ -43,16 +43,26 @@ namespace {
 
       auto runSequential = [&] {
          Proc proc;
-         REQUIRE(Result::CONTINUE == proc.exec(context));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_1}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_2}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_3}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_4}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_5}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_6}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_7}));
-         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_8}));
-         REQUIRE(Result::SUCCESS  ==  proc.handleEvent(context, Event{se_9}));
+         proc.exec(context);
+         proc.handleEvent(context, Event{se_1});
+         proc.handleEvent(context, Event{se_2});
+         proc.handleEvent(context, Event{se_3});
+         proc.handleEvent(context, Event{se_4});
+         proc.handleEvent(context, Event{se_5});
+         proc.handleEvent(context, Event{se_6});
+         proc.handleEvent(context, Event{se_7});
+         proc.handleEvent(context, Event{se_8});
+         proc.handleEvent(context, Event{se_9});
+//         REQUIRE(Result::CONTINUE == proc.exec(context));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_1}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_2}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_3}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_4}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_5}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_6}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_7}));
+//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_8}));
+//         REQUIRE(Result::SUCCESS  ==  proc.handleEvent(context, Event{se_9}));
       };
 
       SECTION("test") {

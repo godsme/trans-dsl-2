@@ -199,7 +199,7 @@ namespace {
       }
 
       SECTION("performance") {
-         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
+         ankerl::nanobench::Bench().minEpochIterations(1322).epochs(1000).run("run-concurrent", [&] {
             runSequential();
          });
       }

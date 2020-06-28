@@ -272,7 +272,7 @@ auto SchedProcedure::inProgress() const -> bool {
 auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    ActionStatus status = action->handleEvent(context, event);
    if(status.isWorking()) {
-      if(state == State::Working && status == Result::CONTINUE) {
+      if(status == Result::CONTINUE && state == State::Working) {
          return workingStateCheck();
       }
       return status;
@@ -289,6 +289,7 @@ auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& even
    }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(!inProgress()) {
       return Result::FATAL_BUG;
@@ -298,6 +299,7 @@ auto SchedProcedure::handleEvent(TransactionContext& context, Event const& event
    return handleEvent_(context, event);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::stop_(TransactionContext& context, Status cause) -> Status {
    ActionStatus status = action->stop(context, cause);
    if(status.isWorking()) {
@@ -308,6 +310,7 @@ auto SchedProcedure::stop_(TransactionContext& context, Status cause) -> Status 
    return gotoFinal(context, status);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
       case State::Stopping:
@@ -323,6 +326,7 @@ auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
    return stop_(context, cause);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
    if(inProgress()) {
       AUTO_SWITCH();

@@ -12,7 +12,8 @@
 
 TSL_NS_BEGIN
 
-#if 0
+#if USING_SM_PATTERN
+
 DEFINE_ROLE(SchedProcedure::State) {
    DEFAULT(enter(SchedProcedure&, TransactionContext&, ActionStatus status) -> Status) {
       return status;
@@ -188,7 +189,8 @@ auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
    AUTO_SWITCH();
    state->kill(*this, context, cause);
 }
-#endif
+
+#else
 
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
 
@@ -335,5 +337,7 @@ auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
       state = State::Done;
    }
 }
+
+#endif
 
 TSL_NS_END

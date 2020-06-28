@@ -12,6 +12,8 @@ TSL_NS_BEGIN
 
 struct TransactionContext;
 
+#define USING_SM_PATTERN 0
+
 // 40 bytes
 struct SchedProcedure
    : private RuntimeContext
@@ -24,6 +26,8 @@ struct SchedProcedure
 
 private:
    auto exec_(TransactionContext&) -> Status;
+
+#if !USING_SM_PATTERN
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
    auto stop_(TransactionContext& context, Status cause) -> Status;
    auto workingStateCheck() -> Status;
@@ -31,11 +35,22 @@ private:
    auto gotoFinal(TransactionContext& context, ActionStatus status) -> Status;
    auto gotoDone(TransactionContext& context, ActionStatus status) -> Status;
    auto inProgress() const -> bool;
+#endif
 
 private:
-//   struct State;
-//   State* state = nullptr;
+
    SchedAction* action = nullptr;
+
+#if USING_SM_PATTERN
+   struct State;
+   State* state = nullptr;
+
+   struct Idle;
+   struct Working;
+   struct Stopping;
+   struct Final;
+   struct Done;
+#else
    enum class State : uint8_t {
       Idle,
       Working,
@@ -44,13 +59,7 @@ private:
       Done
    };
    State state = State::Idle;
-
-private:
-   struct Idle;
-   struct Working;
-   struct Stopping;
-   struct Final;
-   struct Done;
+#endif
 
 private:
    template<typename T>

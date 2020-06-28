@@ -66,3 +66,25 @@
 2.0:
   ``1871 ns``
 
+如果我们将之前的顺序过程和并发过程混合在一起：
+
+.. code-block:: c++
+
+   using Proc = __procedure
+      ( __sequential
+           ( __wait(1)
+           , __wait(2)
+           , __wait(3)
+           , __wait(4)
+           , __wait(5)
+           , __wait(6)
+           , Concurrent2),
+        __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+      );
+
+1.x:
+  ``11214 ns``
+
+2.0:
+  ``3175 ns``
+

@@ -71,10 +71,10 @@
    using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2);
 
 1.x:
-  ``sizeof(a) = 480``
+  ``sizeof(Concurrent) = 480``
 
 2.0:
-  ``sizeof(a) = 160``
+  ``sizeof(Concurrent) = 160``
 
 
 如果我们再增加一个并发。
@@ -86,10 +86,33 @@
          __wait(3),
          __finally(__asyn(AsyncAction4)));
 
-   using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+   using Concurrent2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 
 1.x:
-  ``sizeof(a) = 688``
+  ``sizeof(Concurrent2) = 688``
 
 2.0:
-  ``sizeof(a) = 224``
+  ``sizeof(Concurrent2) = 224``
+
+
+如果我们将之前的顺序过程和并发过程混合在一起：
+
+.. code-block:: c++
+
+   using Proc = __procedure
+      ( __sequential
+          ( __wait(1)
+          , __wait(2)
+          , __wait(3)
+          , __wait(4)
+          , __wait(5)
+          , __wait(6)
+          , Concurrent2),
+        __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+      );
+
+1.x:
+  ``sizeof(Proc) = 1144``
+
+2.0:
+  ``sizeof(Proc) = 288``

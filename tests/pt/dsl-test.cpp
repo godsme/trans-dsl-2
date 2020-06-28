@@ -130,4 +130,78 @@ namespace {
          });
       }
    };
+
+   TEST_CASE("complex") {
+      StupidTransactionContext context;
+
+      using ProcedureAction1 =
+      __procedure(
+         __wait(1),
+         __finally(__asyn(AsyncAction2)));
+
+      using ProcedureAction2 =
+      __procedure(
+         __wait(2),
+         __finally(__asyn(AsyncAction1)));
+
+      using ProcedureAction3 =
+      __procedure(
+         __wait(3),
+         __finally(__asyn(AsyncAction4)));
+
+      using Concurrent2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+
+      using Proc = __procedure
+      ( __sequential
+           ( __wait(1)
+              , __wait(2)
+              , __wait(3)
+              , __wait(4)
+              , __wait(5)
+              , __wait(6)
+              , Concurrent2),
+        __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+      );
+
+      const Msg1 msg1{ 10, 20 };
+      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+
+      const Msg2 msg2{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+
+      const Msg4 msg4{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo4{EV_MSG_4, msg4};
+
+      auto runSequential = [&] {
+         Proc proc;
+         assert(Result::CONTINUE == proc.exec(context));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_1}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_2}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_3}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_4}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_5}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_6}));
+
+         assert(Result::CONTINUE == proc.handleEvent(context, se_1));
+         assert(Result::CONTINUE == proc.handleEvent(context, se_2));
+         assert(Result::CONTINUE == proc.handleEvent(context, se_3));
+         assert(Result::CONTINUE == proc.handleEvent(context, eventInfo1));
+         assert(Result::CONTINUE == proc.handleEvent(context, eventInfo4));
+         assert(Result::CONTINUE == proc.handleEvent(context, eventInfo2));
+
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_7}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_8}));
+         assert(Result::SUCCESS == proc.handleEvent(context, Event{se_9}));
+      };
+
+      SECTION("size") {
+         std::cout << sizeof(Proc) << std::endl;
+      }
+
+      SECTION("performance") {
+         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
+            runSequential();
+         });
+      }
+   }
 }

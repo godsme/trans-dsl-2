@@ -3,7 +3,6 @@
 //
 
 #if ENABLE_LOOP_CODE_GEN
-#define Loop_GeT_AcTiOn__(n) case n: return get<n>(isAction)
 
 template<SeqInt MAX_N>
 auto get_(SeqInt seq, bool& isAction) -> SchedAction* {

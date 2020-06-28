@@ -153,7 +153,9 @@ namespace details {
          }
       }
 
-#define ENABLE_LOOP_CODE_GEN 1
+#define Loop_GeT_AcTiOn__(n) case n: return get<n>(isAction)
+
+#define ENABLE_LOOP_CODE_GEN 0
 #include <trans-dsl/sched/helper/LoopCodeGen.h>
 
    public:
@@ -162,7 +164,34 @@ namespace details {
       }
 
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
+#if ENABLE_LOOP_CODE_GEN
          return get_<Num_Of_Actions>(seq, isAction);
+#else
+         switch (seq) {
+            Loop_GeT_AcTiOn__(0);
+            Loop_GeT_AcTiOn__(1);
+            Loop_GeT_AcTiOn__(2);
+            Loop_GeT_AcTiOn__(3);
+            Loop_GeT_AcTiOn__(4);
+            Loop_GeT_AcTiOn__(5);
+            Loop_GeT_AcTiOn__(6);
+            Loop_GeT_AcTiOn__(7);
+            Loop_GeT_AcTiOn__(8);
+            Loop_GeT_AcTiOn__(9);
+            Loop_GeT_AcTiOn__(10);
+            Loop_GeT_AcTiOn__(11);
+            Loop_GeT_AcTiOn__(12);
+            Loop_GeT_AcTiOn__(13);
+            Loop_GeT_AcTiOn__(14);
+            Loop_GeT_AcTiOn__(15);
+            Loop_GeT_AcTiOn__(16);
+            Loop_GeT_AcTiOn__(17);
+            Loop_GeT_AcTiOn__(18);
+            Loop_GeT_AcTiOn__(19);
+            default:
+               return nullptr;
+         }
+#endif
       }
    };
 }

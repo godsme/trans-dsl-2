@@ -20,7 +20,7 @@ namespace details {
       size_t size = 0;
    };
 
-   consteval MaxSizeCalc operator<<(MaxSizeCalc calc, size_t size) {
+   constexpr MaxSizeCalc operator<<(MaxSizeCalc calc, size_t size) {
       return std::max(calc.size, size);
    }
 }

@@ -146,8 +146,7 @@ namespace details {
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
-            using Action = TypeExtractor_t<N, LoopElem, T_ACTIONS...>;
-            return Action::get(cache, isAction);
+            return TypeExtractor_t<N, LoopElem, T_ACTIONS...>::get(cache, isAction);
          } else {
             return nullptr;
          }

@@ -25,7 +25,6 @@ namespace details {
 
    ///////////////////////////////////////////////////////////////
    template<
-      template<typename T> typename T_TRAITS,
       typename T_HEAD,
       typename ... T_TAIL>
    struct GenericLoopPred : GenericLoop_< VOID_PLACEHOLDER_2 T_TAIL...> {
@@ -35,8 +34,7 @@ namespace details {
       }
 
    private:
-      using Pred = typename T_TRAITS<T_HEAD>::Action;
-      Pred pred;
+      GenericLoopAction<T_HEAD> pred;
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +74,7 @@ namespace details {
       ENABLE_C_2(NonEmptyLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopPred<LoopPredTraits, T_HEAD, T_TAIL...>
+      : GenericLoopPred<T_HEAD, T_TAIL...>
    {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -123,8 +121,9 @@ namespace details {
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
    struct Loop : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
    private:
-      static_assert(sizeof...(T_ACTIONS) > 0, "loop cannot be empty");
-      static_assert(sizeof...(T_ACTIONS) <= 20, "too many actions in a loop");
+      enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
+      static_assert(Num_Of_Actions > 0, "loop cannot be empty");
+      static_assert(Num_Of_Actions <= 20, "too many actions in a loop");
 
       template <typename T>
       constexpr static size_t SizeOf  = SchedActionConcept<T> ? sizeof(T) : 0 ;
@@ -139,53 +138,31 @@ namespace details {
 
       alignas(ALIGN) char cache[SIZE];
 
-      template<typename H, typename ... Tail>
+      template<typename ... Ts>
       struct LoopAction {
-         using type = GenericLoop_<VOID_PLACEHOLDER_2 H, Tail...>;
+         using type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
       };
 
-      template <size_t N>
+      template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
-         if constexpr(N < sizeof...(T_ACTIONS)) {
-            using Type = typename TypeExtractor<N, LoopAction, T_ACTIONS...>::type;
-            return Type::get(cache, isAction);
+         if constexpr(N < Num_Of_Actions) {
+            using Action = typename TypeExtractor<N, LoopAction, T_ACTIONS...>::type;
+            return Action::get(cache, isAction);
          } else {
             return nullptr;
          }
       }
+
+#define ENABLE_LOOP_CODE_GEN 1
+#include <trans-dsl/sched/helper/LoopCodeGen.h>
 
    public:
       OVERRIDE(getMaxTime() const -> uint32_t) {
          return V_MAX_TIMES;
       }
 
-#define Seq_GeT_AcTiOn__(n) case n: return get<n>(isAction)
-
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
-         switch (seq) {
-            Seq_GeT_AcTiOn__(0);
-            Seq_GeT_AcTiOn__(1);
-            Seq_GeT_AcTiOn__(2);
-            Seq_GeT_AcTiOn__(3);
-            Seq_GeT_AcTiOn__(4);
-            Seq_GeT_AcTiOn__(5);
-            Seq_GeT_AcTiOn__(6);
-            Seq_GeT_AcTiOn__(7);
-            Seq_GeT_AcTiOn__(8);
-            Seq_GeT_AcTiOn__(9);
-            Seq_GeT_AcTiOn__(10);
-            Seq_GeT_AcTiOn__(11);
-            Seq_GeT_AcTiOn__(12);
-            Seq_GeT_AcTiOn__(13);
-            Seq_GeT_AcTiOn__(14);
-            Seq_GeT_AcTiOn__(15);
-            Seq_GeT_AcTiOn__(16);
-            Seq_GeT_AcTiOn__(17);
-            Seq_GeT_AcTiOn__(18);
-            Seq_GeT_AcTiOn__(19);
-            default:
-               return nullptr;
-         }
+         return get_<Num_Of_Actions>(seq, isAction);
       }
    };
 }

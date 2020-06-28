@@ -6,28 +6,40 @@
 #define TRANS_DSL_2_TYPEEXTRACTOR_H
 
 #include <trans-dsl/tsl_ns.h>
-#include <cstddef>
-#include <type_traits>
+#include <trans-dsl/utils/SeqInt.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-   template<size_t N, template<typename, typename ...> typename TRAIT, typename ... Ts>
+   template<
+      SeqInt N,
+      template<typename ...> typename TRAIT,
+      typename ... Ts>
    struct TypeExtractor;
 
-   template<size_t N, template<typename , typename ...> typename TRAIT, typename Head, typename ... Ts>
-   struct TypeExtractor<N, TRAIT, Head, Ts...> {
-      using type = typename TypeExtractor<N-1, TRAIT, Ts...>::type;
+   template<
+      SeqInt N,
+      template<typename ...> typename TRAIT,
+      typename HEAD,
+      typename ... TAIL>
+   struct TypeExtractor<N, TRAIT, HEAD, TAIL...> {
+      using type = typename TypeExtractor<N-1, TRAIT, TAIL...>::type;
    };
 
-   template<template<typename , typename ...> typename TRAIT, typename Head, typename ... Ts>
-   struct TypeExtractor<0, TRAIT, Head, Ts...> {
-      using type = typename TRAIT<Head, Ts...>::type;
+   template<
+      template<typename ...> typename TRAIT,
+      typename HEAD,
+      typename ... Ts>
+   struct TypeExtractor<0, TRAIT, HEAD, Ts...> {
+      using type = typename TRAIT<HEAD, Ts...>::type;
    };
 
-   template<typename H, typename ...>
-   struct Head {
-      using type = H;
+   //////////////////////////////////////////////////
+   template<typename ...> struct Head;
+
+   template<typename HEAD, typename ...TAIL>
+   struct Head<HEAD, TAIL...> {
+      using type = HEAD;
    };
 }
 

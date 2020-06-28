@@ -9,14 +9,19 @@
 #include <type_traits>
 
 #if __CONCEPT_ENABLED
+
 #define VOID_PLACEHOLDER
+#define VOID_PLACEHOLDER_2
 #define VOID_CONCEPT
 
 #define CONCEPT_C(c, t) c t
 #define ENABLE_C(c, t)
+#define ENABLE_C_2(c, t)
 #define DEF_CONCEPT(c, ...) concept c = __VA_ARGS__
 #define CONCEPT(c) c
+
 #else
+
 #define VOID_PLACEHOLDER , void
 #define VOID_PLACEHOLDER_2  void,
 #define VOID_CONCEPT , typename = void
@@ -26,6 +31,7 @@
 #define ENABLE_C_2(c, ...) std::enable_if_t<c<__VA_ARGS__>> ,
 #define DEF_CONCEPT(c, ...) constexpr bool c = __VA_ARGS__
 #define CONCEPT(c) typename
+
 #endif
 
 #if !__CONCEPT_ENABLED

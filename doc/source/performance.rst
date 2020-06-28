@@ -47,3 +47,22 @@
 
 2.0:
   ``1249 ns``
+
+
+如果我们再增加一个并发。
+
+.. code-block:: c++
+
+   using ProcedureAction3 =
+      __procedure(
+         __wait(3),
+         __finally(__asyn(AsyncAction4)));
+
+   using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+
+1.x:
+  ``6798 ns``
+
+2.0:
+  ``1871 ns``
+

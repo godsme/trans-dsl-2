@@ -75,7 +75,13 @@ namespace {
          __wait(2),
          __finally(__asyn(AsyncAction1)));
 
-      using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2);
+      using ProcedureAction3 =
+      __procedure(
+         __wait(3),
+         __finally(__asyn(AsyncAction4)));
+
+      using Concurrent1 = __concurrent(ProcedureAction1, ProcedureAction2);
+      using Concurrent2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -83,19 +89,44 @@ namespace {
       const Msg2 msg2{ 30 };
       const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
 
+      const Msg4 msg4{ 30 };
+      const EV_NS::ConsecutiveEventInfo eventInfo4{EV_MSG_4, msg4};
+
       auto runConcurrent = [&] {
-         Concurrent action;
+         Concurrent1 action;
 
          assert(Result::CONTINUE == action.exec(context));
-         assert(Result::CONTINUE == action.handleEvent(context, Event{se_1}));
-         assert(Result::CONTINUE == action.handleEvent(context, Event{se_2}));
-         assert(Result::CONTINUE == action.handleEvent(context, Event{eventInfo1}));
-         assert(Result::SUCCESS == action.handleEvent(context, Event{eventInfo2}));
+         assert(Result::CONTINUE == action.handleEvent(context, se_1));
+         assert(Result::CONTINUE == action.handleEvent(context, se_2));
+         assert(Result::CONTINUE == action.handleEvent(context, eventInfo1));
+         assert(Result::SUCCESS == action.handleEvent(context, eventInfo2));
       };
 
-      SECTION("performance") {
+      auto runConcurrent2 = [&] {
+         Concurrent2 action;
+
+         assert(Result::CONTINUE == action.exec(context));
+         assert(Result::CONTINUE == action.handleEvent(context, se_1));
+         assert(Result::CONTINUE == action.handleEvent(context, se_2));
+         assert(Result::CONTINUE == action.handleEvent(context, se_3));
+         assert(Result::CONTINUE == action.handleEvent(context, eventInfo1));
+         assert(Result::CONTINUE == action.handleEvent(context, eventInfo4));
+         assert(Result::SUCCESS == action.handleEvent(context, eventInfo2));
+      };
+
+      SECTION("size") {
+         std::cout << "size = " << sizeof(Concurrent2) << std::endl;
+      }
+
+      SECTION("concurrent 1 performance") {
          ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
             runConcurrent();
+         });
+      }
+
+      SECTION("concurrent 2 performance") {
+         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
+            runConcurrent2();
          });
       }
    };

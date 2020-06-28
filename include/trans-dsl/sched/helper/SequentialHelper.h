@@ -20,18 +20,20 @@ namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    struct Sequential : SchedSequential {
    private:
-      constexpr static SeqInt NUM_OF_ACTIONS = sizeof...(T_ACTIONS);
-      static_assert(NUM_OF_ACTIONS >= 2, "__sequential must contain at least 2 actions");
-      static_assert(NUM_OF_ACTIONS <= 20, "too many actions in a __sequential");
+      enum {
+         Num_Of_Actions = sizeof...(T_ACTIONS)
+      };
+      static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
+      static_assert(Num_Of_Actions <= 20, "too many actions in a __sequential");
 
    private:
+      enum {
+         Size  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) ),
+         Align = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) )
+      };
+      alignas(Align) char cache[Size];
 
-      constexpr static size_t SIZE  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) );
-      constexpr static size_t ALIGN = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) );
-
-      alignas(ALIGN) char cache[SIZE];
-
-      template <size_t N>
+      template <SeqInt N>
       auto get() -> SchedAction* {
          if constexpr(N < sizeof...(T_ACTIONS)) {
             using Action = TypeExtractor_t<N, Head, T_ACTIONS...>;
@@ -48,12 +50,12 @@ namespace details {
 
    private:
       OVERRIDE(getNumOfActions()->SeqInt) {
-         return NUM_OF_ACTIONS;
+         return Num_Of_Actions;
       }
 
       OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
 #if ENABLE_SEQ_CODE_GEN
-         return get_<NUM_OF_ACTIONS>(index);
+         return get_<Num_Of_Actions>(index);
 #else
          // switch-case would generate jump table,
          // performance would be better than recursion.

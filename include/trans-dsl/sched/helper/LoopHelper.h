@@ -32,7 +32,6 @@ namespace details {
             isAction = false;
             return &pred;
       }
-
    private:
       GenericLoopAction<T_HEAD> pred;
    };
@@ -118,11 +117,6 @@ namespace details {
    template<typename T>
    DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
-   template<typename ... Ts>
-   struct LoopElem {
-      typedef GenericLoop_<VOID_PLACEHOLDER_2 Ts...> Type;
-   };
-
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
    struct Loop : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
    private:
@@ -130,16 +124,23 @@ namespace details {
       static_assert(Num_Of_Actions > 0, "loop cannot be empty");
       static_assert(Num_Of_Actions <= 20, "too many actions in a loop");
 
+   private:
       template <typename T>
-      constexpr static size_t SizeOf  = SchedActionConcept<T> ? sizeof(T) : 0 ;
+      constexpr static size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0 ;
 
       template <typename T>
-      constexpr static size_t AlignOf = SchedActionConcept<T> ? alignof(T) : 0 ;
+      constexpr static size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0 ;
 
-      constexpr static size_t SIZE  = ( MaxSizeCalc{} << ... << SizeOf<T_ACTIONS> );
-      constexpr static size_t ALIGN = ( MaxSizeCalc{} << ... << AlignOf<T_ACTIONS> );
+      enum {
+         Size  = ( MaxSizeCalc{} << ... << Size_Of<T_ACTIONS> ),
+         Align = ( MaxSizeCalc{} << ... << Align_Of<T_ACTIONS> )
+      };
+      alignas(Align) char cache[Size];
 
-      alignas(ALIGN) char cache[SIZE];
+      template<typename ... Ts>
+      struct LoopElem {
+         typedef GenericLoop_<VOID_PLACEHOLDER_2 Ts...> Type;
+      };
 
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
@@ -150,7 +151,7 @@ namespace details {
          }
       }
 
-#define Loop_GeT_AcTiOn__(n) case n: return get<n>(isAction)
+#define LoOp_GeT_AcTiOn__(n) case n: return get<n>(isAction)
 
 #define ENABLE_LOOP_CODE_GEN 0
 #include <trans-dsl/sched/helper/LoopCodeGen.h>
@@ -165,26 +166,26 @@ namespace details {
          return get_<Num_Of_Actions>(seq, isAction);
 #else
          switch (seq) {
-            Loop_GeT_AcTiOn__(0);
-            Loop_GeT_AcTiOn__(1);
-            Loop_GeT_AcTiOn__(2);
-            Loop_GeT_AcTiOn__(3);
-            Loop_GeT_AcTiOn__(4);
-            Loop_GeT_AcTiOn__(5);
-            Loop_GeT_AcTiOn__(6);
-            Loop_GeT_AcTiOn__(7);
-            Loop_GeT_AcTiOn__(8);
-            Loop_GeT_AcTiOn__(9);
-            Loop_GeT_AcTiOn__(10);
-            Loop_GeT_AcTiOn__(11);
-            Loop_GeT_AcTiOn__(12);
-            Loop_GeT_AcTiOn__(13);
-            Loop_GeT_AcTiOn__(14);
-            Loop_GeT_AcTiOn__(15);
-            Loop_GeT_AcTiOn__(16);
-            Loop_GeT_AcTiOn__(17);
-            Loop_GeT_AcTiOn__(18);
-            Loop_GeT_AcTiOn__(19);
+            LoOp_GeT_AcTiOn__(0);
+            LoOp_GeT_AcTiOn__(1);
+            LoOp_GeT_AcTiOn__(2);
+            LoOp_GeT_AcTiOn__(3);
+            LoOp_GeT_AcTiOn__(4);
+            LoOp_GeT_AcTiOn__(5);
+            LoOp_GeT_AcTiOn__(6);
+            LoOp_GeT_AcTiOn__(7);
+            LoOp_GeT_AcTiOn__(8);
+            LoOp_GeT_AcTiOn__(9);
+            LoOp_GeT_AcTiOn__(10);
+            LoOp_GeT_AcTiOn__(11);
+            LoOp_GeT_AcTiOn__(12);
+            LoOp_GeT_AcTiOn__(13);
+            LoOp_GeT_AcTiOn__(14);
+            LoOp_GeT_AcTiOn__(15);
+            LoOp_GeT_AcTiOn__(16);
+            LoOp_GeT_AcTiOn__(17);
+            LoOp_GeT_AcTiOn__(18);
+            LoOp_GeT_AcTiOn__(19);
             default:
                return nullptr;
          }

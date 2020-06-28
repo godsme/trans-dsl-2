@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_PRED_H
 
 #include <trans-dsl/tsl_ns.h>
-#include <cub/base/IsClass.h>
+#include <trans-dsl/sched/concepts/PredConcept.h>
 
 TSL_NS_BEGIN
 
@@ -15,25 +15,13 @@ struct TransactionInfo;
 using PredFunction = bool (*)(const TransactionInfo&);
 
 namespace details {
-   template <size_t V_SIZE> struct TypeSize {};
-
-   template<typename T_PRED, typename T_SIZE=TypeSize<sizeof(T_PRED)>, typename = void>
+   template<typename T_PRED, typename = void>
    struct ClassNot__;
 
    template<typename T_PRED>
-   struct ClassNot__<T_PRED, TypeSize<sizeof(T_PRED)>, CUB_NS::IsClass<T_PRED>> {
+   struct ClassNot__<T_PRED ENABLE_C(PredConcept, T_PRED)> : private T_PRED {
       bool operator()(TransactionInfo const& context) {
-         return !pred(context);
-      }
-
-   private:
-      T_PRED pred;
-   };
-
-   template<typename T_PRED>
-   struct ClassNot__<T_PRED, TypeSize<1>, CUB_NS::IsClass<T_PRED>> {
-      bool operator()(TransactionInfo const& context) {
-         return !T_PRED{}(context);
+         return !T_PRED(context);
       }
    };
 

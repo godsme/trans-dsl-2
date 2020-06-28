@@ -5,7 +5,7 @@
 #ifndef TRANS_DSL_2_LOOPPRED_H
 #define TRANS_DSL_2_LOOPPRED_H
 
-#include <trans-dsl/sched/helper/Pred.h>
+#include <trans-dsl/sched/concepts/PredConcept.h>
 
 TSL_NS_BEGIN
 
@@ -19,26 +19,13 @@ namespace details {
       };
    };
 
-   template<typename T, Status V_RESULT = Result::UNSPECIFIED, size_t V_SIZE = sizeof(T), typename = void>
+   template<typename T, Status V_RESULT = Result::UNSPECIFIED, typename = void>
    struct LoopPredClassPred;
 
-   template<typename T, Status V_RESULT, size_t V_SIZE>
-   struct LoopPredClassPred<T, V_RESULT, V_SIZE, CUB_NS::IsClass<T>>
-      : LoopPredBase<V_RESULT> {
-      auto operator()(TransactionInfo const& context) -> bool {
-         return pred(context);
-      }
-
-   private:
-      T pred;
-   };
-
    template<typename T, Status V_RESULT>
-   struct LoopPredClassPred<T, V_RESULT, 1, CUB_NS::IsClass<T>>
-      : LoopPredBase<V_RESULT> {
-      auto operator()(TransactionInfo const& context) -> bool {
-         return T{}(context);
-      }
+   struct LoopPredClassPred<T, V_RESULT ENABLE_C(PredConcept, T)>
+      : private T, LoopPredBase<V_RESULT> {
+      using T::operator();
    };
 
    template<PredFunction V_FUNC, Status V_RESULT>

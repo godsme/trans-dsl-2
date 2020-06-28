@@ -16,7 +16,7 @@ namespace details {
    struct Void_;
 
    template<CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct Void_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> : SchedVoid {
+   struct Void_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> final : SchedVoid {
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;

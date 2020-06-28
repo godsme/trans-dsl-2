@@ -19,7 +19,7 @@ namespace details {
 
    template<TimerId V_TIMER_ID, CONCEPT_C(SchedActionConcept, T_ACTION)>
    struct TimeGuard<V_TIMER_ID, T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> {
-      struct Inner : SchedTimeGuard {
+      struct Inner final : SchedTimeGuard {
       private:
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          IMPL_ROLE_WITH_VAR(RelativeTimer, timer);

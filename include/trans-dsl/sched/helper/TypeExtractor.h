@@ -44,7 +44,7 @@ namespace details {
    template<typename ...> struct Head;
 
    template<typename HEAD, typename ...TAIL>
-   struct Head<HEAD, TAIL...> {
+   struct Head<HEAD, TAIL...> final {
       using Type = HEAD;
    };
 }

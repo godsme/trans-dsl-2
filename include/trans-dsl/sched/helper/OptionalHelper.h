@@ -26,7 +26,7 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, typename T_ACTION>
-   struct OptionalFunction : OptionalBase<T_ACTION> {
+   struct OptionalFunction final : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return V_PRED(context);
@@ -39,7 +39,7 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<typename T_PRED, typename T_ACTION, size_t V_SIZE>
-   struct OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
+   struct OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> final : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return pred(context);
@@ -50,7 +50,7 @@ namespace details {
    };
 
    template<typename T_PRED, typename T_ACTION>
-   struct OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> : OptionalBase<T_ACTION> {
+   struct OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> final : OptionalBase<T_ACTION> {
    private:
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return T_PRED{}(context);

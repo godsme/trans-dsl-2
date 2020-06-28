@@ -23,7 +23,7 @@ namespace details {
    };
 
    template<typename T_PRED>
-   struct GenericLoopAction : private T_PRED, LoopPredActionBase {
+   struct GenericLoopAction final : private T_PRED, LoopPredActionBase {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
          return getFinalResult(T_PRED::operator()(context));
       }

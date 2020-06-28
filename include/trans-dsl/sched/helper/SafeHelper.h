@@ -15,7 +15,7 @@ namespace details {
    struct Safe_;
 
    template<CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct Safe_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> : SchedSafe {
+   struct Safe_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> final : SchedSafe {
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;

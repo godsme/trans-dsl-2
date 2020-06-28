@@ -18,7 +18,7 @@ struct SchedAction;
 
 namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   struct Sequential : SchedSequential {
+   struct Sequential final : SchedSequential {
    private:
       enum {
          Num_Of_Actions = sizeof...(T_ACTIONS)

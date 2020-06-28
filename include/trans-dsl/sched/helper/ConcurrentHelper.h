@@ -54,7 +54,7 @@ namespace details {
          Num_Of_Actions = sizeof...(T_ACTIONS)
       };
 
-      struct Inner : SchedConcurrent, private Actions {
+      struct Inner final : SchedConcurrent, private Actions {
          enum  {
             Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children
          };

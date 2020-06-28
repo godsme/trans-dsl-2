@@ -118,7 +118,7 @@ namespace details {
    DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
-   struct Loop : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
+   struct Loop final : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
    private:
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions > 0, "loop cannot be empty");

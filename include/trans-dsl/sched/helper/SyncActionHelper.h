@@ -15,8 +15,6 @@ TSL_NS_BEGIN
 struct TransactionInfo;
 
 namespace details {
-
-
    /////////////////////////////////////////////////////////////////////////
    template<typename T_ACTION, size_t V_SIZE=sizeof(T_ACTION) VOID_CONCEPT>
    struct SyncAction;
@@ -42,7 +40,7 @@ namespace details {
    using SyncActionFunc = Status (*)(TransactionInfo const&);
 
    template<SyncActionFunc V_ACTION>
-   struct CallAction : SchedSyncAction {
+   struct CallAction final : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(V_ACTION(context));
       }

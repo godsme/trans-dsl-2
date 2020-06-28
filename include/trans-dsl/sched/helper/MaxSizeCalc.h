@@ -14,7 +14,7 @@
 TSL_NS_BEGIN
 
 namespace details {
-   struct MaxSizeCalc {
+   struct MaxSizeCalc final {
       constexpr MaxSizeCalc(size_t size = 0) : size(size) {}
       constexpr operator size_t() const { return size; }
       size_t size = 0;

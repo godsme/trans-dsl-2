@@ -120,7 +120,7 @@ namespace details {
 
    template<typename ... Ts>
    struct LoopElem {
-      using type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
+      typedef GenericLoop_<VOID_PLACEHOLDER_2 Ts...> Type;
    };
 
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
@@ -146,7 +146,7 @@ namespace details {
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
-            using Action = typename TypeExtractor<N, LoopElem, T_ACTIONS...>::type;
+            using Action = TypeExtractor_t<N, LoopElem, T_ACTIONS...>;
             return Action::get(cache, isAction);
          } else {
             return nullptr;

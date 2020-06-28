@@ -46,7 +46,7 @@ auto SchedSequential::handleEvent_(TransactionContext& context, Event const& eve
       return status;
    }
 
-   if(stopped) {
+   if(stopped) [[unlikely]] {
       current = nullptr;
       return status;
    }
@@ -61,7 +61,7 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
-   if(current == nullptr) {
+   if(current == nullptr) [[unlikely]] {
       return Result::FATAL_BUG;
    }
 

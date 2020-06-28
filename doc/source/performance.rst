@@ -40,7 +40,10 @@
        __wait(2),
        __finally(__asyn(AsyncAction1)));
 
-   using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2);
+   using Concurrent =
+      __concurrent(
+        ProcedureAction1,
+        ProcedureAction2);
 
 1.x:
   ``4246 ns``
@@ -58,7 +61,11 @@
          __wait(3),
          __finally(__asyn(AsyncAction4)));
 
-   using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+   using Concurrent2 =
+     __concurrent(
+       ProcedureAction1,
+       ProcedureAction2,
+       ProcedureAction3);
 
 1.x:
   ``6798 ns``

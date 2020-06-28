@@ -322,11 +322,11 @@ auto SchedProcedure::stop_(TransactionContext& context, Status cause) -> Status 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
+      case State::Working:
+         break;
       case State::Stopping:
       case State::Final:
          return Result::CONTINUE;
-      case State::Working:
-         break;
       default:
          return FATAL_BUG;
    }

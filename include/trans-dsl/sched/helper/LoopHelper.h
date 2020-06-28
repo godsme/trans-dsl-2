@@ -131,15 +131,13 @@ namespace details {
       static_assert(Num_Of_Actions <= 20, "too many actions in a loop");
 
       template <typename T>
-      constexpr static size_t SizeOf  = SchedActionConcept<T> ? sizeof(T) : 0 ;
+      consteval static size_t SizeOf  = SchedActionConcept<T> ? sizeof(T) : 0 ;
 
       template <typename T>
-      constexpr static size_t AlignOf = SchedActionConcept<T> ? alignof(T) : 0 ;
+      consteval static size_t AlignOf = SchedActionConcept<T> ? alignof(T) : 0 ;
 
-      enum {
-         SIZE  = ( MaxSizeCalc{} << ... << SizeOf<T_ACTIONS> ),
-         ALIGN = ( MaxSizeCalc{} << ... << AlignOf<T_ACTIONS> )
-      };
+      consteval static size_t SIZE  = ( MaxSizeCalc{} << ... << SizeOf<T_ACTIONS> );
+      consteval static size_t ALIGN = ( MaxSizeCalc{} << ... << AlignOf<T_ACTIONS> );
 
       alignas(ALIGN) char cache[SIZE];
 

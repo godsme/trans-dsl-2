@@ -6,6 +6,7 @@
 #define TRANS_DSL_2_MAXSIZECALC_H
 
 #include <trans-dsl/tsl_ns.h>
+#include <trans-dsl/tsl_config.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <cstddef>
 #include <algorithm>
@@ -19,7 +20,7 @@ namespace details {
       size_t size = 0;
    };
 
-   constexpr MaxSizeCalc operator<<(MaxSizeCalc calc, size_t size) {
+   consteval MaxSizeCalc operator<<(MaxSizeCalc calc, size_t size) {
       return std::max(calc.size, size);
    }
 }

@@ -17,10 +17,10 @@ namespace details {
       constexpr static Status FinalResult = V_RESULT;
    };
 
-   template<typename T, Status V_RESULT = Result::UNSPECIFIED, typename = void>
+   template<typename T, Status V_RESULT = Result::UNSPECIFIED VOID_CONCEPT>
    struct LoopPredClassPred;
 
-   template<typename T, Status V_RESULT>
+   template<CONCEPT_C(PredConcept, T), Status V_RESULT>
    struct LoopPredClassPred<T, V_RESULT ENABLE_C(PredConcept, T)>
       : private T, LoopPredBase<V_RESULT> {
       using T::operator();

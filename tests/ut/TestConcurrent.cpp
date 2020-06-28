@@ -14,7 +14,6 @@
 namespace {
    using namespace TSL_NS;
 
-
    SCENARIO("__concurrent with 2 async actions") {
       __concurrent(__asyn(AsyncAction1), __asyn(AsyncAction2)) action;
 
@@ -110,7 +109,6 @@ namespace {
             THEN("if event 2 received, should return FAILED") {
                REQUIRE(Result::FAILED == action.handleEvent(context, event2));
             }
-
             THEN("if stop, should return CONTINUE") {
                REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
             }
@@ -152,7 +150,6 @@ namespace {
             THEN("the environment keep clean") {
                REQUIRE(Result::SUCCESS == context.getRuntimeEnvStatus());
             }
-
             THEN("if event 3 received, should return CONTINUE") {
                REQUIRE(Result::CONTINUE == action.handleEvent(context, event3));
                AND_THEN("should report FAILED to env") {
@@ -174,10 +171,8 @@ namespace {
                   REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
                }
             }
-
          }
       }
-
    };
 
    using ProcedureAction2 =

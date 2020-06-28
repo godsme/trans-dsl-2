@@ -118,6 +118,11 @@ namespace details {
    template<typename T>
    DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
+   template<typename ... Ts>
+   struct LoopElem {
+      using type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
+   };
+
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
    struct Loop : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
    private:
@@ -137,11 +142,6 @@ namespace details {
       };
 
       alignas(ALIGN) char cache[SIZE];
-
-      template<typename ... Ts>
-      struct LoopElem {
-         using type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
-      };
 
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {

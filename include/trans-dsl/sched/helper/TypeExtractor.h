@@ -29,9 +29,9 @@ namespace details {
    template<
       template<typename ...> typename TRAIT,
       typename HEAD,
-      typename ... Ts>
-   struct TypeExtractor<0, TRAIT, HEAD, Ts...> {
-      using type = typename TRAIT<HEAD, Ts...>::type;
+      typename ... TAIL>
+   struct TypeExtractor<0, TRAIT, HEAD, TAIL...> {
+      using type = typename TRAIT<HEAD, TAIL...>::type;
    };
 
    //////////////////////////////////////////////////

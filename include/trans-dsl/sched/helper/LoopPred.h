@@ -14,9 +14,7 @@ namespace details {
 
    template<Status V_RESULT>
    struct LoopPredBase : LoopPredSignature {
-      enum : Status {
-         FinalResult = V_RESULT
-      };
+      constexpr static Status FinalResult = V_RESULT;
    };
 
    template<typename T, Status V_RESULT = Result::UNSPECIFIED, typename = void>

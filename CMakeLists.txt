@@ -75,7 +75,7 @@ add_library(trans-dsl SHARED
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
-        tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp tests/ut/TestConcurrent.cpp
+        tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
         tests/ut/TestSequentialAction.cpp)
 
@@ -83,6 +83,7 @@ target_link_libraries(trans-dsl-test trans-dsl cctest_main cctest)
 
 add_executable(trans-dsl-test-catch
         tests/ut/TestSwitchCase.cpp
+        tests/ut/TestConcurrent.cpp
         tests/ut/TestSimpleAsyncAction.cpp
         tests/pt/catch.cpp)
 

@@ -139,14 +139,14 @@ namespace details {
       alignas(ALIGN) char cache[SIZE];
 
       template<typename ... Ts>
-      struct LoopAction {
+      struct LoopElem {
          using type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
       };
 
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
-            using Action = typename TypeExtractor<N, LoopAction, T_ACTIONS...>::type;
+            using Action = typename TypeExtractor<N, LoopElem, T_ACTIONS...>::type;
             return Action::get(cache, isAction);
          } else {
             return nullptr;

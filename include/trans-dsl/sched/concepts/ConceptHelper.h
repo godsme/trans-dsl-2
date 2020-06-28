@@ -13,6 +13,7 @@
 #define VOID_PLACEHOLDER
 #define VOID_PLACEHOLDER_2
 #define VOID_CONCEPT
+#define VOID_CONCEPT_2
 
 #define CONCEPT_C(c, t) c t
 #define ENABLE_C(c, t)

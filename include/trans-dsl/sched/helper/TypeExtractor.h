@@ -12,17 +12,22 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<size_t N, typename ... Ts>
+   template<size_t N, template<typename, typename ...> typename TRAIT, typename ... Ts>
    struct TypeExtractor;
 
-   template<size_t N, typename Head, typename ... Ts>
-   struct TypeExtractor<N, Head, Ts...> {
-      using type = typename TypeExtractor<N-1, Ts...>::type;
+   template<size_t N, template<typename , typename ...> typename TRAIT, typename Head, typename ... Ts>
+   struct TypeExtractor<N, TRAIT, Head, Ts...> {
+      using type = typename TypeExtractor<N-1, TRAIT, Ts...>::type;
    };
 
-   template<typename Head, typename ... Ts>
-   struct TypeExtractor<0, Head, Ts...> {
-      using type = Head;
+   template<template<typename , typename ...> typename TRAIT, typename Head, typename ... Ts>
+   struct TypeExtractor<0, TRAIT, Head, Ts...> {
+      using type = typename TRAIT<Head, Ts...>::type;
+   };
+
+   template<typename H, typename ...>
+   struct Head {
+      using type = H;
    };
 }
 

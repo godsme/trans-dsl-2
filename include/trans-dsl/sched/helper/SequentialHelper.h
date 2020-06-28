@@ -35,7 +35,7 @@ namespace details {
       template <size_t N>
       auto get() -> SchedAction* {
          if constexpr(N < sizeof...(T_ACTIONS)) {
-            using Action = typename TypeExtractor<N, T_ACTIONS...>::type;
+            using Action = typename TypeExtractor<N, Head, T_ACTIONS...>::type;
             return new (cache) Action;
          } else {
             return nullptr;

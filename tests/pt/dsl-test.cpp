@@ -56,7 +56,7 @@ namespace {
       };
 
       SECTION("test") {
-         ankerl::nanobench::Bench().epochs(1000).run("run-procedure", [&] {
+         ankerl::nanobench::Bench().minEpochIterations(165).epochs(1000).run("run-procedure", [&] {
             runSequential();
          });
       }

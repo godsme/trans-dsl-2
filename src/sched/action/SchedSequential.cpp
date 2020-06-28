@@ -10,7 +10,7 @@ TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
-   if(stopped && status.isDone()) {
+   if(stopped && status.isDone()) [[unlikely]] {
       return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
    }
 
@@ -19,7 +19,7 @@ inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
-   while((current = getNext(index++)) != nullptr) {
+   while((current = getNext(index++)) != nullptr) [[likely]] {
       ActionStatus status = current->exec(context);
       if(!status.isDone()) {
          return status;
@@ -31,13 +31,13 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
-   if(stopped) return Result::FATAL_BUG;
+   if(stopped) [[unlikely]] return Result::FATAL_BUG;
    return forward(context);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-   if(current == nullptr) {
+   if(current == nullptr) [[unlikely]] {
       return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
 
@@ -65,7 +65,7 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
       return Result::FATAL_BUG;
    }
 
-   if(stopped) {
+   if(stopped) [[unlikely]] {
       return Result::CONTINUE;
    }
 

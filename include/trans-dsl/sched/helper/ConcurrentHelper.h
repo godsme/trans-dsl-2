@@ -69,7 +69,7 @@ namespace details {
       };
 
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= Concurrent<T_ACTIONS...>::Inner::Max_Num_Of_Actions, "too much actions in __concurrent");
+      static_assert((unsigned int)Num_Of_Actions <= (unsigned int)Concurrent<T_ACTIONS...>::Inner::Max_Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 

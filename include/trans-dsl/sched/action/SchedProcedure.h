@@ -24,11 +24,26 @@ struct SchedProcedure
 
 private:
    auto exec_(TransactionContext&) -> Status;
+   auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
+   auto stop_(TransactionContext& context, Status cause) -> Status;
+   auto workingStateCheck() -> Status;
+
+   auto gotoFinal(TransactionContext& context, ActionStatus status) -> Status;
+   auto gotoDone(TransactionContext& context, ActionStatus status) -> Status;
+   auto inProgress() const -> bool;
 
 private:
-   struct State;
-   State* state = nullptr;
+//   struct State;
+//   State* state = nullptr;
    SchedAction* action = nullptr;
+   enum class State : uint8_t {
+      Idle,
+      Working,
+      Stopping,
+      Final,
+      Done
+   };
+   State state = State::Idle;
 
 private:
    struct Idle;

@@ -12,6 +12,7 @@
 
 TSL_NS_BEGIN
 
+#if 0
 DEFINE_ROLE(SchedProcedure::State) {
    DEFAULT(enter(SchedProcedure&, TransactionContext&, ActionStatus status) -> Status) {
       return status;
@@ -187,6 +188,148 @@ auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
    AUTO_SWITCH();
    state->kill(*this, context, cause);
 }
+#endif
 
+#define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
+
+auto SchedProcedure::gotoDone(TransactionContext& context, ActionStatus status) -> Status {
+   state = State::Done;
+   if(status.isFailed()) {
+      return status;
+   }
+
+   return isProtected() ? Result::SUCCESS : getStatus();
+}
+
+auto SchedProcedure::gotoFinal(TransactionContext& context, ActionStatus status) -> Status {
+   if(action = getFinalAction(); action == nullptr) {
+      return Result::FATAL_BUG;
+   }
+
+   state = State::Final;
+
+   if(status.isFailed()) {
+      reportFailure(status);
+   }
+
+   status = action->exec(context);
+   if(status.isWorking()) {
+      return status;
+   }
+
+   return gotoDone(context, status);
+}
+
+auto SchedProcedure::workingStateCheck() -> Status {
+   if (getStatus() != Result::SUCCESS) {
+      state = State::Stopping;
+   }
+
+   return Result::CONTINUE;
+}
+
+auto SchedProcedure::exec_(TransactionContext& context) -> Status {
+   if(action = getAction(); action == nullptr) {
+      return Result::FATAL_BUG;
+   }
+
+   ActionStatus status = action->exec(context);
+   if(status.isWorking()) {
+      state = State::Working;
+      return workingStateCheck();
+   }
+
+   return gotoFinal(context, status);
+}
+
+auto SchedProcedure::exec(TransactionContext& context) -> Status {
+   if (state != State::Idle) {
+      return Result::FATAL_BUG;
+   }
+
+   Status status = attachToParent(context);
+   if(status != Result::SUCCESS) {
+      return status;
+   }
+
+   sandbox = isProtected();
+
+   AUTO_SWITCH();
+   return exec_(context);
+}
+
+auto SchedProcedure::inProgress() const -> bool {
+   switch (state) {
+      case State::Working:
+      case State::Stopping:
+      case State::Final:
+         return true;
+      default:
+         return false;
+   }
+}
+
+auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& event) -> Status {
+   ActionStatus status = action->handleEvent(context, event);
+   if(status.isWorking()) {
+      if(state == State::Working && status == Result::CONTINUE) {
+         return workingStateCheck();
+      }
+      return status;
+   }
+
+   switch (state) {
+      case State::Working:
+      case State::Stopping:
+         return gotoFinal(context, status);
+      case State::Final:
+         return gotoDone(context, status);
+      default:
+         return Result::FATAL_BUG;
+   }
+}
+
+auto SchedProcedure::handleEvent(TransactionContext& context, Event const& event) -> Status {
+   if(!inProgress()) {
+      return Result::FATAL_BUG;
+   }
+
+   AUTO_SWITCH();
+   return handleEvent_(context, event);
+}
+
+auto SchedProcedure::stop_(TransactionContext& context, Status cause) -> Status {
+   ActionStatus status = action->stop(context, cause);
+   if(status.isWorking()) {
+      state = State::Stopping;
+      return status;
+   }
+
+   return gotoFinal(context, status);
+}
+
+auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
+   switch (state) {
+      case State::Stopping:
+      case State::Final:
+         return Result::CONTINUE;
+      case State::Working:
+         break;
+      default:
+         return FATAL_BUG;
+   }
+
+   AUTO_SWITCH();
+   return stop_(context, cause);
+}
+
+auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
+   if(inProgress()) {
+      AUTO_SWITCH();
+      action->kill(context, cause);
+      action = nullptr;
+      state = State::Done;
+   }
+}
 
 TSL_NS_END

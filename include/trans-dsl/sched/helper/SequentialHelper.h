@@ -20,14 +20,14 @@ namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    struct Sequential : SchedSequential {
    private:
-      consteval static SeqInt NUM_OF_ACTIONS = sizeof...(T_ACTIONS);
+      constexpr static SeqInt NUM_OF_ACTIONS = sizeof...(T_ACTIONS);
       static_assert(NUM_OF_ACTIONS >= 2, "__sequential must contain at least 2 actions");
       static_assert(NUM_OF_ACTIONS <= 20, "too many actions in a __sequential");
 
    private:
 
-      consteval static size_t SIZE  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) );
-      consteval static size_t    ALIGN = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) );
+      constexpr static size_t SIZE  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) );
+      constexpr static size_t ALIGN = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) );
 
       alignas(ALIGN) char cache[SIZE];
 

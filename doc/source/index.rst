@@ -12,69 +12,12 @@ Transaction DSL简介
 极小的内存占用
 +++++++++++++++++++++++
 
-比如下面的例子，做为1.x的对象和2.0的对象，在64位机器上的大小。
-
-.. code-block:: c++
-
-   __procedure
-   ( __sequential
-     ( __wait(1)
-     , __wait(2)
-     , __wait(3)
-     , __wait(4)
-     , __wait(5)
-     , __wait(6))
-     , __finally
-       ( __sequential
-         ( __wait(7)
-         , __wait(8)
-         , __wait(9)))
-   ) a;
-
-1.0:
-  `sizeof(a) = 432`
-
-2.0:
-  `sizeof(a) = 48`
-
-如果我们增加两个 ``__wait``:
-
-.. code-block:: c++
-
-   __procedure
-   ( __sequential
-     ( __wait(1)
-     , __wait(2)
-     , __wait(3)
-     , __wait(4)
-     , __wait(5)
-     , __wait(6))
-     , __wait(7))
-     , __finally
-       ( __sequential
-         ( __wait(7)
-         , __wait(8)
-         , __wait(9)
-         , __wait(1)))
-   ) a;
-
-1.0:
-  ``sizeof(a) = 496``
-
-2.0:
-  ``sizeof(a) = 48``
-
+参见 :ref:`memory_usage`
 
 更快的性能
 +++++++++++++++++++++++
 
-对于上面的action，在同样的设备上的运行耗时为：
-
-1.0:
-  ``2573 ns``
-
-2.0:
-  ``1124 ns``
+参见 :ref:`performance`
 
 
 新的循环设计
@@ -112,6 +55,8 @@ Transaction DSL简介
    error-handling
    monitor
    appendix
+   performance
+   memory
 
 
 

@@ -53,16 +53,6 @@ namespace {
          proc.handleEvent(context, Event{se_7});
          proc.handleEvent(context, Event{se_8});
          proc.handleEvent(context, Event{se_9});
-//         REQUIRE(Result::CONTINUE == proc.exec(context));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_1}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_2}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_3}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_4}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_5}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_6}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_7}));
-//         REQUIRE(Result::CONTINUE == proc.handleEvent(context, Event{se_8}));
-//         REQUIRE(Result::SUCCESS  ==  proc.handleEvent(context, Event{se_9}));
       };
 
       SECTION("test") {
@@ -96,16 +86,12 @@ namespace {
       auto runConcurrent = [&] {
          Concurrent action;
 
-         REQUIRE(Result::CONTINUE == action.exec(context));
-         REQUIRE(Result::CONTINUE == action.handleEvent(context, Event{se_1}));
-         REQUIRE(Result::CONTINUE == action.handleEvent(context, Event{se_2}));
-         REQUIRE(Result::CONTINUE == action.handleEvent(context, Event{eventInfo1}));
-         REQUIRE(Result::SUCCESS  == action.handleEvent(context, Event{eventInfo2}));
+         assert(Result::CONTINUE == action.exec(context));
+         assert(Result::CONTINUE == action.handleEvent(context, Event{se_1}));
+         assert(Result::CONTINUE == action.handleEvent(context, Event{se_2}));
+         assert(Result::CONTINUE == action.handleEvent(context, Event{eventInfo1}));
+         assert(Result::SUCCESS == action.handleEvent(context, Event{eventInfo2}));
       };
-
-      SECTION("functional") {
-         runConcurrent();
-      }
 
       SECTION("performance") {
          ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {

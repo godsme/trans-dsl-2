@@ -192,8 +192,10 @@ auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
 
 #else
 
+//////////////////////////////////////////////////////////////////////////////////
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::gotoDone(TransactionContext& context, ActionStatus status) -> Status {
    state = State::Done;
    if(status.isFailed()) {
@@ -203,6 +205,7 @@ auto SchedProcedure::gotoDone(TransactionContext& context, ActionStatus status) 
    return isProtected() ? Result::SUCCESS : getStatus();
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::gotoFinal(TransactionContext& context, ActionStatus status) -> Status {
    if(action = getFinalAction(); action == nullptr) {
       return Result::FATAL_BUG;
@@ -222,14 +225,14 @@ auto SchedProcedure::gotoFinal(TransactionContext& context, ActionStatus status)
    return gotoDone(context, status);
 }
 
-auto SchedProcedure::workingStateCheck() -> Status {
+//////////////////////////////////////////////////////////////////////////////////
+auto SchedProcedure::workingStateCheck() -> void {
    if (getStatus() != Result::SUCCESS) {
       state = State::Stopping;
    }
-
-   return Result::CONTINUE;
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec_(TransactionContext& context) -> Status {
    if(action = getAction(); action == nullptr) {
       return Result::FATAL_BUG;
@@ -238,12 +241,14 @@ auto SchedProcedure::exec_(TransactionContext& context) -> Status {
    ActionStatus status = action->exec(context);
    if(status.isWorking()) {
       state = State::Working;
-      return workingStateCheck();
+      workingStateCheck();
+      return status;
    }
 
    return gotoFinal(context, status);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec(TransactionContext& context) -> Status {
    if (state != State::Idle) {
       return Result::FATAL_BUG;
@@ -260,6 +265,7 @@ auto SchedProcedure::exec(TransactionContext& context) -> Status {
    return exec_(context);
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::inProgress() const -> bool {
    switch (state) {
       case State::Working:
@@ -271,11 +277,12 @@ auto SchedProcedure::inProgress() const -> bool {
    }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    ActionStatus status = action->handleEvent(context, event);
    if(status.isWorking()) {
       if(status == Result::CONTINUE && state == State::Working) {
-         return workingStateCheck();
+         workingStateCheck();
       }
       return status;
    }

@@ -30,7 +30,7 @@ private:
 #if !USING_SM_PATTERN
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
    auto stop_(TransactionContext& context, Status cause) -> Status;
-   auto workingStateCheck() -> Status;
+   auto workingStateCheck() -> void;
 
    auto gotoFinal(TransactionContext& context, ActionStatus status) -> Status;
    auto gotoDone(TransactionContext& context, ActionStatus status) -> Status;

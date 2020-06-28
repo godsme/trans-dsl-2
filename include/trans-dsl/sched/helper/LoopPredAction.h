@@ -23,27 +23,14 @@ namespace details {
    };
 
    template<typename T_PRED>
-   struct LoopPredAction : LoopPredActionBase {
-   protected:
-      auto getFinalResult(bool satisfied) const -> Status {
-         return satisfied ? Status(T_PRED::FinalResult) : Status(Result::MOVE_ON);
-      }
-   };
-
-   template<typename T_BREAK, size_t V_SIZE = sizeof(T_BREAK)>
-   struct GenericLoopAction : LoopPredAction<T_BREAK> {
+   struct GenericLoopAction : private T_PRED, LoopPredActionBase {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
-         return LoopPredAction<T_BREAK>::getFinalResult(breakPred(context));
+         return getFinalResult(T_PRED::operator()(context));
       }
 
    private:
-      T_BREAK breakPred;
-   };
-
-   template<typename T_BREAK>
-   struct GenericLoopAction<T_BREAK, 1> : LoopPredAction<T_BREAK> {
-      OVERRIDE(exec(TransactionContext& context) -> Status) {
-         return LoopPredAction<T_BREAK>::getFinalResult(T_BREAK{}(context));
+      auto getFinalResult(bool satisfied) const -> Status {
+         return satisfied ? T_PRED::FinalResult : Result::MOVE_ON;
       }
    };
 }

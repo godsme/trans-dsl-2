@@ -66,9 +66,9 @@ namespace details {
 
          ///////////////////////////////////////////////////////////////////////
          #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
-         #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
-            switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
-         #define And_CoNcUrReNt_AcTiOn_DeCl(n) else CoNcUrReNt_AcTiOn_DeCl(n)
+         #define CoNcUrReNt_AcTiOn(n) { switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
+         #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) CoNcUrReNt_AcTiOn(n)
+         #define And_CoNcUrReNt_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) CoNcUrReNt_AcTiOn(n)
          ///////////////////////////////////////////////////////////////////////
 
          // Use if-constexpr to avoid unnecessary function template instantiation.

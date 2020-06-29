@@ -148,9 +148,9 @@ namespace details {
 
       ///////////////////////////////////////////////////////////////////////
       #define LoOp_AcTiOn(n) case n: return get<n>(isAction);
-      #define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
-         switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) }}
-      #define And_LoOp_AcTiOn_DeCl(n) else LoOp_AcTiOn_DeCl(n)
+      #define LoOp_AcTiOn_BlOcK(n) { switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) }}
+      #define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) LoOp_AcTiOn_BlOcK(n)
+      #define And_LoOp_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) LoOp_AcTiOn_BlOcK(n)
       ///////////////////////////////////////////////////////////////////////
 
       // Use if-constexpr to avoid unnecessary function template instantiation.

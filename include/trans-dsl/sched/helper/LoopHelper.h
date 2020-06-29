@@ -117,6 +117,7 @@ namespace details {
       static_assert(Num_Of_Elements > 0, "loop cannot be empty");
       static_assert(Num_Of_Elements <= 30, "too many entries in a loop");
 
+      // skip all loop predication.
       template <typename T>
       static constexpr size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0;
       template <typename T>

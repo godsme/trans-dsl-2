@@ -104,13 +104,13 @@ namespace details {
    struct GenericLoop<> {};
 
    template<typename T>
-   DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
+   DEF_CONCEPT(LoopEntryConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
-   template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ELEMS>
-   class Loop final : public SchedLoop, GenericLoop<VOID_PLACEHOLDER_2 T_ELEMS...> {
-      enum { Num_Of_Elements = sizeof...(T_ELEMS) };
-      static_assert(Num_Of_Elements > 0, "loop cannot be empty");
-      static_assert(Num_Of_Elements <= 30, "too many entries in a loop");
+   template<uint32_t V_MAX_TIMES, CONCEPT(LoopEntryConcept) ... T_ENTRIES>
+   class Loop final : public SchedLoop, GenericLoop<VOID_PLACEHOLDER_2 T_ENTRIES...> {
+      enum { Num_Of_Entries = sizeof...(T_ENTRIES) };
+      static_assert(Num_Of_Entries > 0, "loop cannot be empty");
+      static_assert(Num_Of_Entries <= 30, "too many entries in a loop");
 
       // skip all loop predication.
       template <typename T>
@@ -118,18 +118,18 @@ namespace details {
       template <typename T>
       static constexpr size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0;
 
-      alignas((MaxSizeCalc{} << ... << Align_Of<T_ELEMS>))
-      char cache[(MaxSizeCalc{} << ... << Size_Of<T_ELEMS>)];
+      alignas((MaxSizeCalc{} << ... << Align_Of<T_ENTRIES>))
+      char cache[(MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>)];
 
       template<typename ... Ts>
-      struct LoopElem {
+      struct LoopEntry {
          using Type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
       };
 
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
-         if constexpr(N < Num_Of_Elements) {
-            return TypeExtractor_t<N, LoopElem, T_ELEMS...>::get(cache, isAction);
+         if constexpr(N < Num_Of_Entries) {
+            return TypeExtractor_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
          } else {
             return nullptr;
          }
@@ -141,8 +141,8 @@ namespace details {
       ///////////////////////////////////////////////////////////////////////
       #define LoOp_AcTiOn(n) case n: return get<n>(isAction);
       #define LoOp_AcTiOn_BlOcK(n) { switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) }}
-      #define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Elements <= n) LoOp_AcTiOn_BlOcK(n)
-      #define And_LoOp_AcTiOn_DeCl(n) else if constexpr(Num_Of_Elements == n) LoOp_AcTiOn_BlOcK(n)
+      #define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Entries <= n) LoOp_AcTiOn_BlOcK(n)
+      #define And_LoOp_AcTiOn_DeCl(n) else if constexpr(Num_Of_Entries == n) LoOp_AcTiOn_BlOcK(n)
       ///////////////////////////////////////////////////////////////////////
 
       // Use if-constexpr to avoid unnecessary function template instantiation.

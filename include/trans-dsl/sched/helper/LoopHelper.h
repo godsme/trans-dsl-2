@@ -118,14 +118,14 @@ namespace details {
       static_assert(Num_Of_Elements <= 30, "too many entries in a loop");
 
       template <typename T>
-      constexpr static size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0 ;
+      static constexpr size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0;
       template <typename T>
-      constexpr static size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0 ;
+      static constexpr size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0;
 
       alignas((MaxSizeCalc{} << ... << Align_Of<T_ELEMS>))
       char cache[(MaxSizeCalc{} << ... << Size_Of<T_ELEMS>)];
 
-      template<typename ... Ts> 
+      template<typename ... Ts>
       struct LoopElem {
          using Type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
       };

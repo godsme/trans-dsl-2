@@ -143,7 +143,7 @@ namespace details {
       };
 
       template <SeqInt N>
-      auto getSchedActionHello(bool& isAction) -> SchedAction* {
+      auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
             return TypeExtractor_t<N, LoopElem, T_ACTIONS...>::get(cache, isAction);
          } else {
@@ -151,45 +151,299 @@ namespace details {
          }
       }
 
-#define LoOp_GeT_AcTiOn__(n) case n: return getSchedActionHello<n>(isAction)
-
-#define ENABLE_LOOP_CODE_GEN 1
-#include <trans-dsl/sched/helper/LoopCodeGen.h>
-
    public:
       OVERRIDE(getMaxTime() const -> uint32_t) {
          return V_MAX_TIMES;
       }
 
+#define LoOp_GeT_AcTiOn__(n) case n: return get<n>(isAction)
+
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
-#if ENABLE_LOOP_CODE_GEN
-         return get_Action<Num_Of_Actions>(seq, isAction);
-#else
-         switch (seq) {
-            LoOp_GeT_AcTiOn__(0);
-            LoOp_GeT_AcTiOn__(1);
-            LoOp_GeT_AcTiOn__(2);
-            LoOp_GeT_AcTiOn__(3);
-            LoOp_GeT_AcTiOn__(4);
-            LoOp_GeT_AcTiOn__(5);
-            LoOp_GeT_AcTiOn__(6);
-            LoOp_GeT_AcTiOn__(7);
-            LoOp_GeT_AcTiOn__(8);
-            LoOp_GeT_AcTiOn__(9);
-            LoOp_GeT_AcTiOn__(10);
-            LoOp_GeT_AcTiOn__(11);
-            LoOp_GeT_AcTiOn__(12);
-            LoOp_GeT_AcTiOn__(13);
-            LoOp_GeT_AcTiOn__(14);
-            LoOp_GeT_AcTiOn__(15);
-            LoOp_GeT_AcTiOn__(16);
-            LoOp_GeT_AcTiOn__(17);
-            LoOp_GeT_AcTiOn__(18);
-            LoOp_GeT_AcTiOn__(19);
-            default:
-               return nullptr;
+         if constexpr(Num_Of_Actions <= 2) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+            }
          }
-#endif
+         else if constexpr(Num_Of_Actions == 3) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 4) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 5) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 6) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 7) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 8) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 9) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 10) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 11) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 12) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 13) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 14) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 15) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 16) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+               LoOp_GeT_AcTiOn__(15);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 17) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+               LoOp_GeT_AcTiOn__(15);
+               LoOp_GeT_AcTiOn__(16);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 18) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+               LoOp_GeT_AcTiOn__(15);
+               LoOp_GeT_AcTiOn__(16);
+               LoOp_GeT_AcTiOn__(17);
+            }
+         }
+         else if constexpr(Num_Of_Actions == 19) {
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+               LoOp_GeT_AcTiOn__(15);
+               LoOp_GeT_AcTiOn__(16);
+               LoOp_GeT_AcTiOn__(17);
+               LoOp_GeT_AcTiOn__(18);
+            }
+         } else{
+            switch (seq) {
+               LoOp_GeT_AcTiOn__(0);
+               LoOp_GeT_AcTiOn__(1);
+               LoOp_GeT_AcTiOn__(2);
+               LoOp_GeT_AcTiOn__(3);
+               LoOp_GeT_AcTiOn__(4);
+               LoOp_GeT_AcTiOn__(5);
+               LoOp_GeT_AcTiOn__(6);
+               LoOp_GeT_AcTiOn__(7);
+               LoOp_GeT_AcTiOn__(8);
+               LoOp_GeT_AcTiOn__(9);
+               LoOp_GeT_AcTiOn__(10);
+               LoOp_GeT_AcTiOn__(11);
+               LoOp_GeT_AcTiOn__(12);
+               LoOp_GeT_AcTiOn__(13);
+               LoOp_GeT_AcTiOn__(14);
+               LoOp_GeT_AcTiOn__(15);
+               LoOp_GeT_AcTiOn__(16);
+               LoOp_GeT_AcTiOn__(17);
+               LoOp_GeT_AcTiOn__(18);
+               LoOp_GeT_AcTiOn__(19);
+            }
+         }
+         return nullptr;
       }
    };
 }

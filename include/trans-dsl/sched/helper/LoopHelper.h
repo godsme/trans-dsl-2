@@ -139,7 +139,7 @@ namespace details {
 
       template<typename ... Ts>
       struct LoopElem {
-         typedef GenericLoop_<VOID_PLACEHOLDER_2 Ts...> Type;
+         using Type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
       };
 
       template <SeqInt N>

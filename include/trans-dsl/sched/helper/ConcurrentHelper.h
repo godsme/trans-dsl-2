@@ -11,65 +11,109 @@
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
+#include <trans-dsl/sched/helper/TypeExtractor.h>
 
 TSL_NS_BEGIN
 
 struct SchedAction;
 
 namespace details {
-   template<SeqInt V_SEQ VOID_CONCEPT, typename ... T_ACTIONS>
+   template<typename ... T_ACTIONS>
    struct GenericConcurrent;
 
-   template<SeqInt V_SEQ, typename T_HEAD, typename ... T_TAIL>
-   struct GenericConcurrent<V_SEQ ENABLE_C(SchedActionConcept, T_HEAD), T_HEAD, T_TAIL...> {
-      using Action = T_HEAD;
-      using Next =
-      typename GenericConcurrent<
-         SeqInt(V_SEQ + 1)
-         VOID_PLACEHOLDER,
-         T_TAIL...>::Inner;
-
-      struct Inner : Next {
-         auto get(SeqInt seq) -> SchedAction * {
-            return seq == V_SEQ ? &action : Next::get(seq);
-         }
-      private:
-         Action action;
-      };
+   template<typename T_HEAD, typename ... T_TAIL>
+   struct GenericConcurrent<T_HEAD, T_TAIL...> : GenericConcurrent<T_TAIL...> {
+      auto get() -> SchedAction * {
+         return &action;
+      }
+   private:
+      T_HEAD action;
    };
 
-   template<SeqInt V_SEQ>
-   struct GenericConcurrent<V_SEQ> {
-      struct Inner {
-         auto get(SeqInt) -> SchedAction * {
-            return nullptr;
-         }
-      };
+   template<>
+   struct GenericConcurrent<> {
+      auto get() -> SchedAction * {
+         return nullptr;
+      }
    };
 
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   struct Concurrent {
-      using Actions = typename GenericConcurrent<0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
+   struct Concurrent : SchedConcurrent, private GenericConcurrent<T_ACTIONS...> {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
+      static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
 
-      struct Inner final : SchedConcurrent, private Actions {
-          static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
+      template<typename ... Ts>
+      struct LoopElem {
+         using Type = GenericConcurrent<Ts...>;
+      };
+
+      template <SeqInt N>
+      auto get() -> SchedAction* {
+         if constexpr(N < Num_Of_Actions) {
+            return TypeExtractor_t<N, LoopElem, T_ACTIONS...>::get();
+         } else {
+            return nullptr;
+         }
+      }
+
       private:
          OVERRIDE(getNumOfActions() const -> SeqInt) {
             return Num_Of_Actions;
          }
 
-         OVERRIDE(get(SeqInt index) -> SchedAction*) {
-            return Actions::get(index);
+#define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>()
+
+         OVERRIDE(get(SeqInt seq) -> SchedAction*) {
+            if constexpr(Num_Of_Actions <= 2) {
+               switch (seq) {
+                  CoNcUrReNt_GeT_AcTiOn__(0);
+                  CoNcUrReNt_GeT_AcTiOn__(1);
+               }
+            }
+            else if constexpr(Num_Of_Actions == 3) {
+               switch (seq) {
+                  CoNcUrReNt_GeT_AcTiOn__(0);
+                  CoNcUrReNt_GeT_AcTiOn__(1);
+                  CoNcUrReNt_GeT_AcTiOn__(2);
+               }
+            }
+            else if constexpr(Num_Of_Actions == 4) {
+               switch (seq) {
+                  CoNcUrReNt_GeT_AcTiOn__(0);
+                  CoNcUrReNt_GeT_AcTiOn__(1);
+                  CoNcUrReNt_GeT_AcTiOn__(2);
+                  CoNcUrReNt_GeT_AcTiOn__(3);
+               }
+            }
+            else if constexpr(Num_Of_Actions == 5) {
+               switch (seq) {
+                  CoNcUrReNt_GeT_AcTiOn__(0);
+                  CoNcUrReNt_GeT_AcTiOn__(1);
+                  CoNcUrReNt_GeT_AcTiOn__(2);
+                  CoNcUrReNt_GeT_AcTiOn__(3);
+                  CoNcUrReNt_GeT_AcTiOn__(4);
+               }
+            }
+            else {
+               switch (seq) {
+                  CoNcUrReNt_GeT_AcTiOn__(0);
+                  CoNcUrReNt_GeT_AcTiOn__(1);
+                  CoNcUrReNt_GeT_AcTiOn__(2);
+                  CoNcUrReNt_GeT_AcTiOn__(3);
+                  CoNcUrReNt_GeT_AcTiOn__(4);
+                  CoNcUrReNt_GeT_AcTiOn__(5);
+               }
+            }
+
+            return nullptr;
          }
-      };
 
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= Concurrent<T_ACTIONS...>::Inner::Max_Num_Of_Actions, "too much actions in __concurrent");
+      static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 
-#define __concurrent(...) typename TSL_NS::details::Concurrent<__VA_ARGS__>::Inner
+#define __concurrent(...) TSL_NS::details::Concurrent<__VA_ARGS__>
 
 TSL_NS_END
 

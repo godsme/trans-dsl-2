@@ -25,7 +25,7 @@ namespace details {
       using Action = T_HEAD;
       using Next =
       typename GenericConcurrent<
-         V_SEQ + 1
+         SeqInt(V_SEQ + 1)
          VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 
@@ -50,14 +50,10 @@ namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    struct Concurrent {
       using Actions = typename GenericConcurrent<0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
-      enum : uint8_t {
-         Num_Of_Actions = sizeof...(T_ACTIONS)
-      };
+      static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
 
       struct Inner final : SchedConcurrent, private Actions {
-         enum : uint8_t {
-            Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children
-         };
+          static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
       private:
          OVERRIDE(getNumOfActions() const -> SeqInt) {
             return Num_Of_Actions;

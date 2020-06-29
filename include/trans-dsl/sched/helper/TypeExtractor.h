@@ -23,7 +23,7 @@ namespace details {
       typename HEAD,
       typename ... TAIL>
    struct TypeExtractor<N, TRAIT, HEAD, TAIL...> {
-      using Type = typename TypeExtractor<N-1, TRAIT, TAIL...>::Type;
+      using Type = typename TypeExtractor<SeqInt(N-1), TRAIT, TAIL...>::Type;
    };
 
    template<

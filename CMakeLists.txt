@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 find_package(PythonInterp)
 
 if(UNIX)
+#-Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast
 #-Wold-style-cast
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor \
       -Wcast-align -Wunused -Woverloaded-virtual -Wconversion \

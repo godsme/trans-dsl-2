@@ -92,7 +92,7 @@ namespace details {
       typename GenericSwitch<
          std::max(T_SIZE, sizeof(Path)),
          std::max(T_ALIGN, alignof(Path)),
-         T_SEQ + 1
+         SeqInt(T_SEQ + 1)
          VOID_PLACEHOLDER,
          T_TAIL...>::Inner;
 

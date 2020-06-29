@@ -45,7 +45,8 @@ namespace details {
 
 #define Seq_GeT_AcTiOn__(n) case n: return get<n>()
 
-#define ENABLE_SEQ_CODE_GEN 0
+// This would make code smaller
+#define ENABLE_SEQ_CODE_GEN 1
 #include <trans-dsl/sched/helper/SeqCodeGen.h>
 
    private:

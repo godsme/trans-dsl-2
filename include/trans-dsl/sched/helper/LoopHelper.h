@@ -143,7 +143,7 @@ namespace details {
       };
 
       template <SeqInt N>
-      auto get(bool& isAction) -> SchedAction* {
+      auto getSchedActionHello(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
             return TypeExtractor_t<N, LoopElem, T_ACTIONS...>::get(cache, isAction);
          } else {
@@ -151,9 +151,9 @@ namespace details {
          }
       }
 
-#define LoOp_GeT_AcTiOn__(n) case n: return get<n>(isAction)
+#define LoOp_GeT_AcTiOn__(n) case n: return getSchedActionHello<n>(isAction)
 
-#define ENABLE_LOOP_CODE_GEN 0
+#define ENABLE_LOOP_CODE_GEN 1
 #include <trans-dsl/sched/helper/LoopCodeGen.h>
 
    public:

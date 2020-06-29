@@ -25,7 +25,7 @@ namespace details {
       using Base = InstantSeq<SchedAction, T_ACTIONS...>;
 
    public:
-      class Inner : public SchedSequential, Base {
+      class Inner final : public SchedSequential, Base {
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
          OVERRIDE(getNext(SeqInt seq) -> SchedAction*) {
             return Base::get(seq);

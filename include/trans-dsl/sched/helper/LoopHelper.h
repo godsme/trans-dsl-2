@@ -116,7 +116,7 @@ namespace details {
    class Loop final : public SchedLoop, GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...> {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions > 0, "loop cannot be empty");
-      static_assert(Num_Of_Actions <= 20, "too many actions in a loop");
+      static_assert(Num_Of_Actions <= 30, "too many actions in a loop");
 
       template <typename T>
       constexpr static size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0 ;
@@ -176,7 +176,16 @@ namespace details {
          And_LoOp_AcTiOn_DeCl(18)
          And_LoOp_AcTiOn_DeCl(19)
          And_LoOp_AcTiOn_DeCl(20)
-
+         And_LoOp_AcTiOn_DeCl(21)
+         And_LoOp_AcTiOn_DeCl(22)
+         And_LoOp_AcTiOn_DeCl(23)
+         And_LoOp_AcTiOn_DeCl(24)
+         And_LoOp_AcTiOn_DeCl(25)
+         And_LoOp_AcTiOn_DeCl(26)
+         And_LoOp_AcTiOn_DeCl(27)
+         And_LoOp_AcTiOn_DeCl(28)
+         And_LoOp_AcTiOn_DeCl(29)
+         And_LoOp_AcTiOn_DeCl(30)
          return nullptr;
       }
    };

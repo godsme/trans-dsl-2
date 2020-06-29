@@ -15,4 +15,12 @@
 #define consteval constexpr
 #endif
 
+#if __cplusplus >= 201709L
+#define likely_attr [[likely]]
+#define unlikely_attr [[unlikely]]
+#else
+#define likely_attr
+#define unlikely_attr
+#endif
+
 #endif //TRANS_DSL_2_TSL_CONFIG_H

@@ -6,19 +6,20 @@
 #include <event/concept/Event.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
+#include <trans-dsl/tsl_config.h>
 
 TSL_NS_BEGIN
 
 namespace {
    inline auto stillWorking(SchedConcurrent::State state) -> bool {
        switch (state) {
-           [[likely]]
-           case SchedConcurrent::State::Working:
-           case SchedConcurrent::State::Stopping:
-               return true;
-           [[unlikely]]
-           default:
-               return false;
+          likely_attr
+          case SchedConcurrent::State::Working:
+          case SchedConcurrent::State::Stopping:
+             return true;
+          unlikely_attr
+          default:
+             return false;
        }
    }
 }
@@ -36,7 +37,7 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
    for(SeqInt i=0; i < total; i++) {
       auto action = get(i);
 
-      [[unlikely]]
+      unlikely_attr
       if(action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -45,7 +46,7 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
       children[i] = status.isWorking() ? State::Working : State::Done;
       if(status.isWorking()) {
          hasWorkingChildren = true;
-      } else [[unlikely]] if(status.isFailed()) {
+      } else unlikely_attr if(status.isFailed()) {
          return status;
       }
    }
@@ -65,7 +66,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
       ActionStatus status = get(i)->stop(context, cause);
       if(status.isWorking()) {
          hasWorking = true;
-      } else [[unlikely]] if(status.isFailed()) {
+      } else unlikely_attr if(status.isFailed()) {
          reportFailure(status);
       }
 
@@ -81,7 +82,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::exec(TransactionContext& context) -> Status {
-   [[unlikely]]
+   unlikely_attr
    if(state != State::Idle) {
       return FATAL_BUG;
    }
@@ -91,7 +92,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
    AUTO_SWITCH();
    ActionStatus status = startUp(context);
-   [[unlikely]]
+   unlikely_attr
    if(status.isFailed()) {
       reportFailure(status);
       return cleanUp(context, finalStatus);
@@ -127,7 +128,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       if(status.isWorking()) {
          hasWorkingAction = true;
 
-         [[unlikely]]
+         unlikely_attr
          if(status == Result::CONTINUE && hasReportedError()) {
             children[i] = State::Stopping;
             break;
@@ -135,7 +136,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       } else {
          children[i] = State::Done;
 
-         [[unlikely]]
+         unlikely_attr
          if(status.isFailed()) reportFailure(status);
       }
 
@@ -161,7 +162,7 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   [[unlikely]]
+   unlikely_attr
    if(notWorking()) return Result::FATAL_BUG;
 
    AUTO_SWITCH();
@@ -171,7 +172,7 @@ auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& even
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
-   [[likely]]
+   likely_attr
    case State::Working: {
       AUTO_SWITCH();
       return cleanUp(context, cause);
@@ -179,7 +180,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
    case State::Stopping:
       return Result::CONTINUE;
 
-   [[unlikely]]
+   unlikely_attr
    default:
       return Result::FATAL_BUG;
    }
@@ -187,7 +188,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context, Status cause) -> void {
-   [[unlikely]]
+   unlikely_attr
    if(notWorking()) return;
 
    AUTO_SWITCH();

@@ -5,12 +5,14 @@
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
+#include <trans-dsl/tsl_config.h>
 
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
-   [[unlikely]] if(stopped && status.isDone()) {
+   unlikely_attr
+   if(stopped && status.isDone()) {
       return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
    }
 
@@ -19,7 +21,8 @@ inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
-   [[likely]] while((current = getNext(index++)) != nullptr) {
+   unlikely_attr
+   while((current = getNext(index++)) != nullptr) {
       ActionStatus status = current->exec(context);
       if(!status.isDone()) {
          return status;
@@ -31,14 +34,16 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
-   [[unlikely]] if(stopped) return Result::FATAL_BUG;
+   unlikely_attr
+   if(stopped) return Result::FATAL_BUG;
    return forward(context);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-    [[unlikely]] if(current == nullptr)  {
-      return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
+   unlikely_attr
+   if(current == nullptr)  {
+     return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
 
    ActionStatus status = current->handleEvent(context, event);
@@ -46,7 +51,8 @@ auto SchedSequential::handleEvent_(TransactionContext& context, Event const& eve
       return status;
    }
 
-   [[unlikely]] if(stopped) {
+   unlikely_attr
+   if(stopped) {
       current = nullptr;
       return status;
    }
@@ -61,11 +67,13 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
-   [[unlikely]] if( current == nullptr) {
+   unlikely_attr
+   if( current == nullptr) {
       return Result::FATAL_BUG;
    }
 
-   [[unlikely]] if(stopped) {
+   unlikely_attr
+   if(stopped) {
       return Result::CONTINUE;
    }
 

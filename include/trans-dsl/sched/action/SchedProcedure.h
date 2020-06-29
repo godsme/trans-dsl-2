@@ -33,7 +33,7 @@ private:
    auto workingStateCheck() -> void;
 
    auto gotoFinal(TransactionContext& context, ActionStatus status) -> Status;
-   auto gotoDone(TransactionContext& context, ActionStatus status) -> Status;
+   auto gotoDone(ActionStatus status) -> Status;
    auto inProgress() const -> bool;
 #endif
 

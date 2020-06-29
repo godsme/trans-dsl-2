@@ -14,9 +14,15 @@ TSL_NS_BEGIN
 struct TransactionContext;
 
 DEFINE_ROLE(SchedAction)  {
+   [[nodiscard]]
    ABSTRACT(exec(TransactionContext&)                      -> Status);
+
+   [[nodiscard]]
    ABSTRACT(handleEvent(TransactionContext&, Event const&) -> Status);
+
+   [[nodiscard]]
    ABSTRACT(stop(TransactionContext&, Status cause)        -> Status);
+
    ABSTRACT(kill(TransactionContext&, Status cause)        -> void);
 };
 

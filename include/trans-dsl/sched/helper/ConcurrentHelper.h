@@ -41,7 +41,7 @@ namespace details {
    template<SeqInt V_SEQ>
    struct GenericConcurrent<V_SEQ> {
       struct Inner {
-         auto get(SeqInt seq) -> SchedAction * {
+         auto get(SeqInt) -> SchedAction * {
             return nullptr;
          }
       };
@@ -50,12 +50,12 @@ namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    struct Concurrent {
       using Actions = typename GenericConcurrent<0 VOID_PLACEHOLDER, T_ACTIONS...>::Inner;
-      enum {
+      enum : uint8_t {
          Num_Of_Actions = sizeof...(T_ACTIONS)
       };
 
       struct Inner final : SchedConcurrent, private Actions {
-         enum  {
+         enum : uint8_t {
             Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children
          };
       private:
@@ -69,7 +69,7 @@ namespace details {
       };
 
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert((unsigned int)Num_Of_Actions <= (unsigned int)Concurrent<T_ACTIONS...>::Inner::Max_Num_Of_Actions, "too much actions in __concurrent");
+      static_assert(Num_Of_Actions <= Concurrent<T_ACTIONS...>::Inner::Max_Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 

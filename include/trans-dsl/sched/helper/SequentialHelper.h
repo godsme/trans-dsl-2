@@ -313,7 +313,8 @@ namespace details {
                Seq_GeT_AcTiOn__(17);
                Seq_GeT_AcTiOn__(18);
             }
-         } else{
+         }
+         else {
             switch (seq) {
                Seq_GeT_AcTiOn__(0);
                Seq_GeT_AcTiOn__(1);

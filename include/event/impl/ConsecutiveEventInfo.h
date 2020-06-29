@@ -11,13 +11,13 @@ EV_NS_BEGIN
 
 struct ConsecutiveEventInfo : EventInfo
 {
-   ConsecutiveEventInfo(const EventId eventId, const void* const msg, size_t size)
+   ConsecutiveEventInfo(const EventId eventId, const void* msg, size_t size)
       : EventInfo(eventId), msg(msg), size(size)
    {}
 
    template <typename T>
    ConsecutiveEventInfo(const EventId eventId, const T& msg)
-      : ConsecutiveEventInfo(eventId, (void*)&msg, sizeof(msg))
+      : ConsecutiveEventInfo(eventId, reinterpret_cast<const void*>(&msg), sizeof(msg))
    {}
 
    OVERRIDE(getMsg() const -> const void*) {

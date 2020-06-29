@@ -197,7 +197,7 @@ auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch autoSwitch__{context, *this}
 
 //////////////////////////////////////////////////////////////////////////////////
-auto SchedProcedure::gotoDone(TransactionContext& context, ActionStatus status) -> Status {
+auto SchedProcedure::gotoDone(ActionStatus status) -> Status {
    state = State::Done;
 
    unlikely_branch
@@ -226,7 +226,7 @@ auto SchedProcedure::gotoFinal(TransactionContext& context, ActionStatus status)
       return status;
    }
 
-   return gotoDone(context, status);
+   return gotoDone(status);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -301,7 +301,7 @@ auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& even
       case State::Stopping:
          return gotoFinal(context, status);
       case State::Final:
-         return gotoDone(context, status);
+         return gotoDone(status);
       unlikely_branch
       default:
          return Result::FATAL_BUG;

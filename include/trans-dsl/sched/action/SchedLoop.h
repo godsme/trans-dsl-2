@@ -35,7 +35,7 @@ private:
 
 private:
    SchedAction* action = nullptr;
-   uint16_t sequence = 0;
+   SeqInt sequence = 0;
    bool errorRecovering = true;
    bool stopping = false;
 

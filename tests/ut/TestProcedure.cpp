@@ -171,9 +171,7 @@ namespace {
         , __asyn(AsyncAction2)
         , __sync(SyncAction2))));
 
-   constexpr int* P = nullptr;
    FIXTURE(TestProcedure3) {
-
       __procedure(MainProcedure,
       __finally(__sequential
         (__sync(SyncAction1)

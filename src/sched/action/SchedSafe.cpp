@@ -25,7 +25,7 @@ auto SchedSafe::handleEvent(TransactionContext& context, Event const& event) -> 
    return status;
 }
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedSafe::stop(TransactionContext& context, Status cause) -> Status {
+auto SchedSafe::stop(TransactionContext&, Status) -> Status {
    if(state != State::WORKING) return FATAL_BUG;
    return Result::CONTINUE;
 }

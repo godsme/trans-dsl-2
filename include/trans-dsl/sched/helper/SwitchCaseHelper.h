@@ -108,7 +108,7 @@ namespace details {
    template<size_t T_SIZE, size_t T_ALIGN, SeqInt T_SEQ>
    struct GenericSwitch<T_SIZE, T_ALIGN, T_SEQ> {
       struct Inner  {
-         auto get(SeqInt seq) -> ActionPath* {
+         auto get(SeqInt) -> ActionPath* {
             return nullptr;
          }
       protected:

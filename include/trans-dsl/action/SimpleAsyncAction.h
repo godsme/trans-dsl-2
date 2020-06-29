@@ -23,7 +23,7 @@ struct GenericSimpleAsyncAction {
       return registry.handleEvent(reinterpret_cast<details::DummyAsyncAction*>(this), trans, event);
    }
 
-   auto kill(TransactionInfo const& trans, Status cause) -> Status {
+   auto kill(TransactionInfo const&, Status) -> Status {
       if(registry.isWaiting()) {
          registry.reset();
          return Result::SUCCESS;
@@ -34,7 +34,7 @@ struct GenericSimpleAsyncAction {
 protected:
    template<typename T>
    auto waitOn(
-      T* thisPointer,
+      T* /*thisPointer*/,
       EventId eventId,
       P2MF<T> const& handler
       ) -> Status

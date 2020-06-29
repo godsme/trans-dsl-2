@@ -8,12 +8,12 @@
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::exec(TransactionContext& context) -> Status {
+auto SchedWait::exec(TransactionContext&) -> Status {
    return Result::CONTINUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::handleEvent(TransactionContext& context, Event const& event) -> Status {
+auto SchedWait::handleEvent(TransactionContext&, Event const& event) -> Status {
    if(event.matches(getEventId()))
    {
       if(isWait()) event.consume();
@@ -24,12 +24,12 @@ auto SchedWait::handleEvent(TransactionContext& context, Event const& event) -> 
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::stop(TransactionContext& context, Status cause) -> Status {
+auto SchedWait::stop(TransactionContext&, Status) -> Status {
    return Result::FORCE_STOPPED;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::kill(TransactionContext& context, Status cause) -> void {
+auto SchedWait::kill(TransactionContext&, Status) -> void {
 }
 
 

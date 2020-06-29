@@ -66,7 +66,7 @@ auto SchedLoop::execOnce(TransactionContext& context) -> Status {
 }
 
 auto SchedLoop::looping(TransactionContext& context) -> Status {
-   int loopTimes = 0;
+   uint32_t loopTimes = 0;
    while(1) {
       auto status = execOnce(context);
       if(status != Result::RESTART_REQUIRED) {

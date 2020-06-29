@@ -20,15 +20,14 @@
 TSL_NS_BEGIN
 
 namespace details {
-
    template<VOID_CONCEPT_2 typename ... T_ACTIONS>
-   struct GenericLoop_;
+   struct GenericLoop;
 
-   ///////////////////////////////////////////////////////////////
+   ///////////////////////////////////////////////////////////////////////////////////////
    template<
       typename T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoopPred : GenericLoop_< VOID_PLACEHOLDER_2 T_TAIL...> {
+   struct GenericLoopPred : GenericLoop< VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char*, bool& isAction) -> SchedAction* {
             isAction = false;
             return &pred;
@@ -42,7 +41,7 @@ namespace details {
       template<typename T> typename T_TRAITS,
       typename T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoopEmpty_ : GenericLoop_<VOID_PLACEHOLDER_2 T_TAIL...> {
+   struct GenericLoopEmpty : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char* cache, bool& isAction) -> SchedAction* {
          isAction = T_TRAITS<T_HEAD>::isAction;
          using Action = typename T_TRAITS<T_HEAD>::Action;
@@ -70,7 +69,7 @@ namespace details {
    template<
       CONCEPT(NonEmptyLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoop_<
+   struct GenericLoop<
       ENABLE_C_2(NonEmptyLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
@@ -82,11 +81,11 @@ namespace details {
    template<
       CONCEPT(EmptyLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoop_<
+   struct GenericLoop<
       ENABLE_C_2(EmptyLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopEmpty_<LoopPredTraits, T_HEAD, T_TAIL...>
+      : GenericLoopEmpty<LoopPredTraits, T_HEAD, T_TAIL...>
    {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -99,21 +98,21 @@ namespace details {
    template<
       CONCEPT(SchedActionConcept) T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoop_<
+   struct GenericLoop<
       ENABLE_C_2(SchedActionConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopEmpty_<ActionTraits, T_HEAD, T_TAIL...>{};
+      : GenericLoopEmpty<ActionTraits, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////
    template<>
-   struct GenericLoop_<> {};
+   struct GenericLoop<> {};
 
    template<typename T>
    DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
-   class Loop final : public SchedLoop, GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...> {
+   class Loop final : public SchedLoop, GenericLoop<VOID_PLACEHOLDER_2 T_ACTIONS...> {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions > 0, "loop cannot be empty");
       static_assert(Num_Of_Actions <= 30, "too many actions in a loop");
@@ -131,7 +130,7 @@ namespace details {
 
       template<typename ... Ts>
       struct LoopElem {
-         using Type = GenericLoop_<VOID_PLACEHOLDER_2 Ts...>;
+         using Type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
       };
 
       template <SeqInt N>
@@ -143,7 +142,7 @@ namespace details {
          }
       }
 
-   public:
+   private:
       OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }
 
       ///////////////////////////////////////////////////////////////////////

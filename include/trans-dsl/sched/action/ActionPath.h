@@ -14,8 +14,8 @@ struct TransactionInfo;
 struct SchedAction;
 
 DEFINE_ROLE(ActionPath) {
-   ABSTRACT(shouldExecute(TransactionInfo const&) -> bool);
-   ABSTRACT(getAction() -> SchedAction&);
+   ABSTRACT(shouldExecute(TransactionInfo const&) noexcept -> bool);
+   ABSTRACT(getAction() noexcept -> SchedAction&);
 };
 
 TSL_NS_END

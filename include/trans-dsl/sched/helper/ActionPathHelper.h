@@ -16,48 +16,51 @@ namespace details {
 
    template<typename T_PRED, CONCEPT_C(SchedActionConcept, T_ACTION)>
    struct ActionPathClass : ActionPath {
-
-#if !__CONCEPT_ENABLED
+   #if !__CONCEPT_ENABLED
+      // We don't need to use SFINAE, static assert is enough.
       static_assert(SchedActionConcept<T_ACTION>);
-#endif
+   #endif
 
-      OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
-         auto pred = new (cache) T_PRED;
-         return (*pred)(trans);
+      OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
+         return (*(new (cache) T_PRED))(trans);
       }
 
-      OVERRIDE(getAction() -> SchedAction&) {
-         auto action = new (cache) T_ACTION;
-         return *action;
+      OVERRIDE(getAction() noexcept -> SchedAction&) {
+         return *(new (cache) T_ACTION);
       }
 
    private:
+      // for any action path, both pred & action would not
+      // be constructed until have to.
       alignas(std::max(alignof(T_PRED), alignof(T_ACTION)))
       char cache[std::max(sizeof(T_PRED), sizeof(T_ACTION))];
    };
 
    template<PredFunction V_PRED, typename T_ACTION>
    struct ActionPathFunc : ActionPath {
-      OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
+      OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
          return V_PRED(trans);
       }
 
-      OVERRIDE(getAction() -> SchedAction&) {
-         auto action = new (cache) T_ACTION;
-         return *action;
+      OVERRIDE(getAction() noexcept -> SchedAction&) {
+         return *(new (cache) T_ACTION);
       }
 
    private:
+      // for any action path, the action would not
+      // be constructed until have to.
       alignas(T_ACTION) char cache[sizeof(T_ACTION)];
    };
 
+   /////////////////////////////////////////////////////////////////////////
    template<typename T_PRED, typename T_ACTION>
    auto DeduceActionPath() -> ActionPathClass<T_PRED, T_ACTION>;
 
    template<PredFunction V_PRED, typename T_ACTION>
    auto DeduceActionPath() -> ActionPathFunc<V_PRED, T_ACTION>;
 
-   inline auto IsTrue__(const TransactionInfo&) -> bool { return true; }
+   /////////////////////////////////////////////////////////////////////////
+   inline auto IsTrue__(TransactionInfo const&) -> bool { return true; }
 }
 
 TSL_NS_END

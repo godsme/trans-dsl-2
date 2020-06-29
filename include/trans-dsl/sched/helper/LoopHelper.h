@@ -25,7 +25,7 @@ namespace details {
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T_HEAD, typename ... T_TAIL>
-   struct GenericLoopPred : GenericLoop< VOID_PLACEHOLDER_2 T_TAIL...> {
+   struct GenericLoopPredEntry : GenericLoop< VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char*, bool& isAction) -> SchedAction* {
          isAction = false;
          return &pred;
@@ -39,7 +39,7 @@ namespace details {
       template<typename T> typename T_TRAITS,
       typename T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoopVolatileElem : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
+   struct GenericLoopVolatileEntry : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char* cache, bool& isAction) -> SchedAction* {
          isAction = T_TRAITS<T_HEAD>::isAction;
          return new (cache) typename T_TRAITS<T_HEAD>::Action;
@@ -70,7 +70,7 @@ namespace details {
       ENABLE_C_2(StatefulLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopPred<T_HEAD, T_TAIL...> {};
+      : GenericLoopPredEntry<T_HEAD, T_TAIL...> {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,7 +81,7 @@ namespace details {
       ENABLE_C_2(StatelessLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopVolatileElem<LoopPredTraits, T_HEAD, T_TAIL...> {};
+      : GenericLoopVolatileEntry<LoopPredTraits, T_HEAD, T_TAIL...> {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T>
@@ -97,7 +97,7 @@ namespace details {
       ENABLE_C_2(SchedActionConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopVolatileElem<ActionTraits, T_HEAD, T_TAIL...>{};
+      : GenericLoopVolatileEntry<ActionTraits, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////
    template<>

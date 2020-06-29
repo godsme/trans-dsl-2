@@ -42,8 +42,9 @@ namespace {
       }
 
       DEF_INLINE_EVENT_HANDLER(handleMsg1, Msg1) {
-         assert(msg.a >= 0);
-         assert(trans.getStatus() * 1 >= 0);
+         if(trans.getStatus() == TSL_NS::Result::SUCCESS) {
+            assert(msg.a >= 0);
+         }
          return TSL_NS::Result::SUCCESS;
       }
    };
@@ -54,8 +55,9 @@ namespace {
       }
 
       DEF_INLINE_EVENT_HANDLER(handleMsg2, Msg2) {
-         assert(msg.a >= 0);
-         assert(trans.getStatus() * 1 >= 0);
+         if(trans.getStatus() == TSL_NS::Result::SUCCESS) {
+            assert(msg.a >= 0);
+         }
          return TSL_NS::Result::SUCCESS;
       }
    };
@@ -66,8 +68,9 @@ namespace {
       }
 
       DEF_INLINE_EVENT_HANDLER(handleMsg3, Msg3) {
-         assert(msg.a >= 0);
-         assert(trans.getStatus() * 1 >= 0);
+         if(trans.getStatus() == TSL_NS::Result::SUCCESS) {
+            assert(msg.a >= 0);
+         }
          return TSL_NS::Result::FAILED;
       }
    };
@@ -78,8 +81,9 @@ namespace {
       }
 
       DEF_INLINE_EVENT_HANDLER(handleMsg4, Msg4) {
-         assert(msg.a >= 0);
-         assert(trans.getStatus() * 1 >= 0);
+         if(trans.getStatus() == TSL_NS::Result::SUCCESS) {
+            assert(msg.a >= 0);
+         }
          return TSL_NS::Result::SUCCESS;
       }
    };

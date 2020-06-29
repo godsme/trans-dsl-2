@@ -16,11 +16,11 @@
 #endif
 
 #if __cplusplus >= 201709L
-#define likely_attr [[likely]]
-#define unlikely_attr [[unlikely]]
+#define likely_branch [[likely]]
+#define unlikely_branch [[unlikely]]
 #else
-#define likely_attr
-#define unlikely_attr
+#define likely_branch
+#define unlikely_branch
 #endif
 
 #endif //TRANS_DSL_2_TSL_CONFIG_H

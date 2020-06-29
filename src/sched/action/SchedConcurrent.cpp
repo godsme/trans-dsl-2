@@ -13,11 +13,11 @@ TSL_NS_BEGIN
 namespace {
    inline auto stillWorking(SchedConcurrent::State state) -> bool {
        switch (state) {
-          likely_attr
+          likely_branch
           case SchedConcurrent::State::Working:
           case SchedConcurrent::State::Stopping:
              return true;
-          unlikely_attr
+          unlikely_branch
           default:
              return false;
        }
@@ -37,7 +37,7 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
    for(SeqInt i=0; i < total; i++) {
       auto action = get(i);
 
-      unlikely_attr
+      unlikely_branch
       if(action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -46,7 +46,7 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
       children[i] = status.isWorking() ? State::Working : State::Done;
       if(status.isWorking()) {
          hasWorkingChildren = true;
-      } else unlikely_attr if(status.isFailed()) {
+      } else unlikely_branch if(status.isFailed()) {
          return status;
       }
    }
@@ -66,7 +66,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
       ActionStatus status = get(i)->stop(context, cause);
       if(status.isWorking()) {
          hasWorking = true;
-      } else unlikely_attr if(status.isFailed()) {
+      } else unlikely_branch if(status.isFailed()) {
          reportFailure(status);
       }
 
@@ -82,7 +82,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::exec(TransactionContext& context) -> Status {
-   unlikely_attr
+   unlikely_branch
    if(state != State::Idle) {
       return FATAL_BUG;
    }
@@ -92,7 +92,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
    AUTO_SWITCH();
    ActionStatus status = startUp(context);
-   unlikely_attr
+   unlikely_branch
    if(status.isFailed()) {
       reportFailure(status);
       return cleanUp(context, finalStatus);
@@ -128,7 +128,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       if(status.isWorking()) {
          hasWorkingAction = true;
 
-         unlikely_attr
+         unlikely_branch
          if(status == Result::CONTINUE && hasReportedError()) {
             children[i] = State::Stopping;
             break;
@@ -136,7 +136,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       } else {
          children[i] = State::Done;
 
-         unlikely_attr
+         unlikely_branch
          if(status.isFailed()) reportFailure(status);
       }
 
@@ -162,7 +162,7 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   unlikely_attr
+   unlikely_branch
    if(notWorking()) return Result::FATAL_BUG;
 
    AUTO_SWITCH();
@@ -172,7 +172,7 @@ auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& even
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
-   likely_attr
+   likely_branch
    case State::Working: {
       AUTO_SWITCH();
       return cleanUp(context, cause);
@@ -180,7 +180,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
    case State::Stopping:
       return Result::CONTINUE;
 
-   unlikely_attr
+   unlikely_branch
    default:
       return Result::FATAL_BUG;
    }
@@ -188,7 +188,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context, Status cause) -> void {
-   unlikely_attr
+   unlikely_branch
    if(notWorking()) return;
 
    AUTO_SWITCH();

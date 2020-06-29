@@ -24,13 +24,11 @@ namespace details {
    struct GenericLoop;
 
    ///////////////////////////////////////////////////////////////////////////////////////
-   template<
-      typename T_HEAD,
-      typename ... T_TAIL>
+   template<typename T_HEAD, typename ... T_TAIL>
    struct GenericLoopPred : GenericLoop< VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char*, bool& isAction) -> SchedAction* {
-            isAction = false;
-            return &pred;
+         isAction = false;
+         return &pred;
       }
    private:
       GenericLoopAction<T_HEAD> pred;
@@ -41,11 +39,10 @@ namespace details {
       template<typename T> typename T_TRAITS,
       typename T_HEAD,
       typename ... T_TAIL>
-   struct GenericLoopEmpty : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
+   struct GenericLoopVolatileElem : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char* cache, bool& isAction) -> SchedAction* {
          isAction = T_TRAITS<T_HEAD>::isAction;
-         using Action = typename T_TRAITS<T_HEAD>::Action;
-         return new (cache) Action;
+         return new (cache) typename T_TRAITS<T_HEAD>::Action;
       }
    };
 
@@ -60,33 +57,31 @@ namespace details {
    DEF_CONCEPT(LoopPredConcept, std::is_base_of_v<LoopPredSignature, T>);
 
    template<typename T>
-   DEF_CONCEPT(NonEmptyLoopPredConcept, LoopPredConcept<T> && (sizeof(T) > 1));
+   DEF_CONCEPT(StatefulLoopPredConcept, LoopPredConcept<T> && (sizeof(T) > 1));
 
    template<typename T>
-   DEF_CONCEPT(EmptyLoopPredConcept, LoopPredConcept<T> && (sizeof(T) == 1));
+   DEF_CONCEPT(StatelessLoopPredConcept, LoopPredConcept<T> && (sizeof(T) == 1));
 
    /////////////////////////////////////////////////////////////////////////////////////////
    template<
-      CONCEPT(NonEmptyLoopPredConcept) T_HEAD,
+      CONCEPT(StatefulLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
    struct GenericLoop<
-      ENABLE_C_2(NonEmptyLoopPredConcept, T_HEAD)
+      ENABLE_C_2(StatefulLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopPred<T_HEAD, T_TAIL...>
-   {};
+      : GenericLoopPred<T_HEAD, T_TAIL...> {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
 
    template<
-      CONCEPT(EmptyLoopPredConcept) T_HEAD,
+      CONCEPT(StatelessLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
    struct GenericLoop<
-      ENABLE_C_2(EmptyLoopPredConcept, T_HEAD)
+      ENABLE_C_2(StatelessLoopPredConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopEmpty<LoopPredTraits, T_HEAD, T_TAIL...>
-   {};
+      : GenericLoopVolatileElem<LoopPredTraits, T_HEAD, T_TAIL...> {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T>
@@ -102,7 +97,7 @@ namespace details {
       ENABLE_C_2(SchedActionConcept, T_HEAD)
       T_HEAD,
       T_TAIL...>
-      : GenericLoopEmpty<ActionTraits, T_HEAD, T_TAIL...>{};
+      : GenericLoopVolatileElem<ActionTraits, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////
    template<>

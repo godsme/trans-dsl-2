@@ -9,7 +9,7 @@
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
-#include <trans-dsl/sched/helper/InstantSeq.h>
+#include <trans-dsl/sched/helper/VolatileSeq.h>
 
 TSL_NS_BEGIN
 
@@ -22,7 +22,7 @@ namespace details {
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
       static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
-      using Base = InstantSeq<SchedAction, T_ACTIONS...>;
+      using Base = VolatileSeq<SchedAction, T_ACTIONS...>;
 
    public:
       class Inner final : public SchedSequential, Base {

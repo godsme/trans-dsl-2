@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/29.
 //
 
-#ifndef TRANS_DSL_2_INSTANTSEQ_H
-#define TRANS_DSL_2_INSTANTSEQ_H
+#ifndef TRANS_DSL_2_VOLATILESEQ_H
+#define TRANS_DSL_2_VOLATILESEQ_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 
 namespace details {
    template<typename T_ELEM, typename ... Ts >
-   class InstantSeq  {
+   class VolatileSeq  {
       static constexpr size_t Num_Of_Elements = sizeof...(Ts);
       enum {
          Size  = ( MaxSizeCalc{} << ... << sizeof(Ts) ),
@@ -104,4 +104,4 @@ namespace details {
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_INSTANTSEQ_H
+#endif //TRANS_DSL_2_VOLATILESEQ_H

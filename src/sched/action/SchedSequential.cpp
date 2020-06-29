@@ -10,7 +10,7 @@ TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
-   if(stopped && status.isDone()) [[unlikely]] {
+   [[unlikely]] if(stopped && status.isDone()) {
       return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
    }
 
@@ -19,7 +19,7 @@ inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
-   while((current = getNext(index++)) != nullptr) [[likely]] {
+   [[likely]] while((current = getNext(index++)) != nullptr) {
       ActionStatus status = current->exec(context);
       if(!status.isDone()) {
          return status;
@@ -31,13 +31,13 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
-   if(stopped) [[unlikely]] return Result::FATAL_BUG;
+   [[unlikely]] if(stopped) return Result::FATAL_BUG;
    return forward(context);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-   if(current == nullptr) [[unlikely]] {
+    [[unlikely]] if(current == nullptr)  {
       return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
 
@@ -46,7 +46,7 @@ auto SchedSequential::handleEvent_(TransactionContext& context, Event const& eve
       return status;
    }
 
-   if(stopped) [[unlikely]] {
+   [[unlikely]] if(stopped) {
       current = nullptr;
       return status;
    }
@@ -61,11 +61,11 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
-   if(current == nullptr) [[unlikely]] {
+   [[unlikely]] if( current == nullptr) {
       return Result::FATAL_BUG;
    }
 
-   if(stopped) [[unlikely]] {
+   [[unlikely]] if(stopped) {
       return Result::CONTINUE;
    }
 

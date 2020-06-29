@@ -11,7 +11,15 @@ TSL_NS_BEGIN
 
 namespace {
    inline auto stillWorking(SchedConcurrent::State state) -> bool {
-      return (state == SchedConcurrent::State::Working || state == SchedConcurrent::State::Stopping);
+       switch (state) {
+           [[likely]]
+           case SchedConcurrent::State::Working:
+           case SchedConcurrent::State::Stopping:
+               return true;
+           [[unlikely]]
+           default:
+               return false;
+       }
    }
 }
 
@@ -27,6 +35,8 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
    auto hasWorkingChildren = false;
    for(SeqInt i=0; i < total; i++) {
       auto action = get(i);
+
+      [[unlikely]]
       if(action == nullptr) {
          return Result::FATAL_BUG;
       }
@@ -35,7 +45,7 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
       children[i] = status.isWorking() ? State::Working : State::Done;
       if(status.isWorking()) {
          hasWorkingChildren = true;
-      } else if(status.isFailed()) {
+      } else [[unlikely]] if(status.isFailed()) {
          return status;
       }
    }
@@ -55,7 +65,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
       ActionStatus status = get(i)->stop(context, cause);
       if(status.isWorking()) {
          hasWorking = true;
-      } else if(status.isFailed()) {
+      } else [[unlikely]] if(status.isFailed()) {
          reportFailure(status);
       }
 
@@ -71,6 +81,7 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::exec(TransactionContext& context) -> Status {
+   [[unlikely]]
    if(state != State::Idle) {
       return FATAL_BUG;
    }
@@ -80,6 +91,7 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
 
    AUTO_SWITCH();
    ActionStatus status = startUp(context);
+   [[unlikely]]
    if(status.isFailed()) {
       reportFailure(status);
       return cleanUp(context, finalStatus);
@@ -114,12 +126,16 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       ActionStatus status = get(i)->handleEvent(context, event);
       if(status.isWorking()) {
          hasWorkingAction = true;
+
+         [[unlikely]]
          if(status == Result::CONTINUE && hasReportedError()) {
             children[i] = State::Stopping;
             break;
          }
       } else {
          children[i] = State::Done;
+
+         [[unlikely]]
          if(status.isFailed()) reportFailure(status);
       }
 
@@ -145,6 +161,7 @@ auto SchedConcurrent::handleEvent_(TransactionContext& context, const Event& eve
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& event) -> Status {
+   [[unlikely]]
    if(notWorking()) return Result::FATAL_BUG;
 
    AUTO_SWITCH();
@@ -154,12 +171,15 @@ auto SchedConcurrent::handleEvent(TransactionContext& context, Event const& even
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
+   [[likely]]
    case State::Working: {
       AUTO_SWITCH();
       return cleanUp(context, cause);
    }
    case State::Stopping:
       return Result::CONTINUE;
+
+   [[unlikely]]
    default:
       return Result::FATAL_BUG;
    }
@@ -167,6 +187,7 @@ auto SchedConcurrent::stop(TransactionContext& context, Status cause) -> Status 
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedConcurrent::kill(TransactionContext& context, Status cause) -> void {
+   [[unlikely]]
    if(notWorking()) return;
 
    AUTO_SWITCH();

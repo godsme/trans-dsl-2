@@ -352,13 +352,13 @@ stop的设计原则
       进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；
-     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
+     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEOUT`` 。
 
 .. attention::
    一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__time_guard`` 在运行期间，监测到一个由action上报的一个内部错误，
    则立即进入 :ref:`免疫模式 <immune-mode>` 。之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；
-     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEDOUT`` 。
+     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEOUT`` 。
 
 

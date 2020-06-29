@@ -28,7 +28,7 @@ struct RuntimeContextInfo {
    }
 
    auto hasFailure() const -> bool {
-      return ActionStatus(getRuntimeEnvStatus()).isFailed();
+      return cub::is_failed_status(getRuntimeEnvStatus());
    }
 
 private:

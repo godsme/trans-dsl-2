@@ -42,12 +42,12 @@ auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
 auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    if(state != State::INIT) return Result::FATAL_BUG;
 
-   if(ActionStatus status = startTimer(context); status.isFailed()) {
+   if(Status status = startTimer(context); cub::is_failed_status(status)) {
       state = State::DONE;
       return status;
    }
 
-   if(ActionStatus status = ROLE(SchedAction).exec(context); !status.isWorking()) {
+   if(Status status = ROLE(SchedAction).exec(context); !isActionWorking(status)) {
       ROLE(RelativeTimer).stop();
       state = State::DONE;
       return status;
@@ -62,16 +62,16 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-   ActionStatus status = ROLE(SchedAction).handleEvent(context, event);
-   if(status.isWorking()) {
+   Status status = ROLE(SchedAction).handleEvent(context, event);
+   if(isActionWorking(status)) {
       checkInternalError(context);
       return status;
    }
 
    if(state != State::TIMEOUT) {
       ROLE(RelativeTimer).stop();
-   } else if(status.isDoneOrForceStopped()) {
-      status = Result::TIMEDOUT;
+   } else if(status == Result::SUCCESS || status == Result::FORCE_STOPPED) {
+      status = Result::TIMEOUT;
    }
 
    state = State::DONE;
@@ -83,8 +83,8 @@ auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& even
 auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status {
    if(state != State::WORKING) return Result::CONTINUE;
 
-   ActionStatus status = ROLE(SchedAction).stop(context, cause);
-   state = status.isWorking() ? State::STOPPING : State::DONE;
+   Status status = ROLE(SchedAction).stop(context, cause);
+   state = (status == Result::CONTINUE) ? State::STOPPING : State::DONE;
 
    if(state == State::DONE) {
       ROLE(RelativeTimer).stop();
@@ -98,9 +98,9 @@ auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event
    if(!isStillWorking()) return FATAL_BUG;
 
    if(ROLE(RelativeTimer).matches(event)) {
-      ActionStatus status = stop_(context, Result::TIMEDOUT);
-      if(status.isDoneOrForceStopped()) return Result::TIMEDOUT;
-      else if(status.isWorking()) state = State::TIMEOUT;
+      Status status = stop_(context, Result::TIMEOUT);
+      if(status == Result::SUCCESS || status == Result::FORCE_STOPPED) return Result::TIMEOUT;
+      else if(status == Result::CONTINUE) state = State::TIMEOUT;
       return status;
    } else {
       return handleEvent_(context, event);

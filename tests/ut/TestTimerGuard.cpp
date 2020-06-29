@@ -21,14 +21,14 @@ namespace {
       const EV_NS::SimpleEventInfo timerEventInfo{TIMER_EVENT_ID_1};
       const EV_NS::Event timerEvent{timerEventInfo};
 
-     TEST("handleEvent should return TIMEDOUT") {
+     TEST("handleEvent should return TIMEOUT") {
         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-        ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, timerEvent));
+        ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, timerEvent));
      }
 
      TEST("stop should return FORCE_STOPPED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::TIMEDOUT));
+         ASSERT_EQ(Result::FORCE_STOPPED, action.stop(context, Result::TIMEOUT));
      }
    };
 
@@ -52,21 +52,21 @@ namespace {
 
       TEST("stop should return SUCCESS") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::TIMEDOUT));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::TIMEOUT));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
       }
 
-      TEST("handleEvent should return TIMEDOUT") {
+      TEST("handleEvent should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
 
-      TEST("if a timeout event occurred, should return TIMEDOUT") {
+      TEST("if a timeout event occurred, should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
    };
 
@@ -94,7 +94,7 @@ namespace {
 
       TEST("stop should return FORCE_STOPPED") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::TIMEDOUT));
+         ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::TIMEOUT));
          ASSERT_EQ(Result::FORCE_STOPPED, action.handleEvent(context, event1));
       }
 
@@ -111,33 +111,33 @@ namespace {
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event1));
       }
 
-      TEST("handleEvent should return TIMEDOUT") {
+      TEST("handleEvent should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
 
-      TEST("if a timeout event occurred, should return TIMEDOUT") {
+      TEST("if a timeout event occurred, should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
 
-      TEST("if a timeout event occurred, should return TIMEDOUT") {
+      TEST("if a timeout event occurred, should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
 
-      TEST("if a timeout event occurred, should return TIMEDOUT") {
+      TEST("if a timeout event occurred, should return TIMEOUT") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, timerEvent));
          ASSERT_EQ(Result::CONTINUE, action.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::TIMEDOUT, action.handleEvent(context, event1));
+         ASSERT_EQ(Result::TIMEOUT, action.handleEvent(context, event1));
       }
    };
 }

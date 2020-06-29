@@ -67,11 +67,11 @@ namespace details {
    /////////////////////////////////////////////////////////////////////
 
    inline auto IsFailed__(TransactionInfo const& info) -> bool {
-      return ActionStatus(info.getStatus()).isFailed();
+      return cub::is_failed_status(info.getStatus());
    }
 
    inline auto IsSucc__(TransactionInfo const& info) -> bool {
-      return ActionStatus(info.getStatus()).isDone();
+      return Result::SUCCESS == info.getStatus();
    }
 
    template<Status V_STATUS>

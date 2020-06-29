@@ -78,7 +78,7 @@
    , __concurrent(__asyn(Action3), __asyn(Action5))
    );
 
-这个例子中，如果在 ``__break_if`` 之前，发生了 ``TIMEDOUT`` 错误，则循环终止，而整个 ``__loop`` 的运行结果也是 ``TIMEDOUT`` 。
+这个例子中，如果在 ``__break_if`` 之前，发生了 ``TIMEOUT`` 错误，则循环终止，而整个 ``__loop`` 的运行结果也是 ``TIMEOUT`` 。
 
 当然，如果用户想在结束循环的同时，让 ``__loop`` 的运行结果为另一个错误值，则可以明确进行指定：
 

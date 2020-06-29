@@ -31,7 +31,7 @@ private:
    auto execOnce(TransactionContext&) -> Status;
    auto looping(TransactionContext& context) -> Status;
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
-   auto checkActionStatus(ActionStatus status) -> Status;
+   auto checkActionStatus(Status status) -> Status;
 
 private:
    SchedAction* action = nullptr;

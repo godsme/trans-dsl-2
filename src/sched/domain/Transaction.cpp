@@ -8,8 +8,8 @@
 TSL_NS_BEGIN
 
 auto Transaction::startWithEvent(Event const& event) -> Status {
-   ActionStatus status = start();
-   if(!status.isWorking()) {
+   Status status = start();
+   if(status != Result::CONTINUE) {
       return status;
    }
 

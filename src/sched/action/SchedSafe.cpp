@@ -10,16 +10,16 @@ TSL_NS_BEGIN
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSafe::exec(TransactionContext& context) -> Status {
    if(state != State::IDLE) return Result::FATAL_BUG;
-   ActionStatus status = ROLE(SchedAction).exec(context);
-   state = status.isWorking() ? State::WORKING : State::DONE;
+   Status status = ROLE(SchedAction).exec(context);
+   state = isActionWorking(status) ? State::WORKING : State::DONE;
    return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSafe::handleEvent(TransactionContext& context, Event const& event) -> Status {
    if(state != State::WORKING) return FATAL_BUG;
-   ActionStatus status = ROLE(SchedAction).handleEvent(context, event);
-   if(status.isWorking()) {
+   Status status = ROLE(SchedAction).handleEvent(context, event);
+   if(isActionWorking(status)) {
       state = State::DONE;
    }
    return status;

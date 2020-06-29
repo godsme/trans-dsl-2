@@ -42,11 +42,11 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
          return Result::FATAL_BUG;
       }
 
-      ActionStatus status = action->exec(context);
-      children[i] = status.isWorking() ? State::Working : State::Done;
-      if(status.isWorking()) {
+      Status status = action->exec(context);
+      children[i] = (status == Result::CONTINUE) ? State::Working : State::Done;
+      if(status == Result::CONTINUE) {
          hasWorkingChildren = true;
-      } else unlikely_branch if(status.isFailed()) {
+      } else unlikely_branch if(cub::is_failed_status(status)) {
          return status;
       }
    }
@@ -63,14 +63,14 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
    for(SeqInt i=0; i < total; i++) {
       if(!IS_CHILD_WORKING(i)) continue;
 
-      ActionStatus status = get(i)->stop(context, cause);
-      if(status.isWorking()) {
+      Status status = get(i)->stop(context, cause);
+      if(status == Result::CONTINUE) {
          hasWorking = true;
-      } else unlikely_branch if(status.isFailed()) {
+      } else unlikely_branch if(cub::is_failed_status(status)) {
          reportFailure(status);
       }
 
-      children[i] = status.isWorking() ? State::Stopping : State::Done;
+      children[i] = (status == Result::CONTINUE) ? State::Stopping : State::Done;
    }
 
    state = hasWorking ? State::Stopping : State::Done;
@@ -91,14 +91,14 @@ auto SchedConcurrent::exec(TransactionContext& context) -> Status {
    attachToParent(context);
 
    AUTO_SWITCH();
-   ActionStatus status = startUp(context);
+   Status status = startUp(context);
    unlikely_branch
-   if(status.isFailed()) {
+   if(cub::is_failed_status(status)) {
       reportFailure(status);
       return cleanUp(context, finalStatus);
    }
 
-   state = status.isWorking() ? State::Working : State::Done;
+   state = (status == Result::CONTINUE) ? State::Working : State::Done;
 
    return status;
 }
@@ -124,8 +124,8 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
    for(; i < total; ++i) {
       if(!IS_CHILD_WORKING(i)) continue;
 
-      ActionStatus status = get(i)->handleEvent(context, event);
-      if(status.isWorking()) {
+      Status status = get(i)->handleEvent(context, event);
+      if(isActionWorking(status)) {
          hasWorkingAction = true;
 
          unlikely_branch
@@ -137,7 +137,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
          children[i] = State::Done;
 
          unlikely_branch
-         if(status.isFailed()) reportFailure(status);
+         if(cub::is_failed_status(status)) reportFailure(status);
       }
 
       if(event.isConsumed()) break;

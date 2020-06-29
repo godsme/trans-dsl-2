@@ -10,9 +10,9 @@
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
-inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
+inline auto SchedSequential::getFinalStatus(Status status) -> Status {
    unlikely_branch
-   if(stopped && status.isDone()) {
+   if(stopped && status == Result::SUCCESS) {
       return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
    }
 
@@ -23,8 +23,8 @@ inline auto SchedSequential::getFinalStatus(ActionStatus status) -> Status {
 auto SchedSequential::forward(TransactionContext& context) -> Status {
    unlikely_branch
    while((current = getNext(index++)) != nullptr) {
-      ActionStatus status = current->exec(context);
-      if(!status.isDone()) {
+      Status status = current->exec(context);
+      if(status != Result::SUCCESS) {
          return status;
       }
    }
@@ -46,8 +46,8 @@ auto SchedSequential::handleEvent_(TransactionContext& context, Event const& eve
      return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
    }
 
-   ActionStatus status = current->handleEvent(context, event);
-   if(!status.isDone()) {
+   Status status = current->handleEvent(context, event);
+   if(status != Result::SUCCESS) {
       return status;
    }
 
@@ -79,8 +79,8 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
 
    stopped = true;
 
-   ActionStatus status = current->stop(context, cause);
-   if(status.isWorking()) {
+   Status status = current->stop(context, cause);
+   if(status == Result::CONTINUE) {
       return status;
    }
 

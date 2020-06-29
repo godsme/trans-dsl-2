@@ -34,7 +34,7 @@ struct RuntimeContext {
       finalStatus = Result::SUCCESS;
    }
 
-   auto reportFailure(ActionStatus status) -> void;
+   auto reportFailure(Status status) -> void;
    auto attachToParent(TransactionContext& context) -> Status;
 
    auto enableSandboxMode() {

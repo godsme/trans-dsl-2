@@ -65,7 +65,7 @@ namespace {
       }
 
       GIVEN("the runtime env has a TIMEOUT error") {
-         context.getRuntimeContext().reportFailure(Result::TIMEDOUT);
+         context.getRuntimeContext().reportFailure(Result::TIMEOUT);
          REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("should choose default path") {

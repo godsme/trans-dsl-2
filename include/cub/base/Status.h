@@ -40,8 +40,8 @@ enum Result: cub::Status
 {
    SUCCESS   = cub::success_status(0),
 
-   FATAL_BUG = cub::fail_status(0x7FFFFFFE),
-   FAILURE   = cub::fail_status(0x7FFFFFFF)
+   FATAL_BUG = cub::fail_status(0x3FFFFFFE),
+   FAILURE   = cub::fail_status(0x3FFFFFFF)
 };
 
 CUB_NS_END

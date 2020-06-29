@@ -14,6 +14,7 @@ using Status = CUB_NS::Status;
 
 enum Result : Status {
    SUCCESS   = Status(CUB_NS::Result::SUCCESS),
+   MOVE_ON, // reserved (for loop)
 
    FATAL_BUG = Status(CUB_NS::Result::FATAL_BUG),
    FAILED    = Status(CUB_NS::Result::FAILURE),
@@ -21,22 +22,25 @@ enum Result : Status {
    RESERVED_FAILURE = CUB_NS::CUB_RESERVED_FAILURE,
    UNSPECIFIED, // reserved (for loop)
 
-   __TSL_STATUS_BEGIN = 100,
-
-   CONTINUE       = CUB_NS::success_status(__TSL_STATUS_BEGIN),
-   UNKNOWN_EVENT,
-   MOVE_ON, // reserved (for loop)
-
-   OUT_OF_SCOPE   = CUB_NS::fail_status(__TSL_STATUS_BEGIN),
+   OUT_OF_SCOPE   = CUB_NS::fail_status(100),
    DUPTID,
    INVALID_DATA,
-   TIMEDOUT,
+   TIMEOUT,
    USER_FATAL_BUG,
    RESTART_REQUIRED,
    NOTHING_CHANGED,
 
-   FORCE_STOPPED
+   FORCE_STOPPED,
+
+   ////////////////////////////////////////////////////
+   __WORKING_STATUS_BEGIN = 0x4000'0000,
+   CONTINUE       = __WORKING_STATUS_BEGIN,
+   UNKNOWN_EVENT  = __WORKING_STATUS_BEGIN + 1
 };
+
+constexpr auto isActionWorking(Status status) -> bool {
+   return (Result::__WORKING_STATUS_BEGIN & status) > 0;
+}
 
 TSL_NS_END
 

@@ -7,13 +7,13 @@
 TSL_NS_BEGIN
 
 namespace {
-   bool shouldUpdate(ActionStatus current, ActionStatus newStatus) {
-      if(current == newStatus || !newStatus.isFailed()) return false;
+   bool shouldUpdate(Status current, Status newStatus) {
+      if(current == newStatus || !cub::is_failed_status(newStatus)) return false;
       return (newStatus == Result::FORCE_STOPPED) ? current == Result::SUCCESS : true;
    }
 }
 
-auto RuntimeContext::reportFailure(ActionStatus status) -> void {
+auto RuntimeContext::reportFailure(Status status) -> void {
    if(shouldUpdate(finalStatus, status)) {
       finalStatus = status;
 

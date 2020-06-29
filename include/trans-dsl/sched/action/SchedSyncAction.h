@@ -20,8 +20,8 @@ struct SchedSyncAction : SchedAction  {
    }
 
 protected:
-   Status check(ActionStatus status) {
-      return status.isWorking() ? Result::FATAL_BUG : status;
+   Status check(Status status) {
+      return status == Result::CONTINUE ? Result::FATAL_BUG : status;
    }
 };
 

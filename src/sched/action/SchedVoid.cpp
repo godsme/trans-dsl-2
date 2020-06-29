@@ -24,8 +24,8 @@ namespace {
 ///////////////////////////////////////////////////////////////////////////////
 #define __CALL(call) do {                                \
    AUTO_SWITCH();                                        \
-   ActionStatus status = ROLE(SchedAction).call;         \
-   return status.isWorking() ? status : Result::SUCCESS; \
+   Status status = ROLE(SchedAction).call;               \
+   return isActionWorking(status) ? status : Result::SUCCESS; \
 } while(0)
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ struct SchedSequential : SchedAction {
 
 private:
    auto forward(TransactionContext&) -> Status;
-   auto getFinalStatus(ActionStatus status) -> Status;
+   auto getFinalStatus(Status status) -> Status;
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
 
 private:

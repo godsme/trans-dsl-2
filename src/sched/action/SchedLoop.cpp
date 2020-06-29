@@ -24,11 +24,11 @@ auto SchedLoop::checkError(bool isAction) {
    }
 }
 
-auto SchedLoop::checkActionStatus(ActionStatus status) -> Status {
-   if (status.isFailed()) {
+auto SchedLoop::checkActionStatus(Status status) -> Status {
+   if (cub::is_failed_status(status)) {
       reportFailure(status);
       return Result::MOVE_ON;
-   } else if (status.isDone()) {
+   } else if (status == Result::SUCCESS) {
       return Result::MOVE_ON;
    }
 
@@ -106,10 +106,10 @@ auto SchedLoop::exec(TransactionContext& context) -> Status {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-   ActionStatus status = action->handleEvent(context, event);
-   if (status.isWorking() || stopping) {
+   Status status = action->handleEvent(context, event);
+   if (isActionWorking(status) || stopping) {
       return status;
-   } else if(status.isFailed()) {
+   } else if(cub::is_failed_status(status)) {
       reportFailure(status);
    }
 

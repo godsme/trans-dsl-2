@@ -157,14 +157,15 @@ namespace details {
       }
 
 
-///////////////////////////////////////////////////////////////////////
-#define LoOp_AcTiOn(n) case n: return get<n>(isAction);
-#define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
-   switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) } \
-}
-#define And_LoOp_AcTiOn_DeCl(n) else LoOp_AcTiOn_DeCl(n)
-///////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////
+      #define LoOp_AcTiOn(n) case n: return get<n>(isAction);
+      #define LoOp_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
+         switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) }}
+      #define And_LoOp_AcTiOn_DeCl(n) else LoOp_AcTiOn_DeCl(n)
+      ///////////////////////////////////////////////////////////////////////
 
+      // Use if-constexpr to avoid unnecessary function template instantiation.
+      // Use switch-case to avoid recursion
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
          LoOp_AcTiOn_DeCl(2)
          And_LoOp_AcTiOn_DeCl(3)
@@ -185,6 +186,7 @@ namespace details {
          And_LoOp_AcTiOn_DeCl(18)
          And_LoOp_AcTiOn_DeCl(19)
          And_LoOp_AcTiOn_DeCl(20)
+
          return nullptr;
       }
    };

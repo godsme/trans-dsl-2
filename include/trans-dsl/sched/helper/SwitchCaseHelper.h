@@ -100,12 +100,16 @@ namespace details {
 
    private:
 
-#define AcTiOn_PaTh_GeT_PaTh__(n) case n: return get<n>();
-#define AcTiOn_PaThs(n) switch (seq) { SIMPLE_REPEAT(n, AcTiOn_PaTh_GeT_PaTh__) }
-#define AcTiOn_PaThs_DeCl(n) if constexpr(Num_Of_Paths <= n) { AcTiOn_PaThs(n) }
-#define And_AcTiOn_PaThs_DeCl(n) else AcTiOn_PaThs_DeCl(n)
+      ///////////////////////////////////////////////////////////////
+      #define AcTiOn_PaTh_GeT_PaTh__(n) case n: return get<n>();
+      #define AcTiOn_PaThs(n) switch (seq) { SIMPLE_REPEAT(n, AcTiOn_PaTh_GeT_PaTh__) }
+      #define AcTiOn_PaThs_DeCl(n) if constexpr(Num_Of_Paths <= n) { AcTiOn_PaThs(n) }
+      #define And_AcTiOn_PaThs_DeCl(n) else AcTiOn_PaThs_DeCl(n)
+     ///////////////////////////////////////////////////////////////
+     SeqInt i = 0;
 
-      SeqInt i = 0;
+      // Use switch-case to avoid recursion
+      // Use if-constexpr to avoid unnecessary function template instantiation.
       OVERRIDE(getNext() -> ActionPath *) {
          SeqInt seq = i++;
 

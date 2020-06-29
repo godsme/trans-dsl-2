@@ -62,13 +62,15 @@ namespace details {
             return Num_Of_Actions;
          }
 
-///////////////////////////////////////////////////////////////////////
-#define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
-#define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
-   switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } \
-}
-#define And_CoNcUrReNt_AcTiOn_DeCl(n) else CoNcUrReNt_AcTiOn_DeCl(n)
+         ///////////////////////////////////////////////////////////////////////
+         #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
+         #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
+            switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
+         #define And_CoNcUrReNt_AcTiOn_DeCl(n) else CoNcUrReNt_AcTiOn_DeCl(n)
+         ///////////////////////////////////////////////////////////////////////
 
+         // Use switch-case to avoid recursion
+         // Use if-constexpr to avoid unnecessary function template instantiation.
          OVERRIDE(get(SeqInt seq) -> SchedAction*) {
             CoNcUrReNt_AcTiOn_DeCl(2)
             And_CoNcUrReNt_AcTiOn_DeCl(3)

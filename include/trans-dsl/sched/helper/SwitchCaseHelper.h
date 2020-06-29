@@ -13,6 +13,7 @@
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <trans-dsl/sched/helper/TypeExtractor.h>
+#include <cub/utils/RepeatMacros.h>
 
 TSL_NS_BEGIN
 
@@ -73,7 +74,7 @@ namespace details {
 
    // 24 bytes
    template<CONCEPT(ActionPathConcept) ... T_PATHS>
-   struct SWITCH__ final : SchedSwitchCase {
+   struct Switch final : SchedSwitchCase {
       static constexpr size_t Num_Of_Paths = sizeof...(T_PATHS);
       static_assert(Num_Of_Paths >= 2, "should have at least 2 paths, or use __optional instead");
       static_assert(Num_Of_Paths <= 20, "too much paths in one ___switch");
@@ -98,297 +99,35 @@ namespace details {
       }
 
    private:
-#define AcTiOn_PaTh_GeT_AcTiOn__(n) case n: return get<n>()
+
+#define AcTiOn_PaTh_GeT_PaTh__(n) case n: return get<n>();
+#define AcTiOn_PaThs(n) switch (seq) { SIMPLE_REPEAT(n, AcTiOn_PaTh_GeT_PaTh__) }
+#define AcTiOn_PaThs_DeCl(n) if constexpr(Num_Of_Paths <= n) { AcTiOn_PaThs(n) }
+#define And_AcTiOn_PaThs_DeCl(n) else AcTiOn_PaThs_DeCl(n)
 
       SeqInt i = 0;
       OVERRIDE(getNext() -> ActionPath *) {
          SeqInt seq = i++;
 
-         if constexpr(Num_Of_Paths <= 2) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 3) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 4) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 5) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 6) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 7) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 8) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 9) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 10) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 11) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 12) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 13) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 14) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 15) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 16) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-               AcTiOn_PaTh_GeT_AcTiOn__(15);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 17) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-               AcTiOn_PaTh_GeT_AcTiOn__(15);
-               AcTiOn_PaTh_GeT_AcTiOn__(16);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 18) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-               AcTiOn_PaTh_GeT_AcTiOn__(15);
-               AcTiOn_PaTh_GeT_AcTiOn__(16);
-               AcTiOn_PaTh_GeT_AcTiOn__(17);
-            }
-         }
-         else if constexpr(Num_Of_Paths == 19) {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-               AcTiOn_PaTh_GeT_AcTiOn__(15);
-               AcTiOn_PaTh_GeT_AcTiOn__(16);
-               AcTiOn_PaTh_GeT_AcTiOn__(17);
-               AcTiOn_PaTh_GeT_AcTiOn__(18);
-            }
-         }
-         else {
-            switch (seq) {
-               AcTiOn_PaTh_GeT_AcTiOn__(0);
-               AcTiOn_PaTh_GeT_AcTiOn__(1);
-               AcTiOn_PaTh_GeT_AcTiOn__(2);
-               AcTiOn_PaTh_GeT_AcTiOn__(3);
-               AcTiOn_PaTh_GeT_AcTiOn__(4);
-               AcTiOn_PaTh_GeT_AcTiOn__(5);
-               AcTiOn_PaTh_GeT_AcTiOn__(6);
-               AcTiOn_PaTh_GeT_AcTiOn__(7);
-               AcTiOn_PaTh_GeT_AcTiOn__(8);
-               AcTiOn_PaTh_GeT_AcTiOn__(9);
-               AcTiOn_PaTh_GeT_AcTiOn__(10);
-               AcTiOn_PaTh_GeT_AcTiOn__(11);
-               AcTiOn_PaTh_GeT_AcTiOn__(12);
-               AcTiOn_PaTh_GeT_AcTiOn__(13);
-               AcTiOn_PaTh_GeT_AcTiOn__(14);
-               AcTiOn_PaTh_GeT_AcTiOn__(15);
-               AcTiOn_PaTh_GeT_AcTiOn__(16);
-               AcTiOn_PaTh_GeT_AcTiOn__(17);
-               AcTiOn_PaTh_GeT_AcTiOn__(18);
-               AcTiOn_PaTh_GeT_AcTiOn__(19);
-            }
-         }
+         AcTiOn_PaThs_DeCl(2)
+         And_AcTiOn_PaThs_DeCl(3)
+         And_AcTiOn_PaThs_DeCl(4)
+         And_AcTiOn_PaThs_DeCl(5)
+         And_AcTiOn_PaThs_DeCl(6)
+         And_AcTiOn_PaThs_DeCl(7)
+         And_AcTiOn_PaThs_DeCl(8)
+         And_AcTiOn_PaThs_DeCl(9)
+         And_AcTiOn_PaThs_DeCl(10)
+         And_AcTiOn_PaThs_DeCl(11)
+         And_AcTiOn_PaThs_DeCl(12)
+         And_AcTiOn_PaThs_DeCl(13)
+         And_AcTiOn_PaThs_DeCl(14)
+         And_AcTiOn_PaThs_DeCl(15)
+         And_AcTiOn_PaThs_DeCl(16)
+         And_AcTiOn_PaThs_DeCl(17)
+         And_AcTiOn_PaThs_DeCl(18)
+         And_AcTiOn_PaThs_DeCl(19)
+
          return nullptr;
       }
    };
@@ -400,6 +139,6 @@ TSL_NS_END
 
 #define __case(pred, action) decltype(TSL_NS::details::DeduceActionPath<pred, action>())
 #define __otherwise(action) __case(TSL_NS::details::IsTrue__, action)
-#define __switch(...) TSL_NS::details::SWITCH__<__VA_ARGS__>
+#define __switch(...) TSL_NS::details::Switch<__VA_ARGS__>
 
 #endif //TRANS_DSL_2_SWITCHCASEHELPER_H

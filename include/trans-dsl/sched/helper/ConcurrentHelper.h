@@ -12,6 +12,7 @@
 #include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/TypeExtractor.h>
+#include <cub/utils/RepeatMacros.h>
 
 TSL_NS_BEGIN
 
@@ -61,50 +62,19 @@ namespace details {
             return Num_Of_Actions;
          }
 
-#define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>()
+///////////////////////////////////////////////////////////////////////
+#define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
+#define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) { \
+   switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } \
+}
+#define And_CoNcUrReNt_AcTiOn_DeCl(n) else CoNcUrReNt_AcTiOn_DeCl(n)
 
          OVERRIDE(get(SeqInt seq) -> SchedAction*) {
-            if constexpr(Num_Of_Actions <= 2) {
-               switch (seq) {
-                  CoNcUrReNt_GeT_AcTiOn__(0);
-                  CoNcUrReNt_GeT_AcTiOn__(1);
-               }
-            }
-            else if constexpr(Num_Of_Actions == 3) {
-               switch (seq) {
-                  CoNcUrReNt_GeT_AcTiOn__(0);
-                  CoNcUrReNt_GeT_AcTiOn__(1);
-                  CoNcUrReNt_GeT_AcTiOn__(2);
-               }
-            }
-            else if constexpr(Num_Of_Actions == 4) {
-               switch (seq) {
-                  CoNcUrReNt_GeT_AcTiOn__(0);
-                  CoNcUrReNt_GeT_AcTiOn__(1);
-                  CoNcUrReNt_GeT_AcTiOn__(2);
-                  CoNcUrReNt_GeT_AcTiOn__(3);
-               }
-            }
-            else if constexpr(Num_Of_Actions == 5) {
-               switch (seq) {
-                  CoNcUrReNt_GeT_AcTiOn__(0);
-                  CoNcUrReNt_GeT_AcTiOn__(1);
-                  CoNcUrReNt_GeT_AcTiOn__(2);
-                  CoNcUrReNt_GeT_AcTiOn__(3);
-                  CoNcUrReNt_GeT_AcTiOn__(4);
-               }
-            }
-            else {
-               switch (seq) {
-                  CoNcUrReNt_GeT_AcTiOn__(0);
-                  CoNcUrReNt_GeT_AcTiOn__(1);
-                  CoNcUrReNt_GeT_AcTiOn__(2);
-                  CoNcUrReNt_GeT_AcTiOn__(3);
-                  CoNcUrReNt_GeT_AcTiOn__(4);
-                  CoNcUrReNt_GeT_AcTiOn__(5);
-               }
-            }
-
+            CoNcUrReNt_AcTiOn_DeCl(2)
+            And_CoNcUrReNt_AcTiOn_DeCl(3)
+            And_CoNcUrReNt_AcTiOn_DeCl(4)
+            And_CoNcUrReNt_AcTiOn_DeCl(5)
+            And_CoNcUrReNt_AcTiOn_DeCl(6)
             return nullptr;
          }
 

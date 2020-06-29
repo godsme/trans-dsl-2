@@ -21,7 +21,7 @@ namespace details {
 
    // 24 bytes
    template<CONCEPT(ActionPathConcept) ... T_PATHS>
-   struct Switch final : SchedSwitchCase {
+   class Switch final : public SchedSwitchCase {
       static constexpr size_t Num_Of_Paths = sizeof...(T_PATHS);
       static_assert(Num_Of_Paths >= 2, "should have at least 2 paths, or use __optional instead");
       static_assert(Num_Of_Paths <= 20, "too much paths in one ___switch");
@@ -36,9 +36,9 @@ namespace details {
       auto get() -> ActionPath* {
          if constexpr(N < Num_Of_Paths) {
             using Path = TypeExtractor_t<N, Head, T_PATHS...>;
-#if !__CONCEPT_ENABLED
+            #if !__CONCEPT_ENABLED
             static_assert(ActionPathConcept<Path>);
-#endif
+            #endif
             return new (cache) Path;
          } else {
             return nullptr;
@@ -55,7 +55,8 @@ namespace details {
      SeqInt i = 0;
 
       // Use if-constexpr to avoid unnecessary function template instantiation.
-      // Use switch-case to avoid recursion.
+      // Use switch-case to avoid recursion, and the generated jump-table by
+      // switch-case is fast.
       OVERRIDE(getNext() -> ActionPath *) {
          SeqInt seq = i++;
 
@@ -81,8 +82,6 @@ namespace details {
          return nullptr;
       }
    };
-
-
 }
 
 TSL_NS_END

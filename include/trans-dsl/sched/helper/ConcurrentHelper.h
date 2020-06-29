@@ -39,9 +39,11 @@ namespace details {
    };
 
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   struct Concurrent : SchedConcurrent, private GenericConcurrent<T_ACTIONS...> {
+   class Concurrent final : public SchedConcurrent, GenericConcurrent<T_ACTIONS...> {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
       static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
+      static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
+      static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
 
       template<typename ... Ts>
       struct LoopElem {
@@ -69,8 +71,9 @@ namespace details {
          #define And_CoNcUrReNt_AcTiOn_DeCl(n) else CoNcUrReNt_AcTiOn_DeCl(n)
          ///////////////////////////////////////////////////////////////////////
 
-         // Use switch-case to avoid recursion
          // Use if-constexpr to avoid unnecessary function template instantiation.
+         // Use switch-case to avoid recursion, and the generated jump-table by
+         // switch-case is fast.
          OVERRIDE(get(SeqInt seq) -> SchedAction*) {
             CoNcUrReNt_AcTiOn_DeCl(2)
             And_CoNcUrReNt_AcTiOn_DeCl(3)
@@ -79,9 +82,6 @@ namespace details {
             And_CoNcUrReNt_AcTiOn_DeCl(6)
             return nullptr;
          }
-
-      static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
    };
 }
 

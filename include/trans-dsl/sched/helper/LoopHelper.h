@@ -68,7 +68,7 @@ namespace details {
 
    /////////////////////////////////////////////////////////////////////////////////////////
    template<
-      CONCEPT_C(NonEmptyLoopPredConcept, T_HEAD),
+      CONCEPT(NonEmptyLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
    struct GenericLoop_<
       ENABLE_C_2(NonEmptyLoopPredConcept, T_HEAD)
@@ -80,7 +80,7 @@ namespace details {
    ///////////////////////////////////////////////////////////////////////////////////////
 
    template<
-      CONCEPT_C(EmptyLoopPredConcept, T_HEAD),
+      CONCEPT(EmptyLoopPredConcept) T_HEAD,
       typename ... T_TAIL>
    struct GenericLoop_<
       ENABLE_C_2(EmptyLoopPredConcept, T_HEAD)
@@ -97,7 +97,7 @@ namespace details {
    };
 
    template<
-      CONCEPT_C(SchedActionConcept, T_HEAD),
+      CONCEPT(SchedActionConcept) T_HEAD,
       typename ... T_TAIL>
    struct GenericLoop_<
       ENABLE_C_2(SchedActionConcept, T_HEAD)
@@ -107,25 +107,17 @@ namespace details {
 
    /////////////////////////////////////////////////////////////////////////////////////////////
    template<>
-   struct GenericLoop_<> {
-      struct Inner  {
-         auto get(char*, bool&) -> SchedAction* {
-            return nullptr;
-         }
-      };
-   };
+   struct GenericLoop_<> {};
 
    template<typename T>
    DEF_CONCEPT(LoopElemConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
    template<uint32_t V_MAX_TIMES, CONCEPT(LoopElemConcept) ... T_ACTIONS>
-   struct Loop final : private GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...>, SchedLoop {
-   private:
+   class Loop final : public SchedLoop, GenericLoop_<VOID_PLACEHOLDER_2 T_ACTIONS...> {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions > 0, "loop cannot be empty");
       static_assert(Num_Of_Actions <= 20, "too many actions in a loop");
 
-   private:
       template <typename T>
       constexpr static size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0 ;
       template <typename T>
@@ -162,7 +154,8 @@ namespace details {
       ///////////////////////////////////////////////////////////////////////
 
       // Use if-constexpr to avoid unnecessary function template instantiation.
-      // Use switch-case to avoid recursion
+      // Use switch-case to avoid recursion, and the generated jump-table by
+      // switch-case is fast.
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
          LoOp_AcTiOn_DeCl(2)
          And_LoOp_AcTiOn_DeCl(3)

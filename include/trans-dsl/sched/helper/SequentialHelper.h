@@ -19,13 +19,11 @@ struct SchedAction;
 
 namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   struct Sequential final : SchedSequential {
-   private:
+   class Sequential final : public SchedSequential {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
       static_assert(Num_Of_Actions <= 20, "too many actions in a __sequential");
 
-   private:
       enum {
          Size  = ( MaxSizeCalc{} << ... << sizeof(T_ACTIONS) ),
          Align = ( MaxSizeCalc{} << ... << alignof(T_ACTIONS) )
@@ -36,6 +34,9 @@ namespace details {
       auto get() -> SchedAction* {
          if constexpr(N < sizeof...(T_ACTIONS)) {
             using Action = TypeExtractor_t<N, Head, T_ACTIONS...>;
+            #if !__CONCEPT_ENABLED
+            static_assert(SchedActionConcept<Action>);
+            #endif
             return new (cache) Action;
          } else {
             return nullptr;
@@ -52,8 +53,9 @@ namespace details {
       #define And_Seq_AcTiOn_DeCl(n) else Seq_AcTiOn_DeCl(n)
       ///////////////////////////////////////////////////////////////////
 
-      // Use switch-case to avoid recursion
       // Use if-constexpr to avoid unnecessary function template instantiation.
+      // Use switch-case to avoid recursion, and the generated jump-table by
+      // switch-case is fast.
       OVERRIDE(getNext(SeqInt seq) -> SchedAction*) {
          Seq_AcTiOn_DeCl(2)
          And_Seq_AcTiOn_DeCl(3)

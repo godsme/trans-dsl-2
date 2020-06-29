@@ -6,11 +6,8 @@
 #define TRANS_DSL_2_SWITCHCASEHELPER_H
 
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
-#include <trans-dsl/sched/action/ActionPath.h>
-#include <trans-dsl/sched/concepts/SchedActionConcept.h>
-#include <cub/base/IsClass.h>
 #include <trans-dsl/utils/SeqInt.h>
-#include <trans-dsl/sched/helper/Pred.h>
+#include <trans-dsl/sched/helper/ActionPathHelper.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <trans-dsl/sched/helper/TypeExtractor.h>
 #include <cub/utils/RepeatMacros.h>
@@ -19,58 +16,8 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<typename T_PRED, typename T_ACTION VOID_CONCEPT>
-   struct GenericActionPathClass;
-
-   template<
-      typename T_PRED,
-      CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct GenericActionPathClass<
-      T_PRED,
-      T_ACTION
-      ENABLE_C(SchedActionConcept, T_ACTION)> : ActionPath {
-
-      OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
-         auto pred = new (cache) T_PRED;
-         return (*pred)(trans);
-      }
-
-      OVERRIDE(getAction() -> SchedAction&) {
-         auto action = new (cache) T_ACTION;
-         return *action;
-      }
-
-   private:
-      alignas(std::max(alignof(T_PRED), alignof(T_ACTION)))
-      char cache[std::max(sizeof(T_PRED), sizeof(T_ACTION))];
-   };
-
-   template<PredFunction V_PRED, typename T_ACTION>
-   struct GenericActionPathFunc : ActionPath {
-      OVERRIDE(shouldExecute(TransactionInfo const& trans) -> bool) {
-         return V_PRED(trans);
-      }
-
-      OVERRIDE(getAction() -> SchedAction&) {
-         auto action = new (cache) T_ACTION;
-         return *action;
-      }
-
-   private:
-      alignas(T_ACTION) char cache[sizeof(T_ACTION)];
-   };
-
-   template<typename T_PRED, typename T_ACTION>
-   auto DeduceActionPath() -> GenericActionPathClass<T_PRED, T_ACTION>;
-
-   template<PredFunction V_PRED, typename T_ACTION>
-   auto DeduceActionPath() -> GenericActionPathFunc<V_PRED, T_ACTION>;
-
-   //////////////////////////////////////////////////////////////////////////////////////////
-
    template<typename T>
    DEF_CONCEPT(ActionPathConcept, std::is_base_of_v<ActionPath, T>);
-
 
    // 24 bytes
    template<CONCEPT(ActionPathConcept) ... T_PATHS>
@@ -99,7 +46,6 @@ namespace details {
       }
 
    private:
-
       ///////////////////////////////////////////////////////////////
       #define AcTiOn_PaTh_GeT_PaTh__(n) case n: return get<n>();
       #define AcTiOn_PaThs(n) switch (seq) { SIMPLE_REPEAT(n, AcTiOn_PaTh_GeT_PaTh__) }
@@ -108,8 +54,8 @@ namespace details {
      ///////////////////////////////////////////////////////////////
      SeqInt i = 0;
 
-      // Use switch-case to avoid recursion
       // Use if-constexpr to avoid unnecessary function template instantiation.
+      // Use switch-case to avoid recursion.
       OVERRIDE(getNext() -> ActionPath *) {
          SeqInt seq = i++;
 
@@ -136,13 +82,11 @@ namespace details {
       }
    };
 
-   inline auto IsTrue__(const TransactionInfo&) -> bool { return true; }
+
 }
 
 TSL_NS_END
 
-#define __case(pred, action) decltype(TSL_NS::details::DeduceActionPath<pred, action>())
-#define __otherwise(action) __case(TSL_NS::details::IsTrue__, action)
 #define __switch(...) TSL_NS::details::Switch<__VA_ARGS__>
 
 #endif //TRANS_DSL_2_SWITCHCASEHELPER_H

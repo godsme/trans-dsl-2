@@ -21,9 +21,7 @@ namespace details {
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    struct Sequential final : SchedSequential {
    private:
-      enum {
-         Num_Of_Actions = sizeof...(T_ACTIONS)
-      };
+      enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
       static_assert(Num_Of_Actions <= 20, "too many actions in a __sequential");
 
@@ -44,12 +42,8 @@ namespace details {
          }
       }
 
-
-
    private:
-      OVERRIDE(getNumOfActions()->SeqInt) {
-         return Num_Of_Actions;
-      }
+      OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
 
       ///////////////////////////////////////////////////////////////////
       #define Seq_GeT_AcTiOn__(n) case n: return get<n>();

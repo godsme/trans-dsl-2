@@ -152,10 +152,7 @@ namespace details {
       }
 
    public:
-      OVERRIDE(getMaxTime() const -> uint32_t) {
-         return V_MAX_TIMES;
-      }
-
+      OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }
 
       ///////////////////////////////////////////////////////////////////////
       #define LoOp_AcTiOn(n) case n: return get<n>(isAction);

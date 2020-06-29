@@ -5,12 +5,12 @@
 #if ENABLE_LOOP_CODE_GEN
 
 template<SeqInt MAX_N>
-auto get_(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action(SeqInt seq, bool& isAction) -> SchedAction* {
    return nullptr;
 }
 
 template<>
-auto get_<1>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<1>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       default:
@@ -19,7 +19,7 @@ auto get_<1>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<2>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<2>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -29,7 +29,7 @@ auto get_<2>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<3>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<3>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -40,7 +40,7 @@ auto get_<3>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<4>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<4>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -52,7 +52,7 @@ auto get_<4>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<5>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<5>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -65,7 +65,7 @@ auto get_<5>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<6>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<6>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -79,7 +79,7 @@ auto get_<6>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<7>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<7>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -94,7 +94,7 @@ auto get_<7>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<8>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<8>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -110,7 +110,7 @@ auto get_<8>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<9>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<9>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -127,7 +127,7 @@ auto get_<9>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<10>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<10>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -145,7 +145,7 @@ auto get_<10>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<11>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<11>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -164,7 +164,7 @@ auto get_<11>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<12>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<12>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -184,7 +184,7 @@ auto get_<12>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<13>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<13>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -205,7 +205,7 @@ auto get_<13>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<14>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<14>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -227,7 +227,7 @@ auto get_<14>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<15>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<15>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -250,7 +250,7 @@ auto get_<15>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<16>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<16>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -274,7 +274,7 @@ auto get_<16>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<17>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<17>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -299,7 +299,7 @@ auto get_<17>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<18>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<18>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -325,7 +325,7 @@ auto get_<18>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<19>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<19>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);
@@ -352,7 +352,7 @@ auto get_<19>(SeqInt seq, bool& isAction) -> SchedAction* {
 }
 
 template<>
-auto get_<20>(SeqInt seq, bool& isAction) -> SchedAction* {
+auto get_Action<20>(SeqInt seq, bool& isAction) -> SchedAction* {
    switch (seq) {
       LoOp_GeT_AcTiOn__(0);
       LoOp_GeT_AcTiOn__(1);

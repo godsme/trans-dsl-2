@@ -56,7 +56,7 @@ namespace details {
 
       OVERRIDE(getNext(SeqInt index) -> SchedAction*) {
 #if ENABLE_SEQ_CODE_GEN
-         return get_<Num_Of_Actions>(index);
+         return get_Action<Num_Of_Actions>(index);
 #else
          // switch-case would generate jump table,
          // performance would be better than recursion.

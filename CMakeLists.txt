@@ -18,7 +18,7 @@ include_directories(
 
 LINK_DIRECTORIES(/usr/local/lib)
 
-add_library(trans-dsl SHARED
+add_library(trans-dsl STATIC
         include/trans-dsl/tsl_ns.h
         include/cub/base/Status.h
         include/cub/cub_ns.h

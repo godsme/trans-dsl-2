@@ -163,7 +163,7 @@ namespace details {
 
       OVERRIDE(getAction(SeqInt seq, bool& isAction) -> SchedAction*) {
 #if ENABLE_LOOP_CODE_GEN
-         return get_<Num_Of_Actions>(seq, isAction);
+         return get_Action<Num_Of_Actions>(seq, isAction);
 #else
          switch (seq) {
             LoOp_GeT_AcTiOn__(0);

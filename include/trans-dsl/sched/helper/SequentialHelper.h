@@ -9,7 +9,7 @@
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
-#include <trans-dsl/sched/helper/SequenceLike.h>
+#include <trans-dsl/sched/helper/InstantSeq.h>
 
 TSL_NS_BEGIN
 
@@ -20,9 +20,9 @@ namespace details {
    class Sequential final {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
-      static_assert(Num_Of_Actions <= 20, "too many actions in a __sequential");
+      static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
-      using Base = SequenceLike<SchedAction, T_ACTIONS...>;
+      using Base = InstantSeq<SchedAction, T_ACTIONS...>;
 
    public:
       class Inner : public SchedSequential, Base {

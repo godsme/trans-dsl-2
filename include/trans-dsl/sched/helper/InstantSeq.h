@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/29.
 //
 
-#ifndef TRANS_DSL_2_SEQUENCELIKE_H
-#define TRANS_DSL_2_SEQUENCELIKE_H
+#ifndef TRANS_DSL_2_INSTANTSEQ_H
+#define TRANS_DSL_2_INSTANTSEQ_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 
 namespace details {
    template<typename T_ELEM, typename ... Ts >
-   class SequenceLike  {
+   class InstantSeq  {
       static constexpr size_t Num_Of_Elements = sizeof...(Ts);
       enum {
          Size  = ( MaxSizeCalc{} << ... << sizeof(Ts) ),
@@ -66,7 +66,37 @@ namespace details {
          And_Seq_AcTiOn_DeCl(17)
          And_Seq_AcTiOn_DeCl(18)
          And_Seq_AcTiOn_DeCl(19)
-
+         And_Seq_AcTiOn_DeCl(20)
+         And_Seq_AcTiOn_DeCl(21)
+         And_Seq_AcTiOn_DeCl(22)
+         And_Seq_AcTiOn_DeCl(23)
+         And_Seq_AcTiOn_DeCl(24)
+         And_Seq_AcTiOn_DeCl(25)
+         And_Seq_AcTiOn_DeCl(26)
+         And_Seq_AcTiOn_DeCl(27)
+         And_Seq_AcTiOn_DeCl(28)
+         And_Seq_AcTiOn_DeCl(29)
+         And_Seq_AcTiOn_DeCl(30)
+         And_Seq_AcTiOn_DeCl(31)
+         And_Seq_AcTiOn_DeCl(32)
+         And_Seq_AcTiOn_DeCl(33)
+         And_Seq_AcTiOn_DeCl(34)
+         And_Seq_AcTiOn_DeCl(35)
+         And_Seq_AcTiOn_DeCl(36)
+         And_Seq_AcTiOn_DeCl(37)
+         And_Seq_AcTiOn_DeCl(38)
+         And_Seq_AcTiOn_DeCl(39)
+         And_Seq_AcTiOn_DeCl(40)
+         And_Seq_AcTiOn_DeCl(41)
+         And_Seq_AcTiOn_DeCl(42)
+         And_Seq_AcTiOn_DeCl(43)
+         And_Seq_AcTiOn_DeCl(44)
+         And_Seq_AcTiOn_DeCl(45)
+         And_Seq_AcTiOn_DeCl(46)
+         And_Seq_AcTiOn_DeCl(47)
+         And_Seq_AcTiOn_DeCl(48)
+         And_Seq_AcTiOn_DeCl(49)
+         And_Seq_AcTiOn_DeCl(50)
          return nullptr;
       }
    };
@@ -74,4 +104,4 @@ namespace details {
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_SEQUENCELIKE_H
+#endif //TRANS_DSL_2_INSTANTSEQ_H

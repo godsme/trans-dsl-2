@@ -6,11 +6,8 @@
 #define TRANS_DSL_2_SWITCHCASEHELPER_H
 
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
-#include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/helper/ActionPathHelper.h>
-#include <trans-dsl/sched/helper/MaxSizeCalc.h>
-#include <trans-dsl/sched/helper/TypeExtractor.h>
-#include <cub/utils/RepeatMacros.h>
+#include <trans-dsl/sched/helper/InstantSeq.h>
 
 TSL_NS_BEGIN
 
@@ -26,7 +23,7 @@ namespace details {
       static_assert(Num_Of_Paths >= 2, "should have at least 2 paths, or use __optional instead");
       static_assert(Num_Of_Paths <= 20, "too much paths in one ___switch");
 
-      using Base = SequenceLike<ActionPath, T_PATHS...>;
+      using Base = InstantSeq<ActionPath, T_PATHS...>;
 
    public:
       class Inner final : public SchedSwitchCase, Base {

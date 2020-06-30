@@ -9,29 +9,28 @@ Transaction DSL简介
 
 2.0 版本相对于1.x版本的主要改进有：
 
-1. **极小的内存占用**
+**极小的内存占用** :
 
-参见 :ref:`memory_usage`
+  参见 :ref:`memory_usage`
 
-2. **更快的性能**
+**更快的性能** :
 
-参见 :ref:`performance`
-
-
-3. **新的循环设计**
-
-参见 :ref:`loop`
+  参见 :ref:`performance`
 
 
-4. **清晰一致的错误处理策略**
+**新的循环设计** :
 
-参见 :ref:`error-handling`
+  参见 :ref:`loop`
 
 
-5. **简化用户定义方式**
+**清晰一致的错误处理策略** :
 
-- 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
-- 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
+  参见 :ref:`error-handling`
+
+**简化用户定义方式** :
+
+  - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
+  - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
 
 
 .. toctree::

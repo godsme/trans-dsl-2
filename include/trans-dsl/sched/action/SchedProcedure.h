@@ -34,7 +34,6 @@ private:
 
    auto gotoFinal(TransactionContext& context, Status status) -> Status;
    auto gotoDone(Status status) -> Status;
-   auto inProgress() const -> bool;
 #endif
 
 private:

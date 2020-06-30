@@ -199,7 +199,7 @@ auto SchedProcedure::gotoDone(Status status) -> Status {
    state = State::Done;
 
    unlikely_branch
-   if(cub::is_failed_status(status)) {
+   if(unlikely(cub::is_failed_status(status))) {
       return status;
    }
 
@@ -208,14 +208,16 @@ auto SchedProcedure::gotoDone(Status status) -> Status {
 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::gotoFinal(TransactionContext& context, Status status) -> Status {
-   if(action = getFinalAction(); action == nullptr) {
+   action = getFinalAction();
+   unlikely_branch
+   if(unlikely(action == nullptr)) {
       return Result::FATAL_BUG;
    }
 
    state = State::Final;
 
    unlikely_branch
-   if(cub::is_failed_status(status)) {
+   if(unlikely(cub::is_failed_status(status))) {
       reportFailure(status);
    }
 
@@ -228,22 +230,24 @@ auto SchedProcedure::gotoFinal(TransactionContext& context, Status status) -> St
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-auto SchedProcedure::workingStateCheck() -> void {
+inline auto SchedProcedure::workingStateCheck() -> void {
    unlikely_branch
-   if (getStatus() != Result::SUCCESS) {
+   if (unlikely(getStatus() != Result::SUCCESS)) {
       state = State::Stopping;
    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec_(TransactionContext& context) -> Status {
+   action = getAction();
    unlikely_branch
-   if(action = getAction(); action == nullptr) {
+   if(unlikely(action == nullptr)) {
       return Result::FATAL_BUG;
    }
 
    auto status = action->exec(context);
-   if(is_working_status(status)) {
+   likely_branch
+   if(likely(status == Result::CONTINUE)) {
       state = State::Working;
       workingStateCheck();
       return status;
@@ -255,12 +259,13 @@ auto SchedProcedure::exec_(TransactionContext& context) -> Status {
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec(TransactionContext& context) -> Status {
    unlikely_branch
-   if (state != State::Idle) {
+   if (unlikely(state != State::Idle)) {
       return Result::FATAL_BUG;
    }
 
-   Status status = attachToParent(context);
-   if(status != Result::SUCCESS) {
+   auto status = attachToParent(context);
+   unlikely_branch
+   if(unlikely(status != Result::SUCCESS)) {
       return status;
    }
 
@@ -271,23 +276,10 @@ auto SchedProcedure::exec(TransactionContext& context) -> Status {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-auto SchedProcedure::inProgress() const -> bool {
-   switch (state) {
-      likely_branch
-      case State::Working:
-      case State::Stopping:
-      case State::Final:
-         return true;
-      unlikely_branch
-      default:
-         return false;
-   }
-}
-
-//////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    auto status = action->handleEvent(context, event);
-   if(is_working_status(status)) {
+   likely_branch
+   if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
       if(status == Result::CONTINUE && state == State::Working) {
          workingStateCheck();
       }
@@ -295,7 +287,9 @@ auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& even
    }
 
    switch (state) {
+      likely_branch
       case State::Working:
+         [[fallthrough]];
       case State::Stopping:
          return gotoFinal(context, status);
       case State::Final:
@@ -308,13 +302,20 @@ auto SchedProcedure::handleEvent_(TransactionContext& context, Event const& even
 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if(!inProgress()) {
-      return Result::FATAL_BUG;
+   switch (state) {
+      likely_branch
+      case State::Working:
+         [[fallthrough]];
+      case State::Stopping:
+         [[fallthrough]];
+      case State::Final: {
+         AUTO_SWITCH();
+         return handleEvent_(context, event);
+      }
+      unlikely_branch
+      default:
+         return Result::FATAL_BUG;
    }
-
-   AUTO_SWITCH();
-   return handleEvent_(context, event);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -332,27 +333,38 @@ auto SchedProcedure::stop_(TransactionContext& context, Status cause) -> Status 
 auto SchedProcedure::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
       likely_branch
-      case State::Working:
-         break;
+      case State::Working: {
+         AUTO_SWITCH();
+         return stop_(context, cause);
+      }
       case State::Stopping:
+         [[fallthrough]];
       case State::Final:
          return Result::CONTINUE;
       unlikely_branch
       default:
          return FATAL_BUG;
    }
-
-   AUTO_SWITCH();
-   return stop_(context, cause);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::kill(TransactionContext& context, Status cause)  -> void {
-   if(inProgress()) {
-      AUTO_SWITCH();
-      action->kill(context, cause);
-      action = nullptr;
-      state = State::Done;
+   switch (state) {
+      likely_branch
+      case State::Working:
+         [[fallthrough]];
+      case State::Stopping:
+         [[fallthrough]];
+      case State::Final: {
+         AUTO_SWITCH();
+         action->kill(context, cause);
+         action = nullptr;
+         state = State::Done;
+         break;
+      }
+      unlikely_branch
+      default:
+         break;
    }
 }
 

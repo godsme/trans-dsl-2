@@ -23,6 +23,7 @@ private:
    auto stop_(TransactionContext&, Status cause)  -> Status;
    auto checkInternalError(TransactionContext& context) -> void;
    auto startTimer(TransactionContext& context) -> Status;
+   auto onTimeout(TransactionContext& context) -> Status;
 
 private:
    enum class State {

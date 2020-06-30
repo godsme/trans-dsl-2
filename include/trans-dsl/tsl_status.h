@@ -38,7 +38,7 @@ enum Result : Status {
    UNKNOWN_EVENT  = __WORKING_STATUS_BEGIN + 1
 };
 
-constexpr auto isActionWorking(Status status) -> bool {
+constexpr auto is_working_status(Status status) -> bool {
    return (Result::__WORKING_STATUS_BEGIN & status) > 0;
 }
 

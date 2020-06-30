@@ -107,7 +107,7 @@ auto SchedLoop::exec(TransactionContext& context) -> Status {
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    Status status = action->handleEvent(context, event);
-   if (isActionWorking(status) || stopping) {
+   if (is_working_status(status) || stopping) {
       return status;
    } else if(cub::is_failed_status(status)) {
       reportFailure(status);

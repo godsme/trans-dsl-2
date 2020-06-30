@@ -125,7 +125,7 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
       if(!IS_CHILD_WORKING(i)) continue;
 
       Status status = get(i)->handleEvent(context, event);
-      if(isActionWorking(status)) {
+      if(is_working_status(status)) {
          hasWorkingAction = true;
 
          unlikely_branch

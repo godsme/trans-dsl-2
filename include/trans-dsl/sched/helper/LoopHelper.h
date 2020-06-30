@@ -118,8 +118,9 @@ namespace details {
       template <typename T>
       static constexpr size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0;
 
-      alignas((MaxSizeCalc{} << ... << Align_Of<T_ENTRIES>))
-      char cache[(MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>)];
+      static constexpr size_t Align = (MaxSizeCalc{} << ... << Align_Of<T_ENTRIES>);
+      static constexpr size_t Size  = (MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>);
+      alignas(Align) char cache[Size];
 
       template<typename ... Ts>
       struct LoopEntry {

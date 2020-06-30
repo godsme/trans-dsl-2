@@ -241,26 +241,26 @@ using Proc3 = __procedure
 );
 
 int main() {
-   ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("simple seq", [&] {
       func();
    });
-   ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("2 concurrent", [&] {
       func1();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("3 concurrent", [&] {
       func2();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("3-concurrent-seq", [&] {
       func3<Proc2>();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("timer-guard-concurrent-seq", [&] {
       func3<Proc3>();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("timer-guard-simple-seq", [&] {
       func0();
    });
 

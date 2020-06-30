@@ -57,10 +57,10 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if(unlikely(state != State::WORKING && state != State::STOPPING)) {
-      return Result::FATAL_BUG;
-   }
+//   unlikely_branch
+//   if(unlikely(state != State::WORKING && state != State::STOPPING)) {
+//      return Result::FATAL_BUG;
+//   }
 
    auto status = current->handleEvent(context, event);
    if(status == SUCCESS && state == State::WORKING) {

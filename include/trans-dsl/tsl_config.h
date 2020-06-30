@@ -18,8 +18,8 @@
 #if __cplusplus >= 201709L
 #define likely_branch [[likely]]
 #define unlikely_branch [[unlikely]]
-#define likely(x)
-#define unlikely(x)
+#define likely(x) x
+#define unlikely(x) x
 #else
 #define likely_branch
 #define unlikely_branch

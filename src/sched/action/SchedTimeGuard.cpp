@@ -67,19 +67,52 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& event) -> Status {
+auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const& event) -> Status {
    auto status = ROLE(SchedAction).handleEvent(context, event);
    likely_branch
    if(is_working_status(status)) {
       return status;
    }
 
-   ROLE(RelativeTimer).stop();
+   if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
+      status = Result::TIMEOUT;
+   }
 
    state = State::DONE;
 
    return status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event) -> Status {
+   switch (state) {
+   likely_branch
+   case State::WORKING: [[fallthrough]];
+   case State::STOPPING: {
+      auto status = ROLE(SchedAction).handleEvent(context, event);
+      if(Result::__WORKING_STATUS_BEGIN & status) {
+         // Timeout is an exception, we test it unless the decorated action
+         // did accept an event. This would speed-up the happy path, although
+         // it might slow down the exceptional case (i.e, when it's actually the
+         // expected TIMEOUT event)
+         // (might be less helpful in multi-thread case)
+         unlikely_branch
+         if (status == Result::UNKNOWN_EVENT && ROLE(RelativeTimer).matches(event)) {
+            return onTimeout(context);
+         }
+      } else {
+         ROLE(RelativeTimer).stop();
+         state = State::DONE;
+      }
+
+      return status;
+   }
+   case State::TIMEOUT:
+      return handleEventTimeout(context, event);
+   unlikely_branch
+   default:
+      return Result::FATAL_BUG;
+   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -112,46 +145,6 @@ auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
    }
 
    return status;
-}
-
-auto SchedTimeGuard::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if(ROLE(RelativeTimer).matches(event)) {
-       return onTimeout(context);
-   } else {
-       return handleEvent_(context, event);
-   }
-}
-
-auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const& event) -> Status {
-   auto status = ROLE(SchedAction).handleEvent(context, event);
-   likely_branch
-   if(is_working_status(status)) {
-      return status;
-   }
-
-   if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
-      status = Result::TIMEOUT;
-   }
-
-   state = State::DONE;
-
-   return status;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   switch (state) {
-   likely_branch
-   case State::WORKING: [[fallthrough]];
-   case State::STOPPING:
-      return handleEventWorking(context, event);
-   case State::TIMEOUT:
-      return handleEventTimeout(context, event);
-   unlikely_branch
-   default:
-      return Result::FATAL_BUG;
-   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

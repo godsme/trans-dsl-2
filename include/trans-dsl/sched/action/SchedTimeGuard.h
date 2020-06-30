@@ -19,8 +19,6 @@ struct SchedTimeGuard : SchedAction {
 
 private:
    auto isStillWorking() const -> bool;
-   auto handleEvent_(TransactionContext &, Event const&) -> Status;
-   auto handleEventWorking(TransactionContext& context, Event const& event) -> Status;
    auto handleEventTimeout(TransactionContext& context, Event const& event) -> Status;
    auto stop_(TransactionContext&, Status cause)  -> Status;
    auto checkInternalError(TransactionContext& context) -> void;

@@ -228,7 +228,7 @@ void func3() {
 }
 
 int main() {
-   ankerl::nanobench::Bench().minEpochIterations(624).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(6876).epochs(1000).run("run-procedure", [&] {
       func();
    });
    ankerl::nanobench::Bench().minEpochIterations(624).epochs(1000).run("run-procedure", [&] {

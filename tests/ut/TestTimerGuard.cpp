@@ -57,6 +57,9 @@ namespace {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, timerEvent));
             AND_THEN("event 1 received, should return TIMEOUT") {
                REQUIRE(Result::TIMEOUT == action.handleEvent(context, event1));
+               AND_THEN("stop again, will return FATAL_BUG") {
+                  REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
+               }
             }
          }
       }
@@ -95,6 +98,9 @@ namespace {
          REQUIRE(Result::CONTINUE == action.stop(context, Result::TIMEOUT));
          THEN("if event 1 received, should return FORCE_STOPPED") {
             REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event1));
+            AND_THEN("stop again, will return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
+            }
          }
       }
 
@@ -130,6 +136,9 @@ namespace {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             AND_WHEN("event 1 received, should return SUCCESS") {
                REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
+               AND_THEN("stop again, will return FATAL_BUG") {
+                  REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
+               }
             }
          }
       }

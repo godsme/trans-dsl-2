@@ -3,7 +3,7 @@ project(trans_dsl_2)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_BUILD_TYPE "Release")
+#set(CMAKE_BUILD_TYPE "Release")
 
 if(UNIX)
 #-Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast
@@ -14,11 +14,6 @@ if(UNIX)
       -Wno-invalid-offsetof ")
 endif()
 
-message("CMAKE_CXX_FLAGS_RELEASE is ${CMAKE_CXX_FLAGS_RELEASE}")
-
-
-
-
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/third-party"
@@ -28,7 +23,7 @@ include_directories(
 
 LINK_DIRECTORIES(/usr/local/lib)
 
-add_library(trans-dsl STATIC
+add_library(trans-dsl-2 STATIC
         include/trans-dsl/tsl_ns.h
         include/cub/base/Status.h
         include/cub/cub_ns.h
@@ -89,7 +84,7 @@ add_executable(trans-dsl-test
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
         tests/ut/TestSequentialAction.cpp)
 
-target_link_libraries(trans-dsl-test trans-dsl cctest_main cctest)
+target_link_libraries(trans-dsl-test trans-dsl-2 cctest_main cctest)
 
 add_executable(trans-dsl-test-catch
         tests/ut/TestSwitchCase.cpp
@@ -98,11 +93,11 @@ add_executable(trans-dsl-test-catch
         tests/ut/TestTimerGuard.cpp
         tests/pt/catch.cpp)
 
-target_link_libraries(trans-dsl-test-catch trans-dsl)
+target_link_libraries(trans-dsl-test-catch trans-dsl-2)
 
 add_executable(trans-dsl-bench
         tests/pt/nanobench.cpp
         tests/pt/dsl-test.cpp
         tests/pt/catch.cpp)
 
-target_link_libraries(trans-dsl-bench trans-dsl)
+target_link_libraries(trans-dsl-bench trans-dsl-2)

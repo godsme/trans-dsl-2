@@ -12,7 +12,7 @@
 TSL_NS_BEGIN
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::isStillWorking() const -> bool {
+inline auto SchedTimeGuard::isStillWorking() const -> bool {
    switch (state) {
       likely_branch
       case State::WORKING:
@@ -117,9 +117,9 @@ auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
 auto SchedTimeGuard::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
    unlikely_branch
    if(ROLE(RelativeTimer).matches(event)) {
-      return onTimeout(context);
+       return onTimeout(context);
    } else {
-      return handleEvent_(context, event);
+       return handleEvent_(context, event);
    }
 }
 

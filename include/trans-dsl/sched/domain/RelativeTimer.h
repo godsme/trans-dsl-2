@@ -31,7 +31,6 @@ private:
    bool started = false;
 
 private:
-   ABSTRACT(isTimerEvent(Event const&) const -> bool);
    ABSTRACT(startTimer_(TimerId, TimeLength timerLen) -> Status);
    ABSTRACT(stopTimer_(TimerId) -> void);
    ABSTRACT(matches_(Event const&, TimerId) const -> bool);

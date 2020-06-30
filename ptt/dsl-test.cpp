@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/17.
 //
 
-#include <nanobench/nanobench.h>
+#include <nanobench.h>
 #include <trans-dsl/trans-dsl.h>
 #include <trans-dsl/action/SimpleAsyncAction.h>
 #include <event/impl/ConsecutiveEventInfo.h>
@@ -158,8 +158,8 @@ using ProcedureAction3 =
       __wait(3),
       __finally(__asyn(AsyncAction4)));
 
-using Concurrent = __concurrent(ProcedureAction1, ProcedureAction2);
-using Concurrent1 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+
+
 
 const Msg1 msg1{ 10, 20 };
 const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -170,19 +170,9 @@ const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
 const Msg4 msg4{ 30 };
 const EV_NS::ConsecutiveEventInfo eventInfo4{EV_MSG_4, msg4};
 
-using Proc2 = __procedure
-( __sequential
-     ( __wait(1)
-        , __wait(2)
-        , __wait(3)
-        , __wait(4)
-        , __wait(5)
-        , __wait(6)
-        , Concurrent1),
-  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
-);
+using Con1 = __concurrent(ProcedureAction1, ProcedureAction2);
 void func1() {
-   Concurrent action;
+    Con1 action;
 
    assert(CONTINUE == action.exec(context));
    assert(CONTINUE == action.handleEvent(context, ev_1));
@@ -191,8 +181,9 @@ void func1() {
    assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
 
+using Con2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 void func2() {
-   Concurrent1 action;
+    Con2 action;
 
    assert(CONTINUE == action.exec(context));
    assert(CONTINUE == action.handleEvent(context, ev_1));
@@ -202,6 +193,18 @@ void func2() {
    assert(CONTINUE == action.handleEvent(context, eventInfo4));
    assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
+
+using Proc2 = __procedure
+( __sequential
+     ( __wait(1)
+     , __wait(2)
+     , __wait(3)
+     , __wait(4)
+     , __wait(5)
+     , __wait(6)
+     , Con2),
+  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+);
 
 void func3() {
    Proc2 proc;

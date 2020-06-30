@@ -39,7 +39,7 @@ void RelativeTimer::stop() {
 
 /////////////////////////////////////////////////////////////////
 bool RelativeTimer::matches(Event const& event) const {
-   if(!started || !isTimerEvent(event)) return false;
+   if(!started) return false;
    return matches_(event, timerId);
 }
 

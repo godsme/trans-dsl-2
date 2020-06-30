@@ -18,9 +18,14 @@
 #if __cplusplus >= 201709L
 #define likely_branch [[likely]]
 #define unlikely_branch [[unlikely]]
+#define likely(x)
+#define unlikely(x)
 #else
 #define likely_branch
 #define unlikely_branch
+
+#define likely(x)   __builtin_expect(!!(x), 1)
+#define unlikely(x) __builtin_expect(!!(x), 0)
 #endif
 
 #endif //TRANS_DSL_2_TSL_CONFIG_H

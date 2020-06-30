@@ -228,11 +228,8 @@ void func3() {
 }
 
 int main() {
-   ankerl::nanobench::Bench().minEpochIterations(6876).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("run-procedure", [&] {
       func();
-   });
-   ankerl::nanobench::Bench().minEpochIterations(624).epochs(1000).run("run-procedure", [&] {
-      func0();
    });
    ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
       func1();
@@ -240,9 +237,12 @@ int main() {
    ankerl::nanobench::Bench().minEpochIterations(542).epochs(1000).run("run-procedure", [&] {
       func2();
    });
-   std::cout << sizeof(Proc2) << std::endl;
    ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
       func3();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
+      func0();
    });
 
    return 0;

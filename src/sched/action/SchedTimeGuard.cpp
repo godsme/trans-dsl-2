@@ -47,16 +47,16 @@ auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    unlikely_branch
-   if(state != State::INIT) return Result::FATAL_BUG;
+   if(unlikely(state != State::INIT)) return Result::FATAL_BUG;
 
    unlikely_branch
-   if(auto status = startTimer(context); cub::is_failed_status(status)) {
+   if(auto status = startTimer(context); unlikely(cub::is_failed_status(status))) {
       state = State::DONE;
       return status;
    }
 
    unlikely_branch
-   if(auto status = ROLE(SchedAction).exec(context); !is_working_status(status)) {
+   if(auto status = ROLE(SchedAction).exec(context); unlikely(!is_working_status(status))) {
       ROLE(RelativeTimer).stop();
       state = State::DONE;
       return status;
@@ -88,16 +88,18 @@ auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event
    switch (state) {
    likely_branch
    case State::WORKING: [[fallthrough]];
+   likely_branch
    case State::STOPPING: {
       auto status = ROLE(SchedAction).handleEvent(context, event);
-      if(Result::__WORKING_STATUS_BEGIN & status) {
+      likely_branch
+      if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
          // Timeout is an exception, we test it unless the decorated action
          // did accept an event. This would speed-up the happy path, although
          // it might slow down the exceptional case (i.e, when it's actually the
          // expected TIMEOUT event)
          // (might be less helpful in multi-thread case)
          unlikely_branch
-         if (status == Result::UNKNOWN_EVENT && ROLE(RelativeTimer).matches(event)) {
+         if (unlikely(status == Result::UNKNOWN_EVENT && ROLE(RelativeTimer).matches(event))) {
             return onTimeout(context);
          }
       } else {

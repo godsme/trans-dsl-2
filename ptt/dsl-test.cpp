@@ -241,6 +241,18 @@ __time_guard(1,
   __finally(__sequential(__wait(7), __wait(8), __wait(9))))
 );
 
+using Proc4 = __procedure
+( __sequential( __sequential
+     ( __wait(1)
+     , __wait(2)
+     , __wait(3)
+     , __wait(4)
+     , __wait(5)
+     , __wait(6))
+     , Con2),
+  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+);
+
 int main() {
    ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("simple seq", [&] {
       func();
@@ -263,6 +275,10 @@ int main() {
 
    ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("timer-guard-simple-seq", [&] {
       func0();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("concurrent-seq-seq", [&] {
+      func3<Proc4>();
    });
 
    return 0;

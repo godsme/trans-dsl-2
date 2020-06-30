@@ -50,7 +50,7 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
    }
 
    auto status = forward(context);
-   state = is_working_status(status) ?  State::WORKING : State::DONE;
+   state = (Result::CONTINUE == status) ?  State::WORKING : State::DONE;
    return status;
 }
 
@@ -60,12 +60,15 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
    switch (state) {
       likely_branch
       case State::WORKING: {
+         // This is the most invoked main path, we expand the
+         // the specific implementation here for best performance,
+         // although there are some duplications with other paths.
          auto status = current->handleEvent(context, event);
          if (status == SUCCESS) {
             status = forward(context);
          }
          unlikely_branch
-         if (unlikely(0 == (Result::__WORKING_STATUS_BEGIN & status))) {
+         if (unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
             state = State::DONE;
          }
          return status;
@@ -77,33 +80,6 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
       default:
          return Result::FATAL_BUG;
    }
-//   unlikely_branch
-//   if(unlikely(state != State::WORKING && state != State::STOPPING)) {
-//      return Result::FATAL_BUG;
-//   }
-//
-//   auto status = current->handleEvent(context, event);
-//   if(status == SUCCESS && state == State::WORKING) {
-//      status = forward(context);
-//   }
-//
-//   unlikely_branch
-//   if(unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
-//      unlikely_branch
-//      if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
-//      state = State::DONE;
-//   }
-
-//   likely_branch
-//   if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
-//      return status;
-//   }
-//
-//   unlikely_branch
-//   if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
-//   state = State::DONE;
-
-//   return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -120,6 +96,7 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
    state = State::STOPPING;
 
    Status status = current->stop(context, cause);
+   unlikely_branch
    if(unlikely(status == Result::CONTINUE)) {
       return status;
    }

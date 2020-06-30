@@ -57,22 +57,42 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
+   switch (state) {
+      likely_branch
+      case State::WORKING: {
+         auto status = current->handleEvent(context, event);
+         if (status == SUCCESS) {
+            status = forward(context);
+         }
+         unlikely_branch
+         if (unlikely(0 == (Result::__WORKING_STATUS_BEGIN & status))) {
+            state = State::DONE;
+         }
+         return status;
+      }
+      case State::STOPPING: {
+         return getFinalStatus(current->handleEvent(context, event));
+      }
+      unlikely_branch
+      default:
+         return Result::FATAL_BUG;
+   }
 //   unlikely_branch
 //   if(unlikely(state != State::WORKING && state != State::STOPPING)) {
 //      return Result::FATAL_BUG;
 //   }
-
-   auto status = current->handleEvent(context, event);
-   if(status == SUCCESS && state == State::WORKING) {
-      status = forward(context);
-   }
-
-   unlikely_branch
-   if(unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
-      unlikely_branch
-      if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
-      state = State::DONE;
-   }
+//
+//   auto status = current->handleEvent(context, event);
+//   if(status == SUCCESS && state == State::WORKING) {
+//      status = forward(context);
+//   }
+//
+//   unlikely_branch
+//   if(unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
+//      unlikely_branch
+//      if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
+//      state = State::DONE;
+//   }
 
 //   likely_branch
 //   if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
@@ -83,7 +103,7 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
 //   if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
 //   state = State::DONE;
 
-   return status;
+//   return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -206,9 +206,9 @@ using Proc2 = __procedure
   __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 );
 
+template <typename P>
 void func3() {
-   Proc2 proc;
-
+   P proc;
    assert(CONTINUE == proc.exec(context));
    assert(CONTINUE == proc.handleEvent(context, ev_1));
    assert(CONTINUE == proc.handleEvent(context, ev_2));
@@ -227,6 +227,19 @@ void func3() {
    assert(SUCCESS == proc.handleEvent(context, ev_9));
 }
 
+using Proc3 = __procedure
+( __time_guard(1,
+  __sequential
+     ( __wait(1)
+     , __wait(2)
+     , __wait(3)
+     , __wait(4)
+     , __wait(5)
+     , __wait(6)
+     , Con2)),
+  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+);
+
 int main() {
    ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("run-procedure", [&] {
       func();
@@ -234,11 +247,17 @@ int main() {
    ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
       func1();
    });
-   ankerl::nanobench::Bench().minEpochIterations(5973).epochs(1000).run("run-procedure", [&] {
+
+   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("run-procedure", [&] {
       func2();
    });
+
    ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
-      func3();
+      func3<Proc2>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
+      func3<Proc3>();
    });
 
    ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("run-procedure", [&] {

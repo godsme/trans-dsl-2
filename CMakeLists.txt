@@ -80,7 +80,7 @@ add_library(trans-dsl STATIC
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
-        tests/ut/TestFragment.cpp tests/ut/TestTimerGuard.cpp
+        tests/ut/TestFragment.cpp
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
         tests/ut/TestSequentialAction.cpp)
 
@@ -90,6 +90,7 @@ add_executable(trans-dsl-test-catch
         tests/ut/TestSwitchCase.cpp
         tests/ut/TestConcurrent.cpp
         tests/ut/TestSimpleAsyncAction.cpp
+        tests/ut/TestTimerGuard.cpp
         tests/pt/catch.cpp)
 
 target_link_libraries(trans-dsl-test-catch trans-dsl)

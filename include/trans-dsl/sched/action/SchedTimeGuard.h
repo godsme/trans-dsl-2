@@ -26,7 +26,7 @@ private:
    auto onTimeout(TransactionContext& context) -> Status;
 
 private:
-   enum class State {
+   enum class State : uint8_t {
       INIT,
       WORKING,  // normally working
       STOPPING, // action is stopped either by stop or by an internal error
@@ -36,6 +36,7 @@ private:
       DONE
    };
    State state = State::INIT;
+   bool externalForceStopped = false;
 
 private:
    USE_ROLE(RelativeTimer);

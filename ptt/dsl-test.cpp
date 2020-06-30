@@ -227,17 +227,18 @@ void func3() {
    assert(SUCCESS == proc.handleEvent(context, ev_9));
 }
 
-using Proc3 = __procedure
-( __time_guard(1,
-  __sequential
+using Proc3 = 
+__time_guard(1, 
+  __procedure( 
+    __sequential
      ( __wait(1)
      , __wait(2)
      , __wait(3)
      , __wait(4)
      , __wait(5)
      , __wait(6)
-     , Con2)),
-  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+     , Con2),
+  __finally(__sequential(__wait(7), __wait(8), __wait(9))))
 );
 
 int main() {

@@ -234,14 +234,14 @@ int main() {
    ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
       func1();
    });
-   ankerl::nanobench::Bench().minEpochIterations(542).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(5973).epochs(1000).run("run-procedure", [&] {
       func2();
    });
    ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("run-procedure", [&] {
       func3();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("run-procedure", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("run-procedure", [&] {
       func0();
    });
 

@@ -26,7 +26,13 @@ private:
 private:
    SchedAction* current = nullptr;
    SeqInt index = 0;
-   bool stopped = false;
+   enum class State : uint8_t {
+      INIT,
+      WORKING,
+      STOPPING,
+      DONE
+   };
+   State state = State::INIT;
 
 private:
    ABSTRACT(getNumOfActions() -> SeqInt);

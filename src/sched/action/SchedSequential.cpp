@@ -10,21 +10,31 @@
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
+#define THE_LAST_STOPPED \
+   state == State::STOPPING && \
+   status == Result::SUCCESS && \
+   getNumOfActions() == index + 1
+
+///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(Status status) -> Status {
+   likely_branch
+   if(likely(is_working_status(status))) return status;
+
    unlikely_branch
-   if(stopped && status == Result::SUCCESS) {
-      return getNumOfActions() == index + 1 ? Result::SUCCESS : Result::FORCE_STOPPED;
-   }
+   if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
+
+   state = State::DONE;
 
    return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::forward(TransactionContext& context) -> Status {
-   unlikely_branch
-   while((current = getNext(index++)) != nullptr) {
+   likely_branch
+   while(likely((current = getNext(index++)) != nullptr)) {
       Status status = current->exec(context);
-      if(status != Result::SUCCESS) {
+      likely_branch
+      if(likely(status != Result::SUCCESS)) {
          return status;
       }
    }
@@ -35,66 +45,80 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::exec(TransactionContext& context) -> Status {
    unlikely_branch
-   if(stopped) return Result::FATAL_BUG;
-   return forward(context);
+   if(unlikely(state != State::INIT)) {
+      return Result::FATAL_BUG;
+   }
+
+   auto status = forward(context);
+   state = is_working_status(status) ?  State::WORKING : State::DONE;
+   return status;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-auto SchedSequential::handleEvent_(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if(current == nullptr)  {
-     return stopped ? Result::FATAL_BUG : Result::UNKNOWN_EVENT;
-   }
-
-   Status status = current->handleEvent(context, event);
-   if(status != Result::SUCCESS) {
-      return status;
-   }
-
-   unlikely_branch
-   if(stopped) {
-      current = nullptr;
-      return status;
-   }
-
-   return forward(context);
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   return getFinalStatus(handleEvent_(context, event));
+   unlikely_branch
+   if(unlikely(state != State::WORKING && state != State::STOPPING)) {
+      return Result::FATAL_BUG;
+   }
+
+   auto status = current->handleEvent(context, event);
+   if(status == SUCCESS && state == State::WORKING) {
+      status = forward(context);
+   }
+
+   unlikely_branch
+   if(unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
+      unlikely_branch
+      if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
+      state = State::DONE;
+   }
+
+//   likely_branch
+//   if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
+//      return status;
+//   }
+//
+//   unlikely_branch
+//   if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
+//   state = State::DONE;
+
+   return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
+   switch (state) {
+   likely_branch
+   case State::WORKING: break;
    unlikely_branch
-   if( current == nullptr) {
-      return Result::FATAL_BUG;
+   case State::STOPPING: return Result::CONTINUE;
+   unlikely_branch
+   default: return Result::FATAL_BUG;
    }
 
-   unlikely_branch
-   if(stopped) {
-      return Result::CONTINUE;
-   }
-
-   stopped = true;
+   state = State::STOPPING;
 
    Status status = current->stop(context, cause);
-   if(status == Result::CONTINUE) {
+   if(unlikely(status == Result::CONTINUE)) {
       return status;
    }
-
-   current = nullptr;
 
    return getFinalStatus(status);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::kill(TransactionContext& context, Status cause) -> void {
-   if(current != nullptr) {
+   switch (state) {
+   likely_branch
+   case State::WORKING: [[fallthrough]];
+   case State::STOPPING:
       current->kill(context, cause);
-      current = nullptr;
-      stopped = true;
+      state = State::DONE;
+      return;
+   unlikely_branch
+   default:
+      return;
    }
 }
 

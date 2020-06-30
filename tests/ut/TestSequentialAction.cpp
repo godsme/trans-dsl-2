@@ -65,11 +65,11 @@ namespace {
          ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
-      TEST("after success, handleEvent should return UNKNOWN_EVENT") {
+      TEST("after success, handleEvent should return FATAL_BUG") {
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
          ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
          ASSERT_EQ(Result::SUCCESS, action.handleEvent(context, event2));
-         ASSERT_EQ(Result::UNKNOWN_EVENT, action.handleEvent(context, event2));
+         ASSERT_EQ(Result::FATAL_BUG, action.handleEvent(context, event2));
       }
 
       TEST("after kill, handleEvent should return FATAL_BUG") {

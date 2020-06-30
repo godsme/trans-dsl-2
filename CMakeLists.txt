@@ -3,7 +3,7 @@ project(trans_dsl_2)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(PythonInterp)
+set(CMAKE_BUILD_TYPE "Release")
 
 if(UNIX)
 #-Wduplicated-cond -Wduplicated-branches -Wlogical-op -Wuseless-cast
@@ -13,6 +13,11 @@ if(UNIX)
       -Wsign-conversion -Wnull-dereference -Wdouble-promotion -Wformat=2 \
       -Wno-invalid-offsetof ")
 endif()
+
+message("CMAKE_CXX_FLAGS_RELEASE is ${CMAKE_CXX_FLAGS_RELEASE}")
+
+
+
 
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/include"

@@ -27,7 +27,46 @@ SIMPLE_EVENT(9);
 namespace {
    using namespace TSL_NS;
 
-   TEST_CASE("TestSequential") {
+   TEST_CASE("__time_guard __sequential") {
+      StupidTransactionContext context;
+
+      using Proc = __procedure
+      ( __time_guard(TIMER_1
+          , __sequential
+             ( __wait(1)
+              , __wait(2)
+              , __wait(3)
+              , __wait(4)
+              , __wait(5)
+              , __wait(6))),
+        __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+      );
+
+      auto proc = [&] {
+         Proc proc;
+         assert(Result::CONTINUE == proc.exec(context));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_1}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_2}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_3}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_4}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_5}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_6}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_7}));
+         assert(Result::CONTINUE == proc.handleEvent(context, Event{se_8}));
+         assert(Result::SUCCESS  == proc.handleEvent(context, Event{se_9}));
+      };
+
+      SECTION("go") {
+         ankerl::nanobench::Bench()
+         .minEpochIterations(22072)
+         .epochs(1000)
+         .run("run-time-guard-seq", [&] {
+            proc();
+         });
+      }
+   };
+
+   TEST_CASE("__sequential") {
       StupidTransactionContext context;
 
       using Proc = __procedure
@@ -62,7 +101,7 @@ namespace {
       }
    };
 
-   TEST_CASE("TestConcurrent") {
+   TEST_CASE("__concurrent") {
       StupidTransactionContext context;
 
       using ProcedureAction1 =
@@ -119,19 +158,19 @@ namespace {
       }
 
       SECTION("concurrent 1 performance") {
-         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
+         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent-1", [&] {
             runConcurrent();
          });
       }
 
       SECTION("concurrent 2 performance") {
-         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent", [&] {
+         ankerl::nanobench::Bench().epochs(1000).run("run-concurrent-2", [&] {
             runConcurrent2();
          });
       }
    };
 
-   TEST_CASE("complex") {
+   TEST_CASE("concurrent") {
       StupidTransactionContext context;
 
       using ProcedureAction1 =
@@ -199,7 +238,10 @@ namespace {
       }
 
       SECTION("performance") {
-         ankerl::nanobench::Bench().minEpochIterations(1322).epochs(1000).run("run-concurrent", [&] {
+         ankerl::nanobench::Bench()
+         .minEpochIterations(1322)
+         .epochs(1000)
+         .run("run-sequential", [&] {
             runSequential();
          });
       }

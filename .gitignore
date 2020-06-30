@@ -6,7 +6,6 @@
 build/*
 doc/build/*
 .DS_Store
-ptt/*
 
 # Compiled Object files
 *.slo

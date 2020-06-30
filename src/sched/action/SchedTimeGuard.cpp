@@ -26,13 +26,14 @@ auto SchedTimeGuard::isStillWorking() const -> bool {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::checkInternalError(TransactionContext& context) -> void {
+inline auto SchedTimeGuard::checkInternalError(TransactionContext& context) -> void {
    unlikely_branch
    if(state == State::WORKING && context.hasFailure()) {
       state = State::STOPPING;
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
    auto timerInfo = context.getTimerInfo();
    unlikely_branch
@@ -69,6 +70,7 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    auto status = ROLE(SchedAction).handleEvent(context, event);
+   likely_branch
    if(is_working_status(status)) {
       checkInternalError(context);
       return status;

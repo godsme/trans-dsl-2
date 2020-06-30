@@ -14,7 +14,7 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
-#include <trans-dsl/sched/helper/TypeExtractor.h>
+#include <trans-dsl/sched/helper/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 
 TSL_NS_BEGIN
@@ -130,7 +130,7 @@ namespace details {
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Num_Of_Entries) {
-            return TypeExtractor_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
+            return TypeListExtractor_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
          } else {
             return nullptr;
          }

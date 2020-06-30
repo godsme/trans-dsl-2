@@ -8,7 +8,7 @@
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
-#include <trans-dsl/sched/helper/TypeExtractor.h>
+#include <trans-dsl/sched/helper/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 
 TSL_NS_BEGIN
@@ -26,7 +26,7 @@ namespace details {
       template <SeqInt N>
       auto get() -> T_ELEM* {
          if constexpr(N < sizeof...(Ts)) {
-            using Elem = TypeExtractor_t<N, Head, Ts...>;
+            using Elem = TypeListExtractor_t<N, HeadTraits, Ts...>;
             #if !__CONCEPT_ENABLED
             static_assert(std::is_base_of_v<T_ELEM, Elem>);
             #endif

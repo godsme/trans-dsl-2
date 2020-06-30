@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/6/28.
 //
 
-#ifndef TRANS_DSL_2_TYPEEXTRACTOR_H
-#define TRANS_DSL_2_TYPEEXTRACTOR_H
+#ifndef TRANS_DSL_2_TYPELISTEXTRACTOR_H
+#define TRANS_DSL_2_TYPELISTEXTRACTOR_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
@@ -15,22 +15,22 @@ namespace details {
       SeqInt N,
       template<typename ...> typename TRAIT,
       typename ... Ts>
-   struct TypeExtractor;
+   struct TypeListExtractor;
 
    template<
       SeqInt N,
       template<typename ...> typename TRAIT,
       typename HEAD,
       typename ... TAIL>
-   struct TypeExtractor<N, TRAIT, HEAD, TAIL...> {
-      using Type = typename TypeExtractor<SeqInt(N-1), TRAIT, TAIL...>::Type;
+   struct TypeListExtractor<N, TRAIT, HEAD, TAIL...> {
+      using Type = typename TypeListExtractor<SeqInt(N - 1), TRAIT, TAIL...>::Type;
    };
 
    template<
       template<typename ...> typename TRAIT,
       typename HEAD,
       typename ... TAIL>
-   struct TypeExtractor<0, TRAIT, HEAD, TAIL...> {
+   struct TypeListExtractor<0, TRAIT, HEAD, TAIL...> {
       using Type = typename TRAIT<HEAD, TAIL...>::Type;
    };
 
@@ -38,17 +38,17 @@ namespace details {
       SeqInt N,
       template<typename ...> typename TRAIT,
       typename ... Ts>
-    using TypeExtractor_t = typename TypeExtractor<N, TRAIT, Ts...>::Type;
+    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::Type;
 
    //////////////////////////////////////////////////
-   template<typename ...> struct Head;
+   template<typename ...> struct HeadTraits;
 
    template<typename HEAD, typename ...TAIL>
-   struct Head<HEAD, TAIL...> final {
+   struct HeadTraits<HEAD, TAIL...> final {
       using Type = HEAD;
    };
 }
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_TYPEEXTRACTOR_H
+#endif //TRANS_DSL_2_TYPELISTEXTRACTOR_H

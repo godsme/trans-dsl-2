@@ -72,14 +72,10 @@ auto SchedTimeGuard::handleEvent_(TransactionContext& context, Event const& even
    auto status = ROLE(SchedAction).handleEvent(context, event);
    likely_branch
    if(is_working_status(status)) {
-      checkInternalError(context);
       return status;
-   } else if(state != State::TIMEOUT) {
-      ROLE(RelativeTimer).stop();
-   } else unlikely_branch
-   if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
-      status = Result::TIMEOUT;
    }
+
+   ROLE(RelativeTimer).stop();
 
    state = State::DONE;
 
@@ -102,6 +98,7 @@ auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
    Status status = Result::CONTINUE;
+   likely_branch
    if(state == State::WORKING) {
       status = stop_(context, Result::TIMEOUT);
       likely_branch
@@ -117,16 +114,43 @@ auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
    return status;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if(!isStillWorking()) return Result::FATAL_BUG;
-
+auto SchedTimeGuard::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
    unlikely_branch
    if(ROLE(RelativeTimer).matches(event)) {
       return onTimeout(context);
    } else {
       return handleEvent_(context, event);
+   }
+}
+
+auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const& event) -> Status {
+   auto status = ROLE(SchedAction).handleEvent(context, event);
+   likely_branch
+   if(is_working_status(status)) {
+      return status;
+   }
+
+   if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
+      status = Result::TIMEOUT;
+   }
+
+   state = State::DONE;
+
+   return status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event) -> Status {
+   switch (state) {
+   likely_branch
+   case State::WORKING: [[fallthrough]];
+   case State::STOPPING:
+      return handleEventWorking(context, event);
+   case State::TIMEOUT:
+      return handleEventTimeout(context, event);
+   unlikely_branch
+   default:
+      return Result::FATAL_BUG;
    }
 }
 
@@ -137,7 +161,7 @@ auto SchedTimeGuard::stop(TransactionContext& context, Status cause)  -> Status 
    case State::WORKING:
       externalForceStopped = true;
       return stop_(context, cause);
-   case State::STOPPING:
+   case State::STOPPING: [[fallthrough]];
    case State::TIMEOUT:
       return Result::CONTINUE;
    unlikely_branch

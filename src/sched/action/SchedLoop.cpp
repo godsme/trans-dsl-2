@@ -5,85 +5,75 @@
 #include <trans-dsl/sched/action/SchedLoop.h>
 #include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 #include <trans-dsl/action/TransactionInfo.h>
+#include <trans-dsl/tsl_config.h>
 
 TSL_NS_BEGIN
 
-auto SchedLoop::checkError(bool isAction) {
-   // while in error recovering mode, once meet the 1st action,
-   // cleanup the failure.
-   if(errorRecovering) {
-      if(isAction) {
-         cleanUpFailure();
-         errorRecovering = false;
-      }
-   } else {
-      // once meets the 1st pred, enters error recovering mode.
-      if(isAction) {
-         errorRecovering = true;
-      }
-   }
-}
-
-auto SchedLoop::checkActionStatus(Status status) -> Status {
-   if (cub::is_failed_status(status)) {
-      reportFailure(status);
-      return Result::MOVE_ON;
-   } else if (status == Result::SUCCESS) {
-      return Result::MOVE_ON;
+////////////////////////////////////////////////////////////////////////////////////////
+auto SchedLoop::execAction(TransactionContext& context) -> Status {
+   if(InPredZone) {
+      cleanUpFailure();
+      InPredZone = false;
    }
 
-   return status;
-}
-
-auto SchedLoop::execOne(TransactionContext& context, bool isAction) -> Status {
-   // skipp all actions after a failure, until meet a pred.
-   if(isAction && hasFailure()) {
+   if(hasFailure()) {
       return Result::MOVE_ON;
    }
 
    auto status = action->exec(context);
-   if(isAction) {
-      return checkActionStatus(status);
+   if (is_working_status(status)) {
+      return status;
    }
 
-   return status;
+   if (cub::is_failed_status(status)) {
+      reportFailure(status);
+   }
+
+   return Result::MOVE_ON;
 }
 
-auto SchedLoop::execOnce(TransactionContext& context) -> Status {
-   bool isAction{};
-   while((action = getAction(sequence, isAction)) != nullptr) {
-      checkError(isAction);
+////////////////////////////////////////////////////////////////////////////////////////
+auto SchedLoop::execPred(TransactionContext& context) -> Status {
+   InPredZone = true;
+   return action->exec(context);
+}
 
-      auto status = execOne(context, isAction);
+////////////////////////////////////////////////////////////////////////////////////////
+auto SchedLoop::execEntry(TransactionContext& context, bool isAction) -> Status {
+   return isAction ? execAction(context) : execPred(context);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
+auto SchedLoop::loopOnce(TransactionContext& context) -> Status {
+   bool isAction{};
+   while((action = getAction(index++, isAction)) != nullptr) {
+      auto status = execEntry(context, isAction);
       if(status != Result::MOVE_ON) {
          return status;
       }
-
-      ++sequence;
    }
 
    return Result::RESTART_REQUIRED;
 }
 
+////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::looping(TransactionContext& context) -> Status {
-   uint32_t loopTimes = 0;
+   auto allowedMaxTimes = getMaxTime();
    while(1) {
-      auto status = execOnce(context);
+      auto status = loopOnce(context);
       if(status != Result::RESTART_REQUIRED) {
-         return status == Result::UNSPECIFIED ? getStatus() : status;
+         return status;
       }
 
-      sequence = 0;
-      errorRecovering = true;
+      index = 0;
+      InPredZone = true;
 
-      if(++loopTimes > getMaxTime()) {
-         return Result::USER_FATAL_BUG;
+      if(unlikely(allowedMaxTimes-- == 0)) {
+         break;
       }
-
    }
 
-   // never arrive here.
-   return Result::FATAL_BUG;
+   return Result::USER_FATAL_BUG;
 }
 
 #define AUTO_SWITCH()  RuntimeContextAutoSwitch __autoSwitch__{context, *this}
@@ -94,14 +84,20 @@ SchedLoop::SchedLoop()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+inline auto SchedLoop::getResult(Status status) const -> Status {
+   return status == Result::UNSPECIFIED ? getStatus() : status;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::exec(TransactionContext& context) -> Status {
-   auto status = attachToParent(context);
-   if(status != Result::SUCCESS) {
+   unlikely_branch
+   if(auto status = attachToParent(context);
+      unlikely(status != Result::SUCCESS)) {
       return status;
    }
 
    AUTO_SWITCH();
-   return looping(context);
+   return getResult(looping(context));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -113,23 +109,24 @@ auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) ->
       reportFailure(status);
    }
 
-   ++sequence;
    return looping(context);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   if (action == nullptr) {
+   unlikely_branch
+   if (unlikely(action == nullptr)) {
       return Result::FATAL_BUG;
    }
 
    AUTO_SWITCH();
-   return handleEvent_(context, event);
+   return getResult(handleEvent_(context, event));
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
-   if(stopping || action == nullptr) {
+   unlikely_branch
+   if(unlikely(stopping || action == nullptr)) {
       return Result::FATAL_BUG;
    }
 

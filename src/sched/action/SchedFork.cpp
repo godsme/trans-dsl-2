@@ -11,13 +11,12 @@
 TSL_NS_BEGIN
 
 auto SchedFork::exec(TransactionContext& context) -> Status {
-   auto mt = context.getMultiThreadContext();
-   unlikely_branch
-   if(unlikely(mt == nullptr)) {
-      return Result::FATAL_BUG;
+   likely_branch
+   if(auto mt = context.getMultiThreadContext(); likely(mt != nullptr)) {
+      return mt->startThread(getThreadId(), getThreadAction());
    }
 
-   return mt->startThread(getThreadId(), getThreadAction());
+   return Result::FATAL_BUG;
 }
 
 TSL_NS_END

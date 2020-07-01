@@ -26,17 +26,19 @@ struct SchedLoop
    OVERRIDE(kill(TransactionContext&, Status) -> void);
 
 private:
-   auto checkError(bool isAction);
-   auto execOne(TransactionContext& context, bool isPred) -> Status;
-   auto execOnce(TransactionContext&) -> Status;
+   auto execAction(TransactionContext& context) -> Status;
+   auto execEntry(TransactionContext& context, bool isAction) -> Status;
+   auto execPred(TransactionContext& context) -> Status;
+   auto loopOnce(TransactionContext &context) -> Status;
    auto looping(TransactionContext& context) -> Status;
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
    auto checkActionStatus(Status status) -> Status;
+   auto getResult(Status status) const -> Status;
 
 private:
    SchedAction* action = nullptr;
-   SeqInt sequence = 0;
-   bool errorRecovering = true;
+   SeqInt index = 0;
+   bool InPredZone = true;
    bool stopping = false;
 
 private:

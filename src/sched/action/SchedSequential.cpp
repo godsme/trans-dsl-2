@@ -32,7 +32,7 @@ inline auto SchedSequential::getFinalStatus(Status status) -> Status {
 auto SchedSequential::forward(TransactionContext& context) -> Status {
    likely_branch
    while(likely((current = getNext(index++)) != nullptr)) {
-      Status status = current->exec(context);
+      auto status = current->exec(context);
       likely_branch
       if(likely(status != Result::SUCCESS)) {
          return status;
@@ -54,6 +54,7 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
    return status;
 }
 
+///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent_(TransactionContext &context, const Event &event) -> Status {
    // This is the most invoked main path, we expand the
    // the specific implementation here for best performance,
@@ -68,6 +69,7 @@ auto SchedSequential::handleEvent_(TransactionContext &context, const Event &eve
    }
    return status;
 }
+
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
    switch (state) {

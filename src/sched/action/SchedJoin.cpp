@@ -13,14 +13,13 @@ TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedJoin::exec(TransactionContext& context) -> Status {
-   auto mt = context.getMultiThreadContext();
-   unlikely_branch
-   if(unlikely(mt == nullptr)) {
-      return Result::FATAL_BUG;
+   likely_branch
+   if(auto mt = context.getMultiThreadContext(); likely(mt != nullptr)) {
+      bitMap = mt->join(getThreadBitMap());
+      return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;
    }
 
-   bitMap = mt->join(getThreadBitMap());
-   return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;
+   return Result::FATAL_BUG;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

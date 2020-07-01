@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<CONCEPT_C(ActionConcept, T_ACTION)>
+   template<CONCEPT(ActionConcept) T_ACTION>
    struct Async final : SchedAction {
       CONCEPT_ASSERT(ActionConcept<T_ACTION>);
 

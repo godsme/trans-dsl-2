@@ -54,54 +54,54 @@ auto SchedSequential::exec(TransactionContext& context) -> Status {
    return status;
 }
 
-
+auto SchedSequential::handleEvent_(TransactionContext &context, const Event &event) -> Status {
+   // This is the most invoked main path, we expand the
+   // the specific implementation here for best performance,
+   // although there are some duplications with other paths.
+   auto status = current->handleEvent(context, event);
+   if (status == SUCCESS) {
+      status = forward(context);
+   }
+   unlikely_branch
+   if (unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
+      state = State::DONE;
+   }
+   return status;
+}
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::handleEvent(TransactionContext& context, Event const& event) -> Status {
    switch (state) {
       likely_branch
       case State::WORKING: {
-         // This is the most invoked main path, we expand the
-         // the specific implementation here for best performance,
-         // although there are some duplications with other paths.
-         auto status = current->handleEvent(context, event);
-         if (status == SUCCESS) {
-            status = forward(context);
-         }
-         unlikely_branch
-         if (unlikely(!(Result::__WORKING_STATUS_BEGIN & status))) {
-            state = State::DONE;
-         }
-         return status;
+         return handleEvent_(context, event);
       }
       case State::STOPPING: {
          return getFinalStatus(current->handleEvent(context, event));
       }
       unlikely_branch
-      default:
+      default: {
          return Result::FATAL_BUG;
+      }
    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
-   likely_branch
-   case State::WORKING: break;
-   unlikely_branch
-   case State::STOPPING: return Result::CONTINUE;
-   unlikely_branch
-   default: return Result::FATAL_BUG;
+      likely_branch
+      case State::WORKING: {
+         state = State::STOPPING;
+         return getFinalStatus(current->stop(context, cause));
+      }
+      unlikely_branch
+      case State::STOPPING: {
+         return Result::CONTINUE;
+      }
+      unlikely_branch
+      default: {
+         return Result::FATAL_BUG;
+      }
    }
-
-   state = State::STOPPING;
-
-   Status status = current->stop(context, cause);
-   unlikely_branch
-   if(unlikely(status == Result::CONTINUE)) {
-      return status;
-   }
-
-   return getFinalStatus(status);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

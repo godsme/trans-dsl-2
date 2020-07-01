@@ -6,6 +6,7 @@
 #include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 #include <trans-dsl/action/TransactionInfo.h>
 #include <trans-dsl/tsl_config.h>
+#include <trans-dsl/utils/AssertionHelper.h>
 
 TSL_NS_BEGIN
 
@@ -48,10 +49,7 @@ auto SchedLoop::execEntry(TransactionContext& context, bool isAction) -> Status 
 auto SchedLoop::loopOnce(TransactionContext& context) -> Status {
    bool isAction{};
    while((action = getAction(index++, isAction)) != nullptr) {
-      auto status = execEntry(context, isAction);
-      if(status != Result::MOVE_ON) {
-         return status;
-      }
+      EXPECT_STATUS(execEntry(context, isAction), Result::MOVE_ON);
    }
 
    return Result::RESTART_REQUIRED;
@@ -61,10 +59,7 @@ auto SchedLoop::loopOnce(TransactionContext& context) -> Status {
 auto SchedLoop::looping(TransactionContext& context) -> Status {
    auto allowedMaxTimes = getMaxTime();
    while(1) {
-      auto status = loopOnce(context);
-      if(status != Result::RESTART_REQUIRED) {
-         return status;
-      }
+      EXPECT_STATUS(loopOnce(context), Result::RESTART_REQUIRED);
 
       index = 0;
       inPredSegment = true;
@@ -92,10 +87,7 @@ inline auto SchedLoop::getResult(Status status) const -> Status {
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::exec(TransactionContext& context) -> Status {
    unlikely_branch
-   if(auto status = attachToParent(context);
-      unlikely(status != Result::SUCCESS)) {
-      return status;
-   }
+   EXPECT_STATUS(attachToParent(context), Result::SUCCESS);
 
    AUTO_SWITCH();
    return getResult(looping(context));
@@ -117,10 +109,7 @@ auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) ->
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   unlikely_branch
-   if (unlikely(action == nullptr)) {
-      return Result::FATAL_BUG;
-   }
+   BUG_CHECK(action != nullptr);
 
    AUTO_SWITCH();
    return getResult(handleEvent_(context, event));
@@ -128,9 +117,11 @@ auto SchedLoop::handleEvent(TransactionContext& context, Event const& event) -> 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
+   BUG_CHECK(action != nullptr);
+
    unlikely_branch
-   if(unlikely(stopping || action == nullptr)) {
-      return Result::FATAL_BUG;
+   if(unlikely(stopping)) {
+      return Result::CONTINUE;
    }
 
    stopping = true;

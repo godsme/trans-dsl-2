@@ -8,6 +8,7 @@
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/sched/domain/RuntimeContextAutoSwitch.h>
 #include <trans-dsl/tsl_config.h>
+#include <trans-dsl/utils/AssertionHelper.h>
 
 TSL_NS_BEGIN
 
@@ -29,10 +30,7 @@ auto SchedProcedure::gotoDone(Status status) -> Status {
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::gotoFinal(TransactionContext& context, Status status) -> Status {
    action = getFinalAction();
-   unlikely_branch
-   if(unlikely(action == nullptr)) {
-      return Result::FATAL_BUG;
-   }
+   BUG_CHECK(action != nullptr);
 
    state = State::Final;
 
@@ -60,10 +58,7 @@ inline auto SchedProcedure::workingStateCheck() -> void {
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec_(TransactionContext& context) -> Status {
    action = getAction();
-   unlikely_branch
-   if(unlikely(action == nullptr)) {
-      return Result::FATAL_BUG;
-   }
+   BUG_CHECK(action != nullptr);
 
    auto status = action->exec(context);
    likely_branch
@@ -78,10 +73,7 @@ auto SchedProcedure::exec_(TransactionContext& context) -> Status {
 
 //////////////////////////////////////////////////////////////////////////////////
 auto SchedProcedure::exec(TransactionContext& context) -> Status {
-   unlikely_branch
-   if (unlikely(state != State::Idle)) {
-      return Result::FATAL_BUG;
-   }
+   BUG_CHECK(state == State::Idle);
 
    auto status = attachToParent(context);
    unlikely_branch

@@ -3,27 +3,31 @@
 //
 
 #include <trans-dsl/sched/action/SchedOptional.h>
+#include <trans-dsl/utils/AssertionHelper.h>
 
 TSL_NS_BEGIN
 
 struct TransactionContext;
 
 auto SchedOptional::exec(TransactionContext& context) -> Status {
-   if(isTrue(context)) {
-      action = getAction();
-      return action->exec(context);
+   BUG_CHECK(action == nullptr);
+
+   if(!isTrue(context)) {
+      return Result::SUCCESS;
    }
 
-   action = nullptr;
-   return Result::SUCCESS;
+   action = getAction();
+   return action->exec(context);
 }
 
 auto SchedOptional::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   return action == nullptr ? Result::FATAL_BUG : action->handleEvent(context, event);
+   BUG_CHECK(action != nullptr);
+   return action->handleEvent(context, event);
 }
 
 auto SchedOptional::stop(TransactionContext& context, Status cause)  -> Status {
-   return action == nullptr ? Result::FATAL_BUG : action->stop(context, cause);
+   BUG_CHECK(action != nullptr);
+   return action->stop(context, cause);
 }
 
 auto SchedOptional::kill(TransactionContext& context, Status cause) -> void {

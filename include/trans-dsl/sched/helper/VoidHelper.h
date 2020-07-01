@@ -12,11 +12,10 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T_ACTION VOID_CONCEPT>
-   struct Void_;
 
    template<CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct Void_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> final : SchedVoid {
+   struct Void final : SchedVoid {
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
    private:
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;
@@ -25,6 +24,6 @@ namespace details {
 
 TSL_NS_END
 
-#define __void(...) TSL_NS::details::Void_<__VA_ARGS__>
+#define __void(...) TSL_NS::details::Void<__VA_ARGS__>
 
 #endif //TRANS_DSL_2_VOIDHELPER_H

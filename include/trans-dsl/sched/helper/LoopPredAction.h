@@ -13,12 +13,11 @@ TSL_NS_BEGIN
 
 namespace details {
    template<typename T_PRED>
-   struct GenericLoopPredAction final : private T_PRED, SchedSyncAction {
+   class GenericLoopPredAction final : public SchedSyncAction, T_PRED {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
          return getFinalResult(T_PRED::operator()(context));
       }
 
-   private:
       auto getFinalResult(bool satisfied) const -> Status {
          return satisfied ? T_PRED::FinalResult : Result::MOVE_ON;
       }

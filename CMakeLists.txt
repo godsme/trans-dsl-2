@@ -58,7 +58,7 @@ add_library(trans-dsl-2 STATIC
         src/sched/domain/RuntimeContext.cpp include/trans-dsl/sched/helper/ConcurrentHelper.h
         include/trans-dsl/utils/SeqInt.h include/trans-dsl/sched/action/SchedConcurrent.h
         src/sched/action/SchedConcurrent.cpp
-        include/trans-dsl/sched/helper/IsSchedAction.h include/trans-dsl/sched/action/SchedTimeGuard.h
+        include/trans-dsl/sched/action/SchedTimeGuard.h
         include/trans-dsl/sched/domain/TimerInfo.h include/trans-dsl/porting/timer/TimeLength.h
         include/trans-dsl/porting/timer/TimerId.h include/trans-dsl/sched/domain/RelativeTimer.h
         src/sched/domain/RelativeTimer.cpp include/trans-dsl/porting/timer/PlatformSpecifiedTimer.h

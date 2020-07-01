@@ -11,15 +11,13 @@ TSL_NS_BEGIN
 
 namespace details {
    template<Status V_CODE>
-   struct Throw_ final : SchedSyncAction {
-      OVERRIDE(exec(TransactionContext&) -> Status) {
-         return V_CODE;
-      }
+   class Throw final : public SchedSyncAction {
+      OVERRIDE(exec(TransactionContext&) -> Status) { return V_CODE; }
    };
 }
 
 TSL_NS_END
 
-#define __throw(code) TSL_NS::details::Throw_<code>
+#define __throw(code) TSL_NS::details::Throw<code>
 
 #endif //TRANS_DSL_2_THROWHELPER_H

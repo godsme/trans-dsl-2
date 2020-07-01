@@ -9,7 +9,6 @@
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/action/SchedConcurrent.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>

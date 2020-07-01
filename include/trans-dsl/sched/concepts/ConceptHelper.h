@@ -20,6 +20,7 @@
 #define ENABLE_C_2(c, t)
 #define DEF_CONCEPT(c, ...) concept c = __VA_ARGS__
 #define CONCEPT(c) c
+#define CONCEPT_ASSERT(...)
 
 #else
 
@@ -32,6 +33,7 @@
 #define ENABLE_C_2(c, ...) std::enable_if_t<c<__VA_ARGS__>> ,
 #define DEF_CONCEPT(c, ...) constexpr bool c = __VA_ARGS__
 #define CONCEPT(c) typename
+#define CONCEPT_ASSERT(...) static_assert(__VA_ARGS__)
 
 #endif
 

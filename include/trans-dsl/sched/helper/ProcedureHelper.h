@@ -6,20 +6,15 @@
 #define TRANS_DSL_2_PROCEDUREHELPER_H
 
 #include <trans-dsl/sched/action/SchedProcedure.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T_ACTION, typename T_FINAL, bool V_IS_PROTECTED, typename = void>
-   struct Procedure ;
-
-   template<typename T_ACTION, typename T_FINAL, bool V_IS_PROTECTED>
-   struct Procedure<
-      T_ACTION,
-      T_FINAL,
-      V_IS_PROTECTED,
-      IsBothSchedAction<T_ACTION, T_FINAL>> : SchedProcedure {
+   template<CONCEPT(SchedActionConcept) T_ACTION, CONCEPT(SchedActionConcept) T_FINAL, bool V_IS_PROTECTED>
+   struct Procedure final : SchedProcedure {
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+      CONCEPT_ASSERT(SchedActionConcept<T_FINAL>);
    private:
       OVERRIDE(getAction()->SchedAction *) {
          return new(cache) T_ACTION;

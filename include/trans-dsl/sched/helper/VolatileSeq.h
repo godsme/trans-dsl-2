@@ -27,9 +27,7 @@ namespace details {
       auto get() -> T_ELEM* {
          if constexpr(N < sizeof...(Ts)) {
             using Elem = TypeListExtractor_t<N, HeadTraits, Ts...>;
-            #if !__CONCEPT_ENABLED
-            static_assert(std::is_base_of_v<T_ELEM, Elem>);
-            #endif
+            CONCEPT_ASSERT(std::is_base_of_v<T_ELEM, Elem>);
             return new (cache) Elem;
          } else {
             return nullptr;

@@ -14,26 +14,19 @@
 
 TSL_NS_BEGIN
 
-   namespace details {
-      template <ThreadId TID, CONCEPT(SchedActionConcept) T_ACTION>
-      class Fork final : public SchedFork {
-         static_assert(TID < sizeof(ThreadBitMap) * 8, "specified Thread ID is out of scope");
-         static_assert(TID != 0, "0 is reserved for main thread");
-         #if !__CONCEPT_ENABLED
-         static_assert(SchedActionConcept<T_ACTION>, "the forked thread must be an Action");
-         #endif
+namespace details {
+   template <ThreadId TID, CONCEPT(SchedActionConcept) T_ACTION>
+   class Fork final : public SchedFork {
+      static_assert(TID < sizeof(ThreadBitMap) * 8, "specified Thread ID is out of scope");
+      static_assert(TID != 0, "0 is reserved for main thread");
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
 
-      private:
-         OVERRIDE(getThreadId() const -> ThreadId) {
-            return TID;
-         }
-         OVERRIDE(getThreadAction() -> SchedAction&) {
-            return action;
-         }
-
-         T_ACTION action;
-      };
-   }
+   private:
+      OVERRIDE(getThreadId() const -> ThreadId) { return TID; }
+      OVERRIDE(getThreadAction() -> SchedAction&) { return action; }
+      T_ACTION action;
+   };
+}
 
 #define __fork(tid, ...) TLS_NS::details::Fork<tid, __VA_ARGS__>
 

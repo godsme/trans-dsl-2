@@ -8,26 +8,24 @@
 #include <trans-dsl/sched/action/SchedOptional.h>
 #include <cub/base/IsClass.h>
 #include <trans-dsl/sched/helper/Pred.h>
+#include <trans-dsl/sched/concepts/SchedActionConcept.h>
 
 TSL_NS_BEGIN
 
 namespace details {
 
    ////////////////////////////////////////////////////////////////
-   template<typename T_ACTION>
-   struct OptionalBase : SchedOptional {
-      OVERRIDE(getAction() -> SchedAction*) {
-         return new (cache) T_ACTION;
-      }
-
+   template<CONCEPT(SchedActionConcept) T_ACTION>
+   class OptionalBase : public SchedOptional {
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+      OVERRIDE(getAction() -> SchedAction*) { return new (cache) T_ACTION; }
    private:
       alignas(alignof(T_ACTION)) unsigned char cache[sizeof(T_ACTION)];
    };
 
    ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, typename T_ACTION>
-   struct OptionalFunction final : OptionalBase<T_ACTION> {
-   private:
+   class OptionalFunction final : public OptionalBase<T_ACTION> {
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return V_PRED(context);
       }
@@ -35,23 +33,17 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<typename T_PRED, typename T_ACTION, size_t V_SIZE = sizeof(T_PRED), typename = void>
-   struct OptionalClass;
+   class OptionalClass;
 
    ////////////////////////////////////////////////////////////////
    template<typename T_PRED, typename T_ACTION, size_t V_SIZE>
-   struct OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> final : OptionalBase<T_ACTION> {
-   private:
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return pred(context);
-      }
-
-   private:
+   class OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> final : public OptionalBase<T_ACTION> {
+      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return pred(context); }
       T_PRED pred;
    };
 
    template<typename T_PRED, typename T_ACTION>
-   struct OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> final : OptionalBase<T_ACTION> {
-   private:
+   class OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> final : public OptionalBase<T_ACTION> {
       OVERRIDE(isTrue(TransactionContext& context) -> bool) {
          return T_PRED{}(context);
       }

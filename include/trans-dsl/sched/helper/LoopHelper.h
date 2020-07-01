@@ -7,7 +7,6 @@
 
 #include <trans-dsl/tsl_config.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
 #include <trans-dsl/sched/helper/LoopPredAction.h>
 #include <trans-dsl/sched/action/SchedLoop.h>
 #include <trans-dsl/utils/SeqInt.h>

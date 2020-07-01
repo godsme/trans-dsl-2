@@ -6,17 +6,13 @@
 #define TRANS_DSL_2_SAFEHELPER_H
 
 #include <trans-dsl/sched/action/SchedSafe.h>
-#include <trans-dsl/sched/helper/IsSchedAction.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T_ACTION VOID_CONCEPT>
-   struct Safe_;
-
    template<CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct Safe_<T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> final : SchedSafe {
-   private:
+   class Safe final : SchedSafe {
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
       IMPL_ROLE_WITH_VAR(SchedAction, action);
       T_ACTION action;
    };

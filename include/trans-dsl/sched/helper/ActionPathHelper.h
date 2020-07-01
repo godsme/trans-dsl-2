@@ -15,11 +15,8 @@ TSL_NS_BEGIN
 namespace details {
 
    template<typename T_PRED, CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct ActionPathClass : ActionPath {
-   #if !__CONCEPT_ENABLED
-      // We don't need to use SFINAE, static_assert is enough.
-      static_assert(SchedActionConcept<T_ACTION>);
-   #endif
+   class ActionPathClass final : public ActionPath {
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
 
       OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
          return (*(new (cache) T_PRED))(trans);
@@ -37,7 +34,7 @@ namespace details {
    };
 
    template<PredFunction V_PRED, typename T_ACTION>
-   struct ActionPathFunc : ActionPath {
+   class ActionPathFunc final : public ActionPath {
       OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
          return V_PRED(trans);
       }

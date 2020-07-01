@@ -14,12 +14,10 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<TimerId V_TIMER_ID, typename T_ACTION VOID_CONCEPT>
-   struct TimeGuard;
-
    template<TimerId V_TIMER_ID, CONCEPT_C(SchedActionConcept, T_ACTION)>
-   struct TimeGuard<V_TIMER_ID, T_ACTION ENABLE_C(SchedActionConcept, T_ACTION)> {
+   struct TimeGuard {
       struct Inner final : SchedTimeGuard {
+         CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
       private:
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          IMPL_ROLE_WITH_VAR(RelativeTimer, timer);

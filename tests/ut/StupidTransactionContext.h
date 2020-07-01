@@ -12,9 +12,8 @@
 
 struct StupidTransactionContext
    : TSL_NS::TransactionContext {
-
    StupidTransactionContext() {
-      updateTimerInfo(&timerInfo);
+      updateTimerInfo(timerInfo);
    }
 
 private:

@@ -17,6 +17,7 @@ TSL_NS_BEGIN
 
 struct TimerInfo;
 struct TransactionListener;
+struct MultiThreadContext;
 
 struct TransactionContext
    : TransactionInfo
@@ -30,6 +31,10 @@ struct TransactionContext
       return listener;
    }
 
+   auto getMultiThreadContext() const -> MultiThreadContext* {
+      return multiThreadContext;
+   }
+
 private:
    OVERRIDE(getStatus() const -> Status) {
       return RuntimeContextInfo::getRuntimeEnvStatus();
@@ -39,16 +44,21 @@ protected:
    using TransactionInfo::updateInstanceId;
    using TransactionInfo::updateUserContext;
 
-   auto updateTimerInfo(TimerInfo* info) -> void {
-      timerInfo = info;
+   auto updateTimerInfo(TimerInfo& info) -> void {
+      timerInfo = &info;
    }
 
-   auto updateListener(TransactionListener* listener) -> void {
-      this->listener = listener;
+   auto updateListener(TransactionListener& listener) -> void {
+      this->listener = &listener;
+   }
+
+   auto updateMultiThreadContext(MultiThreadContext& multiThreadContext) -> void {
+      this->multiThreadContext = &multiThreadContext;
    }
 private:
    TimerInfo* timerInfo = nullptr;
    TransactionListener* listener = nullptr;
+   MultiThreadContext* multiThreadContext = nullptr;
 };
 
 TSL_NS_END

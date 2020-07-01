@@ -11,12 +11,13 @@ TSL_NS_BEGIN
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::execAction(TransactionContext& context) -> Status {
-   if(InPredZone) {
+   if(inPredSegment) {
       cleanUpFailure();
-      InPredZone = false;
+      inPredSegment = false;
    }
 
    if(hasFailure()) {
+      // skip the action if an error occurred in this action segment.
       return Result::MOVE_ON;
    }
 
@@ -34,7 +35,7 @@ auto SchedLoop::execAction(TransactionContext& context) -> Status {
 
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::execPred(TransactionContext& context) -> Status {
-   InPredZone = true;
+   if(!inPredSegment) inPredSegment = true;
    return action->exec(context);
 }
 
@@ -66,7 +67,7 @@ auto SchedLoop::looping(TransactionContext& context) -> Status {
       }
 
       index = 0;
-      InPredZone = true;
+      inPredSegment = true;
 
       if(unlikely(allowedMaxTimes-- == 0)) {
          break;
@@ -105,7 +106,9 @@ auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) ->
    Status status = action->handleEvent(context, event);
    if (is_working_status(status) || stopping) {
       return status;
-   } else if(cub::is_failed_status(status)) {
+   }
+
+   if(cub::is_failed_status(status)) {
       reportFailure(status);
    }
 

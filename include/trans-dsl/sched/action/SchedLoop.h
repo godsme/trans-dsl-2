@@ -38,7 +38,7 @@ private:
 private:
    SchedAction* action = nullptr;
    SeqInt index = 0;
-   bool InPredZone = true;
+   bool inPredSegment = true;
    bool stopping = false;
 
 private:

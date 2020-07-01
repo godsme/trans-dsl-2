@@ -174,24 +174,38 @@ using Con1 = __concurrent(ProcedureAction1, ProcedureAction2);
 void func1() {
     Con1 action;
 
-   assert(CONTINUE == action.exec(context));
-   assert(CONTINUE == action.handleEvent(context, ev_1));
-   assert(CONTINUE == action.handleEvent(context, ev_2));
-   assert(CONTINUE == action.handleEvent(context, eventInfo1));
-   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
+   action.exec(context);
+   action.handleEvent(context, ev_1);
+   action.handleEvent(context, ev_2);
+   action.handleEvent(context, eventInfo1);
+   action.handleEvent(context, eventInfo2);
+
+//   assert(CONTINUE == action.exec(context));
+//   assert(CONTINUE == action.handleEvent(context, ev_1));
+//   assert(CONTINUE == action.handleEvent(context, ev_2));
+//   assert(CONTINUE == action.handleEvent(context, eventInfo1));
+//   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
 
 using Con2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 void func2() {
     Con2 action;
 
-   assert(CONTINUE == action.exec(context));
-   assert(CONTINUE == action.handleEvent(context, ev_1));
-   assert(CONTINUE == action.handleEvent(context, ev_2));
-   assert(CONTINUE == action.handleEvent(context, ev_3));
-   assert(CONTINUE == action.handleEvent(context, eventInfo1));
-   assert(CONTINUE == action.handleEvent(context, eventInfo4));
-   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
+   action.exec(context);
+   action.handleEvent(context, ev_1);
+   action.handleEvent(context, ev_2);
+   action.handleEvent(context, ev_3);
+   action.handleEvent(context, eventInfo1);
+   action.handleEvent(context, eventInfo4);
+   action.handleEvent(context, eventInfo2);
+
+//   assert(CONTINUE == action.exec(context));
+//   assert(CONTINUE == action.handleEvent(context, ev_1));
+//   assert(CONTINUE == action.handleEvent(context, ev_2));
+//   assert(CONTINUE == action.handleEvent(context, ev_3));
+//   assert(CONTINUE == action.handleEvent(context, eventInfo1));
+//   assert(CONTINUE == action.handleEvent(context, eventInfo4));
+//   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
 
 using Proc2 = __procedure
@@ -224,7 +238,7 @@ void func3() {
    assert(CONTINUE == proc.handleEvent(context, eventInfo2));
    assert(CONTINUE == proc.handleEvent(context, ev_7));
    assert(CONTINUE == proc.handleEvent(context, ev_8));
-   assert(SUCCESS == proc.handleEvent(context, ev_9));
+   assert(SUCCESS  == proc.handleEvent(context, ev_9));
 }
 
 using Proc3 = 
@@ -254,7 +268,7 @@ using Proc4 = __procedure
 );
 
 int main() {
-   ankerl::nanobench::Bench().minEpochIterations(1014).epochs(1000).run("simple seq", [&] {
+   ankerl::nanobench::Bench().minEpochIterations(11174).epochs(1000).run("simple seq", [&] {
       func();
    });
    ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("2 concurrent", [&] {

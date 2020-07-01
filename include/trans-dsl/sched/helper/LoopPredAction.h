@@ -7,23 +7,13 @@
 
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/helper/LoopPred.h>
+#include <trans-dsl/sched/action/SchedSyncAction.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-
-   struct LoopPredActionBase : SchedAction {
-      OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status) {
-         return Result::FATAL_BUG;
-      }
-      OVERRIDE(stop(TransactionContext&, Status) -> Status) {
-         return Result::FATAL_BUG;
-      }
-      OVERRIDE(kill(TransactionContext&, Status) -> void) {}
-   };
-
    template<typename T_PRED>
-   struct GenericLoopAction final : private T_PRED, LoopPredActionBase {
+   struct GenericLoopPredAction final : private T_PRED, SchedSyncAction {
       OVERRIDE(exec(TransactionContext& context) -> Status) {
          return getFinalResult(T_PRED::operator()(context));
       }

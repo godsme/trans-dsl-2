@@ -31,7 +31,7 @@ namespace details {
          return &pred;
       }
    private:
-      GenericLoopAction<T_HEAD> pred;
+      GenericLoopPredAction<T_HEAD> pred;
    };
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ namespace details {
    /////////////////////////////////////////////////////////////////////////////////////////
    template<typename T_PRED>
    struct LoopPredTraits {
-      using Action = GenericLoopAction<T_PRED>;
+      using Action = GenericLoopPredAction<T_PRED>;
       constexpr static bool isAction = false;
    };
 

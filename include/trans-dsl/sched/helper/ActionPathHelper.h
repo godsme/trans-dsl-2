@@ -17,7 +17,7 @@ namespace details {
    template<typename T_PRED, CONCEPT_C(SchedActionConcept, T_ACTION)>
    struct ActionPathClass : ActionPath {
    #if !__CONCEPT_ENABLED
-      // We don't need to use SFINAE, static assert is enough.
+      // We don't need to use SFINAE, static_assert is enough.
       static_assert(SchedActionConcept<T_ACTION>);
    #endif
 
@@ -31,7 +31,7 @@ namespace details {
 
    private:
       // for any action path, both pred & action would not
-      // be constructed until have to.
+      // be constructed until having to.
       alignas(std::max(alignof(T_PRED), alignof(T_ACTION)))
       char cache[std::max(sizeof(T_PRED), sizeof(T_ACTION))];
    };
@@ -48,7 +48,7 @@ namespace details {
 
    private:
       // for any action path, the action would not
-      // be constructed until have to.
+      // be constructed until having to.
       alignas(T_ACTION) char cache[sizeof(T_ACTION)];
    };
 

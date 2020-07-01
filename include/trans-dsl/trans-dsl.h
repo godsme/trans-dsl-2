@@ -18,6 +18,7 @@
 #include <trans-dsl/sched/helper/WaitHelper.h>
 #include <trans-dsl/sched/helper/ThrowHelper.h>
 #include <trans-dsl/sched/helper/FragmentHelper.h>
+#include <trans-dsl/sched/helper/ForkHelper.h>
 #include <trans-dsl/sched/helper/JoinHelper.h>
 
 #endif //TRANS_DSL_2_TRANS_DSL_H

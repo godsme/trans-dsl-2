@@ -22,9 +22,9 @@ namespace details {
 
    template <ThreadId ... TIDs>
    class Join final : public SchedJoin {
-      constexpr static ThreadBitMap Thread_Bitmap = (ThreadBitMap{} | ... | ThreadIdBitMask<TIDs>::value);
+      constexpr static ThreadBitMap threadBitMap = (ThreadBitMap{} | ... | ThreadIdBitMask<TIDs>::value);
       OVERRIDE(getThreadBitMap() const -> ThreadBitMap) {
-         return Thread_Bitmap;
+         return threadBitMap;
       }
    };
 }

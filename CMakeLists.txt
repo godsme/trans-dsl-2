@@ -76,7 +76,19 @@ add_library(trans-dsl-2 STATIC
         include/trans-dsl/sched/action/SchedVoid.h src/sched/action/SchedVoid.cpp
         include/trans-dsl/sched/helper/VoidHelper.h include/trans-dsl/sched/action/SchedWait.h
         src/sched/action/SchedWait.cpp include/trans-dsl/sched/helper/WaitHelper.h
-        include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h include/trans-dsl/sched/concepts/SyncActionClassConcept.h include/trans-dsl/sched/concepts/ClassConcept.h include/trans-dsl/sched/helper/MaxSizeCalc.h include/trans-dsl/sched/helper/TypeListExtractor.h include/trans-dsl/sched/concepts/PredConcept.h include/cub/utils/RepeatMacros.h include/trans-dsl/sched/helper/ActionPathHelper.h include/trans-dsl/sched/helper/VolatileSeq.h include/trans-dsl/sched/helper/JoinHelper.h include/trans-dsl/sched/domain/ThreadId.h include/trans-dsl/sched/domain/ThreadBitMap.h include/trans-dsl/sched/action/SchedJoin.h src/sched/action/SchedJoin.cpp include/trans-dsl/sched/domain/MultiThreadContext.h include/trans-dsl/sched/domain/ThreadDoneMsg.h include/trans-dsl/sched/action/SchedFork.h src/sched/action/SchedFork.cpp include/trans-dsl/sched/helper/ForkHelper.h include/trans-dsl/utils/AssertionHelper.h)
+        include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h
+        include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h
+        include/trans-dsl/sched/concepts/SyncActionClassConcept.h include/trans-dsl/sched/concepts/ClassConcept.h
+        include/trans-dsl/sched/helper/MaxSizeCalc.h include/trans-dsl/sched/helper/TypeListExtractor.h
+        include/trans-dsl/sched/concepts/PredConcept.h include/cub/utils/RepeatMacros.h
+        include/trans-dsl/sched/helper/ActionPathHelper.h include/trans-dsl/sched/helper/VolatileSeq.h
+        include/trans-dsl/sched/helper/JoinHelper.h include/trans-dsl/sched/domain/ThreadId.h
+        include/trans-dsl/sched/domain/ThreadBitMap.h include/trans-dsl/sched/action/SchedJoin.h
+        src/sched/action/SchedJoin.cpp include/trans-dsl/sched/domain/MultiThreadContext.h
+        include/trans-dsl/sched/domain/ThreadDoneMsg.h include/trans-dsl/sched/action/SchedFork.h
+        src/sched/action/SchedFork.cpp include/trans-dsl/sched/helper/ForkHelper.h
+        include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/MultiThreadScheduler.h
+        src/sched/action/MultiThreadScheduler.cpp)
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
@@ -91,6 +103,7 @@ add_executable(trans-dsl-test-catch
         tests/ut/TestConcurrent.cpp
         tests/ut/TestSimpleAsyncAction.cpp
         tests/ut/TestTimerGuard.cpp
+        tests/ut/TestMultiThreadScheduler.cpp
         tests/pt/catch.cpp)
 
 target_link_libraries(trans-dsl-test-catch trans-dsl-2)

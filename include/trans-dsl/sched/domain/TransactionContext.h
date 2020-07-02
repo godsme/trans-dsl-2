@@ -35,6 +35,10 @@ struct TransactionContext
       return multiThreadContext;
    }
 
+   auto updateMultiThreadContext(MultiThreadContext& multiThreadContext) -> void {
+      this->multiThreadContext = &multiThreadContext;
+   }
+
 private:
    OVERRIDE(getStatus() const -> Status) {
       return RuntimeContextInfo::getRuntimeEnvStatus();
@@ -52,9 +56,7 @@ protected:
       this->listener = &listener;
    }
 
-   auto updateMultiThreadContext(MultiThreadContext& multiThreadContext) -> void {
-      this->multiThreadContext = &multiThreadContext;
-   }
+
 private:
    TimerInfo* timerInfo = nullptr;
    TransactionListener* listener = nullptr;

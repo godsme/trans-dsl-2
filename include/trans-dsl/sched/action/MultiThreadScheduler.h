@@ -38,16 +38,17 @@ private:
    auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
    auto fetchADoneTid() const -> ThreadId;
 
+protected:
+   using Threads = SchedAction**;
+
 private:
-   static constexpr size_t MAX_NUM_OF_THREADS = sizeof(ThreadBitMap) * 8;
-   SchedAction* threads[MAX_NUM_OF_THREADS]{};
    enum class State {
       INIT,
       WORKING,
       STOPPING,
       DONE
    };
-
+   Threads threads;
    State state = State::INIT;
    uint8_t alive{};
    uint8_t limits{};
@@ -60,6 +61,8 @@ private:
 
 private:
    ABSTRACT(createThread(ThreadId) -> SchedAction*);
+   ABSTRACT(getMaxThreads() const -> uint8_t);
+   ABSTRACT(getThreads() -> Threads);
 };
 
 template<typename MAIN_ACTION>
@@ -73,6 +76,16 @@ private:
       return threadCreator.createThreadAction(tid);
    }
 
+   OVERRIDE(getMaxThreads() const -> uint8_t) {
+      return MAX_NUM_OF_THREADS;
+   }
+
+   OVERRIDE(getThreads() -> Threads) {
+      return threads;
+   }
+
+   enum : uint8_t { MAX_NUM_OF_THREADS = details::FinalThreadCreator<MAIN_ACTION>::threadId + 1 };
+   SchedAction* threads[MAX_NUM_OF_THREADS]{};
    MAIN_ACTION mainThreadAction;
    details::FinalThreadCreator<MAIN_ACTION> threadCreator;
 };

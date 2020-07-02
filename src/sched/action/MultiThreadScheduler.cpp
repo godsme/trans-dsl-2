@@ -9,6 +9,7 @@
 #include <trans-dsl/utils/AssertionHelper.h>
 #include <event/impl/ConsecutiveEventInfo.h>
 #include <trans-dsl/sched/domain/ThreadDoneMsg.h>
+#include <iostream>
 
 TSL_NS_BEGIN
 
@@ -62,8 +63,10 @@ auto MultiThreadScheduler::exec(ThreadId tid, TransactionContext& context) -> St
 auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& action) -> Status {
    BUG_CHECK(state == State::INIT);
 
+   threads = getThreads();
    // user config
-   limits = MAX_NUM_OF_THREADS;
+   limits = getMaxThreads();
+   std::cout << "limits = " << int(limits) << std::endl;
 
    context.updateMultiThreadContext(*this);
    threads[MAIN_TID] = &action;

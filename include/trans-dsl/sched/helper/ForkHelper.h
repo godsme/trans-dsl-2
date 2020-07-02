@@ -23,6 +23,7 @@ namespace details {
 
    public:
       struct ThreadActionCreator {
+         static constexpr ThreadId threadId = TID;
          auto createThreadAction(ThreadId tid) -> SchedAction* {
             return (tid == TID) ? new (cache) T_ACTION : nullptr;
          }

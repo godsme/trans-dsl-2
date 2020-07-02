@@ -9,6 +9,7 @@
 #include <type_traits>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/sched/domain/ThreadId.h>
+#include <algorithm>
 
 TSL_NS_BEGIN
 
@@ -53,6 +54,7 @@ namespace details {
    template<typename T1, typename T2>
    struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<!std::is_void_v<T2>>> {
       struct type : private T1, private T2 {
+         static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);
          auto createThreadAction(ThreadId tid) -> SchedAction* {
             auto action = T1::createThreadAction(tid);
             return action == nullptr ? T2::createThreadAction(tid) : action;
@@ -92,6 +94,8 @@ namespace details {
          return creator.createThreadAction(tid);
       }
 
+      static constexpr ThreadId threadId = ThreadCreator_t<T>::threadId;
+
    private:
       ThreadCreator_t<T> creator;
    };
@@ -101,6 +105,8 @@ namespace details {
       auto createThreadAction(ThreadId) -> SchedAction* {
          return nullptr;
       }
+
+      static constexpr ThreadId threadId = 0;
    };
 }
 

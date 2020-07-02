@@ -174,11 +174,17 @@ auto MultiThreadScheduler::handleEventWorking(TransactionContext& context, Event
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::fetchADoneTid() const -> ThreadId {
+   ThreadId tid = 1;
+   for(ThreadBitMap map = 2; !(newDone & map); map <<= 1, tid++);
+   return tid;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::scheduleEvent(TransactionContext& context, Event const& event) -> Status {
    auto status = handleEventWorking(context, event);
    while(newDone != 0 && is_working_status(status)) {
-      ThreadId tid = 1;
-      for(; (newDone & (ThreadBitMap(1) << tid)) == 0; tid++);
+      auto tid = fetchADoneTid();
       status = broadcast(context,
                          ev::ConsecutiveEventInfo(EV_ACTION_THREAD_DONE, ThreadDoneMsg{tid}));
       newDone &= ~(ThreadBitMap(1) << tid);

@@ -252,12 +252,62 @@ namespace {
          GenericMultiThreadScheduler <MainAction> scheduler;
          REQUIRE(Result::CONTINUE == scheduler.start(context));
 
+         WHEN("stop, should return FORCE_STOPPED") {
+            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            THEN("event 4 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+            }
+            THEN("stop again, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+            }
+         }
+
          WHEN("event 2 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
             THEN("event 4 received, should return CONTINUE") {
                REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
-               THEN("event 1 received, should return CONTINUE") {
+               THEN("event 1 received, should return SUCCESS") {
                   REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+               }
+            }
+         }
+
+         WHEN("event 1 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            THEN("event 2 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               THEN("event 4 received, should return SUCCESS") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+               }
+            }
+         }
+
+         WHEN("event 4 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            THEN("event 2 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               THEN("event 1 received, should return SUCCESS") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+               }
+            }
+         }
+
+         WHEN("event 4 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            THEN("event 1 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+               THEN("event 2 received, should return SUCCESS") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               }
+            }
+         }
+
+         WHEN("event 1 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            THEN("event 4 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+               THEN("event 2 received, should return SUCCESS") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
                }
             }
          }

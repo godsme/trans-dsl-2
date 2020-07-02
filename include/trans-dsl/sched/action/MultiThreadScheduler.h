@@ -36,6 +36,7 @@ private:
    auto broadcast(TransactionContext& context, Event const&) -> Status;
    auto broadcastToOthers(TransactionContext& context, Event const& event) -> Status;
    auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
+   auto fetchADoneTid() const -> ThreadId;
 
 private:
    static constexpr size_t MAX_NUM_OF_THREADS = sizeof(ThreadBitMap) * 8;

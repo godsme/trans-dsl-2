@@ -262,6 +262,16 @@ namespace {
             }
          }
 
+         WHEN("killed") {
+            scheduler.kill(context, Result::DUPTID);
+            THEN("event 4 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+            }
+            THEN("stop, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+            }
+         }
+
          WHEN("event 2 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
             THEN("event 4 received, should return CONTINUE") {
@@ -278,6 +288,12 @@ namespace {
                REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
                THEN("event 4 received, should return SUCCESS") {
                   REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+               }
+            }
+            AND_WHEN("stop, should return FORCE_STOPPED") {
+               REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+               THEN("event 4 received, should return FATAL_BUG") {
+                  REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
                }
             }
          }

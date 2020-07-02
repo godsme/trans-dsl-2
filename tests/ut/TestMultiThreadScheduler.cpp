@@ -175,6 +175,8 @@ namespace {
          GenericMultiThreadScheduler<MainAction> scheduler;
          REQUIRE(Result::CONTINUE == scheduler.start(context));
 
+         //std::cout << sizeof(MainAction) << std::endl;
+
          WHEN("start again, should return FATAL_BUG") {
             REQUIRE(Result::FATAL_BUG == scheduler.start(context));
          }

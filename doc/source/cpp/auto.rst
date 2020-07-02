@@ -101,12 +101,12 @@
 .. code-block:: c++
    :linenos:
 
-   Foo foo{1};
-   Foo&   ref = foo;
+   Foo   foo{1};
+   Foo&  ref = foo;
    Foo&& rref = Foo{2};
    Foo&& getRref();
-   Foo& getRef();
-   Foo getFoo();
+   Foo&  getRef();
+   Foo   getFoo();
 
    auto&& v1 = foo;            // v1 type: Foo&
    auto&& v2 = Foo{2};         // v2 type: Foo&&
@@ -114,7 +114,7 @@
    auto&& v4 = getRef();       // v4 type: Foo&
    auto&& v5 = getFoo();       // v5 type: Foo&&
    auto&& v6 = ref;            // v6 type: Foo&
-   atuo&& v7 = rref;           // v7 type: Foo&&
+   auto&& v7 = rref;           // v7 type: Foo&
 
 正是因为这样的写法，允许等号右侧是任意合法的表达式，而等号左侧总是可以根据表达式类别，推演出合适的引用类型。所以这种写法被称做 **通用引用** 。
 

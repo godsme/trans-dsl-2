@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 auto SchedFork::exec(TransactionContext& context) -> Status {
    likely_branch
    if(auto mt = context.getMultiThreadContext(); likely(mt != nullptr)) {
-      return mt->startThread(getThreadId(), getThreadAction());
+      return mt->startThread(context, getThreadId());
    }
 
    return Result::FATAL_BUG;

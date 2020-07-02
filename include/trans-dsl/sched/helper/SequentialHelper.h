@@ -10,6 +10,7 @@
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/VolatileSeq.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -25,7 +26,9 @@ namespace details {
       using Base = VolatileSeq<SchedAction, T_ACTIONS...>;
 
    public:
-      class Inner final : public SchedSequential, Base {
+      struct Inner final : SchedSequential, private Base {
+         using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
+      private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
          OVERRIDE(getNext(SeqInt seq) -> SchedAction*) {
             return Base::get(seq);

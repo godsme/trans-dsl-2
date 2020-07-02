@@ -19,7 +19,6 @@ struct SchedFork : SchedSyncAction {
 
 private:
    ABSTRACT(getThreadId() const -> ThreadId);
-   ABSTRACT(getThreadAction() -> SchedAction&);
 };
 
 TSL_NS_END

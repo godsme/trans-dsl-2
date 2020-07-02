@@ -29,7 +29,7 @@ namespace details {
    };
 }
 
-#define __join(...) TLS_NS::details::Join<__VA_ARGS__>
+#define __join(...) TSL_NS::details::Join<__VA_ARGS__>
 
 TSL_NS_END
 

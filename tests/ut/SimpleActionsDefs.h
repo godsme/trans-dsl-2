@@ -9,6 +9,7 @@
 #include <event/impl/ConsecutiveEventInfo.h>
 #include <event/impl/SimpleEventInfo.h>
 #include <event/concept/Event.h>
+#include <iostream>
 
 namespace {
    TSL_NS::TimerId constexpr TIMER_1 = 1;
@@ -48,10 +49,12 @@ namespace {
 
    DEF_SIMPLE_ASYNC_ACTION(AsyncAction2) {
       auto exec(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
+         std::cout << "async 2 start" << std::endl;
          return WAIN_ON(EV_MSG_2, handleMsg2);
       }
 
       DEF_INLINE_EVENT_HANDLER(handleMsg2, Msg2) {
+         std::cout << "msg 2 recieved" << std::endl;
          return TSL_NS::Result::SUCCESS;
       }
    };

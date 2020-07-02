@@ -13,10 +13,11 @@
 TSL_NS_BEGIN
 
 struct SchedAction;
+struct TransactionContext;
 
 DEFINE_ROLE(MultiThreadContext) {
    ABSTRACT(join(ThreadBitMap) -> ThreadBitMap);
-   ABSTRACT(startThread(ThreadId, SchedAction&) -> Status);
+   ABSTRACT(startThread(TransactionContext&, ThreadId) -> Status);
 };
 
 TSL_NS_END

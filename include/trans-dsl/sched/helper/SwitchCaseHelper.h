@@ -8,6 +8,7 @@
 #include <trans-dsl/sched/action/SchedSwitchCase.h>
 #include <trans-dsl/sched/helper/ActionPathHelper.h>
 #include <trans-dsl/sched/helper/VolatileSeq.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -26,7 +27,9 @@ namespace details {
       using Base = VolatileSeq<ActionPath, T_PATHS...>;
 
    public:
-      class Inner final : public SchedSwitchCase, Base {
+      struct Inner final : SchedSwitchCase, private Base {
+         using ThreadActionCreator = ThreadCreator_t<T_PATHS...>;
+      private:
          SeqInt i = 0;
          OVERRIDE(getNext()->ActionPath *) {
             return Base::get(i++);

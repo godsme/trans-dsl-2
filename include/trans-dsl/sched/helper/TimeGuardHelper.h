@@ -9,6 +9,7 @@
 #include <trans-dsl/porting/timer/TimerId.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/porting/timer/PlatformSpecifiedTimer.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -18,6 +19,7 @@ namespace details {
    struct TimeGuard {
       struct Inner final : SchedTimeGuard {
          CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+         using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
       private:
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          IMPL_ROLE_WITH_VAR(RelativeTimer, timer);

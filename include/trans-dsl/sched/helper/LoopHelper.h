@@ -15,6 +15,7 @@
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <trans-dsl/sched/helper/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -134,6 +135,9 @@ namespace details {
             return nullptr;
          }
       }
+
+   public:
+      using ThreadActionCreator = ThreadCreator_t<T_ENTRIES...>;
 
    private:
       OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }

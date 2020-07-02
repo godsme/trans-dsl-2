@@ -16,7 +16,7 @@ struct SchedAction;
 struct TransactionContext;
 
 DEFINE_ROLE(MultiThreadContext) {
-   ABSTRACT(join(ThreadBitMap) -> ThreadBitMap);
+   ABSTRACT(join(ThreadBitMap&) -> Status);
    ABSTRACT(startThread(TransactionContext&, ThreadId) -> Status);
 };
 

@@ -9,13 +9,16 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <algorithm>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
 namespace details {
 
    template<typename T_PRED, CONCEPT_C(SchedActionConcept, T_ACTION)>
-   class ActionPathClass final : public ActionPath {
+   struct ActionPathClass final : ActionPath {
+      using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
+   private:
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
 
       OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {

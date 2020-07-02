@@ -9,6 +9,7 @@
 #include <cub/base/IsClass.h>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -16,7 +17,9 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<CONCEPT(SchedActionConcept) T_ACTION>
-   class OptionalBase : public SchedOptional {
+   struct OptionalBase : public SchedOptional {
+      using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
+   private:
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
       OVERRIDE(getAction() -> SchedAction*) { return new (cache) T_ACTION; }
    private:

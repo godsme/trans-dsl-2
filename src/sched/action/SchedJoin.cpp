@@ -16,7 +16,12 @@ TSL_NS_BEGIN
 auto SchedJoin::exec(TransactionContext& context) -> Status {
    likely_branch
    if(auto mt = context.getMultiThreadContext(); likely(mt != nullptr)) {
-      bitMap = mt->join(getThreadBitMap());
+      bitMap = getThreadBitMap();
+      auto status = mt->join(bitMap);
+      if(status != Result::SUCCESS) {
+         return status;
+      }
+
       return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;
    }
 

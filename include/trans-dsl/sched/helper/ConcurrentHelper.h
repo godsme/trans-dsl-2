@@ -12,6 +12,7 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -58,29 +59,32 @@ namespace details {
          }
       }
 
-      private:
-         OVERRIDE(getNumOfActions() const -> SeqInt) {
-            return Num_Of_Actions;
-         }
+   public:
+      using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
 
-         ///////////////////////////////////////////////////////////////////////
-         #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
-         #define CoNcUrReNt_AcTiOn(n) { switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
-         #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) CoNcUrReNt_AcTiOn(n)
-         #define And_CoNcUrReNt_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) CoNcUrReNt_AcTiOn(n)
-         ///////////////////////////////////////////////////////////////////////
+   private:
+      OVERRIDE(getNumOfActions() const -> SeqInt) {
+         return Num_Of_Actions;
+      }
 
-         // Use if-constexpr to avoid unnecessary function template instantiation.
-         // Use switch-case to avoid recursion, and the generated jump-table by
-         // switch-case is fast.
-         OVERRIDE(get(SeqInt seq) -> SchedAction*) {
-            CoNcUrReNt_AcTiOn_DeCl(2)
-            And_CoNcUrReNt_AcTiOn_DeCl(3)
-            And_CoNcUrReNt_AcTiOn_DeCl(4)
-            And_CoNcUrReNt_AcTiOn_DeCl(5)
-            And_CoNcUrReNt_AcTiOn_DeCl(6)
-            return nullptr;
-         }
+      ///////////////////////////////////////////////////////////////////////
+      #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
+      #define CoNcUrReNt_AcTiOn(n) { switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
+      #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) CoNcUrReNt_AcTiOn(n)
+      #define And_CoNcUrReNt_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) CoNcUrReNt_AcTiOn(n)
+      ///////////////////////////////////////////////////////////////////////
+
+      // Use if-constexpr to avoid unnecessary function template instantiation.
+      // Use switch-case to avoid recursion, and the generated jump-table by
+      // switch-case is fast.
+      OVERRIDE(get(SeqInt seq) -> SchedAction*) {
+         CoNcUrReNt_AcTiOn_DeCl(2)
+         And_CoNcUrReNt_AcTiOn_DeCl(3)
+         And_CoNcUrReNt_AcTiOn_DeCl(4)
+         And_CoNcUrReNt_AcTiOn_DeCl(5)
+         And_CoNcUrReNt_AcTiOn_DeCl(6)
+         return nullptr;
+      }
    };
 }
 

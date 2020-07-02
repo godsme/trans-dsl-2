@@ -56,7 +56,7 @@ private:
    ThreadBitMap newDone{};
 
 private:
-   OVERRIDE(join(ThreadBitMap) -> ThreadBitMap);
+   OVERRIDE(join(ThreadBitMap&) -> Status);
    OVERRIDE(startThread(TransactionContext&, ThreadId) -> Status);
 
 private:

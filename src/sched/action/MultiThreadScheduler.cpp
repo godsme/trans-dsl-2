@@ -256,15 +256,19 @@ auto MultiThreadScheduler::broadcast(TransactionContext& context, Event const& e
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto MultiThreadScheduler::join(ThreadBitMap bitMap) -> ThreadBitMap {
+auto MultiThreadScheduler::join(ThreadBitMap& bitMap) -> Status {
    if(bitMap == 0) {
+      if(currentTid != MAIN_TID) {
+         return Result::USER_FATAL_BUG;
+      }
+
       FOREACH_THREAD__(i, 1) {
          if(threads[i] != nullptr && i != currentTid) {
             bitMap |= (ThreadBitMap(1) << i);
          }
       }
    }
-   return bitMap;
+   return Result::SUCCESS;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

@@ -387,4 +387,42 @@ namespace {
          }
       }
    }
+
+   SCENARIO("MultiThreadScheduler with a immediate fork in fork") {
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{10, 20};
+      const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
+
+      const Msg2 msg2{10};
+      const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
+
+      const Msg4 msg4{10};
+      const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
+
+      WHEN("start with a fork action") {
+         using MainAction =
+         __sequential(
+            __fork(1, __fork(2, __asyn(AsyncAction4))),
+            __asyn(AsyncAction2),
+            __join());
+
+         GenericMultiThreadScheduler <MainAction> scheduler;
+         REQUIRE(Result::CONTINUE == scheduler.start(context));
+
+         THEN("event 2 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            THEN("event 4 received, should return SUCCESS") {
+               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+            }
+         }
+
+         THEN("event 4 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            THEN("event 2 received, should return SUCCESS") {
+               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            }
+         }
+      }
+   }
 }

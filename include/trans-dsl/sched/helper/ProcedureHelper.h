@@ -7,6 +7,7 @@
 
 #include <trans-dsl/sched/action/SchedProcedure.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -15,6 +16,7 @@ namespace details {
    struct Procedure final : SchedProcedure {
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
       CONCEPT_ASSERT(SchedActionConcept<T_FINAL>);
+      using ThreadActionCreator = ThreadCreator_t<T_ACTION, T_FINAL>;
    private:
       OVERRIDE(getAction()->SchedAction *) {
          return new(cache) T_ACTION;

@@ -8,11 +8,10 @@
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/tsl_config.h>
 #include <trans-dsl/utils/AssertionHelper.h>
-#include <iostream>
 
 TSL_NS_BEGIN
 
-#define FOREACH_THREAD__(i, from) for(ThreadId i = from; i < limits && threads[i] != nullptr; i++)
+#define FOREACH_THREAD__(i, from) for(ThreadId i = from; i < limits; i++)
 #define FOREACH_THREAD(i) FOREACH_THREAD__(i, 0)
 
 #define THREAD_DONE(i) threads[i] = nullptr; --alive
@@ -41,9 +40,7 @@ auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& actio
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::handleEvent_(ThreadId i, TransactionContext& context, Event const& event) -> Status {
-      std::cout << (int)i << " start " << threads[i] << std::endl;
    auto status = threads[i]->handleEvent(context, event);
-      std::cout << (int)i << " = " << std::hex << status << std::endl;
    if(is_not_working_status(status)) {
       THREAD_DONE(i);
    }
@@ -57,6 +54,7 @@ auto MultiThreadScheduler::stop_(TransactionContext& context, Status cause) -> S
    context.reportFailure(cause);
 
    FOREACH_THREAD(i) {
+      if(threads[i] == nullptr) continue;
       auto status = threads[i]->stop(context, cause);
       if(is_not_working_status(status)) {
          THREAD_DONE(i);
@@ -78,6 +76,7 @@ auto MultiThreadScheduler::stop_(TransactionContext& context, Status cause) -> S
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::kill__(TransactionContext& context, Status cause) -> void {
    FOREACH_THREAD(i) {
+      if(threads[i] == nullptr) continue;
       threads[i]->kill(context, cause);
       THREAD_DONE(i);
       if(alive == 0) {
@@ -95,11 +94,10 @@ auto MultiThreadScheduler::kill_(TransactionContext& context, Status cause) -> S
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::othersHandleEvent(TransactionContext& context, Event const& event) -> Status {
-   std::cout << "othersHandleEvent" << std::endl;
    FOREACH_THREAD__(i, 1) {
-      std::cout << "othersHandleEvent 1" << std::endl;
+      if(threads[i] == nullptr) continue;
+
       auto status = handleEvent_(i, context, event);
-      std::cout << "othersHandleEvent 2" << std::endl;
       if(cub::is_failed_status(status)) {
          return stop_(context, status);
       }
@@ -115,7 +113,6 @@ auto MultiThreadScheduler::othersHandleEvent(TransactionContext& context, Event 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
    auto status = handleEvent_(MAIN_TID, context, event);
-   std::cout << "main = " << std::hex << status << std::endl;
    if(unlikely(threads[MAIN_TID] == nullptr)) {
       return kill_(context, status);
    }
@@ -177,17 +174,14 @@ auto MultiThreadScheduler::startThread(TransactionContext& context, ThreadId tid
    }
 
    alive++;
-   std::cout << "start thread " << (int)tid << " " << std::hex << threads[tid] << std::endl;
 
    auto status = threads[tid]->exec(context);
-   if(status == Result::CONTINUE) {
-      return Result::SUCCESS;
+   if(status != Result::CONTINUE) {
+      THREAD_DONE(tid);
+      return status;
    }
 
-   threads[tid] = nullptr;
-   alive--;
-
-   return status;
+   return Result::SUCCESS;
 }
 
 TSL_NS_END

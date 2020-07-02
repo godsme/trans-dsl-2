@@ -15,9 +15,8 @@ TSL_NS_BEGIN
 
 struct TransactionContext;
 
-struct MultiThreadScheduler
-   : private MultiThreadContext {
-
+// 80 byte
+struct MultiThreadScheduler : private MultiThreadContext {
 
    auto handleEvent(TransactionContext&, Event const&) -> Status;
    auto stop(TransactionContext&, Status) -> Status;

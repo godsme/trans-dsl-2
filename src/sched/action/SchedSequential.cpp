@@ -6,7 +6,6 @@
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/tsl_config.h>
-#include <iostream>
 
 TSL_NS_BEGIN
 
@@ -34,7 +33,6 @@ auto SchedSequential::forward(TransactionContext& context) -> Status {
    likely_branch
    while(likely((current = getNext(index++)) != nullptr)) {
       auto status = current->exec(context);
-      std::cout << "seq " << (int)(index - 1) << " = " << std::hex << status << std::endl;
       likely_branch
       if(likely(status != Result::SUCCESS)) {
          return status;
@@ -62,7 +60,6 @@ auto SchedSequential::handleEvent_(TransactionContext &context, const Event &eve
    // the specific implementation here for best performance,
    // although there are some duplications with other paths.
    auto status = current->handleEvent(context, event);
-   std::cout << "current status = " << std::hex << status << std::endl;
    if (status == SUCCESS) {
       status = forward(context);
    }
@@ -78,7 +75,6 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
    switch (state) {
       likely_branch
       case State::WORKING: {
-         std::cout << "working" << std::endl;
          return handleEvent_(context, event);
       }
       case State::STOPPING: {
@@ -86,7 +82,6 @@ auto SchedSequential::handleEvent(TransactionContext& context, Event const& even
       }
       unlikely_branch
       default: {
-         std::cout << "goes here" << std::endl;
          return Result::FATAL_BUG;
       }
    }

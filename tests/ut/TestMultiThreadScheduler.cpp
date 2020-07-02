@@ -7,6 +7,7 @@
 #include <trans-dsl/trans-dsl.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
+#include <iostream>
 
 namespace {
 
@@ -161,14 +162,69 @@ namespace {
       const Msg2 msg2{ 10 };
       const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
+      const Msg4 msg4{ 10 };
+      const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
+
       WHEN("start with a fork action") {
-         using MainAction = __sequential(__fork(1, __asyn(AsyncAction1)), __asyn(AsyncAction2));
+         using MainAction =
+            __sequential(
+               __fork(1, __asyn(AsyncAction1)),
+               __fork(2, __asyn(AsyncAction4)),
+               __asyn(AsyncAction2));
 
          GenericMultiThreadScheduler<MainAction> scheduler;
          REQUIRE(Result::CONTINUE == scheduler.start(context));
 
-         THEN("event 1 received, should return CONTINUE") {
+         WHEN("start again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+         }
+
+         WHEN("stop, should return FORCE_STOPPED") {
+            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            WHEN("event 1 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+            }
+            WHEN("event 2 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event2));
+            }
+            WHEN("event 4 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+            }
+         }
+
+         WHEN("event 2 received, should return CONTINUE") {
+            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            WHEN("event 1 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+               THEN("event 4 received, should return FATAL_BUG") {
+                  REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+               }
+            }
+         }
+
+         WHEN("event 1 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            THEN("event 4 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+               THEN("event 2 received, should return CONTINUE") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               }
+            }
+            THEN("event 2 received, should return CONTINUE") {
+               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            }
+         }
+         WHEN("event 4 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            THEN("event 1 received, should return CONTINUE") {
+               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+               THEN("event 2 received, should return CONTINUE") {
+                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               }
+            }
+            THEN("event 2 received, should return CONTINUE") {
+               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            }
          }
       }
    }

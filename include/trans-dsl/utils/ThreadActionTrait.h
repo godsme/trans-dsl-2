@@ -34,7 +34,7 @@ namespace details {
    };
 
    template<typename T>
-   struct ThreadCreatorTrait<T, std::enable_if_t<ThreadCreatorConcept<typename T::ThreadActionCreator>>> {
+   struct ThreadCreatorTrait<T, std::enable_if_t<std::is_class_v<typename T::ThreadActionCreator>>> {
       using type = typename T::ThreadActionCreator;
    };
 
@@ -48,11 +48,13 @@ namespace details {
 
    template<typename T1, typename T2>
    struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<std::is_void_v<T2>>> {
+      // T1 is not a void for sure, skip T2 if it's void.
       using type = T1;
    };
 
    template<typename T1, typename T2>
    struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<!std::is_void_v<T2>>> {
+      // if T1, T2 are both not void, combine them as one type.
       struct type : private T1, private T2 {
          static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);
          auto createThreadAction(ThreadId tid) -> SchedAction* {
@@ -73,13 +75,18 @@ namespace details {
    template<typename ... Ts>
    using ThreadCreator_t = typename ThreadCreator<void, Ts...>::type;
 
+   template <typename T>
+   constexpr bool IsVoidThreadCreator = std::is_void_v<ThreadCreatorTrait_t<T>>;
+
    template<typename H, typename ... Ts>
-   struct ThreadCreator<std::enable_if_t<std::is_void_v<ThreadCreatorTrait_t<H>>>, H, Ts...> {
+   struct ThreadCreator<std::enable_if_t<IsVoidThreadCreator<H>>, H, Ts...> {
+      // skip if H is void. But finally we might still get void
+      // if all Ts does not contain a fork object, directly or indirectly.
       using type = ThreadCreator_t<Ts...>;
    };
 
    template<typename H, typename ... Ts>
-   struct ThreadCreator<std::enable_if_t<!std::is_void_v<ThreadCreatorTrait_t<H>>>, H, Ts...> {
+   struct ThreadCreator<std::enable_if_t<!IsVoidThreadCreator<H>>, H, Ts...> {
       using type = ThreadCreatorCombinator_t<ThreadCreatorTrait_t<H>, ThreadCreator_t<Ts...>>;
    };
 
@@ -87,26 +94,25 @@ namespace details {
    struct ThreadCreator<void> {
       using type = void;
    };
+}
 
+namespace details {
    template<typename T, typename = void>
    struct FinalThreadCreator {
+      static constexpr ThreadId threadId = ThreadCreator_t<T>::threadId;
       auto createThreadAction(ThreadId tid) -> SchedAction* {
          return creator.createThreadAction(tid);
       }
-
-      static constexpr ThreadId threadId = ThreadCreator_t<T>::threadId;
-
    private:
       ThreadCreator_t<T> creator;
    };
 
    template<typename T>
    struct FinalThreadCreator<T, std::enable_if_t<std::is_void_v<ThreadCreator_t<T>>>> {
+      static constexpr ThreadId threadId = 0; // main thread id
       auto createThreadAction(ThreadId) -> SchedAction* {
          return nullptr;
       }
-
-      static constexpr ThreadId threadId = 0;
    };
 }
 

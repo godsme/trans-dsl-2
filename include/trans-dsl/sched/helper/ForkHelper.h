@@ -21,15 +21,22 @@ namespace details {
       static_assert(TID != 0, "0 is main thread, which has already been created");
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
 
-   public:
-      struct ThreadActionCreator {
-         static constexpr ThreadId threadId = TID;
-         auto createThreadAction(ThreadId tid) -> SchedAction* {
-            return (tid == TID) ? new (cache) T_ACTION : nullptr;
-         }
-      private:
-         alignas(alignof(T_ACTION)) char cache[sizeof(T_ACTION)];
+   private:
+      struct Inner {
+         struct ThreadActionCreator {
+            static constexpr ThreadId threadId = TID;
+
+            auto createThreadAction(ThreadId tid) -> SchedAction * {
+               return (tid == TID) ? new(cache) T_ACTION : nullptr;
+            }
+
+         private:
+            alignas(alignof(T_ACTION)) char cache[sizeof(T_ACTION)];
+         };
       };
+
+   public:
+      using ThreadActionCreator = ThreadCreator_t<Inner, T_ACTION>;
 
    private:
       OVERRIDE(getThreadId() const -> ThreadId) { return TID; }

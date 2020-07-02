@@ -8,6 +8,7 @@
 #include <trans-dsl/tsl_config.h>
 #include <trans-dsl/sched/domain/MultiThreadContext.h>
 #include <trans-dsl/sched/domain/ThreadDoneMsg.h>
+#include <iostream>
 
 TSL_NS_BEGIN
 
@@ -36,7 +37,7 @@ auto SchedJoin::handleEvent(TransactionContext&, Event const& event) -> Status {
 
    auto mask = ThreadBitMap(1) << msg->who;
    if(likely(bitMap & mask)) {
-      bitMap |= ~mask;
+      bitMap &= ~mask;
    }
 
    return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;

@@ -32,6 +32,10 @@ private:
    auto stop_(TransactionContext&, Status) -> Status;
    auto kill__(TransactionContext& context, Status cause) -> void;
    auto othersHandleEvent(TransactionContext& context, Event const& event) -> Status;
+   auto exec(ThreadId tid, TransactionContext& context) -> Status;
+   auto broadcast(TransactionContext& context, Event const&) -> Status;
+   auto broadcastToOthers(TransactionContext& context, Event const& event) -> Status;
+   auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
 
 private:
    static constexpr size_t MAX_NUM_OF_THREADS = sizeof(ThreadBitMap) * 8;
@@ -46,6 +50,8 @@ private:
    State state = State::INIT;
    uint8_t alive{};
    uint8_t limits{};
+   ThreadId currentTid{};
+   ThreadBitMap newDone{};
 
 private:
    OVERRIDE(join(ThreadBitMap) -> ThreadBitMap);

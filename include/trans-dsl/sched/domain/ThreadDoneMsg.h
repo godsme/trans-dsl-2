@@ -16,7 +16,7 @@ const EventId EV_ACTION_THREAD_DONE = 0xFFFE;
 
 struct ThreadDoneMsg
 {
-   ThreadDoneMsg(ThreadId who, Status status)
+   ThreadDoneMsg(ThreadId who, Status status = Result::SUCCESS)
       : who(who)
       , result(status)
    {}

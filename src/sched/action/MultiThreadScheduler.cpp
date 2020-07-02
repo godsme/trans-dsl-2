@@ -8,14 +8,55 @@
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/tsl_config.h>
 #include <trans-dsl/utils/AssertionHelper.h>
+#include <event/impl/ConsecutiveEventInfo.h>
+#include <trans-dsl/sched/domain/ThreadDoneMsg.h>
+#include <iostream>
 
 TSL_NS_BEGIN
 
 #define FOREACH_THREAD__(i, from) for(ThreadId i = from; i < limits; i++)
 #define FOREACH_THREAD(i) FOREACH_THREAD__(i, 0)
 
-#define THREAD_DONE(i) threads[i] = nullptr; --alive
+#define THREAD_DONE(i) do {               \
+   threads[i] = nullptr;                  \
+   --alive;                               \
+   if(i != 0) {                           \
+      newDone |= (ThreadBitMap(1) << i);  \
+   }                                      \
+} while(0)
+
 #define MAIN_TID 0
+
+namespace
+{
+   struct AutoThreadSwitch {
+      AutoThreadSwitch(ThreadId newThread, ThreadId& current)
+         : original(current)
+         , current(current) {
+         current = newThread;
+      }
+
+      ~AutoThreadSwitch() {
+         current = original;
+      }
+
+   private:
+      ThreadId original;
+      ThreadId& current;
+   };
+}
+
+#define SWITCH_TO(tid) AutoThreadSwitch autoSwitch(tid, currentTid);
+
+auto MultiThreadScheduler::exec(ThreadId tid, TransactionContext& context) -> Status {
+   SWITCH_TO(tid);
+   auto status = threads[tid]->exec(context);
+   if(status != Result::CONTINUE) {
+      THREAD_DONE(tid);
+   }
+
+   return status;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& action) -> Status {
@@ -28,10 +69,10 @@ auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& actio
    threads[MAIN_TID] = &action;
    ++alive;
    state = State::WORKING;
+   currentTid = MAIN_TID;
 
-   auto status = action.exec(context);
+   auto status = exec(MAIN_TID, context);
    if(likely(is_not_working_status(status))) {
-      THREAD_DONE(0);
       state = State::DONE;
    }
 
@@ -40,10 +81,12 @@ auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& actio
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::handleEvent_(ThreadId i, TransactionContext& context, Event const& event) -> Status {
+   SWITCH_TO(i);
    auto status = threads[i]->handleEvent(context, event);
    if(is_not_working_status(status)) {
       THREAD_DONE(i);
    }
+
    return status;
 }
 
@@ -55,15 +98,18 @@ auto MultiThreadScheduler::stop_(TransactionContext& context, Status cause) -> S
 
    FOREACH_THREAD(i) {
       if(threads[i] == nullptr) continue;
-      auto status = threads[i]->stop(context, cause);
-      if(is_not_working_status(status)) {
-         THREAD_DONE(i);
-         if(alive == 0) {
-            state = State::DONE;
-            return status;
-         }
-         if(cub::is_failed_status(status)) {
-            context.reportFailure(status);
+      {
+         SWITCH_TO(i);
+         auto status = threads[i]->stop(context, cause);
+         if(is_not_working_status(status)) {
+            THREAD_DONE(i);
+            if(alive == 0) {
+               state = State::DONE;
+               return status;
+            }
+            if(cub::is_failed_status(status)) {
+               context.reportFailure(status);
+            }
          }
       }
    }
@@ -77,10 +123,13 @@ auto MultiThreadScheduler::stop_(TransactionContext& context, Status cause) -> S
 auto MultiThreadScheduler::kill__(TransactionContext& context, Status cause) -> void {
    FOREACH_THREAD(i) {
       if(threads[i] == nullptr) continue;
-      threads[i]->kill(context, cause);
-      THREAD_DONE(i);
-      if(alive == 0) {
-         break;
+      {
+         SWITCH_TO(i);
+         threads[i]->kill(context, cause);
+         THREAD_DONE(i);
+         if(alive == 0) {
+            break;
+         }
       }
    }
 }
@@ -125,10 +174,24 @@ auto MultiThreadScheduler::handleEventWorking(TransactionContext& context, Event
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::scheduleEvent(TransactionContext& context, Event const& event) -> Status {
+   auto status = handleEventWorking(context, event);
+   while(newDone != 0 && is_working_status(status)) {
+      ThreadId tid = 1;
+      for(; (newDone & (ThreadBitMap(1) << tid)) == 0; tid++);
+      status = broadcast(context,
+                         ev::ConsecutiveEventInfo(EV_ACTION_THREAD_DONE, ThreadDoneMsg{tid}));
+      newDone &= ~(ThreadBitMap(1) << tid);
+   }
+
+   return status;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::handleEvent(TransactionContext& context, Event const& event) -> Status {
    switch (state) {
       case State::WORKING:
-         return handleEventWorking(context, event);
+         return scheduleEvent(context, event);
       default:
          return Result::FATAL_BUG;
    }
@@ -160,10 +223,43 @@ auto MultiThreadScheduler::kill(TransactionContext& context, Status cause) -> vo
    }
 }
 
-auto MultiThreadScheduler::join(ThreadBitMap) -> ThreadBitMap {
-   return 0;
+///////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::broadcastToOthers(TransactionContext& context, Event const& event) -> Status {
+   FOREACH_THREAD__(i, 1) {
+      if(threads[i] == nullptr) continue;
+      auto status = handleEvent_(i, context, event);
+      if(cub::is_failed_status(status)) {
+         if(auto result = stop_(context, status); result != Result::CONTINUE) {
+            return result;
+         }
+      }
+   }
+
+   return Result::CONTINUE;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::broadcast(TransactionContext& context, Event const& event) -> Status {
+   auto status = handleEvent_(MAIN_TID, context, event);
+   if(unlikely(threads[MAIN_TID] == nullptr)) {
+      return kill_(context, status);
+   }
+
+   return broadcastToOthers(context, event);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::join(ThreadBitMap bitMap) -> ThreadBitMap {
+   if(bitMap == 0) {
+      FOREACH_THREAD__(i, 1) {
+         if(threads[i] != nullptr && i != currentTid) {
+            bitMap |= (ThreadBitMap(1) << i);
+         }
+      }
+   }
+   return bitMap;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::startThread(TransactionContext& context, ThreadId tid) -> Status {
    BUG_CHECK(tid < limits);
    BUG_CHECK(threads[tid] == nullptr);
@@ -175,13 +271,8 @@ auto MultiThreadScheduler::startThread(TransactionContext& context, ThreadId tid
 
    alive++;
 
-   auto status = threads[tid]->exec(context);
-   if(status != Result::CONTINUE) {
-      THREAD_DONE(tid);
-      return status;
-   }
-
-   return Result::SUCCESS;
+   auto status = exec(tid, context);
+   return status == Result::CONTINUE ? Result::SUCCESS : status;
 }
 
 TSL_NS_END

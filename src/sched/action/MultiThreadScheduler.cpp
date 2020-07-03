@@ -19,7 +19,7 @@ TSL_NS_BEGIN
    threads[i] = nullptr;                  \
    --alive;                               \
    if(i != 0) {                           \
-      newDone |= (ThreadBitMap(1) << i);  \
+      newDone |= ThreadBitMap(1 << i);  \
    }                                      \
 } while(0)
 
@@ -140,7 +140,7 @@ auto MultiThreadScheduler::scheduleEvent(TransactionContext& context, Event cons
       ThreadBitMap map = 2;
       for(; !(newDone & map); map <<= 1, tid++);
       status = broadcast(context, DONE_MSG(tid));
-      newDone &= ~map;
+      newDone &= ThreadBitMap(~map);
    }
 
    return status;
@@ -264,7 +264,7 @@ auto MultiThreadScheduler::join(ThreadBitMap& bitMap) -> Status {
 
       FOREACH_THREAD__(i, 1) {
          if(threads[i] != nullptr && i != currentTid) {
-            bitMap |= (ThreadBitMap(1) << i);
+            bitMap |= ThreadBitMap(1 << i);
          }
       }
    }

@@ -42,7 +42,7 @@ auto SchedJoin::handleEvent(TransactionContext&, Event const& event) -> Status {
 
    auto mask = ThreadBitMap(1) << msg->who;
    if(likely(bitMap & mask)) {
-      bitMap &= ~mask;
+      bitMap &= ThreadBitMap(~mask);
    }
 
    return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;

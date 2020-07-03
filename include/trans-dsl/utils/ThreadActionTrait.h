@@ -16,18 +16,6 @@ TSL_NS_BEGIN
 struct SchedAction;
 
 namespace details {
-   struct ThreadCreatorTypeClass {
-      template<typename T>
-      __DEF_TYPE_CLASS(T t, ThreadId id) {
-         __METHOD(SchedAction*, t.createThreadAction(id));
-      }
-   };
-
-   template<typename T>
-   constexpr bool ThreadCreatorConcept = std::is_class_v<T> && IsTypeClass<ThreadCreatorTypeClass, T>;
-}
-
-namespace details {
    template<typename T, typename = void>
    struct ThreadCreatorTrait {
       using type = void;

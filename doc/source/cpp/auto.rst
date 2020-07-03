@@ -126,9 +126,10 @@
 
 由于初始化列表不是一个表达式，因而类型也就无从谈起。所以 ``C++14`` 对其做了特殊的规定：
 
-- 如果使用直接初始化的方式，比如：`auto i{1}` ，则初始化列表只允许有一个元素，其等价于 ``auto i = 1``；
-- 如果使用拷贝初始化的方式，比如：`auto v = {1, 2}`，则初始化列表允许有多个同一类型的元素。
-  其等价于 ``std::initializer_list<int> v = {1, 2}`` 。
+- 如果使用 **直接初始化** （不用等号）的方式，比如：``auto i{1}`` ，则初始化列表只允许有一个元素，其等价于 ``auto i = 1``；
+  如果初始化列表超过一个元素，比如 ``auto j{1,2}`` ，则编译失败。
+- 如果使用 **拷贝初始化** （用等号）的方式，比如：``auto v = {1, 2}`` ，则初始化列表允许有多个同一类型的元素。
+  其等价于 ``std::initializer_list<int> v = {1, 2}`` 。而 ``auto v = {1}`` 则等价于 ``std::initializer_list<int> v = {1}`` 。
 
 **decltype(auto)**
 --------------------
@@ -226,7 +227,9 @@
    template <typename T>
    auto f(T a, auto b, T c, auto d); // a, c 必须同一类型，b, d 各自有各自类型
 
+其等价于：
 
+.. code-block:: c++
 
-
-
+   template <typename T, typename T1, typename T2>
+   auto f(T a, T1 b, T c, T2 d);

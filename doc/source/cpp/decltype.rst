@@ -6,7 +6,23 @@
 ``decltype`` 是 `C++11` 加入的一个重要特性。 它允许求一切合法表达式的类型。从而，让从类型到值，从值到类型形成了一个闭环，
 极大的扩展了泛型编程的能力。
 
-但 ``decltype`` 的规则，初看起来，很是让人困惑。但如果真的理解了背后的机制，其实非常容易理解。
+``C++`` 规范中，对于 ``decltype`` 类型推演规则的定义如下：
+
+   1. 若实参为无括号的 **标识表达式** 或无括号的 **类成员访问表达式** ，则 ``decltype`` 产生以此表达式命名的实体的类型。
+      若无这种实体，或该实参指名某个重载函数，则程序非良构。
+
+   2. 若实参是其他类型为 ``T`` 的任何表达式，且
+
+      a) 若 表达式 的值类别为 **速亡值** ，则 ``decltype`` 产生 ``T&&`` ；
+      b) 若 表达式 的值类别为 **左值** ，则 ``decltype`` 产生 ``T&`` ；
+      c) 若 表达式 的值类别为 **纯右值** ，则 ``decltype`` 产生 ``T`` 。
+
+      若表达式是 **纯右值** ，则不从该纯右值 **物质化** 临时对象：这种纯右值无结果对象。
+
+   注意如果对象的名字带有括号，则它被当做通常的 **左值** 表达式，从而 ``decltype(x)`` 和 ``decltype((x))`` 通常是不同的类型。
+
+
+这些规则，初看起来，有些让人困惑。但如果真的理解了背后的机制，其实非常容易理解。
 
 ``decltype`` 有两种表达方法：
 
@@ -29,22 +45,24 @@
 .. code-block:: c++
 
    struct Foo { int a; };
-   const Foo f_v();
-   Foo& f_ref();
-   Foo&& f_r();
-   using Func = Foo& ();
+
+   using Func  = Foo& ();
    using Array = char[2];
 
-   int a = 0;
-   const int b = 1;
-   const Foo foo = {10};
-   Foo&& rref = Foo{1};
-   const Foo& ref = foo;
-   char c[2] = {1, 2};
-   int* p = &a;
-   const Foo* pFoo = &foo;
-
    enum class E { OK, FAIL };
+
+   const Foo f_v();
+   Foo&      f_ref();
+   Foo&&     f_r();
+
+   int        a    = 0;
+   const int  b    = 1;
+   const Foo  foo  = {10};
+   Foo&&      rref = Foo{1};
+   const Foo& ref  = foo;
+   char       c[2] = {1, 2};
+   int*       p    = &a;
+   const Foo* pFoo = &foo;
 
    // 左值
    decltype((a))       v1;   // int&
@@ -98,19 +116,21 @@
 .. code-block:: c++
 
    struct Foo { int a; };
-   const Foo f_v();
-   Foo& f_ref();
-   Foo&& f_r();
-   using Func = Foo& ();
+
+   using Func  = Foo& ();
    using Array = char[2];
 
-   int a = 0;
-   const int b = 1;
-   const Foo foo = {10};
-   Foo&& rref = Foo{1};
-   const Foo& ref = foo;
-   char c[2] = {1, 2};
-   int* p = &a;
+   const Foo f_v();
+   Foo&      f_ref();
+   Foo&&     f_r();
+
+   int a           = 0;
+   const int  b    = 1;
+   const Foo  foo  = {10};
+   Foo&&      rref = Foo{1};
+   const Foo& ref  = foo;
+   char       c[2] = {1, 2};
+   int*       p    = &a;
    const Foo* pFoo = &foo;
 
    decltype(a)        v1;   // int

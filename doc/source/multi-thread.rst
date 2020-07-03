@@ -119,7 +119,7 @@
 
 将其应用于我们的例子，其完整的描述如下:
 
-. code-block::
+.. code-block::
 
    const ActionThreadId ACTION7_THREAD = 1;
 

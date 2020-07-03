@@ -41,6 +41,7 @@ private:
    auto cleanup(TransactionContext& context, Status cause) -> void;
    auto stopOthers(TransactionContext& context, Status cause) -> void;
    auto joinAll(ThreadBitMap& bitMap) -> Status;
+   auto checkJoinAll(TransactionContext& context) -> Status;
 
 protected:
    using Threads = SchedAction**;
@@ -58,6 +59,7 @@ private:
    uint8_t limits{};
    ThreadId currentTid{};
    ThreadBitMap newDone{};
+   bool joiningAll{};
 
 private:
    OVERRIDE(join(ThreadBitMap&) -> Status);

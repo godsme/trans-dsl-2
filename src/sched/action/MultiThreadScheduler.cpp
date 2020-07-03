@@ -61,6 +61,25 @@ auto MultiThreadScheduler::exec(ThreadId tid, TransactionContext& context) -> St
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
+auto MultiThreadScheduler::checkJoinAll(TransactionContext& context) -> Status {
+   if(!joiningAll || alive > 1) {
+      return Result::CONTINUE;
+   }
+
+   newDone = 0;
+
+   auto status = handleEvent_(MAIN_TID, context,
+      ev::ConsecutiveEventInfo{EV_ACTION_THREAD_DONE, ThreadDoneMsg{0}});
+   if(is_not_working_status(status)) {
+      state = State::DONE;
+   }
+
+   joiningAll = false;
+
+   return status;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& action) -> Status {
    BUG_CHECK(state == State::INIT);
 
@@ -79,6 +98,7 @@ auto MultiThreadScheduler::start(TransactionContext& context, SchedAction& actio
       state = State::DONE;
    } else if(context.getRuntimeContext().hasFailure()) {
       stopOthers(context, context.getRuntimeEnvStatus());
+      return checkJoinAll(context);
    }
 
    return status;
@@ -142,9 +162,9 @@ auto MultiThreadScheduler::handleEventWorking(TransactionContext& context, Event
 auto MultiThreadScheduler::scheduleEvent(TransactionContext& context, Event const& event) -> Status {
    auto status = handleEventWorking(context, event);
    if(is_working_status(status)) {
-      auto result = notifyDoneThreads(context);
-      if(is_not_working_status(result)) {
-         return result;
+      auto status2 = notifyDoneThreads(context);
+      if(is_not_working_status(status2)) {
+         return status2;
       }
    }
 
@@ -206,6 +226,10 @@ auto MultiThreadScheduler::stop_(TransactionContext& context, Status cause) -> S
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::notifyDoneThreads(TransactionContext& context) -> Status {
+   if(auto status = checkJoinAll(context); is_not_working_status(status)) {
+      return status;
+   }
+
    while(newDone != 0) {
       ThreadId tid = 1;
       ThreadBitMap map = 2;
@@ -215,6 +239,10 @@ auto MultiThreadScheduler::notifyDoneThreads(TransactionContext& context) -> Sta
          return status;
       }
       newDone &= ThreadBitMap(~map);
+
+      if(auto status = checkJoinAll(context); is_not_working_status(status)) {
+         return status;
+      }
    }
 
    return Result::CONTINUE;
@@ -281,10 +309,12 @@ auto MultiThreadScheduler::broadcastToOthers(TransactionContext& context, Event 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::broadcast(TransactionContext& context, Event const& event) -> Status {
-   auto status = handleEvent_(MAIN_TID, context, event);
-   if(unlikely(is_not_working_status(status))) {
-      cleanup(context, status);
-      return status;
+   if(!joiningAll) {
+      auto status = handleEvent_(MAIN_TID, context, event);
+      if(unlikely(is_not_working_status(status))) {
+         cleanup(context, status);
+         return status;
+      }
    }
 
    if(alive == 1) {
@@ -300,10 +330,9 @@ auto MultiThreadScheduler::joinAll(ThreadBitMap& bitMap) -> Status {
       return Result::USER_FATAL_BUG;
    }
 
-   FOREACH_THREAD__(i, 1) {
-      if(threads[i] != nullptr && i != currentTid) {
-         bitMap |= ThreadBitMap(1 << i);
-      }
+   if(alive > 1) {
+      bitMap = 1;
+      joiningAll = true;
    }
 
    return Result::SUCCESS;

@@ -360,12 +360,12 @@ namespace {
                REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
                THEN("event 4 received, should return UNKNOWN_EVENT") {
                   REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
-//                  THEN("event 1 received, should return CONTINUE") {
-//                     REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
-//                     THEN("event 4 received, should return SUCCESS") {
-//                        REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
-//                     }
-//                  }
+                  THEN("event 1 received, should return CONTINUE") {
+                     REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+                     THEN("event 4 received, should return SUCCESS") {
+                        REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                     }
+                  }
                }
             }
          }
@@ -486,7 +486,7 @@ namespace {
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a concurrent fork") {
+   SCENARIO("MultiThreadScheduler with a failed join") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -495,8 +495,36 @@ namespace {
       const Msg2 msg2{10};
       const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
-      const Msg4 msg4{10};
-      const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
+      WHEN("start with a fork action with wrong joined thread ids") {
+         using MainAction =
+         __sequential(
+            __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
+            __join(2, 3, 4, 5));
+
+         GenericMultiThreadScheduler <MainAction> scheduler;
+         REQUIRE(Result::CONTINUE == scheduler.start(context));
+
+         THEN("if event 2 received, should return SUCCESS") {
+            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+         }
+
+         THEN("if event 1 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            AND_THEN("if event 2 received, should return SUCCESS") {
+               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            }
+         }
+      }
+   }
+
+   SCENARIO("MultiThreadScheduler with a concurrent fork") {
+      StupidTransactionContext context{};
+
+      const Msg1 msg1{10, 20};
+      const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
+
+      const Msg2 msg2{10};
+      const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
       WHEN("start with a fork action") {
          using MainAction =
@@ -507,13 +535,21 @@ namespace {
          GenericMultiThreadScheduler <MainAction> scheduler;
          REQUIRE(Result::CONTINUE == scheduler.start(context));
 
-         WHEN("event 1 received, should return SUCCESS") {
+         THEN("if event 1 received, should return SUCCESS") {
             REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
          }
 
-         WHEN("event 2 received, should return CONTINUE") {
+         THEN("stop it, should return FORCE_STOPPED") {
+            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::TIMEOUT));
+
+            AND_THEN("if event 1 received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+            }
+         }
+
+         THEN("if event 2 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
-            WHEN("event 1 received, should return SUCCESS") {
+            AND_THEN("event 1 received, should return SUCCESS") {
                REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
             }
          }

@@ -35,7 +35,7 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<CONCEPT(PredConcept) T_PRED, CONCEPT(SchedActionConcept) T_ACTION, size_t V_SIZE = sizeof(T_PRED)>
-   class OptionalClass final : T_PRED, public OptionalBase<T_ACTION> {
+   class OptionalClass final : public OptionalBase<T_ACTION>, T_PRED {
       CONCEPT_ASSERT(PredConcept<T_PRED>);
       OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
    };

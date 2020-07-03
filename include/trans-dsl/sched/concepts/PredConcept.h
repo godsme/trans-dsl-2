@@ -13,27 +13,26 @@
 
 TSL_NS_BEGIN
 
-   struct TransactionInfo;
+struct TransactionInfo;
 
 #if __CONCEPT_ENABLED
 
 template<typename T>
-concept PredConcept = ClassConcept<T> &&
-   requires( T t, TransactionInfo& trans) {
-      { t(trans) }  -> std::same_as<bool>;
-   };
+concept PredConcept = requires( T t, TransactionInfo& trans) {
+   { t.operator()(trans) }  -> std::same_as<bool>;
+};
 
 #else
 
 struct PredTypeClass {
    template<typename T>
    __DEF_TYPE_CLASS(T pred, TransactionInfo const& trans) {
-      __METHOD(bool, pred(trans));
+      __METHOD(bool, pred.operator()(trans));
    }
 };
 
 template<typename T>
-constexpr bool PredConcept = ClassConcept<T> && IsTypeClass<PredTypeClass, T>;
+constexpr bool PredConcept = IsTypeClass<PredTypeClass, T>;
 
 #endif
 

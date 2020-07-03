@@ -8,19 +8,21 @@
 #include <trans-dsl/sched/action/ActionPath.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/Pred.h>
-#include <algorithm>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <algorithm>
 
 TSL_NS_BEGIN
 
 namespace details {
 
-   template<typename T_PRED, CONCEPT(SchedActionConcept) T_ACTION>
-   struct ActionPathClass final : ActionPath {
+   template<typename T_ACTION>
+   struct ActionPathBase : ActionPath {
       using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-   private:
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+   };
 
+   template<typename T_PRED, CONCEPT(SchedActionConcept) T_ACTION>
+   class ActionPathClass final : public ActionPathBase<T_ACTION> {
       OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
          return (*(new (cache) T_PRED))(trans);
       }
@@ -37,7 +39,7 @@ namespace details {
    };
 
    template<PredFunction V_PRED, typename T_ACTION>
-   class ActionPathFunc final : public ActionPath {
+   class ActionPathFunc final : public ActionPathBase<T_ACTION> {
       OVERRIDE(shouldExecute(TransactionInfo const& trans) noexcept -> bool) {
          return V_PRED(trans);
       }

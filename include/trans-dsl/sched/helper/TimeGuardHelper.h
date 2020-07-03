@@ -16,22 +16,20 @@ TSL_NS_BEGIN
 namespace details {
 
    template<TimerId V_TIMER_ID, CONCEPT(SchedActionConcept) T_ACTION>
-   struct TimeGuard {
-      struct Inner final : SchedTimeGuard {
-         CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
-         using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-      private:
-         IMPL_ROLE_WITH_VAR(SchedAction, action);
-         IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
-      private:
-         T_ACTION action;
-         PlatformSpecifiedTimer timer{V_TIMER_ID};
-      };
+   struct TimeGuard final : SchedTimeGuard{
+      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+      using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
+   private:
+      IMPL_ROLE_WITH_VAR(SchedAction, action);
+      IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
+   private:
+      T_ACTION action;
+      PlatformSpecifiedTimer timer{V_TIMER_ID};
    };
 }
 
 TSL_NS_END
 
-#define __time_guard(timerId, ...) TSL_NS::details::TimeGuard<timerId, __VA_ARGS__>::Inner
+#define __time_guard(timerId, ...) TSL_NS::details::TimeGuard<timerId, __VA_ARGS__>
 
 #endif //TRANS_DSL_2_TIMEGUARDHELPER_H

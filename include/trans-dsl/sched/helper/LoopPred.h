@@ -17,12 +17,9 @@ namespace details {
       constexpr static Status FinalResult = V_RESULT;
    };
 
-   template<typename T, Status V_RESULT = Result::UNSPECIFIED VOID_CONCEPT>
-   struct LoopPredClassPred;
-
-   template<CONCEPT(PredConcept) T, Status V_RESULT>
-   struct LoopPredClassPred<T, V_RESULT ENABLE_C(PredConcept, T)>
-      : private T, LoopPredBase<V_RESULT> {
+   template<CONCEPT(PredConcept) T, Status V_RESULT = Result::UNSPECIFIED>
+   struct LoopPredClassPred : private T, LoopPredBase<V_RESULT> {
+      CONCEPT_ASSERT(PredConcept<T>);
       using T::operator();
    };
 

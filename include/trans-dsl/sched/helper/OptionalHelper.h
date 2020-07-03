@@ -10,46 +10,34 @@
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/concepts/PredConcept.h>
 
 TSL_NS_BEGIN
 
 namespace details {
 
    ////////////////////////////////////////////////////////////////
-   template<CONCEPT(SchedActionConcept) T_ACTION>
-   struct OptionalBase : public SchedOptional {
+   template<typename T_ACTION>
+   struct OptionalBase : SchedOptional {
       using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-   private:
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
+   private:
       OVERRIDE(getAction() -> SchedAction*) { return new (cache) T_ACTION; }
    private:
       alignas(alignof(T_ACTION)) unsigned char cache[sizeof(T_ACTION)];
    };
 
    ////////////////////////////////////////////////////////////////
-   template<PredFunction V_PRED, typename T_ACTION>
+   template<PredFunction V_PRED, CONCEPT(SchedActionConcept) T_ACTION>
    class OptionalFunction final : public OptionalBase<T_ACTION> {
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return V_PRED(context);
-      }
+      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
    };
 
    ////////////////////////////////////////////////////////////////
-   template<typename T_PRED, typename T_ACTION, size_t V_SIZE = sizeof(T_PRED), typename = void>
-   class OptionalClass;
-
-   ////////////////////////////////////////////////////////////////
-   template<typename T_PRED, typename T_ACTION, size_t V_SIZE>
-   class OptionalClass<T_PRED, T_ACTION, V_SIZE, CUB_NS::IsClass<T_PRED>> final : public OptionalBase<T_ACTION> {
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return pred(context); }
-      T_PRED pred;
-   };
-
-   template<typename T_PRED, typename T_ACTION>
-   class OptionalClass<T_PRED, T_ACTION, 1, CUB_NS::IsClass<T_PRED>> final : public OptionalBase<T_ACTION> {
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) {
-         return T_PRED{}(context);
-      }
+   template<CONCEPT(PredConcept) T_PRED, CONCEPT(SchedActionConcept) T_ACTION, size_t V_SIZE = sizeof(T_PRED)>
+   class OptionalClass final : T_PRED, public OptionalBase<T_ACTION> {
+      CONCEPT_ASSERT(PredConcept<T_PRED>);
+      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
    };
 
    ////////////////////////////////////////////////////////////////
@@ -73,7 +61,6 @@ namespace details {
    inline auto IsStatus__(TransactionInfo const& info) -> bool {
       return info.getStatus() == V_STATUS;
    }
-
 }
 
 #define __is_succ TSL_NS::details::IsSucc__

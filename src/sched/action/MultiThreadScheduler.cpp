@@ -16,13 +16,13 @@ TSL_NS_BEGIN
 #define FOREACH_THREAD__(i, from) for(ThreadId i = from; i < limits; i++)
 #define FOREACH_THREAD(i) FOREACH_THREAD__(i, 0)
 
-#define THREAD_DONE(i) do {               \
-   context.reportFailure(status);         \
-   threads[i] = nullptr;                  \
-   --alive;                               \
-   if(i != 0) {                           \
-      newDone |= ThreadBitMap(1 << i);    \
-   }                                      \
+#define THREAD_DONE(i) do {                  \
+   context.reportFailure(status);            \
+   threads[i] = nullptr;                     \
+   --alive;                                  \
+   if(i != 0 ) {                             \
+      newDone.enable(i);                     \
+   }                                         \
 } while(0)
 
 #define MAIN_TID 0
@@ -62,19 +62,18 @@ auto MultiThreadScheduler::exec(ThreadId tid, TransactionContext& context) -> St
 
 ///////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::checkJoinAll(TransactionContext& context) -> Status {
-   if(!joiningAll || alive > 1) {
+   if(alive > 1 || newDone.empty()  || joinBitMaps[MAIN_TID].empty()) {
       return Result::CONTINUE;
    }
 
    newDone = 0;
+   joinBitMaps[MAIN_TID] = 0;
 
    auto status = handleEvent_(MAIN_TID, context,
       ev::ConsecutiveEventInfo{EV_ACTION_THREAD_DONE, ThreadDoneMsg{0}});
    if(is_not_working_status(status)) {
       state = State::DONE;
    }
-
-   joiningAll = false;
 
    return status;
 }
@@ -229,16 +228,16 @@ auto MultiThreadScheduler::notifyDoneThreads(TransactionContext& context) -> Sta
    if(auto status = checkJoinAll(context); is_not_working_status(status)) {
       return status;
    }
-
-   while(newDone != 0) {
+   while(newDone.nonEmpty()) {
       ThreadId tid = 1;
-      ThreadBitMap map = 2;
-      for(; !(newDone & map); map <<= 1, tid++);
-      auto status = broadcast(context, DONE_MSG(tid));
+      for(; !newDone.isEnabled(tid); tid++);
+      auto status = broadcast(context, joinBitMaps[tid], DONE_MSG(tid));
       if(is_not_working_status(status)) {
          return status;
       }
-      newDone &= ThreadBitMap(~map);
+
+      joinBitMaps[tid] = 0;
+      newDone.clear(tid);
 
       if(auto status = checkJoinAll(context); is_not_working_status(status)) {
          return status;
@@ -296,20 +295,24 @@ auto MultiThreadScheduler::kill(TransactionContext& context, Status cause) -> vo
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto MultiThreadScheduler::broadcastToOthers(TransactionContext& context, Event const& event) -> Status {
+auto MultiThreadScheduler::broadcastToOthers(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
    FOREACH_THREAD__(i, 1) {
+      if(!joinTable.isEnabled(i)) continue;
+      joinTable.clear(i);
       if(threads[i] == nullptr) continue;
+
       (void) handleEvent_(i, context, event);
       CHECK_FAILURE();
-      if(alive == 1) break;
+      if(joinTable.empty() || alive == 1) break;
    }
 
    return Result::CONTINUE;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto MultiThreadScheduler::broadcast(TransactionContext& context, Event const& event) -> Status {
-   if(!joiningAll) {
+auto MultiThreadScheduler::broadcast(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
+   if(joinTable.isEnabled(MAIN_TID)) {
+      joinTable.clear(MAIN_TID);
       auto status = handleEvent_(MAIN_TID, context, event);
       if(unlikely(is_not_working_status(status))) {
          cleanup(context, status);
@@ -317,11 +320,11 @@ auto MultiThreadScheduler::broadcast(TransactionContext& context, Event const& e
       }
    }
 
-   if(alive == 1) {
+   if(alive == 1 || joinTable.empty()) {
       return Result::CONTINUE;
    }
 
-   return broadcastToOthers(context, event);
+   return broadcastToOthers(context, joinTable, event);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -332,7 +335,7 @@ auto MultiThreadScheduler::joinAll(ThreadBitMap& bitMap) -> Status {
 
    if(alive > 1) {
       bitMap = 1;
-      joiningAll = true;
+      joinBitMaps[MAIN_TID] = 1;
    }
 
    return Result::SUCCESS;
@@ -340,17 +343,22 @@ auto MultiThreadScheduler::joinAll(ThreadBitMap& bitMap) -> Status {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::join(ThreadBitMap& bitMap) -> Status {
-   if(bitMap == 0) {
+   if(bitMap.empty()) {
       return joinAll(bitMap);
    }
 
    // clear impossible threads.
-   bitMap &= ThreadBitMap((1 << limits) - 1);
+   bitMap.resize(limits);
 
    // clear non-exist (yet) threads & self
    FOREACH_THREAD(i) {
-      if(threads[i] == nullptr || i == currentTid) {
-         bitMap &= ~ThreadBitMap(1 << i);
+      if((forkBitMap.isEnabled(i) && threads[i] == nullptr) || i == currentTid) {
+         bitMap.clear(i);
+      } else if(bitMap.isEnabled(i)) {
+         joinBitMaps[i].enable(currentTid);
+         if(currentTid == MAIN_TID) {
+            joinBitMaps[MAIN_TID].enable(i);
+         }
       }
    }
 
@@ -360,7 +368,10 @@ auto MultiThreadScheduler::join(ThreadBitMap& bitMap) -> Status {
 /////////////////////////////////////////////////////////////////////////////////////////////
 auto MultiThreadScheduler::startThread(TransactionContext& context, ThreadId tid) -> Status {
    BUG_CHECK(tid < limits);
+   BUG_CHECK(!forkBitMap.isEnabled(tid));
    BUG_CHECK(threads[tid] == nullptr);
+
+   forkBitMap.enable(tid);
 
    threads[tid] = createThread(tid);
    if(threads[tid] == nullptr) {

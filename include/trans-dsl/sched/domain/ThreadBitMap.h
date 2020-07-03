@@ -6,10 +6,11 @@
 #define TRANS_DSL_2_THREADBITMAP_H
 
 #include <trans-dsl/tsl_ns.h>
+#include <cub/base/BitSet.h>
 
 TSL_NS_BEGIN
 
-using ThreadBitMap = unsigned char;
+using ThreadBitMap = cub::BitSet<unsigned char>;
 
 TSL_NS_END
 

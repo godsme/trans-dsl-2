@@ -17,7 +17,7 @@ TSL_NS_BEGIN
 namespace details {
    template <ThreadId TID, CONCEPT(SchedActionConcept) T_ACTION>
    class Fork final : public SchedFork {
-      static_assert(TID < sizeof(ThreadBitMap) * 8, "specified Thread ID is out of scope");
+      static_assert(TID < ThreadBitMap::max, "specified Thread ID is out of scope");
       static_assert(TID != 0, "0 is main thread, which has already been created");
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
 

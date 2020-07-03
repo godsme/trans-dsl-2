@@ -17,12 +17,12 @@ auto SchedJoin::exec(TransactionContext& context) -> Status {
    likely_branch
    if(auto mt = context.getMultiThreadContext(); likely(mt != nullptr)) {
       bitMap = getThreadBitMap();
-      auto status = mt->join(bitMap);
+      auto status =  mt->join(bitMap);
       if(status != Result::SUCCESS) {
          return status;
       }
 
-      return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;
+      return bitMap.empty() ? Result::SUCCESS : Result::CONTINUE;
    }
 
    return Result::FATAL_BUG;
@@ -40,12 +40,15 @@ auto SchedJoin::handleEvent(TransactionContext&, Event const& event) -> Status {
       return Result::FATAL_BUG;
    }
 
-   auto mask = ThreadBitMap(1) << msg->who;
-   if(likely(bitMap & mask)) {
-      bitMap &= ThreadBitMap(~mask);
+   if(msg->who == 0) {
+      return Result::SUCCESS;
    }
 
-   return bitMap == 0 ? Result::SUCCESS : Result::CONTINUE;
+   if(likely(bitMap.isEnabled(msg->who))) {
+      bitMap.clear(msg->who);
+   }
+
+   return bitMap.empty() ? Result::SUCCESS : Result::CONTINUE;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

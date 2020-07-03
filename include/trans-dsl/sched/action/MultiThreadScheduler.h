@@ -34,8 +34,8 @@ private:
    auto kill__(TransactionContext& context, Status cause) -> void;
    auto othersHandleEvent(TransactionContext& context, Event const& event) -> Status;
    auto exec(ThreadId tid, TransactionContext& context) -> Status;
-   auto broadcast(TransactionContext& context, Event const&) -> Status;
-   auto broadcastToOthers(TransactionContext& context, Event const& event) -> Status;
+   auto broadcast(TransactionContext& context, ThreadBitMap&, Event const&) -> Status;
+   auto broadcastToOthers(TransactionContext& context, ThreadBitMap&, Event const& event) -> Status;
    auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
    auto notifyDoneThreads(TransactionContext& context) -> Status;
    auto cleanup(TransactionContext& context, Status cause) -> void;
@@ -54,12 +54,13 @@ private:
       DONE
    };
    Threads threads;
+   ThreadBitMap joinBitMaps[ThreadBitMap::max]{};
+   ThreadBitMap forkBitMap{};
+   ThreadBitMap newDone{};
    State state = State::INIT;
    uint8_t alive{};
    uint8_t limits{};
    ThreadId currentTid{};
-   ThreadBitMap newDone{};
-   bool joiningAll{};
 
 private:
    OVERRIDE(join(ThreadBitMap&) -> Status);
@@ -91,7 +92,7 @@ private:
    }
 
    enum : uint8_t { MAX_NUM_OF_THREADS = details::FinalThreadCreator<MAIN_ACTION>::threadId + 1 };
-   static_assert(MAX_NUM_OF_THREADS <= 8, "the specified tid is out of scope");
+   static_assert(MAX_NUM_OF_THREADS <= ThreadBitMap::max, "the specified tid is out of scope");
    SchedAction* threads[MAX_NUM_OF_THREADS]{};
    MAIN_ACTION mainThreadAction;
    details::FinalThreadCreator<MAIN_ACTION> threadCreator;

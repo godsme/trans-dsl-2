@@ -28,7 +28,8 @@ protected:
 private:
    auto handleEvent_(ThreadId i, TransactionContext& context, Event const& event) -> Status;
    auto handleEventWorking(TransactionContext& context, Event const& event) -> Status;
-   auto kill_(TransactionContext&, Status) -> Status;
+   auto kill_(TransactionContext&, Status) -> void;
+   auto stop__(ThreadId tid, TransactionContext& context, Status cause) -> Status;
    auto stop_(TransactionContext&, Status) -> Status;
    auto kill__(TransactionContext& context, Status cause) -> void;
    auto othersHandleEvent(TransactionContext& context, Event const& event) -> Status;
@@ -36,7 +37,10 @@ private:
    auto broadcast(TransactionContext& context, Event const&) -> Status;
    auto broadcastToOthers(TransactionContext& context, Event const& event) -> Status;
    auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
-   auto fetchADoneTid() const -> ThreadId;
+   auto notifyDoneThreads(TransactionContext& context) -> Status;
+   auto cleanup(TransactionContext& context, Status cause) -> void;
+   auto stopOthers(TransactionContext& context, Status cause) -> void;
+   auto joinAll(ThreadBitMap& bitMap) -> Status;
 
 protected:
    using Threads = SchedAction**;

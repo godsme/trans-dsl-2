@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<typename T_PRED, CONCEPT_C(SchedActionConcept, T_ACTION)>
+   template<typename T_PRED, CONCEPT(SchedActionConcept) T_ACTION>
    struct ActionPathClass final : ActionPath {
       using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
    private:

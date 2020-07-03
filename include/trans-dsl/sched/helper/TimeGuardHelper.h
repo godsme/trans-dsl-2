@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<TimerId V_TIMER_ID, CONCEPT_C(SchedActionConcept, T_ACTION)>
+   template<TimerId V_TIMER_ID, CONCEPT(SchedActionConcept) T_ACTION>
    struct TimeGuard {
       struct Inner final : SchedTimeGuard {
          CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);

@@ -19,7 +19,7 @@ namespace details {
    template<typename T_ACTION, size_t V_SIZE=sizeof(T_ACTION) VOID_CONCEPT>
    struct SyncAction;
 
-   template<CONCEPT_C(SyncActionClassConcept, T_ACTION), size_t V_SIZE>
+   template<CONCEPT(SyncActionClassConcept) T_ACTION, size_t V_SIZE>
    struct SyncAction<T_ACTION, V_SIZE ENABLE_C(SyncActionClassConcept, T_ACTION)> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(action(context));
@@ -29,7 +29,7 @@ namespace details {
       T_ACTION action;
    };
 
-   template<CONCEPT_C(SyncActionClassConcept, T_ACTION)>
+   template<CONCEPT(SyncActionClassConcept) T_ACTION>
    struct SyncAction<T_ACTION, 1 ENABLE_C(SyncActionClassConcept, T_ACTION)> : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(T_ACTION{}(context));

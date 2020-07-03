@@ -14,7 +14,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<CONCEPT_C(SchedActionConcept, T_ACTION)>
+   template<CONCEPT(SchedActionConcept) T_ACTION>
    struct Void final : SchedVoid {
       using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);

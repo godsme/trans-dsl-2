@@ -15,6 +15,7 @@ doc/build/*
 cmake-build-debug/*
 cmake-build-release/*
 cmake-build-minsizerel/*
+doc/source/_ext/__pycache__/*
 
 # Precompiled Headers
 *.gch

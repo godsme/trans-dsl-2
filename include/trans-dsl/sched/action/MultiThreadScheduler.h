@@ -28,17 +28,15 @@ protected:
 private:
    auto handleEvent_(ThreadId i, TransactionContext& context, Event const& event) -> Status;
    auto handleEventWorking(TransactionContext& context, Event const& event) -> Status;
-   auto kill_(TransactionContext&, Status) -> void;
-   auto stop__(ThreadId tid, TransactionContext& context, Status cause) -> Status;
-   auto stop_(TransactionContext&, Status) -> Status;
-   auto kill__(TransactionContext& context, Status cause) -> void;
+   auto kill_(TransactionContext &context, Status cause) -> void;
+   auto stop_(ThreadId tid, TransactionContext& context, Status cause) -> Status;
+   auto stopAll(TransactionContext &context, Status cause) -> Status;
    auto othersHandleEvent(TransactionContext& context, Event const& event) -> Status;
-   auto exec(ThreadId tid, TransactionContext& context) -> Status;
+   auto exec_(ThreadId tid, TransactionContext& context) -> Status;
    auto broadcast(TransactionContext& context, ThreadBitMap&, Event const&) -> Status;
    auto broadcastToOthers(TransactionContext& context, ThreadBitMap&, Event const& event) -> Status;
    auto scheduleEvent(TransactionContext& context, Event const& event) -> Status;
    auto notifyDoneThreads(TransactionContext& context) -> Status;
-   auto cleanup(TransactionContext& context, Status cause) -> void;
    auto stopOthers(TransactionContext& context, Status cause) -> void;
    auto joinAll(ThreadBitMap& bitMap) -> Status;
    auto checkJoinAll(TransactionContext& context) -> Status;

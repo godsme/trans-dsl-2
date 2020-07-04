@@ -43,6 +43,12 @@ public:
       return value != 0;
    }
 
+   constexpr auto firstEnabled() const -> unsigned char {
+      unsigned char i=0;
+      for(; !isEnabled(i); i++);
+      return i;
+   }
+
    friend constexpr BitSet operator|(const BitSet& lhs, const BitSet& rhs) {
       return lhs.value | rhs.value;
    }

@@ -295,7 +295,7 @@ __procedure
    , __wait(4)
    , __wait(5)
    , __wait(6)
-   , __join())
+   , __join(1))
 , __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 ));
 

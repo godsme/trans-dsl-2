@@ -34,11 +34,13 @@
 
 .. image:: images/multi-thread/mt-2.png
    :align: center
+   :scale: 50%
 
 这样的过程，用 **序列图** 可能不能准确的表达其过程，而 **活动图** 会让其更加直观：
 
 .. image:: images/multi-thread/mt-3.png
    :align: center
+   :scale: 50%
 
 
 **fork**
@@ -119,6 +121,7 @@
 
 .. image:: images/multi-thread/mt-4.png
    :align: center
+   :scale: 50%
 
 对于这样的约束，你可以使用 ``__join`` 来描述。它的参数，就是某个线程要等待的 `Thread ID` 。例如:
 
@@ -177,6 +180,7 @@
 
 .. image:: images/multi-thread/mt-5.png
    :align: center
+   :scale: 50%
 
 可描述为：
 
@@ -205,6 +209,7 @@
 
 .. image:: images/multi-thread/mt-6.png
    :align: center
+   :scale: 50%
 
 所以，你会希望将代码写成这种形式，从而减少对于线程的操作，也让代码看来更加的简洁。
 

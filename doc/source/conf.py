@@ -4,6 +4,7 @@ import sphinx_rtd_theme
 import sys
 import os
 
+sys.path.append(os.path.abspath("./_ext"))
 
 # -- Project information -----------------------------------------------------
 
@@ -35,7 +36,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.autodoc',
     'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode'
+    'sphinx.ext.viewcode',
+    'CppTransDslLexer'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

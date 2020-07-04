@@ -22,14 +22,14 @@
 
 .. code-block:: c++
 
-  __def_transaction (
+  __transaction (
     __sequential
       ( __asyn(Action1)
       , __sync(Action2)
       , __asyn(Action3)
       , __asyn(Action4)
       , __sync(Action5))
-  ) Transaction;
+  );
 
 这段代码定义了一个名为 ``Transaction`` 的事务。它由一个包含了 5 个步骤的 **顺序操作** （Sequential Action）构成。
 每个步骤都是一个 **基本操作** （Atom Action）。
@@ -48,14 +48,14 @@
 
 .. code-block:: c++
 
-  __def_transaction (
+  __transaction (
     __sequential
       ( __req(Action1)
       , __sync(Action2)
       , __asyn(Action3)
       , __asyn(Action4)
       , __rsp(Action5))
-  ) Transaction;
+  );
 
 现在，我们可以看出，这段代码是对上述序列图简单而直接的描述。
 
@@ -236,13 +236,13 @@
 
 .. code-block:: c++
 
-   __def_transaction
+   __transaction
    ( __sequential
       ( __req(Action1)
       , __sync(Action2)
       , __concurrent(__asyn(Action3), __asyn(Action4))
       , __rsp(Action5))
-   ) Transaction;
+   );
 
 
 我们只需要将 ``Action3`` 和 ``Action4`` 放入一个叫做 ``__concurrent`` 的盒子里即可。
@@ -274,13 +274,13 @@
     const TimerId TIMER_1 = 1;
     const TimerId TIMER_2 = 2;
 
-    __def_transaction
+    __transaction
     ( __time_guard(TIMER_1, __sequential
         ( __req(Action1)
         , __sync(Action2)
         , __time_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
         , __rsp(Action5)))
-    ) Transaction;
+    );
 
 
 母语言
@@ -352,7 +352,7 @@ Timer ID
 
 .. code-block:: c++
 
-  __def_transaction (
+  __transaction (
     __sequential
       ( __asyn(ApplicationAcceptance)
       , __concurrent
@@ -362,7 +362,7 @@ Timer ID
               , __asyn(Interview)))
       , __asyn(OfferNegotiation)
       , __time_guard(TIMER_ONBOARD, __asyn(OnBoard)))
-   ) Recruiting;
+   );
 
 
 剩下的事情，就是把每一个 **基本操作** 进行实现，而它们都是非常简单，原子级别的交互过程。

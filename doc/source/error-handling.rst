@@ -3,16 +3,20 @@
 错误处理
 =========
 
-当我们为 `Transaction DSL` 框架添加一个Action时，这个Action会组合其它的Action。比如， ``__sequential`` Action，里面会
-放入一系列的其它Action，而 ``__procedure`` 则会包含两个Action，一个是Normal Action，一个是 ``__finally`` Action。
+当我们为 `Transaction DSL` 框架添加一个 `Action` 时，
+这个 `Action` 会组合其它的 `Action` 。比如， ``__sequential`` `Action` ，里面会
+放入一系列的其它 `Action` ，而 ``__procedure`` 则会包含两个 `Action` ，
+一个是 `normal Action` ，一个是 ``__finally`` Action。
 
-做为Action的编写者，你不能假设你的Action所组合的是那种具体的Action。因而任何Action都必须遵从某种约定。
-所有的Action，在组合其它Action时，唯一可以作出的假设是每一个Action都遵从这些约定。下面我们将会讨论这些约定。
+做为 `Action` 的编写者，你不能假设你的 `Action` 所组合的是那种具体的 `Action` 。
+因而任何 `Action` 都必须遵从某种约定。
+所有的 `Action` ，在组合其它 `Action` 时，唯一可以作出的假设是每一个 `Action` 都
+遵从这些约定。下面我们将会讨论这些约定。
 
-Action外部行为规范
---------------------
+**Action** 外部行为规范
+-----------------------------------------
 
-Action从外部看，总共有4个状态，它们的状态转换关系如下图所示：
+`Action` 从外部看，总共有4个状态，它们的状态转换关系如下图所示：
 
 .. image:: images/ch-4/action-ext-state.png
    :align: center
@@ -25,10 +29,11 @@ Action从外部看，总共有4个状态，它们的状态转换关系如下图�
 IDLE
 ++++++++++
 
-任何一个Action ，单纯从外部看，在没有发生任何调用之前，Action必然处于 :ref:`IDLE` 状态。
+任何一个 `Action` ，单纯从外部看，在没有发生任何调用之前， `Action` 必然
+处于 :ref:`IDLE` 状态。
 
 而 :ref:`IDLE` 状态下，唯一合法的调用是 ``exec`` ，如果 ``exec`` 返回 ``CONTINUE`` 代表Action进入 :ref:`WORKING` 状态。
-而 :ref:`WORKING` 的含义是，此Action需要进一步的异步消息激励。
+而 :ref:`WORKING` 的含义是，此 `Action` 需要进一步的异步消息激励。
 
 
 .. _WORKING:

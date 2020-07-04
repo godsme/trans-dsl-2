@@ -87,8 +87,8 @@ add_library(trans-dsl-2 STATIC
         src/sched/action/SchedJoin.cpp include/trans-dsl/sched/domain/MultiThreadContext.h
         include/trans-dsl/sched/domain/ThreadDoneMsg.h include/trans-dsl/sched/action/SchedFork.h
         src/sched/action/SchedFork.cpp include/trans-dsl/sched/helper/ForkHelper.h
-        include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/SchedMultiThreadAction.h
-        src/sched/action/SchedMultiThreadAction.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/action/Transaction.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h)
+        include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/SchedMultiThread.h
+        src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/action/Transaction.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h)
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp

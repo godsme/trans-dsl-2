@@ -18,12 +18,12 @@ namespace {
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
-      WHEN("start with a sync action, should return SUCCESS") {
+      WHEN("exec with a sync action, should return SUCCESS") {
          __multi_thread(__sync(SyncAction1)) action;
-         REQUIRE(Result::SUCCESS == action.start(context));
+         REQUIRE(Result::SUCCESS == action.exec(context));
 
-         AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == action.start(context));
+         AND_THEN("exec it again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
 
          AND_WHEN("event 1 received, should return FATAL_BUG") {
@@ -35,19 +35,19 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with failed sync action") {
+   SCENARIO("SchedMultiThread with failed sync action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
-      WHEN("start with a sync action, should return FAILED") {
+      WHEN("exec with a sync action, should return FAILED") {
          __multi_thread(__sync(FailedSyncAction4)) action;
 
-         REQUIRE(Result::FAILED == action.start(context));
+         REQUIRE(Result::FAILED == action.exec(context));
 
-         AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == action.start(context));
+         AND_THEN("exec it again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
 
          AND_WHEN("event 1 received, should return FATAL_BUG") {
@@ -59,7 +59,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with successful async action") {
+   SCENARIO("SchedMultiThread with successful async action") {
       StupidTransactionContext context{};
 
       __multi_thread(__asyn(AsyncAction1)) action;
@@ -78,10 +78,10 @@ namespace {
          REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
       }
 
-      WHEN("start with a sync action, should return CONTINUE") {
-         REQUIRE(Result::CONTINUE == action.start(context));
-         AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == action.start(context));
+      WHEN("exec with a sync action, should return CONTINUE") {
+         REQUIRE(Result::CONTINUE == action.exec(context));
+         AND_THEN("exec it again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
 
          AND_THEN("event 1 received, should return SUCCESS") {
@@ -105,7 +105,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with failed async action") {
+   SCENARIO("SchedMultiThread with failed async action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
@@ -114,12 +114,12 @@ namespace {
       const Msg3 msg3{ 10  };
       const EV_NS::ConsecutiveEventInfo event3{EV_MSG_3, msg3};
 
-      WHEN("start, should return CONTINUE") {
+      WHEN("exec, should return CONTINUE") {
          __multi_thread(__asyn(FailedAsyncAction3)) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
-         AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
+         AND_THEN("exec it again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
 
          AND_THEN("event 3 received, should return FAILED") {
@@ -139,8 +139,8 @@ namespace {
 
          AND_GIVEN("a killed scheduler") {
             action.kill(context, Result::DUPTID);
-            AND_THEN("start it again, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == action.start(context));
+            AND_THEN("exec it again, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == action.exec(context));
             }
             THEN("event 3 received, should return FATAL_BUG") {
                REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event3));
@@ -152,7 +152,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with fork action") {
+   SCENARIO("SchedMultiThread with fork action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
@@ -164,19 +164,19 @@ namespace {
       const Msg4 msg4{ 10 };
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          __multi_thread(
             __sequential(
                __fork(1, __asyn(AsyncAction1)),
                __fork(2, __asyn(AsyncAction4)),
                __asyn(AsyncAction2))) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          //std::cout << sizeof(MainAction) << std::endl;
 
-         WHEN("start again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == action.start(context));
+         WHEN("exec again, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
 
          WHEN("stop, should return FORCE_STOPPED") {
@@ -229,7 +229,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with fork & join_all") {
+   SCENARIO("SchedMultiThread with fork & join_all") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -241,7 +241,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __asyn(AsyncAction1)),
@@ -251,7 +251,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          WHEN("stop, should return FORCE_STOPPED") {
             REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
@@ -331,7 +331,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with late fork") {
+   SCENARIO("SchedMultiThread with late fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -343,7 +343,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __sequential(__asyn(AsyncAction1), __fork(2, __asyn(AsyncAction4)))),
@@ -352,7 +352,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
             REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
@@ -372,7 +372,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with join a non-exist thread") {
+   SCENARIO("SchedMultiThread with join a non-exist thread") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -384,7 +384,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __sequential(__asyn(AsyncAction1), __fork(3, __asyn(AsyncAction4)))),
@@ -393,7 +393,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
             REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
@@ -413,7 +413,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with a fork in fork") {
+   SCENARIO("SchedMultiThread with a fork in fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -425,7 +425,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __sequential(__asyn(AsyncAction1), __fork(2, __asyn(AsyncAction4)))),
@@ -434,7 +434,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
             REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
@@ -470,7 +470,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with a immediate fork in fork") {
+   SCENARIO("SchedMultiThread with a immediate fork in fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -482,7 +482,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __fork(2, __asyn(AsyncAction4))),
@@ -491,7 +491,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("event 2 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
@@ -509,7 +509,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with a successful procedure") {
+   SCENARIO("SchedMultiThread with a successful procedure") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -521,7 +521,7 @@ namespace {
       const Msg4 msg4{10};
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __fork(1, __asyn(AsyncAction1)),
@@ -532,7 +532,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("event 1 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
@@ -570,7 +570,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with a failed join") {
+   SCENARIO("SchedMultiThread with a failed join") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -579,7 +579,7 @@ namespace {
       const Msg2 msg2{10};
       const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
-      WHEN("start with a fork action with wrong joined thread ids") {
+      WHEN("exec with a fork action with wrong joined thread ids") {
          using MainAction =
          __sequential(
             __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
@@ -587,7 +587,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("if event 2 received, should return SUCCESS") {
             REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
@@ -602,7 +602,7 @@ namespace {
       }
    }
 
-   SCENARIO("SchedMultiThreadAction with a concurrent fork") {
+   SCENARIO("SchedMultiThread with a concurrent fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -611,7 +611,7 @@ namespace {
       const Msg2 msg2{10};
       const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
-      WHEN("start with a fork action") {
+      WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
             __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
@@ -619,7 +619,7 @@ namespace {
 
          __multi_thread(MainAction) action;
 
-         REQUIRE(Result::CONTINUE == action.start(context));
+         REQUIRE(Result::CONTINUE == action.exec(context));
 
          THEN("if event 1 received, should return SUCCESS") {
             REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));

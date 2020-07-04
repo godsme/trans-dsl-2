@@ -267,10 +267,19 @@ using Proc4 = __procedure
   __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 );
 
+using Proc5 = __multi_thread(Proc2);
+using Proc6 = __multi_thread(Proc3);
+using Proc7 = __multi_thread(Proc4);
+
 int main() {
    ankerl::nanobench::Bench().minEpochIterations(11174).epochs(1000).run("simple seq", [&] {
       func();
    });
+
+   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("timer-guard-simple-seq", [&] {
+      func0();
+   });
+
    ankerl::nanobench::Bench().minEpochIterations(11).epochs(1000).run("2 concurrent", [&] {
       func1();
    });
@@ -287,12 +296,20 @@ int main() {
       func3<Proc3>();
    });
 
-   ankerl::nanobench::Bench().minEpochIterations(1213).epochs(1000).run("timer-guard-simple-seq", [&] {
-      func0();
-   });
-
    ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("concurrent-seq-seq", [&] {
       func3<Proc4>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-3-concurrent-seq", [&] {
+      func3<Proc5>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-timer-guard-concurrent-seq", [&] {
+      func3<Proc6>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-concurrent-seq-seq", [&] {
+      func3<Proc7>();
    });
 
    return 0;

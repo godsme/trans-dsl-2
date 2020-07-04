@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/7/2.
 //
 
-#include <trans-dsl/sched/action/SchedMultiThreadAction.h>
+#include <trans-dsl/sched/action/SchedMultiThread.h>
 #include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <trans-dsl/tsl_config.h>
@@ -83,12 +83,12 @@ namespace
 #define SWITCH_TO(tid) AutoThreadSwitch autoSwitch(tid, currentTid);
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::exec_(ThreadId tid, TransactionContext& context) -> Status {
+auto SchedMultiThread::exec_(ThreadId tid, TransactionContext& context) -> Status {
    SCHED_THREAD(tid, exec(context));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::checkJoinAll(TransactionContext& context) -> Status {
+auto SchedMultiThread::checkJoinAll(TransactionContext& context) -> Status {
    if(alive > 1 || newDone.empty()  || joinBitMaps[MAIN_TID].empty()) {
       return Result::CONTINUE;
    }
@@ -103,7 +103,7 @@ auto SchedMultiThreadAction::checkJoinAll(TransactionContext& context) -> Status
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::start(TransactionContext& context, SchedAction& action) -> Status {
+auto SchedMultiThread::start(TransactionContext& context, SchedAction& action) -> Status {
    BUG_CHECK(state == State::INIT);
 
    context.updateMultiThreadContext(*this);
@@ -130,7 +130,7 @@ auto SchedMultiThreadAction::start(TransactionContext& context, SchedAction& act
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::handleEvent_(
+auto SchedMultiThread::handleEvent_(
    ThreadId tid, TransactionContext& context, Event const& event) -> Status {
    SCHED_THREAD(tid, handleEvent(context, event));
 }
@@ -143,7 +143,7 @@ auto SchedMultiThreadAction::handleEvent_(
 } while(0)
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::othersHandleEvent(TransactionContext& context, Event const& event) -> Status {
+auto SchedMultiThread::othersHandleEvent(TransactionContext& context, Event const& event) -> Status {
    FOREACH_THREAD__(i, 1) {
       THREAD_EXIST_CHECK(i);
       (void) handleEvent_(i, context, event);
@@ -157,7 +157,7 @@ auto SchedMultiThreadAction::othersHandleEvent(TransactionContext& context, Even
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
+auto SchedMultiThread::handleEventWorking(TransactionContext& context, Event const& event) -> Status {
    auto status = handleEvent_(MAIN_TID, context, event);
    MAIN_THREAD_DONE_CHECK(status);
 
@@ -170,17 +170,20 @@ auto SchedMultiThreadAction::handleEventWorking(TransactionContext& context, Eve
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::scheduleEvent(TransactionContext& context, Event const& event) -> Status {
+auto SchedMultiThread::scheduleEvent(TransactionContext& context, Event const& event) -> Status {
    auto status = handleEventWorking(context, event);
    EXPECT_CONTINUE(status);
 
-   EXPECT_CONTINUE(notifyDoneThreads(context));
+   unlikely_branch
+   if(unlikely(newDone.nonEmpty())) {
+      EXPECT_CONTINUE(notifyDoneThreads(context));
+   }
 
    return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::handleEvent(TransactionContext& context, Event const& event) -> Status {
+auto SchedMultiThread::handleEvent(TransactionContext& context, Event const& event) -> Status {
    switch (state) {
       likely_branch
       case State::WORKING: [[fallthrough]];
@@ -193,12 +196,12 @@ auto SchedMultiThreadAction::handleEvent(TransactionContext& context, Event cons
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::stop_(ThreadId tid, TransactionContext& context, Status cause) -> Status {
+auto SchedMultiThread::stop_(ThreadId tid, TransactionContext& context, Status cause) -> Status {
    SCHED_THREAD(tid, stop(context, cause));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::stopOthers(TransactionContext& context, Status cause) -> void {
+auto SchedMultiThread::stopOthers(TransactionContext& context, Status cause) -> void {
    if(alive > 1) {
       FOREACH_THREAD__(i, 1) {
          THREAD_EXIST_CHECK(i);
@@ -211,7 +214,7 @@ auto SchedMultiThreadAction::stopOthers(TransactionContext& context, Status caus
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::stopAll(TransactionContext& context, Status cause) -> Status {
+auto SchedMultiThread::stopAll(TransactionContext& context, Status cause) -> Status {
    if(state == State::STOPPING) return Result::CONTINUE;
 
    auto status = stop_(MAIN_TID, context, cause);
@@ -223,7 +226,7 @@ auto SchedMultiThreadAction::stopAll(TransactionContext& context, Status cause) 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::notifyDoneThreads(TransactionContext& context) -> Status {
+auto SchedMultiThread::notifyDoneThreads(TransactionContext& context) -> Status {
    EXPECT_CONTINUE(checkJoinAll(context));
 
    while(newDone.nonEmpty()) {
@@ -239,7 +242,7 @@ auto SchedMultiThreadAction::notifyDoneThreads(TransactionContext& context) -> S
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::stop(TransactionContext& context, Status cause) -> Status {
+auto SchedMultiThread::stop(TransactionContext& context, Status cause) -> Status {
    switch (state) {
       case State::WORKING: {
          EXPECT_CONTINUE(stopAll(context, cause));
@@ -253,7 +256,7 @@ auto SchedMultiThreadAction::stop(TransactionContext& context, Status cause) -> 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::kill_(TransactionContext& context, Status cause) -> void {
+auto SchedMultiThread::kill_(TransactionContext& context, Status cause) -> void {
    likely_branch
    if(likely(alive > 0)) {
       FOREACH_THREAD(i) {
@@ -271,7 +274,7 @@ auto SchedMultiThreadAction::kill_(TransactionContext& context, Status cause) ->
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::kill(TransactionContext& context, Status cause) -> void {
+auto SchedMultiThread::kill(TransactionContext& context, Status cause) -> void {
    switch (state) {
       case State::WORKING:
       case State::STOPPING:
@@ -287,7 +290,7 @@ auto SchedMultiThreadAction::kill(TransactionContext& context, Status cause) -> 
    joinTable.clear(i)
 
 ///////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::broadcastToOthers(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
+auto SchedMultiThread::broadcastToOthers(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
    FOREACH_THREAD__(i, 1) {
       JOIN_ENSURE(i);
       THREAD_EXIST_CHECK(i);
@@ -302,7 +305,7 @@ auto SchedMultiThreadAction::broadcastToOthers(TransactionContext& context, Thre
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::broadcast(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
+auto SchedMultiThread::broadcast(TransactionContext& context, ThreadBitMap& joinTable, Event const& event) -> Status {
    if(joinTable.isEnabled(MAIN_TID)) {
       joinTable.clear(MAIN_TID);
       auto status = handleEvent_(MAIN_TID, context, event);
@@ -317,7 +320,7 @@ auto SchedMultiThreadAction::broadcast(TransactionContext& context, ThreadBitMap
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::joinAll(ThreadBitMap& bitMap) -> Status {
+auto SchedMultiThread::joinAll(ThreadBitMap& bitMap) -> Status {
    if(currentTid != MAIN_TID) {
       return Result::USER_FATAL_BUG;
    }
@@ -331,7 +334,7 @@ auto SchedMultiThreadAction::joinAll(ThreadBitMap& bitMap) -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::join(ThreadBitMap& bitMap) -> Status {
+auto SchedMultiThread::join(ThreadBitMap& bitMap) -> Status {
    if(bitMap.empty()) {
       return joinAll(bitMap);
    }
@@ -355,7 +358,7 @@ auto SchedMultiThreadAction::join(ThreadBitMap& bitMap) -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-auto SchedMultiThreadAction::startThread(TransactionContext& context, ThreadId tid) -> Status {
+auto SchedMultiThread::startThread(TransactionContext& context, ThreadId tid) -> Status {
    BUG_CHECK(tid < limits);
    BUG_CHECK(!forkedBitMap.isEnabled(tid));
    BUG_CHECK(threads[tid] == nullptr);

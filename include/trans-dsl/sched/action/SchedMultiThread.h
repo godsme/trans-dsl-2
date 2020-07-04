@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/2.
 //
 
-#ifndef TRANS_DSL_2_SCHEDMULTITHREADACTION_H
-#define TRANS_DSL_2_SCHEDMULTITHREADACTION_H
+#ifndef TRANS_DSL_2_SCHEDMULTITHREAD_H
+#define TRANS_DSL_2_SCHEDMULTITHREAD_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/domain/MultiThreadContext.h>
@@ -16,7 +16,7 @@ TSL_NS_BEGIN
 struct TransactionContext;
 
 // 80 byte
-struct SchedMultiThreadAction : private MultiThreadContext {
+struct SchedMultiThread : private MultiThreadContext {
 
    auto handleEvent(TransactionContext&, Event const&) -> Status;
    auto stop(TransactionContext&, Status) -> Status;
@@ -73,4 +73,4 @@ private:
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_SCHEDMULTITHREADACTION_H
+#endif //TRANS_DSL_2_SCHEDMULTITHREAD_H

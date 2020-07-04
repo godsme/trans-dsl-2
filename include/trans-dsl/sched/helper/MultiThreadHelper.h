@@ -6,16 +6,16 @@
 #define TRANS_DSL_2_MULTITHREADHELPER_H
 
 #include <trans-dsl/tsl_ns.h>
-#include <trans-dsl/sched/action/SchedMultiThreadAction.h>
+#include <trans-dsl/sched/action/SchedMultiThread.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
 namespace details {
    template<typename MAIN_ACTION>
-   struct MultiThread : SchedMultiThreadAction {
-      auto start(TransactionContext& context) -> Status {
-         return SchedMultiThreadAction::start(context, mainThreadAction);
+   struct MultiThread : SchedMultiThread {
+      auto exec(TransactionContext& context) -> Status {
+         return SchedMultiThread::start(context, mainThreadAction);
       }
 
    private:

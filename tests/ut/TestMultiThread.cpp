@@ -3,7 +3,6 @@
 //
 
 #include <catch.hpp>
-#include <trans-dsl/sched/action/MultiThreadScheduler.h>
 #include <trans-dsl/trans-dsl.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
@@ -13,57 +12,57 @@ namespace {
 
    using namespace TSL_NS;
 
-   SCENARIO("MultiThreadScheduler with successful sync action") {
+   SCENARIO("__multi_thread with successful sync action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
       WHEN("start with a sync action, should return SUCCESS") {
-         GenericMultiThreadScheduler<__sync(SyncAction1)> scheduler;
-         REQUIRE(Result::SUCCESS == scheduler.start(context));
+         __multi_thread(__sync(SyncAction1)) action;
+         REQUIRE(Result::SUCCESS == action.start(context));
 
          AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+            REQUIRE(Result::FATAL_BUG == action.start(context));
          }
 
          AND_WHEN("event 1 received, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
          }
          AND_WHEN("stop it, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with failed sync action") {
+   SCENARIO("SchedMultiThreadAction with failed sync action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
       WHEN("start with a sync action, should return FAILED") {
-         GenericMultiThreadScheduler<__sync(FailedSyncAction4)> scheduler;
+         __multi_thread(__sync(FailedSyncAction4)) action;
 
-         REQUIRE(Result::FAILED == scheduler.start(context));
+         REQUIRE(Result::FAILED == action.start(context));
 
          AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+            REQUIRE(Result::FATAL_BUG == action.start(context));
          }
 
          AND_WHEN("event 1 received, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
          }
          AND_WHEN("stop it, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with successful async action") {
+   SCENARIO("SchedMultiThreadAction with successful async action") {
       StupidTransactionContext context{};
 
-      GenericMultiThreadScheduler<__asyn(AsyncAction1)> scheduler;
+      __multi_thread(__asyn(AsyncAction1)) action;
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
@@ -72,41 +71,41 @@ namespace {
       const EV_NS::ConsecutiveEventInfo event2{EV_MSG_2, msg2};
 
       WHEN("event 1 received, should return FATAL_BUG") {
-         REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+         REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
       }
 
       WHEN("stop it, should return FATAL_BUG") {
-         REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::TIMEOUT));
+         REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
       }
 
       WHEN("start with a sync action, should return CONTINUE") {
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         REQUIRE(Result::CONTINUE == action.start(context));
          AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+            REQUIRE(Result::FATAL_BUG == action.start(context));
          }
 
          AND_THEN("event 1 received, should return SUCCESS") {
-            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
          }
          AND_THEN("stop it, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
          }
          AND_THEN("event 2 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
             AND_WHEN("event 1 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
             }
          }
          AND_GIVEN("a killed scheduler") {
-            scheduler.kill(context, Result::DUPTID);
+            action.kill(context, Result::DUPTID);
             THEN("stop it, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with failed async action") {
+   SCENARIO("SchedMultiThreadAction with failed async action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
@@ -116,44 +115,44 @@ namespace {
       const EV_NS::ConsecutiveEventInfo event3{EV_MSG_3, msg3};
 
       WHEN("start, should return CONTINUE") {
-         GenericMultiThreadScheduler<__asyn(FailedAsyncAction3)> scheduler;
+         __multi_thread(__asyn(FailedAsyncAction3)) action;
 
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         REQUIRE(Result::CONTINUE == action.start(context));
          AND_THEN("start it again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+            REQUIRE(Result::FATAL_BUG == action.start(context));
          }
 
          AND_THEN("event 3 received, should return FAILED") {
-            REQUIRE(Result::FAILED == scheduler.handleEvent(context, event3));
+            REQUIRE(Result::FAILED == action.handleEvent(context, event3));
          }
 
          AND_THEN("event 1 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event1));
             AND_WHEN("event 3 received, should return FAILED") {
-               REQUIRE(Result::FAILED == scheduler.handleEvent(context, event3));
+               REQUIRE(Result::FAILED == action.handleEvent(context, event3));
             }
          }
 
          AND_THEN("stop it, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
          }
 
          AND_GIVEN("a killed scheduler") {
-            scheduler.kill(context, Result::DUPTID);
+            action.kill(context, Result::DUPTID);
             AND_THEN("start it again, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+               REQUIRE(Result::FATAL_BUG == action.start(context));
             }
             THEN("event 3 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event3));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event3));
             }
             THEN("stop it, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with fork action") {
+   SCENARIO("SchedMultiThreadAction with fork action") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{ 10, 20 };
@@ -166,72 +165,71 @@ namespace {
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
       WHEN("start with a fork action") {
-         using MainAction =
+         __multi_thread(
             __sequential(
                __fork(1, __asyn(AsyncAction1)),
                __fork(2, __asyn(AsyncAction4)),
-               __asyn(AsyncAction2));
+               __asyn(AsyncAction2))) action;
 
-         GenericMultiThreadScheduler<MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          //std::cout << sizeof(MainAction) << std::endl;
 
          WHEN("start again, should return FATAL_BUG") {
-            REQUIRE(Result::FATAL_BUG == scheduler.start(context));
+            REQUIRE(Result::FATAL_BUG == action.start(context));
          }
 
          WHEN("stop, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
             WHEN("event 1 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }
             WHEN("event 2 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event2));
             }
             WHEN("event 4 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
             }
          }
 
          WHEN("event 2 received, should return CONTINUE") {
-            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             WHEN("event 1 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
                THEN("event 4 received, should return FATAL_BUG") {
-                  REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
                }
             }
          }
 
          WHEN("event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             THEN("event 4 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
                THEN("event 2 received, should return CONTINUE") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
                }
             }
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
          }
          WHEN("event 4 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
             THEN("event 1 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
                THEN("event 2 received, should return CONTINUE") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
                }
             }
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with fork & join_all") {
+   SCENARIO("SchedMultiThreadAction with fork & join_all") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -251,88 +249,89 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          WHEN("stop, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
             THEN("event 4 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
             }
             THEN("stop again, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
             }
          }
 
          WHEN("killed") {
-            scheduler.kill(context, Result::DUPTID);
+            action.kill(context, Result::DUPTID);
             THEN("event 4 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
             }
             THEN("stop, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
             }
          }
 
          WHEN("event 2 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             THEN("event 4 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
                THEN("event 1 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
                }
             }
          }
 
          WHEN("event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 4 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }
             }
             AND_WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
                THEN("event 4 received, should return FATAL_BUG") {
-                  REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
                }
             }
          }
 
          WHEN("event 4 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 1 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
                }
             }
          }
 
          WHEN("event 4 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
             THEN("event 1 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
                THEN("event 2 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
                }
             }
          }
 
          WHEN("event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             THEN("event 4 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
                THEN("event 2 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
                }
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with late fork") {
+   SCENARIO("SchedMultiThreadAction with late fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -351,19 +350,20 @@ namespace {
             __asyn(AsyncAction2),
             __join(2));
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 4 received, should return UNKNOWN_EVENT") {
-                  REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
                   THEN("event 1 received, should return CONTINUE") {
-                     REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+                     REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
                      THEN("event 4 received, should return SUCCESS") {
-                        REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                        REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                      }
                   }
                }
@@ -372,7 +372,7 @@ namespace {
       }
    }
 
-   SCENARIO("MultiThreadScheduler with join a non-exist thread") {
+   SCENARIO("SchedMultiThreadAction with join a non-exist thread") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -391,19 +391,20 @@ namespace {
             __asyn(AsyncAction2),
             __join(2));
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 4 received, should return UNKNOWN_EVENT") {
-                  REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
                   THEN("event 1 received, should return CONTINUE") {
-                     REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+                     REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
                      THEN("event 4 received, should return SUCCESS") {
-                        REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                        REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                      }
                   }
                }
@@ -412,7 +413,7 @@ namespace {
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a fork in fork") {
+   SCENARIO("SchedMultiThreadAction with a fork in fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -431,19 +432,20 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          WHEN("event 4 received, should return UNKNOWN_EVENT") {
-            REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 4 received, should return UNKNOWN_EVENT") {
-                  REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event4));
                   THEN("event 1 received, should return CONTINUE") {
-                     REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+                     REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
                      THEN("event 4 received, should return SUCCESS") {
-                        REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                        REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                      }
                   }
                }
@@ -451,24 +453,24 @@ namespace {
          }
 
          WHEN("event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             THEN("event 2 received, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
                THEN("event 4 received, should return SUCCESS") {
-                  REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }
             }
             AND_WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
                THEN("event 4 received, should return FATAL_BUG") {
-                  REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event4));
+                  REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
                }
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a immediate fork in fork") {
+   SCENARIO("SchedMultiThreadAction with a immediate fork in fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -487,26 +489,27 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          THEN("event 2 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             THEN("event 4 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event4));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
             }
          }
 
          THEN("event 4 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event4));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event4));
             THEN("event 2 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a successful procedure") {
+   SCENARIO("SchedMultiThreadAction with a successful procedure") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -527,46 +530,47 @@ namespace {
               , __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction4)))),
             __join());
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          THEN("event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             THEN("event 2 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
          }
 
          THEN("event 2 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             THEN("event 1 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
             }
          }
 
          WHEN("stop, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.stop(context, Result::DUPTID));
+            REQUIRE(Result::CONTINUE == action.stop(context, Result::DUPTID));
             THEN("event 2 received, should return UNKNOWN_EVENT") {
-               REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
                THEN("event 1 received, should return UNKNOWN_EVENT") {
-                  REQUIRE(Result::UNKNOWN_EVENT == scheduler.handleEvent(context, event1));
+                  REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event1));
                   THEN("event 4 received, should return SUCCESS") {
-                     REQUIRE(Result::FORCE_STOPPED == scheduler.handleEvent(context, event4));
+                     REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event4));
                   }
                }
             }
          }
 
          THEN("event 2 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::DUPTID));
+               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a failed join") {
+   SCENARIO("SchedMultiThreadAction with a failed join") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -581,23 +585,24 @@ namespace {
             __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
             __join(2, 3, 4, 5));
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          THEN("if event 2 received, should return SUCCESS") {
-            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
          }
 
          THEN("if event 1 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
             AND_THEN("if event 2 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event2));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
          }
       }
    }
 
-   SCENARIO("MultiThreadScheduler with a concurrent fork") {
+   SCENARIO("SchedMultiThreadAction with a concurrent fork") {
       StupidTransactionContext context{};
 
       const Msg1 msg1{10, 20};
@@ -612,25 +617,25 @@ namespace {
             __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
             __join(1));
 
-         GenericMultiThreadScheduler <MainAction> scheduler;
-         REQUIRE(Result::CONTINUE == scheduler.start(context));
+         __multi_thread(MainAction) action;
+
+         REQUIRE(Result::CONTINUE == action.start(context));
 
          THEN("if event 1 received, should return SUCCESS") {
-            REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+            REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
          }
 
          THEN("stop it, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == scheduler.stop(context, Result::TIMEOUT));
-
+            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::TIMEOUT));
             AND_THEN("if event 1 received, should return FATAL_BUG") {
-               REQUIRE(Result::FATAL_BUG == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }
          }
 
          THEN("if event 2 received, should return CONTINUE") {
-            REQUIRE(Result::CONTINUE == scheduler.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
             AND_THEN("event 1 received, should return SUCCESS") {
-               REQUIRE(Result::SUCCESS == scheduler.handleEvent(context, event1));
+               REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
             }
          }
       }

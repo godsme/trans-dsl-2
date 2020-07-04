@@ -2,21 +2,21 @@
 // Created by Darwin Yuan on 2020/7/2.
 //
 
-#ifndef TRANS_DSL_2_MULTITHREADSCHEDULER_H
-#define TRANS_DSL_2_MULTITHREADSCHEDULER_H
+#ifndef TRANS_DSL_2_SCHEDMULTITHREADACTION_H
+#define TRANS_DSL_2_SCHEDMULTITHREADACTION_H
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/domain/MultiThreadContext.h>
 #include <cstddef>
 #include <trans-dsl/sched/domain/Event.h>
-#include <trans-dsl/utils/ThreadActionTrait.h>
+
 
 TSL_NS_BEGIN
 
 struct TransactionContext;
 
 // 80 byte
-struct MultiThreadScheduler : private MultiThreadContext {
+struct SchedMultiThreadAction : private MultiThreadContext {
 
    auto handleEvent(TransactionContext&, Event const&) -> Status;
    auto stop(TransactionContext&, Status) -> Status;
@@ -53,7 +53,7 @@ private:
    };
    Threads threads;
    ThreadBitMap joinBitMaps[ThreadBitMap::max]{};
-   ThreadBitMap forkBitMap{};
+   ThreadBitMap forkedBitMap{};
    ThreadBitMap newDone{};
    State state = State::INIT;
    uint8_t alive{};
@@ -70,32 +70,7 @@ private:
    ABSTRACT(getThreads() -> Threads);
 };
 
-template<typename MAIN_ACTION>
-struct GenericMultiThreadScheduler : MultiThreadScheduler {
-   auto start(TransactionContext& context) -> Status {
-      return MultiThreadScheduler::start(context, mainThreadAction);
-   }
-
-private:
-   OVERRIDE(createThread(ThreadId tid) -> SchedAction*) {
-      return threadCreator.createThreadAction(tid);
-   }
-
-   OVERRIDE(getMaxThreads() const -> uint8_t) {
-      return MAX_NUM_OF_THREADS;
-   }
-
-   OVERRIDE(getThreads() -> Threads) {
-      return threads;
-   }
-
-   enum : uint8_t { MAX_NUM_OF_THREADS = details::FinalThreadCreator<MAIN_ACTION>::threadId + 1 };
-   static_assert(MAX_NUM_OF_THREADS <= ThreadBitMap::max, "the specified tid is out of scope");
-   SchedAction* threads[MAX_NUM_OF_THREADS]{};
-   MAIN_ACTION mainThreadAction;
-   details::FinalThreadCreator<MAIN_ACTION> threadCreator;
-};
 
 TSL_NS_END
 
-#endif //TRANS_DSL_2_MULTITHREADSCHEDULER_H
+#endif //TRANS_DSL_2_SCHEDMULTITHREADACTION_H

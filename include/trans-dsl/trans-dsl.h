@@ -20,5 +20,6 @@
 #include <trans-dsl/sched/helper/FragmentHelper.h>
 #include <trans-dsl/sched/helper/ForkHelper.h>
 #include <trans-dsl/sched/helper/JoinHelper.h>
+#include <trans-dsl/sched/helper/MultiThreadHelper.h>
 
 #endif //TRANS_DSL_2_TRANS_DSL_H

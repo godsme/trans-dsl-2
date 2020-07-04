@@ -164,8 +164,7 @@
 而函数 ``handleEvent`` 则存在一种额外的返回值： ``UNKNOWN_EVENT`` ，说明当前消息不是自己期待的消息。
 
 .. list-table::
-   :widths: 25  50
-   :header-rows: 1
+   :widths: 30  60
 
    * - 返回值
      - 语意

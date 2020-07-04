@@ -169,13 +169,13 @@
 
    * - 返回值
      - 语意
-   * - SUCCESS
-     - CONTINUE
-     - UNKNOWN_EVENT
-     - 错误码
-   * - Action 成功结束
+   * - **SUCCESS**
+     - Action 成功结束
+   * - **CONTINUE**
      - Action 仍然在工作
+   * - **UNKNOWN_EVENT**
      - Action 收到一个未期待的消息
+   * - 错误码
      - Action 失败，并已经中止
 
 约束

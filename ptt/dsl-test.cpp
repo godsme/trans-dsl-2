@@ -271,6 +271,34 @@ using Proc5 = __multi_thread(Proc2);
 using Proc6 = __multi_thread(Proc3);
 using Proc7 = __multi_thread(Proc4);
 
+using Proc8 = __multi_thread(__procedure
+( __sequential
+    ( __sequential
+        ( __wait(1)
+        , __wait(2)
+        , __fork(1, Con2)
+        , __wait(3)
+        , __wait(4)
+        , __wait(5)
+        , __wait(6))
+    , __join()),
+  __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+));
+
+using Proc9 = __multi_thread(
+__procedure
+( __sequential
+   ( __wait(1)
+   , __wait(2)
+   , __fork(1, Con2)
+   , __wait(3)
+   , __wait(4)
+   , __wait(5)
+   , __wait(6)
+   , __join())
+, __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+));
+
 int main() {
    ankerl::nanobench::Bench().minEpochIterations(11174).epochs(1000).run("simple seq", [&] {
       func();
@@ -310,6 +338,14 @@ int main() {
 
    ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-concurrent-seq-seq", [&] {
       func3<Proc7>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-fork-join", [&] {
+      func3<Proc8>();
+   });
+
+   ankerl::nanobench::Bench().minEpochIterations(195).epochs(1000).run("mt-3-concurrent-seq-fork-join", [&] {
+      func3<Proc9>();
    });
 
    return 0;

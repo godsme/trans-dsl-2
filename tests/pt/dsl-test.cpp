@@ -262,4 +262,26 @@ namespace {
          });
       }
    }
+
+   TEST_CASE("__multi_thread") {
+      using Con2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+      using Proc8 = __multi_thread(__procedure
+      ( __sequential
+           ( __sequential
+               ( __wait(1)
+               , __wait(2)
+               , __fork(1, Con2)
+               , __wait(3)
+               , __wait(4)
+               , __wait(5)
+               , __wait(6))
+           , __join()),
+        __finally(__sequential(__wait(7), __wait(8), __wait(9)))
+      ));
+
+      StupidTransactionContext context;
+      Proc8 action;
+
+      REQUIRE(Result::CONTINUE == action.exec(context));
+   }
 }

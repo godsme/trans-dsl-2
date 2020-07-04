@@ -42,8 +42,9 @@ namespace details {
 
    template<typename T1, typename T2>
    struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<!std::is_void_v<T2>>> {
-      // if T1, T2 are both not void, combine them as one type.
+      // T1, T2 are both not void, combine them as one type.
       struct type : private T1, private T2 {
+         static constexpr uint8_t numOfThreads = T1::numOfThreads + T2::numOfThreads;
          static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);
          auto createThreadAction(ThreadId tid) -> SchedAction* {
             auto action = T1::createThreadAction(tid);
@@ -87,6 +88,7 @@ namespace details {
 namespace details {
    template<typename T, typename = void>
    struct FinalThreadCreator {
+      static constexpr uint8_t numOfThreads = ThreadCreator_t<T>::numOfThreads;
       static constexpr ThreadId threadId = ThreadCreator_t<T>::threadId;
       auto createThreadAction(ThreadId tid) -> SchedAction* {
          return creator.createThreadAction(tid);
@@ -97,6 +99,7 @@ namespace details {
 
    template<typename T>
    struct FinalThreadCreator<T, std::enable_if_t<std::is_void_v<ThreadCreator_t<T>>>> {
+      static constexpr uint8_t numOfThreads = 0;
       static constexpr ThreadId threadId = 0; // main thread id
       auto createThreadAction(ThreadId) -> SchedAction* {
          return nullptr;

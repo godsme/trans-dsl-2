@@ -387,7 +387,7 @@ namespace {
       WHEN("exec with a fork action") {
          using MainAction =
          __sequential(
-            __fork(1, __sequential(__asyn(AsyncAction1), __fork(3, __asyn(AsyncAction4)))),
+            __fork(1, __sequential(__asyn(AsyncAction1), __fork(2, __asyn(AsyncAction4)))),
             __asyn(AsyncAction2),
             __join(2));
 

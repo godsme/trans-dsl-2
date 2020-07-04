@@ -25,7 +25,7 @@ namespace details {
       struct Inner {
          struct ThreadActionCreator {
             static constexpr ThreadId threadId = TID;
-
+            static constexpr uint8_t  numOfThreads = 1;
             auto createThreadAction(ThreadId tid) -> SchedAction * {
                return (tid == TID) ? new(cache) T_ACTION : nullptr;
             }

@@ -165,7 +165,7 @@
 
 .. list-table::
    :widths: 30  60
-   :header-rows: 2
+   :header-rows: 1
 
    * - 返回值
      - 语意

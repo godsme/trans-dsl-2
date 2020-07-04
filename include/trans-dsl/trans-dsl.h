@@ -13,6 +13,7 @@
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include <trans-dsl/sched/helper/LoopHelper.h>
 #include <trans-dsl/sched/helper/SafeHelper.h>
 #include <trans-dsl/sched/helper/VoidHelper.h>
 #include <trans-dsl/sched/helper/WaitHelper.h>

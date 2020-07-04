@@ -44,18 +44,16 @@
 **__loop**
 ---------------
 
-当程序员需要在一个Transaction里构建一个循环子过程时，可以使用 ``__loop(...)`` 来进行定义。这也是 `Transaction DSL` 所提供
+当程序员需要在一个 `Transaction` 里构建一个循环子过程时，可以使用 ``__loop(...)`` 来进行定义。这也是 `Transaction DSL` 所提供
 的唯一一种循环定义方式，它相当于 `C/C++` 中的 ``while(1){}`` 。
 
 .. code-block:: c++
-   :linenos:
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
 这是一个死循环，它自身永远也不会终止，即便内部的某些 `Action` 出现运行时错误，它也不会停止循环。
 要想终止它，只能依靠 ``stop`` 或 ``kill``。
@@ -68,55 +66,48 @@
 ``__break_if`` 大致相当于 `C/C++` 的 ``if(cond) break`` ，即当 ``cond`` 所设置的条件得到满足时，即可立即跳出循环。
 
 .. code-block:: c++
-   :linenos:
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
 这个例子中，如果在 ``__break_if`` 之前，发生了 ``TIMEOUT`` 错误，则循环终止，而整个 ``__loop`` 的运行结果也是 ``TIMEOUT`` 。
 
 当然，如果用户想在结束循环的同时，让 ``__loop`` 的运行结果为另一个错误值，则可以明确进行指定：
 
 .. code-block:: c++
-   :linenos:
 
    __loop(
    , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __break_if(__is_timeout, SUCCESS)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
 这样， ``__loop`` 的运行结果将是 ``SUCCESS`` 。
 
 **__while**
 +++++++++++++++++
 
-事实上，正如我们之前所讨论的，我们可以使用 ``__loop`` 和 ``__break_if`` 描述 ``while(cond) {}`` 和 ``do{} while(cond`` ：
+事实上，正如我们之前所讨论的，我们可以使用 ``__loop`` 和 ``__break_if`` 描述 ``while(cond) {}`` 和 ``do{} while(cond)`` ：
 
 .. code-block:: c++
-   :linenos:
 
    __loop( __break_if(__not(CondSatisfied))
    , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
-   , __break_if(__not(CondSatisfied))
-   );
+   , __break_if(__not(CondSatisfied)));
 
 也就是说，我们只需要将 ``__break_if(__not(cond))`` 放在 ``__loop`` 的最前面和最后面，
 即等价于 ``while(cond){...}`` 和 ``do{...}while(cond)`` 。
@@ -124,22 +115,19 @@
 为了表达的更加直观， `Transaction DSL` 提供了一个语法糖： ``__while(cond)`` ，其等价于 ``__break_if(__not(cond))`` 。
 
 .. code-block:: c++
-   :linenos:
 
    __loop( __while(CondSatisfied)
    , __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
-   , __while(CondSatisfied)
-   );
+   , __while(CondSatisfied));
 
 当然， ``__while`` 也可以指定循环结束时的返回值： ``__while(cond, FAILED)`` ，
 如果不指定，循环结束时，则会返回循环所处的 **运行时环境** 的状态。
@@ -151,15 +139,13 @@
 这在循环尾部决定循环是否终止时，更加符合语意理解习惯。
 
 .. code-block:: c++
-   :linenos:
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
-   , __until(CondSatisfied)
-   );
+   , __until(CondSatisfied));
 
 .. attention::
    ``do ... until(cond)`` 的语意，与 ``do ... while(cond}`` 正好相反。
@@ -178,16 +164,15 @@
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __redo_if(__is_timeout)
-   , __concurrent(__asyn(Action3), __asyn(Action5))
-   );
+   , __concurrent(__asyn(Action3), __asyn(Action5)));
 
-在这个例子中，如果发生了timeout，则不再执行后续的其它Action，而是重新开始循环。
+在这个例子中，如果发生了 `timeout` ，则不再执行后续的其它 `Action` ，而是重新开始循环。
 
 
 用户状态
 ---------
 
-用户的状态不应该保存在用户定义的Action中，每一个Action运行结束后，其所保存的状态信息也会立即失效。
+用户的状态不应该保存在用户定义的 `Action` 中，每一个 `Action` 运行结束后，其所保存的状态信息也会立即失效。
 用户唯一可以保存信息的地方是那些用在 ``__break_if`` ， ``__redo_if`` 及其语法糖里的 **谓词** 。
 
 `Transaction DSL` 保证，所有这些谓词里所持有的状态信息，和循环的生命周期一致。
@@ -213,8 +198,7 @@
    , __asyn(Action2)
    , __time_guard(TIMER_2, Action3)
    , __concurrent(__asyn(Action3), __asyn(Action5))
-   , __while(ShouldRetry)
-   );
+   , __while(ShouldRetry));
 
 这样，整个循环内部的操作在连续失败5次之前，不会结束。
 
@@ -266,7 +250,7 @@
    , __concurrent(__asyn(Action6), __asyn(Action7))
    );
 
-对于任何一个 **动作段** ，如果执行到某个Action，出了错，则此段后续的所有Action将都会被跳过。比如，本例子中
+对于任何一个 **动作段** ，如果执行到某个 `Action` ，出了错，则此段后续的所有 `Action` 将都会被跳过。比如，本例子中
 的 `Action Segment 2` 一共包含了3个Action，如果 ``Action3`` 的执行出了错，则后续的 ``Action4`` ， ``Action5`` 都会被跳过。
 
 当然，如果没有任何错误，一个 **动作段** 里的所有Action会依次全部执行。
@@ -305,13 +289,12 @@
    , __redo_if(__is_failed)
 
    // Action Segment 2
-   , __concurrent(__asyn(Action6), __asyn(Action7))
-   );
+   , __concurrent(__asyn(Action6), __asyn(Action7)));
 
 **stop**
 +++++++++++++
 
-当一个 ``__loop`` 被stop后，当前正在执行的Action会被stop，此Action被彻底stop后（有可能不能马上结束，
+当一个 ``__loop`` 被 ``stop`` 后，当前正在执行的 `Action` 会被 ``stop`` ，此 `Action` 被彻底 ``stop`` 后（有可能不能马上结束，
 需要进一步的消息激励后才能结束），返回的状态，则是整个 ``__loop`` 的返回状态。
 
 死循环

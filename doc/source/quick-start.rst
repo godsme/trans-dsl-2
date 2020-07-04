@@ -3,7 +3,7 @@
 
 我们先通过一系列简单的例子，来对 `Transaction DSL` 有一个直观的认识。
 
-如图所示，站在 US 的角度，一个完整的事务操作，共分为5个步骤:
+如图所示，站在 `US` 的角度，一个完整的事务操作，共分为 5 个步骤:
 
   1. 从 `Other System 1` 收到一条请求消息;
   2. 对 `Other System 2` 进行了一个函数调用;
@@ -32,7 +32,7 @@
   );
 
 这段代码定义了一个名为 ``Transaction`` 的事务。它由一个包含了 5 个步骤的 **顺序操作** （Sequential Action）构成。
-每个步骤都是一个 **基本操作** （Atom Action）。
+每个步骤都是一个 **基本操作** （`Atom Action`）。
 
 **基本操作** 共分为两类： **同步操作** ( `Synchronous Action` )和 **异步操作** ( `Asynchronous Action` )。
 
@@ -162,6 +162,21 @@
 **错误值** 则表示此操作已经失败。
 
 而函数 ``handleEvent`` 则存在一种额外的返回值： ``UNKNOWN_EVENT`` ，说明当前消息不是自己期待的消息。
+
+.. list-table::
+   :widths: 25  50
+   :header-rows: 1
+
+   * - 返回值
+     - 语意
+   * - SUCCESS
+     - CONTINUE
+     - UNKNOWN_EVENT
+     - 错误码
+   * - Action 成功结束
+     - Action 仍然在工作
+     - Action 收到一个未期待的消息
+     - Action 失败，并已经中止
 
 约束
 -----

@@ -44,11 +44,6 @@ namespace {
       TSL_NS::Event event2{eventInfo2};
 
       TEST("exec should return CONTINUE") {
-         std::cout << TSL_NS::details::Sequential<__sync(SyncAction1),
-         __sequential(__asyn(AsyncAction1),
-                      __sync(SyncAction3),
-                      __asyn(AsyncAction2),
-         __sync(SyncAction2))>::totalNumOfActions << std::endl;
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
       }
 

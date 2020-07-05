@@ -32,7 +32,7 @@ namespace details {
          using Full = FullTraits<USER, Tss...>;
 
       public:
-         using type = typename TypeListExtractor<N, Full, Ts...>::Type;
+         using type = typename TypeListExtractor<N, Full, Ts...>::type;
       };
 
    public:
@@ -79,8 +79,8 @@ namespace details {
 namespace details {
    template<
       size_t N,
-      template<typename ...> typename FIRST,
-      template<typename ...> typename LAST,
+      template<typename...> typename FIRST,
+      template<typename...> typename LAST,
       typename ... Ts>
    struct Splitter {
       static_assert(N > 0, "N should not be 0");
@@ -93,15 +93,21 @@ namespace details {
 
    template<
       size_t N,
-      template<typename ...> typename LEFT,
-      template<typename ...> typename RIGHT,
+      template<typename...> typename LEFT,
+      template<typename...> typename RIGHT,
       typename ... Ts>
    using Split_t = typename Splitter<N, LEFT, RIGHT, Ts...>::type;
 
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
+   template<
+      size_t N,
+      template<typename...> typename USER,
+      typename ... Ts>
    using Take_t = typename Splitter<N, USER, ___DoNothing___, Ts...>::type::first;
 
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
+   template<
+      size_t N,
+      template<typename...> typename USER,
+      typename ... Ts>
    using DropRight_t = Take_t<sizeof...(Ts) - N, USER, Ts...>;
 }
 

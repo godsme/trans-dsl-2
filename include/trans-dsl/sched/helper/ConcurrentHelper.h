@@ -46,14 +46,14 @@ namespace details {
       static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
 
       template<typename ... Ts>
-      struct LoopElem {
-         using Type = GenericConcurrent<Ts...>;
+      struct Elem {
+         using type = GenericConcurrent<Ts...>;
       };
 
       template <SeqInt N>
       auto get() -> SchedAction* {
          if constexpr(N < Num_Of_Actions) {
-            return TypeListExtractor_t<N, LoopElem, T_ACTIONS...>::get();
+            return TypeListExtractor_t<N, Elem, T_ACTIONS...>::get();
          } else {
             return nullptr;
          }

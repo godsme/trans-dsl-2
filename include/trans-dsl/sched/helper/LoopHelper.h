@@ -124,7 +124,7 @@ namespace details {
 
       template<typename ... Ts>
       struct LoopEntry {
-         using Type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
+         using type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
       };
 
       template <SeqInt N>

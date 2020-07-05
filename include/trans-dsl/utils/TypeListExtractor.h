@@ -13,18 +13,18 @@ TSL_NS_BEGIN
 
 namespace details {
    template<
-      SeqInt N,
+      size_t N,
       template<typename ...> typename TRAIT,
       typename ... Ts>
    struct TypeListExtractor;
 
    template<
-      SeqInt N,
+      size_t N,
       template<typename ...> typename TRAIT,
       typename HEAD,
       typename ... TAIL>
    struct TypeListExtractor<N, TRAIT, HEAD, TAIL...> {
-      using Type = typename TypeListExtractor<SeqInt(N - 1), TRAIT, TAIL...>::Type;
+      using type = typename TypeListExtractor<SeqInt(N - 1), TRAIT, TAIL...>::type;
    };
 
    template<
@@ -32,24 +32,22 @@ namespace details {
       typename HEAD,
       typename ... TAIL>
    struct TypeListExtractor<0, TRAIT, HEAD, TAIL...> {
-      using Type = TRAIT<HEAD, TAIL...>;
+      using type = TRAIT<HEAD, TAIL...>;
    };
 
    template<
-      SeqInt N,
+      size_t N,
       template<typename ...> typename TRAIT,
       typename ... Ts>
-    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::Type::Type;
+    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::type::type;
 
    //////////////////////////////////////////////////
    template<typename ...> struct HeadTraits;
 
    template<typename HEAD, typename ...TAIL>
    struct HeadTraits<HEAD, TAIL...> final {
-      using Type = HEAD;
+      using type = HEAD;
    };
-
-
 
    template<template<typename ...> typename USER>
    struct TailTraits {
@@ -62,19 +60,20 @@ namespace details {
       };
    };
 
-   template<SeqInt N, template<typename ...> typename USER, typename ... Ts>
+   template<size_t N, template<typename ...> typename USER, typename ... Ts>
    class RightTaker final {
+      static_assert(N > 0, "N should not be 0");
       static_assert(N < sizeof...(Ts), "N is out of scope");
       template<typename ... Tss>
       using Traits = typename TailTraits<USER>::template Inner<Tss...>;
    public:
-      using type = typename TypeListExtractor<sizeof...(Ts) - N, Traits, Ts...>::Type;
+      using type = typename TypeListExtractor<sizeof...(Ts) - N, Traits, Ts...>::type;
    };
 
-   template<SeqInt N, template<typename ...> typename USER, typename ... Ts>
+   template<size_t N, template<typename ...> typename USER, typename ... Ts>
    using TakeRight_t = typename RightTaker<N, USER, Ts...>::type;
 
-   template<SeqInt N, template<typename ...> typename USER, typename ... Ts>
+   template<size_t N, template<typename ...> typename USER, typename ... Ts>
    using Drop_t = TakeRight_t<sizeof...(Ts) - N, USER, Ts...>;
 }
 

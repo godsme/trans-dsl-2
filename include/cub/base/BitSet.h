@@ -7,6 +7,7 @@
 
 #include <cub/cub_ns.h>
 #include <type_traits>
+#include <cstddef>
 
 CUB_NS_BEGIN
 

@@ -20,17 +20,18 @@ namespace details {
 //   template <typename T>
 //   constexpr static bool IsSequential = std::is_base_of_v<SchedSequential, T>;
 
+    template<typename T, typename =  void>
+    constexpr static size_t TotalSeqActions = 1;
+
+    template<typename T>
+    constexpr static size_t TotalSeqActions<T, std::enable_if_t<std::is_base_of_v<SchedSequential, T>>> = T::totalActions;
+
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    class Sequential final {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
       static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
-      template<typename T, typename =  void>
-      constexpr static size_t TotalSeqActions = 1;
-
-      template<typename T>
-      constexpr static size_t TotalSeqActions<T, std::enable_if_t<std::is_base_of_v<SchedSequential, T>>> = T::totalActions;
 
       template<size_t N, typename T, typename=void>
       struct TypeTrait {
@@ -95,7 +96,7 @@ namespace details {
 
          constexpr static size_t totalActions = (TotalSeqActions<T_ACTIONS> + ... );
 
-         template<int N>
+         template<size_t N>
          using ActionType = typename GlobalGet<N, T_ACTIONS...>::type;
 
       private:

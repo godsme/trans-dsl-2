@@ -43,7 +43,7 @@ namespace details {
             using type = typename T::type;
          };
 
-         using type = Split_t<sizeof...(Ts) - 2, MainActionTrait, FinalTrait, Ts...>;
+         using type = Split_t<sizeof...(Ts) - 1, MainActionTrait, FinalTrait, Ts...>;
 
       public:
          using MainType = typename type::first::type;

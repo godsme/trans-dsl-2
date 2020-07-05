@@ -83,8 +83,9 @@ namespace details {
       template<typename ...> typename LAST,
       typename ... Ts>
    struct Splitter {
+      static_assert(N > 0, "N should not be 0");
       static_assert(N < sizeof...(Ts), "N is out of scope");
-      using type = typename TypeListSplitter<N, 0, FIRST, LAST, TypeN<Ts...>>::type;
+      using type = typename TypeListSplitter<N - 1, 0, FIRST, LAST, TypeN<Ts...>>::type;
    };
 
    template<typename ...>
@@ -92,19 +93,13 @@ namespace details {
 
    template<
       size_t N,
-      template<typename ...> typename FIRST,
+      template<typename ...> typename LEFT,
+      template<typename ...> typename RIGHT,
       typename ... Ts>
-   struct Taker {
-      static_assert(N > 0, "N should not be 0");
-      using type = typename Splitter<N-1, FIRST, ___DoNothing___, Ts...>::type;
-   };
-
-
-   template<size_t N, template<typename ...> typename FIRST, template<typename ...> typename LAST, typename ... Ts>
-   using Split_t = typename Splitter<N, FIRST, LAST, Ts...>::type;
+   using Split_t = typename Splitter<N, LEFT, RIGHT, Ts...>::type;
 
    template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   using Take_t = typename Taker<N, USER, Ts...>::type::first;
+   using Take_t = typename Splitter<N, USER, ___DoNothing___, Ts...>::type::first;
 
    template<size_t N, template<typename ...> typename USER, typename ... Ts>
    using DropRight_t = Take_t<sizeof...(Ts) - N, USER, Ts...>;

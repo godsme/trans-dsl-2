@@ -101,6 +101,19 @@ namespace {
                }
             }
          }
+
+         WHEN("event 2 received, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == trans.handleEvent(event2));
+            THEN("event 4 received, should return UNKNOWN_EVENT") {
+               REQUIRE(Result::UNKNOWN_EVENT == trans.handleEvent(event4));
+               THEN("event 1 received, should return CONTINUE") {
+                  REQUIRE(Result::CONTINUE == trans.handleEvent(event1));
+                  THEN("event 4 received, should return SUCCESS") {
+                     REQUIRE(Result::SUCCESS == trans.handleEvent(event4));
+                  }
+               }
+            }
+         }
       }
    }
 }

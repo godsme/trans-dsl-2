@@ -17,10 +17,8 @@ TSL_NS_BEGIN
 struct SchedAction;
 
 namespace details {
-   template <typename T>
-   constexpr static bool IsSequential = std::is_base_of_v<SchedSequential, T>;
-
-
+//   template <typename T>
+//   constexpr static bool IsSequential = std::is_base_of_v<SchedSequential, T>;
 
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    class Sequential final {
@@ -107,9 +105,12 @@ namespace details {
          }
       };
    };
+
+   template<typename ... Ts>
+   using Sequential_  = typename Sequential<Ts...>::Inner;
 }
 
-#define __sequential(...) typename TSL_NS::details::Sequential<__VA_ARGS__>::Inner
+#define __sequential(...) TSL_NS::details::Sequential_<__VA_ARGS__>
 
 TSL_NS_END
 

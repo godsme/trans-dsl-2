@@ -22,31 +22,36 @@ namespace details {
    template<typename T>
    DEF_CONCEPT(FinallyConcept, std::is_base_of_v<FinallySignature, T>);
 
-   template<typename ... Ts>
-   class ProcedureTrait final {
-      struct MainActionSignature {};
-
-      template<typename ... T_ACTIONS>
-      using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<T_ACTIONS...>;
-
-      template<typename ... Tss>
-      struct FinalTrait;
-
-      template<CONCEPT(FinallyConcept) T>
-      struct FinalTrait<T> {
-         CONCEPT_ASSERT(FinallyConcept<T>);
-         using type = typename T::type;
-      };
-
-   public:
-      using type = Split_t<sizeof...(Ts) - 2, MainActionTrait, FinalTrait, Ts...>;
-   };
 
    template<bool V_IS_PROTECTED, typename ... T_ACTIONS>
    struct Procedure final : SchedProcedure {
+      static_assert(sizeof...(T_ACTIONS) > 1, "__procedure should have at 1 action and 1 final action");
    private:
-      using MainAction = typename ProcedureTrait<T_ACTIONS...>::type::first::type;
-      using FinalAction = typename ProcedureTrait<T_ACTIONS...>::type::second::type;
+      template<typename ... Ts>
+      class Trait final {
+         struct MainActionSignature {};
+
+         template<typename ... Tss>
+         using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<Tss...>;
+
+         template<typename ... Tss>
+         struct FinalTrait;
+
+         template<CONCEPT(FinallyConcept) T>
+         struct FinalTrait<T> {
+            CONCEPT_ASSERT(FinallyConcept<T>);
+            using type = typename T::type;
+         };
+
+         using type = Split_t<sizeof...(Ts) - 2, MainActionTrait, FinalTrait, Ts...>;
+
+      public:
+         using MainType = typename type::first::type;
+         using FinalType = typename type::second::type;
+      };
+
+      using MainAction  = typename Trait<T_ACTIONS...>::MainType;
+      using FinalAction = typename Trait<T_ACTIONS...>::FinalType;
 
       using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
    private:

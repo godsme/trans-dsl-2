@@ -602,6 +602,8 @@ namespace {
       }
    }
 
+   template<typename T> struct S;
+
    SCENARIO("SchedMultiThread with a concurrent fork") {
       StupidTransactionContext context{};
 

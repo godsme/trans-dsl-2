@@ -36,7 +36,7 @@ namespace details {
       static_assert(MAX_NUM_OF_THREADS == details::FinalThreadCreator<MAIN_ACTION>::threadId + 1,
          "you should use consecutive thread IDs to save memory & speed up this transaction");
 
-      static_assert(MAX_NUM_OF_THREADS > 1, "the specified tid is out of scope");
+      //static_assert(MAX_NUM_OF_THREADS > 1, "the specified tid is out of scope");
 
       SchedAction* threads[MAX_NUM_OF_THREADS]{};
       MAIN_ACTION mainThreadAction;

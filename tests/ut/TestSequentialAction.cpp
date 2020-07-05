@@ -9,20 +9,31 @@
 #include "SimpleActionsDefs.h"
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
+#include <iostream>
 
 namespace {
    using namespace TSL_NS;
 
+   template<typename ... Ts> struct S;
    FIXTURE(TestSequentialAction) {
+      using Action =
       __sequential(
          __sync(SyncAction1),
-         __asyn(AsyncAction1),
+         __sequential(__asyn(AsyncAction1),
          __sync(SyncAction3),
-         __asyn(AsyncAction2),
+         __asyn(AsyncAction2)),
          __sync(SyncAction2)
-         ) action;
+         );
 
+      Action action;
       StupidTransactionContext context{};
+
+//      S<typename TSL_NS::details::Sequential<__sync(SyncAction1),
+//         __sequential(__asyn(AsyncAction1),
+//                      __sync(SyncAction3),
+//                      __asyn(AsyncAction2)),
+//         __sync(SyncAction2)>::Base> s;
+//
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -33,6 +44,11 @@ namespace {
       TSL_NS::Event event2{eventInfo2};
 
       TEST("exec should return CONTINUE") {
+         std::cout << TSL_NS::details::Sequential<__sync(SyncAction1),
+         __sequential(__asyn(AsyncAction1),
+                      __sync(SyncAction3),
+                      __asyn(AsyncAction2),
+         __sync(SyncAction2))>::totalNumOfActions << std::endl;
          ASSERT_EQ(Result::CONTINUE, action.exec(context));
       }
 

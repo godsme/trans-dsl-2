@@ -22,6 +22,14 @@ namespace details {
    template<typename T>
    DEF_CONCEPT(FinallyConcept, std::is_base_of_v<FinallySignature, T>);
 
+   template<typename ... Tss>
+   struct FinalTrait;
+
+   template<CONCEPT(FinallyConcept) T>
+   struct FinalTrait<T> {
+      CONCEPT_ASSERT(FinallyConcept<T>);
+      using type = typename T::type;
+   };
 
    template<bool V_IS_PROTECTED, typename ... T_ACTIONS>
    struct Procedure final : SchedProcedure {
@@ -34,15 +42,6 @@ namespace details {
          template<typename ... Tss>
          using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<Tss...>;
 
-         template<typename ... Tss>
-         struct FinalTrait;
-
-         template<CONCEPT(FinallyConcept) T>
-         struct FinalTrait<T> {
-            CONCEPT_ASSERT(FinallyConcept<T>);
-            using type = typename T::type;
-         };
-
          using type = Split_t<sizeof...(Ts) - 1, MainActionTrait, FinalTrait, Ts...>;
 
       public:
@@ -53,7 +52,9 @@ namespace details {
       using MainAction  = typename Trait<T_ACTIONS...>::MainType;
       using FinalAction = typename Trait<T_ACTIONS...>::FinalType;
 
+   public:
       using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
+
    private:
       OVERRIDE(getAction()->SchedAction *) {
          return new(cache) MainAction;

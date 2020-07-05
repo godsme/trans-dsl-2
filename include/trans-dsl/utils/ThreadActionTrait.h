@@ -22,7 +22,7 @@ namespace details {
    };
 
    template<typename T>
-   struct ThreadCreatorTrait<T, std::enable_if_t<std::is_class_v<typename T::ThreadActionCreator>>> {
+   struct ThreadCreatorTrait<T, std::void_t<typename T::ThreadActionCreator>> {
       using type = typename T::ThreadActionCreator;
    };
 

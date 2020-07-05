@@ -88,7 +88,7 @@ add_library(trans-dsl-2 STATIC
         include/trans-dsl/sched/domain/ThreadDoneMsg.h include/trans-dsl/sched/action/SchedFork.h
         src/sched/action/SchedFork.cpp include/trans-dsl/sched/helper/ForkHelper.h
         include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/SchedMultiThread.h
-        src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/action/Transaction.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h include/trans-dsl/utils/TypeListSpliter.h include/trans-dsl/sched/helper/AutoSeqHelper.h)
+        src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h include/trans-dsl/utils/TypeListSpliter.h include/trans-dsl/sched/helper/AutoSeqHelper.h)
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
@@ -104,7 +104,7 @@ add_executable(trans-dsl-test-catch
         tests/ut/TestSimpleAsyncAction.cpp
         tests/ut/TestTimerGuard.cpp
         tests/ut/TestMultiThread.cpp
-        tests/pt/catch.cpp)
+        tests/pt/catch.cpp tests/ut/TestTransaction.cpp)
 
 target_link_libraries(trans-dsl-test-catch trans-dsl-2)
 

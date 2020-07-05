@@ -79,7 +79,7 @@ add_library(trans-dsl-2 STATIC
         include/trans-dsl/sched/concepts/ActionConcept.h include/trans-dsl/tsl_config.h
         include/trans-dsl/sched/concepts/SchedActionConcept.h include/trans-dsl/sched/concepts/ConceptHelper.h
         include/trans-dsl/sched/concepts/SyncActionClassConcept.h include/trans-dsl/sched/concepts/ClassConcept.h
-        include/trans-dsl/sched/helper/MaxSizeCalc.h include/trans-dsl/sched/helper/TypeListExtractor.h
+        include/trans-dsl/sched/helper/MaxSizeCalc.h include/trans-dsl/utils/TypeListExtractor.h
         include/trans-dsl/sched/concepts/PredConcept.h include/cub/utils/RepeatMacros.h
         include/trans-dsl/sched/helper/ActionPathHelper.h include/trans-dsl/sched/helper/VolatileSeq.h
         include/trans-dsl/sched/helper/JoinHelper.h include/trans-dsl/sched/domain/ThreadId.h
@@ -88,7 +88,7 @@ add_library(trans-dsl-2 STATIC
         include/trans-dsl/sched/domain/ThreadDoneMsg.h include/trans-dsl/sched/action/SchedFork.h
         src/sched/action/SchedFork.cpp include/trans-dsl/sched/helper/ForkHelper.h
         include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/SchedMultiThread.h
-        src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/action/Transaction.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h)
+        src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/action/Transaction.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h include/trans-dsl/utils/TypeListSpliter.h include/trans-dsl/sched/helper/AutoSeqHelper.h)
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp

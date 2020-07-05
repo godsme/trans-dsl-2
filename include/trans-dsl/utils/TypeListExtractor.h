@@ -31,14 +31,14 @@ namespace details {
       typename HEAD,
       typename ... TAIL>
    struct TypeListExtractor<0, TRAIT, HEAD, TAIL...> {
-      using Type = typename TRAIT<HEAD, TAIL...>::Type;
+      using Type = TRAIT<HEAD, TAIL...>;
    };
 
    template<
       SeqInt N,
       template<typename ...> typename TRAIT,
       typename ... Ts>
-    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::Type;
+    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::Type::Type;
 
    //////////////////////////////////////////////////
    template<typename ...> struct HeadTraits;

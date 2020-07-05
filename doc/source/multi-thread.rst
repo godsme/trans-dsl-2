@@ -276,20 +276,20 @@
      , __asyn(Action3)
      , __join())
 
-如果主线程是一个 ``__prot_procedure`` ，那么就应该在 ``__finally`` 里 ``__join``，比如：
+如果主线程是一个 ``__procedure`` ，那么就应该在 ``__finally`` 里 ``__join``，比如：
 
 .. code-block::
 
-  __prot_procedure
-    ( __sequential
-        ( __fork(THREAD1, __asyn(Action1))
-        , __fork(THREAD2, __asyn(Action2))
-        , __asyn(Action3))
-    , __finally(__sequential
-                  ( __asyn(Action4)
-                  , __join()))
+  __procedure_s
+    ( __fork(THREAD1, __asyn(Action1))
+    , __fork(THREAD2, __asyn(Action2))
+    , __asyn(Action3))
+    , __finally( __sequential
+                   ( __asyn(Action4)
+                   , __join()))
 
 注意，``__join`` 并不关心它所等待的线程是以成功还是失败，而只关心它们是否已经结束。
+
 
 线程错误
 ++++++++++++++++++
@@ -302,26 +302,41 @@
 有名线程的失败
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-任何一条有名线程的失败，无论是主线程还是用户线程，都会导致整个事务失败。
-
-而一旦一条有名线程被创建，它的错误将无法被它的创建线程捕捉，即便它在一个 ``__prot_procedure`` 里被创建，
-它的错误也不可能被创建线程的 ``__finally`` 所修复。
-
-比如，在下面的事务中，如果 ``THREAD1`` 上的 ``Action1`` 失败， ``THREAD1`` 将会马 上中止，
-同时，主线程也会马上进入结束模式，转而去执行 ``__finally`` 里的 ``Action4`` ， 即便 ``Action4`` 成功，
-也不能修复发生在 ``THREAD1`` 上的错误，所以整个事务仍然会以失败的状态结束。
-
-相反，如果 ``Action1`` 一切正常，但 ``Action2`` 发生了错误，那么主线程将会跳转执行 ``Action4`` ，如果 ``Action4`` 成功，
-则整个事务将会以成功状态结束。
+如果线程启动时发生错误， ``__fork`` 以失败结束。比如在下面的过程里：
 
 .. code-block::
 
-   __prot_procedure (
-     __sequential
-       ( __fork(THREAD1, __asyn(Action1))
-       , __asyn(Action2)
-       , __asyn(Action3))
-   , __finally(__asyn(Action4)))
+   __procedure_s
+     ( __fork(THREAD1, __asyn(Action1))
+     , __asyn(Action2))
+     , __finally(__on_fail(__asyn(Action3))))
+
+如果 ``Action1`` 的 ``exec`` 调用结果为某种错误，则 ``__fork`` 失败，从而 ``Action2`` 会被调过，直接进入 ``__finally`` ；
+而由于 ``__fork`` 失败，因而 ``__on_fail`` 谓词判断结果为 ``true`` ，所以， ``Action3`` 会得到执行。
+
+一旦线程的 ``exec`` 执行结果是 ``SUCCESS`` ，则 ``__fork`` 成功。
+
+如果被创建线程 ``exec`` 的结果是 ``CONTINUE`` ， ``__fork`` 同样成功结束。而被创建线程开始独立运行，从此与创建者线程之间再无任何关系。
+
+如果随后任何线程发生了错误，（无论是通过上下文汇报的错误，还是通过执行结果返回的错误），都将导致对所有其它线程的 ``stop`` 调用。比如：
+
+.. code-block::
+
+   __prot_procedure_s
+     ( __fork(THREAD1, __asyn(Action1))
+     , __fork(THREAD2, __asyn(Action2))
+     , __asyn(Action3)
+     , __asyn(Action4))
+     , __finally_s
+         ( __on_fail(__asyn(Action5))
+         , __on_succ(__asyn(Action6))))
+
+在 ``THREAD1`` 和 ``THREAD2`` 被成功 ``__fork`` 后，如果 ``Action2`` 在随后的处理过程中发生了错误，则主线程和``THREAD1`` 都会
+被 ``stop`` ，从而导致 ``THREAD1`` 的直接终止，而主线程的 ``Action3`` 也同样被终止， 并跳过 ``Action4`` ，
+直接进入 ``__finally_s`` 。而由于这个错误，``Action5`` 得到执行。由于整个过程是一个 ``__prot_procedure`` ，其最终失败还是成功，取决于 ``Action5`` 的执行结果。
+
+但是，如果在 ``THREAD1`` 或 ``THREAD2`` 发生任何错误之前，主线程已成功进入 ``__finally_s`` ，
+
 
 匿名线程的失败
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -377,4 +392,14 @@
          , __procedure(__asyn(Action3), __finally(__asyn(Action4))))
      , __asyn(Action5)
      , __finally(__asyn(Action6)))
+
+
+**__multi_thread** 约束：
++++++++++++++++++++++++++++++++
+
+1. 创建线程时，Thread ID 一定要从1开始，并且连续（如果创建多个其它线程时）；
+2. 主线程一旦结束，则整个 ``__multi_thread`` 都将结束；而运行结果则是主线程的执行结果；
+3. 其它线程不能 `join` 主线程；
+4. 其它线程不能 `join all` ；
+5. 其它线程进行 `join` 时，不能得到保证；
 

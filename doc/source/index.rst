@@ -41,12 +41,13 @@ Transaction DSL简介
    motivation
    quick-start
    proc-control
-   fragment
    loop
+   error-handling
+   fragment
    multi-thread
    stop
    event
-   error-handling
+
    monitor
    appendix
    performance

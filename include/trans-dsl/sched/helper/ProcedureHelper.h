@@ -8,22 +8,54 @@
 #include <trans-dsl/sched/action/SchedProcedure.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
-
+#include <trans-dsl/sched/helper/SequentialHelper.h>
+#include <trans-dsl/utils/TypeListSpliter.h>
+#include <trans-dsl/sched/helper/AutoSeqHelper.h>
 TSL_NS_BEGIN
 
 namespace details {
-   template<CONCEPT(SchedActionConcept) T_ACTION, CONCEPT(SchedActionConcept) T_FINAL, bool V_IS_PROTECTED>
+   struct FinallySignature {};
+
+   template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
+   using FinalAction = typename AutoSeq<FinallySignature>::template Inner<T_ACTIONS...>;
+
+   template<typename T>
+   DEF_CONCEPT(FinallyConcept, std::is_base_of_v<FinallySignature, T>);
+
+   template<typename ... Ts>
+   class ProcedureTrait final {
+      struct MainActionSignature {};
+
+      template<typename ... T_ACTIONS>
+      using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<T_ACTIONS...>;
+
+      template<typename ... Tss>
+      struct FinalTrait;
+
+      template<CONCEPT(FinallyConcept) T>
+      struct FinalTrait<T> {
+         CONCEPT_ASSERT(FinallyConcept<T>);
+         using type = typename T::type;
+      };
+
+   public:
+      using type = Split_t<sizeof...(Ts) - 2, MainActionTrait, FinalTrait, Ts...>;
+   };
+
+   template<bool V_IS_PROTECTED, typename ... T_ACTIONS>
    struct Procedure final : SchedProcedure {
-      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
-      CONCEPT_ASSERT(SchedActionConcept<T_FINAL>);
-      using ThreadActionCreator = ThreadCreator_t<T_ACTION, T_FINAL>;
+   private:
+      using MainAction = typename ProcedureTrait<T_ACTIONS...>::type::first::type;
+      using FinalAction = typename ProcedureTrait<T_ACTIONS...>::type::second::type;
+
+      using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
    private:
       OVERRIDE(getAction()->SchedAction *) {
-         return new(cache) T_ACTION;
+         return new(cache) MainAction;
       }
 
       OVERRIDE(getFinalAction()->SchedAction *) {
-         return new(cache) T_FINAL;
+         return new(cache) FinalAction;
       }
 
       OVERRIDE(isProtected() const -> bool) {
@@ -32,16 +64,21 @@ namespace details {
 
    private:
       enum : size_t {
-         alignment = std::max(alignof(T_ACTION), alignof(T_FINAL)),
-         size = std::max(sizeof(T_ACTION), sizeof(T_FINAL))
+         alignment = std::max(alignof(MainAction), alignof(FinalAction)),
+         size = std::max(sizeof(MainAction), sizeof(FinalAction))
       };
 
       alignas(alignment) unsigned char cache[size];
    };
 }
 
-#define __procedure(...) TSL_NS::details::Procedure<__VA_ARGS__, false>
-#define __finally(...) __VA_ARGS__
+#define __internal_PrOCeDuRe(prot, ...) TSL_NS::details::Procedure<prot, __VA_ARGS__>
+
+////////////////////////////////////////////////////////////////////////////////////////
+#define __procedure(...) __internal_PrOCeDuRe(false, __VA_ARGS__)
+#define __prot_procedure(...) __internal_PrOCeDuRe(true, __VA_ARGS__)
+
+#define __finally(...)   TSL_NS::details::FinalAction<__VA_ARGS__>
 
 TSL_NS_END
 

@@ -8,7 +8,7 @@
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
-#include <trans-dsl/sched/helper/TypeListExtractor.h>
+#include <trans-dsl/utils/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 
 TSL_NS_BEGIN

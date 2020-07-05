@@ -17,22 +17,23 @@ TSL_NS_BEGIN
 struct SchedAction;
 
 namespace details {
-//   template <typename T>
-//   constexpr static bool IsSequential = std::is_base_of_v<SchedSequential, T>;
 
-    template<typename T, typename =  void>
-    constexpr static size_t TotalSeqActions = 1;
+   ///////////////////////////////////////////////////////////////////////////
+   template<typename T, typename =  void>
+   constexpr static size_t TotalSeqActions = 1;
 
-    template<typename T>
-    constexpr static size_t TotalSeqActions<T, std::enable_if_t<std::is_base_of_v<SchedSequential, T>>> = T::totalActions;
+   template<typename T>
+   constexpr static size_t TotalSeqActions<T, std::enable_if_t<std::is_base_of_v<SchedSequential, T>>>
+      = T::totalActions;
 
+   ///////////////////////////////////////////////////////////////////////////
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
    class Sequential final {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
       static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
-
+      ///////////////////////////////////////////////////////////////////////////
       template<size_t N, typename T, typename=void>
       struct TypeTrait {
          using type = T;
@@ -43,10 +44,11 @@ namespace details {
          using type = typename T::template ActionType<N>;
       };
 
-
+      ///////////////////////////////////////////////////////////////////////////
       template <size_t N, typename ... Ts>
       struct GlobalGet;
 
+      ///////////////////////////////////////////////////////////////////////////
       template<size_t N, bool Value, typename ... Ts>
       struct Calc;
 
@@ -60,17 +62,20 @@ namespace details {
          using type =  typename GlobalGet<N - TotalSeqActions<H>, Ts...>::type;
       };
 
-      template <size_t N, typename T, typename ... Ts>
-      struct GlobalGet<N, T, Ts...> {
-         using type =  typename Calc<N, N < TotalSeqActions<T>, T, Ts...>::type;
+      ///////////////////////////////////////////////////////////////////////////
+      template <size_t N, typename H, typename ... Ts>
+      struct GlobalGet<N, H, Ts...> {
+         using type =  typename Calc<N, N < TotalSeqActions<H>, H>::type;
       };
 
+      ///////////////////////////////////////////////////////////////////////////
       template <typename ... Ts>
       struct Extract {
          template<size_t N>
          using type = typename GlobalGet<N, Ts...>::type;
       };
 
+      ///////////////////////////////////////////////////////////////////////////
       template<size_t N, size_t M, template<typename ...> typename USER, typename Extractor, typename ... Ts>
       struct Comb {
          using elem = typename Extractor::template type<M>;
@@ -82,28 +87,24 @@ namespace details {
          using type = USER<Ts..., typename Extractor::template type<M>>;
       };
 
-      template<typename ... Ts>
-      using AllActionsSeq = VolatileSeq<SchedAction, Ts...>;
-
-   public:
-
+      /////////////////////////////////////////////////////////////////////////////////////////////
+      template<typename ... Ts> using AllActionsSeq = VolatileSeq<SchedAction, Ts...>;
       constexpr static size_t totalNumOfActions = (TotalSeqActions<T_ACTIONS> + ... );
-
       using Base = typename Comb<totalNumOfActions-1, 0, AllActionsSeq, Extract<T_ACTIONS...>>::type;
 
+      /////////////////////////////////////////////////////////////////////////////////////////////
+   public:
       struct Inner final : SchedSequential, private Base {
+         // for thread trait
          using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
 
+         // for sequential elision
          constexpr static size_t totalActions = (TotalSeqActions<T_ACTIONS> + ... );
-
-         template<size_t N>
-         using ActionType = typename GlobalGet<N, T_ACTIONS...>::type;
+         template<size_t N> using ActionType = typename GlobalGet<N, T_ACTIONS...>::type;
 
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) {
-            return Base::get(seq);
-         }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Base::get(seq); }
       };
    };
 

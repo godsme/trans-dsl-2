@@ -43,7 +43,7 @@ TSL_NS_BEGIN
 
          ///////////////////////////////////////////////////////////////////////////////////////////
          template <size_t N, typename ... Ts>
-         struct GlobalGet;
+         struct Extractor;
 
          ///////////////////////////////////////////////////////////////////////////////////////////
          template<size_t N, bool Value, typename ... Ts>
@@ -56,12 +56,12 @@ TSL_NS_BEGIN
 
          template<size_t N, typename H, typename ... Ts>
          struct Calc<N, false, H, Ts...> {
-            using type =  typename GlobalGet<N - TotalSeqActions<H>, Ts...>::type;
+            using type =  typename Extractor<N - TotalSeqActions<H>, Ts...>::type;
          };
 
          ///////////////////////////////////////////////////////////////////////////////////////////
          template <size_t N, typename T, typename ... Ts>
-         struct GlobalGet<N, T, Ts...> {
+         struct Extractor<N, T, Ts...> {
             using type =  typename Calc<N, N < TotalSeqActions<T>, T, Ts...>::type;
          };
 
@@ -69,19 +69,19 @@ TSL_NS_BEGIN
          template <typename ... Ts>
          struct Extract {
             template<size_t N>
-            using type = typename GlobalGet<N, Ts...>::type;
+            using type = typename Extractor<N, Ts...>::type;
          };
 
          ///////////////////////////////////////////////////////////////////////////////////////////
-         template<size_t N, size_t M, template<typename ...> typename USER, typename Extractor, typename ... Ts>
+         template<size_t N, size_t M, template<typename ...> typename USER, typename EXTRACTOR, typename ... Ts>
          struct Comb {
-            using elem = typename Extractor::template type<M>;
-            using type = typename Comb<N-1, M+1, USER, Extractor, Ts..., elem>::type;
+            using elem = typename EXTRACTOR::template type<M>;
+            using type = typename Comb<N-1, M+1, USER, EXTRACTOR, Ts..., elem>::type;
          };
 
-         template<size_t M, template<typename ...> typename USER, typename Extractor, typename ... Ts>
-         struct Comb<0, M, USER, Extractor, Ts...> {
-            using type = USER<Ts..., typename Extractor::template type<M>>;
+         template<size_t M, template<typename ...> typename USER, typename EXTRACTOR, typename ... Ts>
+         struct Comb<0, M, USER, EXTRACTOR, Ts...> {
+            using type = USER<Ts..., typename EXTRACTOR::template type<M>>;
          };
 
          ///////////////////////////////////////////////////////////////////////////////////////////
@@ -92,12 +92,14 @@ TSL_NS_BEGIN
 
       public:
          struct Inner final : SchedSequential, private Base {
+            // for fork thread creator
             using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
 
+            // for seq elision
             constexpr static size_t totalActions = (TotalSeqActions<T_ACTIONS> + ... );
 
             template<size_t N>
-            using ActionType = typename GlobalGet<N, T_ACTIONS...>::type;
+            using ActionType = typename Extractor<N, T_ACTIONS...>::type;
 
          private:
             OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }

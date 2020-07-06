@@ -158,7 +158,7 @@ namespace details {
          OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }
 
          ///////////////////////////////////////////////////////////////////////
-         #define LoOp_AcTiOn(n) case n: return Base::get<n>(isAction);
+         #define LoOp_AcTiOn(n) case n: return Base::template get<n>(isAction);
          #define LoOp_AcTiOn_BlOcK(n) { switch (seq) { SIMPLE_REPEAT(n, LoOp_AcTiOn) }}
          #define LoOp_AcTiOn_DeCl(n) if constexpr(Base::Expanded_Num_Of_Entries <= n) LoOp_AcTiOn_BlOcK(n)
          #define And_LoOp_AcTiOn_DeCl(n) else if constexpr(Base::Expanded_Num_Of_Entries == n) LoOp_AcTiOn_BlOcK(n)

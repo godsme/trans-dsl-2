@@ -7,6 +7,7 @@
 
 #include <trans-dsl/sched/action/SchedSafe.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/helper/AutoActionHelper.h>
 
 TSL_NS_BEGIN
 
@@ -23,6 +24,6 @@ namespace details {
 
 TSL_NS_END
 
-#define __safe(...) TSL_NS::details::Safe_<__VA_ARGS__>
+#define __safe(...) TSL_NS::details::Safe_<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_SAFEHELPER_H

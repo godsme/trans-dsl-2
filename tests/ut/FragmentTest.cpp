@@ -18,23 +18,20 @@ namespace {
 
    SCENARIO("__transaction with a segment") {
 
-      using Trans =
-      __transaction
+      __def(Trans) __as_trans
       ( __apply(Fork2, __with(AsyncAction1, AsyncAction4)) //32
       , __asyn(AsyncAction2) // 24
       , __join()
       );
 
-      using Trans2 =
-      __transaction
+      __def(Trans2) __as_trans
       ( __fork(1, __asyn(AsyncAction1))
       , __fork(2, __asyn(AsyncAction4))
       , __asyn(AsyncAction2) // 24
       , __join()
       );
 
-      using Trans3 =
-      __transaction
+      __def(Trans3) __as_trans
       ( __sequential
          ( __fork(1, __asyn(AsyncAction1))
          , __fork(2, __asyn(AsyncAction4))
@@ -42,8 +39,7 @@ namespace {
          , __join())
       );
 
-      using Trans4 =
-      __transaction
+      __def(Trans4) __as_trans
       ( __sequential(
          __sequential
            ( __fork(1, __asyn(AsyncAction1))

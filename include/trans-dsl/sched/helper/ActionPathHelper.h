@@ -9,6 +9,7 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/Pred.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/helper/AutoActionHelper.h>
 #include <algorithm>
 
 TSL_NS_BEGIN
@@ -67,7 +68,7 @@ namespace details {
 
 TSL_NS_END
 
-#define __case(pred, ...) decltype(TSL_NS::details::DeduceActionPath<pred, __VA_ARGS__>())
-#define __otherwise(...) __case(TSL_NS::details::IsTrue__, __VA_ARGS__)
+#define __case(pred, ...) decltype(TSL_NS::details::DeduceActionPath<pred, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
+#define __otherwise(...) __case(TSL_NS::details::IsTrue__, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>)
 
 #endif //TRANS_DSL_2_ACTIONPATHHELPER_H

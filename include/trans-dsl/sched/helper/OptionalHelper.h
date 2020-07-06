@@ -11,6 +11,7 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/concepts/PredConcept.h>
+#include <trans-dsl/sched/helper/AutoActionHelper.h>
 
 TSL_NS_BEGIN
 
@@ -66,7 +67,7 @@ namespace details {
 #define __is_succ TSL_NS::details::IsSucc__
 #define __is_failed TSL_NS::details::IsFailed__
 #define __is_status(status) TSL_NS::details::IsStatus__<status>
-#define __optional(...)   decltype(TSL_NS::details::deductOptionalClass__<__VA_ARGS__>())
+#define __optional(pred, ...)   decltype(TSL_NS::details::deductOptionalClass__<pred, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
 #define __on_fail(...) __optional(__is_failed, __VA_ARGS__)
 #define __on_status(status, ...) __optional(__is_status(status), __VA_ARGS__)
 

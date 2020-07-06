@@ -9,6 +9,7 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/helper/AutoActionHelper.h>
 
 TSL_NS_BEGIN
 
@@ -26,6 +27,6 @@ namespace details {
 
 TSL_NS_END
 
-#define __void(...) TSL_NS::details::Void<__VA_ARGS__>
+#define __void(...) TSL_NS::details::Void<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_VOIDHELPER_H

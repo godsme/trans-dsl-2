@@ -72,5 +72,6 @@ namespace details {
 TSL_NS_END
 
 #define __transaction(...) TSL_NS::details::Transaction<__VA_ARGS__>
+#define __as_trans(...) __transaction(__VA_ARGS__)
 
 #endif //TRANS_DSL_2_TRANSACTIONHELPER_H

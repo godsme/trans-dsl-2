@@ -86,8 +86,7 @@
 .. code-block::
 
    __transaction
-   ( __apply(Fragment)
-   );
+   ( __apply(Fragment));
 
 如果 ``__transaction`` 背后默认组合了一个 ``__sequential`` ，则在付出不必要的代价。
 
@@ -99,20 +98,17 @@
 
    // simple case
    __transaction
-   ( __asyn(Action1)
-   );
+   ( __asyn(Action1));
 
    // sequential
    __transaction
    ( __asyn(Action1)
-   , __asyn(Action2)
-   );
+   , __asyn(Action2));
 
    // procedure
    __transaction
    ( __asyn(Action1)
-   , __finally(__asyn(Action2))
-   );
+   , __finally(__asyn(Action2)));
 
 框架可以自动感知你的代码结构。如果你有多个 ``action`` 则会自动按照 ``__sequential`` 的方式调度，如果最后是 ``__finally`` 或
 ``__recover`` ，则会自动引入 ``__procedure`` 的调度，而如果你只是最简单的情况，则按照最简单的情况调度。
@@ -126,27 +122,23 @@
    // __procedure
    __def(Fragment1) __as
    ( __asyn(Action1)
-   , __recover(__asyn(Action2))
-   );
+   , __recover(__asyn(Action2)));
 
    // __sequential
    __def(Fragment2) __as
    ( __asyn(Action1)
-   , __asyn(Action2)
-   );
+   , __asyn(Action2));
 
    // just a simple one
    __def(Fragment3) __as
-   ( __asyn(Action1)
-   );
+   ( __asyn(Action1) );
 
    // __procedure
    // main action of __procedure is __sequential
    __def(Fragment1) __as
    ( __asyn(Action1)
    , __asyn(Action2)
-   , __recover(__asyn(Action3))
-   );
+   , __recover(__asyn(Action3)));
 
    // __procedure
    // both main action & recover part are __sequential
@@ -155,8 +147,7 @@
    , __asyn(Action2)
    , __recover
       ( __asyn(Action3)
-      , __asyn(Action4))
-   );
+      , __asyn(Action4)));
 
 或者 ``__optional`` ，
 
@@ -164,18 +155,18 @@
 
    // __optional with a __sequential
    __optional
-     ( __is_failed
-     , __asyn(Action1)
-     , __asyn(Action2));
+   ( __is_failed
+   , __asyn(Action1)
+   , __asyn(Action2));
 
    // __optional with a __procedure,
    // and the main action of the
    // __procedure is a __sequential
    __optional
-     ( __is_failed
-     , __asyn(Action1)
-     , __asyn(Action2)
-     , __finally(__asyn(Action3)));
+   ( __is_failed
+   , __asyn(Action1)
+   , __asyn(Action2)
+   , __finally(__asyn(Action3)));
 
 事实上，任何可以组合其它 `Action` 的关键字里，比如 ``__time_guard`` ， ``__fork`` ， ``__safe`` , ``__void`` , ``__case`` 等等，都拥有
 这样的能力。
@@ -196,15 +187,15 @@
 
    // multi-thread
    __transaction
-     ( __fork(THREAD1, __asyn(Action1))
-     , __asyn(Action2))
-     , __finally(__on_fail(__asyn(Action3))))
+   ( __fork(THREAD1, __asyn(Action1))
+   , __asyn(Action2))
+   , __finally(__on_fail(__asyn(Action3))))
 
    // single-thread
    __transaction
-     ( __asyn(Action1)
-     , __asyn(Action2))
-     , __finally(__on_fail(__asyn(Action3))))
+   ( __asyn(Action1)
+   , __asyn(Action2))
+   , __finally(__on_fail(__asyn(Action3))))
 
 
 
@@ -218,13 +209,12 @@
 
    // 多个Action，所以背后是一个__sequential
    __transaction
-     ( __asyn(Action1)
-     , __asyn(Action3)
-     , __asyn(Action4)
-     , __asyn(Action2)
-     , __asyn(Action5)
-     , __asyn(Action6))
-     );
+   ( __asyn(Action1)
+   , __asyn(Action2)
+   , __asyn(Action3)
+   , __asyn(Action4)
+   , __asyn(Action5)
+   , __asyn(Action6)));
 
 
 由于合理的原因，我们提取了两个片段：
@@ -233,23 +223,20 @@
 
    // 多个Action，所以背后是一个__sequential
    __transaction
-     ( __asyn(Action1)
-     , __apply(Fragment1)
-     , __asyn(Action2)
-     , __apply(Fragment2)
-     );
+   ( __asyn(Action1)
+   , __apply(Fragment1)
+   , __asyn(Action4)
+   , __apply(Fragment2));
 
    // 多个Action，所以背后是一个__sequential
    __def(Fragment1) __as
-   ( __asyn(Action3)
-   , __asyn(Action4)
-   )
+   ( __asyn(Action2)
+   , __asyn(Action3));
 
    // 多个Action，所以背后是一个__sequential
    __def(Fragment2) __as
    ( __asyn(Action5)
-   , __asyn(Action6)
-   )
+   , __asyn(Action6));
 
 
 这样，展开之后，会形成这样的结构：
@@ -258,16 +245,15 @@
 
    // 多个Action，所以背后是一个__sequential
    __transaction
-     ( __sequential
-         ( __asyn(Action1)
-         , __sequential
-             ( __asyn(Action3)
-             , __asyn(Action4))
-         , __asyn(Action2)
-         , __sequential
-             ( __asyn(Action5)
-             , __asyn(Action6)))
-     );
+   ( __sequential
+       ( __asyn(Action1)
+       , __sequential
+           ( __asyn(Action2)
+           , __asyn(Action3))
+       , __asyn(Action4)
+       , __sequential
+           ( __asyn(Action5)
+           , __asyn(Action6))));
 
 这就意味着，在（为了好的原因）提取片段的同时，你也在额外付出空间和性能代价。而这样的情况，基于现实项目的经验非常常见。
 
@@ -319,8 +305,7 @@
 
    __def(Fragment) __as
    ( __asyn(Action2)
-   , __asyn(Action3)
-   );
+   , __asyn(Action3));
 
    __loop
    ( __asyn(Action1)

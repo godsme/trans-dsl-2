@@ -387,13 +387,13 @@
 
 .. code-block::
 
-   __prot_procedure
+   __procedure
      ( __fork(THREAD1, __asyn(Action1))
      , __concurrent
          ( __asyn(Action2)
          , __procedure(__asyn(Action3), __finally(__asyn(Action4))))
      , __asyn(Action5)
-     , __finally(__asyn(Action6)))
+     , __recover(__asyn(Action6)))
 
 
 **__multi_thread** 约束

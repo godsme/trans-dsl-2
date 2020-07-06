@@ -9,28 +9,11 @@ Transaction DSL简介
 
 2.0 版本相对于1.x版本的主要改进有：
 
-**极小的内存占用** :
-
-  参见 :ref:`memory_usage`
-
-**更快的性能** :
-
-  参见 :ref:`performance`
-
-
-**新的循环设计** :
-
-  参见 :ref:`loop`
-
-
-**清晰一致的错误处理策略** :
-
-  参见 :ref:`error-handling`
-
-**简化用户定义方式** :
-
-  参见 :ref:`user-friendly`
-
+- :ref:`极小的内存占用<memory_usage>`
+- :ref:`更快的性能<performance>`
+- :ref:`新的循环设计<loop>`
+- :ref:`清晰一致的错误处理策略<error-handling>`
+- :ref:`简化用户定义方式<user-friendly>`
 
 
 .. toctree::

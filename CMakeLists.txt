@@ -103,7 +103,7 @@ add_executable(trans-dsl-test-catch
         tests/ut/TestSimpleAsyncAction.cpp
         tests/ut/TestTimerGuard.cpp
         tests/ut/TestMultiThread.cpp
-        tests/pt/catch.cpp tests/ut/TestTransaction.cpp tests/ut/FragmentTest.cpp)
+        tests/pt/catch.cpp tests/ut/TestTransaction.cpp tests/ut/FragmentTest.cpp tests/ut/ProcedureTest.cpp)
 
 target_link_libraries(trans-dsl-test-catch trans-dsl-2)
 

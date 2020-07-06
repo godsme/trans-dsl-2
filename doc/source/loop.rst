@@ -52,7 +52,7 @@
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
 这是一个死循环，它自身永远也不会终止，即便内部的某些 `Action` 出现运行时错误，它也不会停止循环。
@@ -70,7 +70,7 @@
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __break_if(__is_timeout)
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
@@ -83,7 +83,7 @@
    __loop(
    , __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __break_if(__is_timeout, SUCCESS)
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
@@ -99,13 +99,13 @@
    __loop( __break_if(__not(CondSatisfied))
    , __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5))
    , __break_if(__not(CondSatisfied)));
 
@@ -119,13 +119,13 @@
    __loop( __while(CondSatisfied)
    , __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5))
    , __while(CondSatisfied));
 
@@ -143,7 +143,7 @@
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5))
    , __until(CondSatisfied));
 
@@ -162,7 +162,7 @@
    __loop
    ( __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __redo_if(__is_timeout)
    , __concurrent(__asyn(Action3), __asyn(Action5)));
 
@@ -196,7 +196,7 @@
    __loop(
    , __sync(Action1)
    , __asyn(Action2)
-   , __time_guard(TIMER_2, Action3)
+   , __time_guard(TIMER_2, __asyn(Action3))
    , __concurrent(__asyn(Action3), __asyn(Action5))
    , __while(ShouldRetry));
 
@@ -240,7 +240,7 @@
    // Action Segment 2
    , __asyn(Action3)
    , __asyn(Action4)
-   , __time_guard(TIMER_2, Action5)
+   , __time_guard(TIMER_2, __asyn(Action5))
 
    // Predicate Segment 2
    , __break_if(__is_timeout)
@@ -282,7 +282,7 @@
    // Action Segment 1
    , __asyn(Action3)
    , __asyn(Action4)
-   , __time_guard(TIMER_2, Action5)
+   , __time_guard(TIMER_2, __asyn(Action5))
 
    // Predicate Segment 2
    , __break_if(__is_timeout)

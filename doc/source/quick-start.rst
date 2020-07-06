@@ -290,11 +290,12 @@
     const TimerId TIMER_2 = 2;
 
     __transaction
-    ( __time_guard(TIMER_1, __sequential
-        ( __req(Action1)
+    ( __time_guard
+        ( TIMER_1
+        , __req(Action1)
         , __sync(Action2)
         , __time_guard(TIMER_2, __concurrent(__asyn(Action3), __asyn(Action4)))
-        , __rsp(Action5)))
+        , __rsp(Action5))
     );
 
 
@@ -367,17 +368,15 @@ Timer ID
 
 .. code-block:: c++
 
-  __transaction (
-    __sequential
-      ( __asyn(ApplicationAcceptance)
-      , __concurrent
-          ( __asyn(BackgroundInvestigation)
-          , __sequential
-              ( __asyn(Exam)
-              , __asyn(Interview)))
-      , __asyn(OfferNegotiation)
-      , __time_guard(TIMER_ONBOARD, __asyn(OnBoard)))
-   );
+  __transaction
+  ( __asyn(ApplicationAcceptance)
+  , __concurrent
+      ( __asyn(BackgroundInvestigation)
+      , __sequential
+          ( __asyn(Exam)
+          , __asyn(Interview)))
+  , __asyn(OfferNegotiation)
+  , __time_guard(TIMER_ONBOARD, __asyn(OnBoard))));
 
 
 剩下的事情，就是把每一个 **基本操作** 进行实现，而它们都是非常简单，原子级别的交互过程。

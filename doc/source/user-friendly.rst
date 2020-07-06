@@ -7,8 +7,47 @@
 -------------------
 
 - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
+
+比如：
+
+.. code-block::
+
+   // normal function
+   auto SyncAction1(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
+      return TSL_NS::Result::SUCCESS;
+   }
+
+   // lambda
+   auto SyncAction2 = [](TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
+      return TSL_NS::Result::SUCCESS;
+   };
+
+   __sequential
+     ( __sync(SyncAction1)
+     , __sync(SyncAction2)
+     , ...
+     );
+
+
 - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
 
+比如，对于异步Action，你只需要定义如下方法，却不需要继承任何接口：
+
+.. code-block::
+
+   struct AsyncAction1 {
+      Status exec(const TransactionInfo&);
+      Status handleEvent(const TransactionInfo&, const Event&);
+      void kill(const TransactionInfo&, Status cause);
+   };
+
+   __sequential
+     ( __asyn(AsyncAction1)
+     , __sync(SyncAction2)
+     , ...
+     );
+
+这一方面免除了用户的负担，更重要的是，用户无需为不必要的虚函数付出任何额外代价。
 
 更加自由的编写代码
 ------------------------------

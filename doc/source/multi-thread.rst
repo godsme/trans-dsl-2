@@ -34,7 +34,7 @@
 
 .. image:: images/multi-thread/mt-2.png
    :align: center
-   :scale: 50%
+   :scale: 25%
 
 这样的过程，用 **序列图** 可能不能准确的表达其过程，而 **活动图** 会让其更加直观：
 

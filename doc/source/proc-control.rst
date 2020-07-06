@@ -14,7 +14,7 @@
 
 .. code-block:: c++
 
-   bool ShouldExecAction2(const TransactionInfo&) {
+   auto ShouldExecAction2(const TransactionInfo&) -> bool {
       return SystemConfig::shouldExecAction2();
    }
 
@@ -61,14 +61,14 @@
 
    __sequential
      ( __req(Action1)
-     , __optional(IsAction2RunFirst,
-         __sequential
-           ( __asyn(Action2)
-           , __asyn(Action3)))
-     , __optional(__not(IsAction2RunFirst),
-         __sequential
-           ( __asyn(Action3)
-           , __asyn(Action2)))
+     , __optional
+         ( IsAction2RunFirst
+         , __asyn(Action2)
+         , __asyn(Action3))
+     , __optional
+         ( __not(IsAction2RunFirst),
+         , __asyn(Action3)
+         , __asyn(Action2))
      , __rsp(Action4));
 
 首先，在这个例子中，谓词的实现使用了 ``TransactionInfo`` 来获取 `Instance ID` ， 进而通过它找到了对象，从而完成了判断。
@@ -91,14 +91,13 @@
 
    __sequential
      ( __req(Action1)
-     , __switch( __case( IsAction2RunFirst,
-                   __sequential
-                     ( __asyn(Action2)
-                     , __asyn(Action3)))
-               , __otherwise(
-                  __sequential
-                     ( __asyn(Action3)
-                     , __asyn(Action2))))
+     , __switch( __case
+                   ( IsAction2RunFirst
+                   , __asyn(Action2)
+                   , __asyn(Action3))
+               , __otherwise
+                   ( __asyn(Action3)
+                   , __asyn(Action2)))
     , __rsp(Action4));
 
 
@@ -169,12 +168,95 @@
 .. code-block:: c++
 
   __procedure
-    ( __sequential
-        ( __req(Action1)
-        , __sync(Action2)
-        , __concurrent(__asyn(Action3), __asyn(Action4)))
+    ( __req(Action1)
+    , __sync(Action2)
+    , __concurrent(__asyn(Action3), __asyn(Action4))
     , __finally
-        ( __sequential
-            ( __rsp(Action5)
-            , __on_fail(__sync(Rollback)))));
+        ( __rsp(Action5)
+        , __on_fail(__sync(Rollback))));
+
+
+之所以额外提供 ``__procedure`` 的概念，是因为，通过它，用户可以在一个事务中定义多个过程，每个过程都可以利用这种机制，
+从而让用户拥有更细力度的控制。例如，在下面的事务定义中， 就存在两个过程：
+
+.. code-block::
+
+  __transaction
+  ( __procedure
+      ( __asyn(Action1)
+      , __asyn(Action2)
+      , __finally(__rsp(Action3)))
+  , __asyn(Action4)
+  , __procedure
+      ( __asyn(Action5)
+      , __finally(__sync(Action6))));
+
+需要特别指出的是，过程自身也是一个操作，如果一个过程发生了失败，在其 ``__finally`` 里定义的操作执行结束之后，仍然会让导致整个事务失败。
+
+比如，在本例中，如果 ``Action2`` 发生了失败，将会引起 ``Action3`` 的执行；
+无论 ``Action3`` 执行成功还是失败，在它执行结束之后，均导致整个事务以终止运行。
+所以，其后的操作并不会得到运行，即便它们被定义为 ``__procedure`` 。
+
+当然， ``__procedure`` 是可以嵌套的，比如:
+
+.. code-block::
+
+   __transaction
+   ( __asyn(Action1)
+   , __procedure
+       ( __asyn(Action2)
+       , __finally(__sync(Action3)))
+   , __sync(Action4)
+   , __asyn(Action5))
+   , __finally(__sync(Action6)));
+
+由于 ``__transaction`` 的最后一行是一个 ``__finally`` ，这就意味着本 ``__transaction`` 是一个 ``__procedure`` ，而
+这个 ``__procedure`` 内部又嵌套了另外一个 ``__procedure`` 。
+
+在这个事务中，如果 ``Action2`` 发生了错误， ``Action3`` 将会得到执行，
+然后会跳过 ``Action4`` 和 ``Action5`` ，直接进入外层过程的 ``__finally`` ，执行 ``Action6`` 。
+
+**__procedure** 的恢复
+++++++++++++++++++++++++++
+
+我们前面已经指出，一个 ``__procedure`` ，如果其主体部分发生了错误，会跳转到 ``__finally`` ，而无论 ``__finally`` 里的 `Action`
+成功与否，最终整个 ``__procedure`` 都会以失败结束。
+
+但是，如果你的确想让一个在主体失败了的 ``__procedure`` 有可能以成功方式结束，则不要使用 ``__finally`` ，而使用 ``__recover`` 。如果
+主体部分失败，但 ``__recover`` 里的 `Action` 却成功了，则整个 ``__procedure`` 会在结束时返回成功。
+
+所以，在下面的代码中，如果 ``Action1`` 发生失败，则会跳过 ``Action2`` ，转入执行 ``Action3`` ; 如果 ``Action3`` 执行成功，
+则会继续执行 ``Action4`` 及后续过程。
+
+.. code-block::
+
+  __transaction
+  ( __procedure
+      ( __asyn(Action1)
+      , __asyn(Action2)
+      , __recover(__rsp(Action3)))
+  , __asyn(Action4)
+  , __procedure
+     ( __asyn(Action5)
+     , __finally(__sync(Action6))));
+
+
+但是，如果 ``Action3`` 执行失败，则仍然，整个过程就失败了，此时， ``Action4`` 及后续过程将不会得到执行。
+
+而对于下面这个事务，如果 ``Action2`` 发生了失败，则会执行 ``Action3`` ，如果 ``Action3`` 执行成功，
+则继续执行 ``Action4`` 及后续过程;否则，将跳过 ``Action4`` 和 ``Action5`` ，转入执行 ``Action6`` ，
+如果 ``Action6`` 成功，则整个事务将依然是成功的，否则，事务将以失败结束。
+
+.. code-block::
+
+__transaction
+  ( __asyn(Action1)
+  , __procedure
+      ( __asyn(Action2)
+      , __recover(__sync(Action3)))
+  , __sync(Action4)
+  , __asyn(Action5))
+  , __recover(__sync(Action6)));
+
+所以， ``__recover`` 和 ``__finally`` 最大的不同的是，前者比后者多了一个给过程故障恢复的机会。
 

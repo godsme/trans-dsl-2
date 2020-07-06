@@ -28,7 +28,6 @@ Transaction DSL简介
    error-handling
    fragment
    multi-thread
-   stop
    event
 
    monitor

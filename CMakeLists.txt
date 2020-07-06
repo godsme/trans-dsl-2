@@ -92,7 +92,6 @@ add_library(trans-dsl-2 STATIC
 
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
-        tests/ut/TestFragment.cpp
         tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
         tests/ut/TestSequentialAction.cpp)
 

@@ -31,6 +31,8 @@ namespace details {
          using type = T;
       };
 
+   public:
+      using Internal = AutoAction::SequentialTrait_t<ACTIONS...>;
       using Action = typename MultiThreadTrait<AutoAction::SequentialTrait_t<ACTIONS...>>::type;
 
    public:

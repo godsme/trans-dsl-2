@@ -207,6 +207,7 @@
      , __finally(__on_fail(__asyn(Action3))))
 
 
+
 **inline __sequential**
 +++++++++++++++++++++++++++++++
 
@@ -311,4 +312,31 @@
    , __join());
 
 这样，就让程序员可以基于好的理由，自由的提取任何片段，而不用担心付出任何资源代价。
+
+除了 ``__sequential`` 以外， ``__loop`` 里的 ``__sequential`` 也可以进行 ``inline`` ，比如：
+
+.. code-block::
+
+   __def(Fragment) __as
+   ( __asyn(Action2)
+   , __asyn(Action3)
+   );
+
+   __loop
+   ( __asyn(Action1)
+   , __apply(Fragment)
+   , __asyn(Action4)
+   , __while(__is_failed));
+
+与下面的形式，无论从语意，还是资源消耗，都完全相同：
+
+.. code-block::
+
+   __loop
+   ( __asyn(Action1)
+   , __asyn(Action2)
+   , __asyn(Action3)
+   , __asyn(Action4)
+   , __while(__is_failed));
+
 

@@ -105,7 +105,7 @@
    // main action of __procedure is __sequential
    __def(Fragment1) __as
    ( __asyn(Action1)
-   , __aync(Action2)
+   , __asyn(Action2)
    , __recover(__asyn(Action3))
    );
 
@@ -113,7 +113,7 @@
    // both main action & recover part are __sequential
    __def(Fragment1) __as
    ( __asyn(Action1)
-   , __aync(Action2)
+   , __asyn(Action2)
    , __recover
       ( __asyn(Action3)
       , __asyn(Action4))
@@ -127,7 +127,7 @@
    __optional
      ( Pred
      , __asyn(Action1)
-     , __aync(Action2));
+     , __asyn(Action2));
 
    // __optional with a __procedure,
    // and the main action of the
@@ -135,7 +135,7 @@
    __optional
      ( Pred
      , __asyn(Action1)
-     , __aync(Action2)
+     , __asyn(Action2)
      , __finally(__asyn(Action3)));
 
 

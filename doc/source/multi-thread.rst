@@ -18,12 +18,11 @@
 
 .. code-block::
 
-   __sequential
-     ( __req(Action1)
-     , __concurrent(__asyn(Action2), __asyn(Action3)) , __asyn(Action4)
-     , __asyn(Action5)
-     , __rsp(Action6))
-     );
+   __transaction
+   ( __req(Action1)
+   , __concurrent(__asyn(Action2), __asyn(Action3)) , __asyn(Action4)
+   , __asyn(Action5)
+   , __rsp(Action6)));
 
 
 但事情并非总是这么简单。如下图所示，有一天，需求迫使你不得不在原有流程上加入一个新的异步处理：
@@ -80,16 +79,16 @@
 
    const ActionThreadId ACTION7_THREAD = 1;
 
-   __sequential
-     ( __req(Action1)
-     , __concurrent
-         ( __sequential
-             ( __asyn(Action2)
-             , __fork(ACTION7_THREAD, __asyn(Action7)))
-         , __asyn(Action3))
-     , __asyn(Action4)
-     , __asyn(Action5)
-     , __rsp(Action6));
+   __transaction
+   ( __req(Action1)
+   , __concurrent
+       ( __sequential
+           ( __asyn(Action2)
+           , __fork(ACTION7_THREAD, __asyn(Action7)))
+       , __asyn(Action3))
+   , __asyn(Action4)
+   , __asyn(Action5)
+   , __rsp(Action6));
 
 其中，我们将 ``Action2`` 和 ``ACTION7_THREAD`` 放在了一个 ``__sequential`` 操作里。
 这是因为，我们必须确保，``ACTION7_THREAD`` 的创建发生在 ``Action2`` 的成功执行结束之后。
@@ -140,17 +139,17 @@
 
    const ActionThreadId ACTION7_THREAD = 1;
 
-   __sequential
-     ( __req(Action1)
-     , __concurrent
-         ( __sequential
-             ( __asyn(Action2)
-             , __fork(ACTION7_THREAD, __asyn(Action7)))
-         , __asyn(Action3))
-     , __asyn(Action4)
-     , __join(ACTION7_THREAD)
-     , __asyn(Action5)
-     , __rsp(Action6));
+   __transaction
+   ( __req(Action1)
+   , __concurrent
+       ( __sequential
+           ( __asyn(Action2)
+           , __fork(ACTION7_THREAD, __asyn(Action7)))
+       , __asyn(Action3))
+   , __asyn(Action4)
+   , __join(ACTION7_THREAD)
+   , __asyn(Action5)
+   , __rsp(Action6));
 
 在 ``__join`` 时，如果被 ``join`` 的线程已经执行完毕，则 ``__join`` 马上完成。否则， ``__join`` 所在线程
 将在 ``__join`` 处一直等待，直到目标线程运行结束。
@@ -189,18 +188,18 @@
    const ActionThreadId ACTION7_THREAD = 1;
    const ActionThreadId ACTION8_THREAD = 2;
 
-   __sequential
-     ( __req(Action1)
-     , __concurrent
-         ( __sequential
-             ( __asyn(Action2)
-             , __fork(ACTION7_THREAD, __asyn(Action7)))
-         , __sequential
-             ( __asyn(Action3)
-             , __fork(ACTION8_THREAD, __asyn(Action8))))
-     , __asyn(Action4)
-     , __join(ACTION7_THREAD, ACTION8_THREAD) , __asyn(Action5)
-     , __rsp(Action6));
+   __transaction
+   ( __req(Action1)
+   , __concurrent
+       ( __sequential
+           ( __asyn(Action2)
+           , __fork(ACTION7_THREAD, __asyn(Action7)))
+       , __sequential
+           ( __asyn(Action3)
+           , __fork(ACTION8_THREAD, __asyn(Action8))))
+   , __asyn(Action4)
+   , __join(ACTION7_THREAD, ACTION8_THREAD) , __asyn(Action5)
+   , __rsp(Action6));
 
 
 ``__join`` 是一个变参操作，最多可以等待 ``7`` 个线程。因为每个事务的最大线程数量是 ``8`` 个。所以，每个线程都可以等待所有其它线程。
@@ -215,12 +214,12 @@
 
 .. code-block::
 
-   __sequential
-     ( __req(Action1)
-     , __concurrent(__asyn(Action2), __asyn(Action3))
-     , __concurrent(__asyn(Action7), __asyn(Action4), __asyn(Action8))
-     , __asyn(Action5)
-     , __rsp(Action6));
+   __transaction
+   ( __req(Action1)
+   , __concurrent(__asyn(Action2), __asyn(Action3))
+   , __concurrent(__asyn(Action7), __asyn(Action4), __asyn(Action8))
+   , __asyn(Action5)
+   , __rsp(Action6));
 
 不幸的是，尽管它们看起来很相似，但它们的实时性和性能却并不相同（想像一下， ``Action2`` 和 ``Action8`` 是慢速操作，
 而 ``Action3`` 和 ``Action7`` 是快速操作，对比一下两者的性能)。而对于实时性和性能的追求，正是我们使用并发模型的原因，
@@ -270,23 +269,23 @@
 
 .. code-block::
 
-   __sequential
-     ( __fork(THREAD1, __asyn(Action1))
-     , __fork(THREAD2, __asyn(Action2))
-     , __asyn(Action3)
-     , __join())
+   __transaction
+   ( __fork(THREAD1, __asyn(Action1))
+   , __fork(THREAD2, __asyn(Action2))
+   , __asyn(Action3)
+   , __join())
 
 如果主线程是一个 ``__procedure`` ，那么就应该在 ``__finally`` 里 ``__join``，比如：
 
 .. code-block::
 
-  __procedure
-    ( __fork(THREAD1, __asyn(Action1))
-    , __fork(THREAD2, __asyn(Action2))
-    , __asyn(Action3))
-    , __finally( __sequential
-                   ( __asyn(Action4)
-                   , __join()))
+  __transaction
+  ( __fork(THREAD1, __asyn(Action1))
+  , __fork(THREAD2, __asyn(Action2))
+  , __asyn(Action3))
+  , __finally( __sequential
+                 ( __asyn(Action4)
+                 , __join()))
 
 注意，``__join`` 并不关心它所等待的线程是以成功还是失败，而只关心它们是否已经结束。
 
@@ -306,10 +305,10 @@
 
 .. code-block::
 
-   __procedure
-     ( __fork(THREAD1, __asyn(Action1))
-     , __asyn(Action2))
-     , __finally(__on_fail(__asyn(Action3))))
+   __transaction
+   ( __fork(THREAD1, __asyn(Action1))
+   , __asyn(Action2))
+   , __finally(__on_fail(__asyn(Action3))))
 
 如果 ``Action1`` 的 ``exec`` 调用结果为某种错误，则 ``__fork`` 失败，从而 ``Action2`` 会被调过，直接进入 ``__finally`` ；
 而由于 ``__fork`` 失败，因而 ``__on_fail`` 谓词判断结果为 ``true`` ，所以， ``Action3`` 会得到执行。
@@ -322,7 +321,7 @@
 
 .. code-block::
 
-   __procedure
+   __transaction
      ( __fork(THREAD1, __asyn(Action1))
      , __fork(THREAD2, __asyn(Action2))
      , __asyn(Action3)
@@ -344,19 +343,19 @@
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 而匿名线程则不然，它的错误将会被创建线程捕捉到。如果发生错误的匿名线程处于其创建线程的
-某个 ``__prot_procedure`` 内，则这个错误将可能被 ``__prot_procedure`` 的 ``__finally`` 捕捉并修复。
+某个 ``__procedure`` 内，则这个错误将可能被 ``__procedure`` 的 ``__recover`` 捕捉并修复。
 
 比如，在下面的事务中，如果 ``Action1`` 发生失败，它将会中止 ``Action2`` 的执行，
 然后转向执行 ``Action4`` ，如果 ``Action4`` 成功执行，则整个事务则成功结束。
 
 .. code-block::
 
-   __prot_procedure (
-     __concurrent
+   __transaction
+   ( __concurrent
        ( __asyn(Action1)
        , __asyn(Action2))
        , __asyn(Action3)
-   , __finally(__asyn(Action4)))
+   , __recover(__asyn(Action4)))
 
 另外，当一个匿名线程失败后，其宿主有名线程必须等待匿名线程所处的整个 ``__concurrent`` 执行结束之后，才能进入 ``__finally`` 操作。
 比如在下面的事务中，如果 ``Action1`` 失败，它所在的匿名线程将会马上以失败结束。
@@ -373,8 +372,8 @@
 
 .. code-block::
 
-   __procedure(
-     __concurrent
+   __transaction
+   ( __concurrent
        ( __asyn(Action1)
        , __procedure(__asyn(Action2), __finally(__asyn(Action3))))
        , __asyn(Action4)
@@ -387,13 +386,13 @@
 
 .. code-block::
 
-   __procedure
-     ( __fork(THREAD1, __asyn(Action1))
-     , __concurrent
-         ( __asyn(Action2)
-         , __procedure(__asyn(Action3), __finally(__asyn(Action4))))
-     , __asyn(Action5)
-     , __recover(__asyn(Action6)))
+   __transaction
+   ( __fork(THREAD1, __asyn(Action1))
+   , __concurrent
+       ( __asyn(Action2)
+       , __procedure(__asyn(Action3), __finally(__asyn(Action4))))
+   , __asyn(Action5)
+   , __recover(__asyn(Action6)))
 
 
 **__multi_thread** 约束

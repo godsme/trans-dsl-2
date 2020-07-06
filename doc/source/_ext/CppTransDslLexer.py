@@ -10,9 +10,9 @@ class CppTransDslLexer(CppLexer):
                           '__otherwise', '__wait', '__peek', '__with_id', '__void', '__safe',
                           '__procedure', '__throw', '__is_status', '__loop',
                           '__break_if', '__redo_if', '__while', '__until', '__loop_max',
-                          '__forever', '__multi_thread', '__on_fail', '__req', '__rsp',
+                          '__forever', '__multi_thread', '__on_fail', '__on_status', '__req', '__rsp',
                           '__params', '__def', '__as', '__thread_id', '__timer_id', '__recover',
-                          '__as_trans', '__apply', '__with'))
+                          '__as_trans', '__apply', '__with', '__is_failed', '__is_succ'))
     FUNC_KEYWORDS  = set(('exec', 'handleEvent', 'kill', 'WAIT_ON'))
     TYPE_KEYWORDS  = set(('ActionThreadId', 'TimerId', 'Status', 'TransactionInfo', 'Event'))
     CONST_KEYWORDS = set(('SUCCESS', 'CONTINUE', 'UNKNOWN_EVENT', 'FAILED', 

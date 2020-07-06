@@ -28,26 +28,21 @@ namespace details {
       ///////////////////////////////////////////////////////////////////////////////////////////
       template<typename ... Ts>
       using AllActionsSeq = VolatileSeq<SchedAction, Ts...>;
-
       using CombType = inline_seq::Comb_t<AllActionsSeq, T_ACTIONS...>;
       using Base = typename CombType::type;
 
    public:
       struct Inner final : SchedSequential, private Base {
-         // for fork thread creator
+         // for thread-resource-transfer
          using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
 
-         // for seq elision
-         constexpr static size_t totalActions = CombType::totalNumOfActions;
-
+         // for inline sequential
          template<size_t N>
          using ActionType = typename inline_seq::Extractor<N, T_ACTIONS...>::type;
-
+         constexpr static size_t totalActions = CombType::totalNumOfActions;
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) {
-            return Base::get(seq);
-         }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Base::get(seq); }
       };
    };
 

@@ -29,8 +29,8 @@ Transaction DSL简介
 
 **简化用户定义方式** :
 
-  - 对于 ``sync action`` 和 ``predicate`` ，可以直接使用函数和lambda，同时也允许使用 ``仿函数`` ；
-  - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
+  参见 :ref:`user-friendly`
+
 
 
 .. toctree::
@@ -52,6 +52,7 @@ Transaction DSL简介
    appendix
    performance
    memory
+   user-friendly
 
 
 

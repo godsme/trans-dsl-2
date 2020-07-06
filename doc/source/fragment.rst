@@ -129,6 +129,6 @@
   __transaction
   ( __concurrent
       ( __asyn(Action1)
-     , __apply(Seq2, __with(TIMER_2, Action4)));
+      , __apply(Seq2, __with(TIMER_2, Action4)));
 
 

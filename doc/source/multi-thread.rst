@@ -329,7 +329,7 @@
      , __asyn(Action4))
      , __recover
          ( __on_fail(__asyn(Action5))
-         , __on_succ(__asyn(Action6))))
+         , __asyn(Action6)))
 
 在 ``THREAD1`` 和 ``THREAD2`` 被成功 ``__fork`` 后，如果 ``Action2`` 在随后的处理过程中发生了错误，则主线程和``THREAD1`` 都会
 被 ``stop`` ，从而导致 ``THREAD1`` 的直接终止，而主线程的 ``Action3`` 也同样被终止， 并跳过 ``Action4`` ，

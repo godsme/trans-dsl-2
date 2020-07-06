@@ -125,7 +125,7 @@
 
    // __optional with a __sequential
    __optional
-     ( Pred
+     ( __is_failed
      , __asyn(Action1)
      , __asyn(Action2));
 
@@ -133,7 +133,7 @@
    // and the main action of the
    // __procedure is a __sequential
    __optional
-     ( Pred
+     ( __is_failed
      , __asyn(Action1)
      , __asyn(Action2)
      , __finally(__asyn(Action3)));

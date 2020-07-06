@@ -249,14 +249,14 @@
 
 .. code-block::
 
-__transaction
-  ( __asyn(Action1)
-  , __procedure
-      ( __asyn(Action2)
-      , __recover(__sync(Action3)))
-  , __sync(Action4)
-  , __asyn(Action5))
-  , __recover(__sync(Action6)));
+   __transaction
+   ( __asyn(Action1)
+   , __procedure
+       ( __asyn(Action2)
+       , __recover(__sync(Action3)))
+   , __sync(Action4)
+   , __asyn(Action5))
+   , __recover(__sync(Action6)));
 
 所以， ``__recover`` 和 ``__finally`` 最大的不同的是，前者比后者多了一个给过程故障恢复的机会。
 

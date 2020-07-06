@@ -16,8 +16,10 @@ TSL_NS_BEGIN
 namespace details {
    struct FinallySignature {};
 
-   template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   using FinalAction = typename AutoSeq<FinallySignature>::template Inner<T_ACTIONS...>;
+   template<bool V_IS_RECOVER, CONCEPT(SchedActionConcept) ... T_ACTIONS>
+   struct FinalAction : public AutoSeq<FinallySignature>::template Inner<T_ACTIONS...> {
+      constexpr static bool isRecover = V_IS_RECOVER;
+   };
 
    template<typename T>
    DEF_CONCEPT(FinallyConcept, std::is_base_of_v<FinallySignature, T>);
@@ -28,10 +30,11 @@ namespace details {
    template<CONCEPT(FinallyConcept) T>
    struct FinalTrait<T> {
       CONCEPT_ASSERT(FinallyConcept<T>);
+      constexpr static bool isRecover = T::isRecover;
       using type = typename T::type;
    };
 
-   template<bool V_IS_PROTECTED, typename ... T_ACTIONS>
+   template<typename ... T_ACTIONS>
    struct Procedure final : SchedProcedure {
       static_assert(sizeof...(T_ACTIONS) > 1, "__procedure should have at 1 action and 1 final action");
    private:
@@ -46,11 +49,13 @@ namespace details {
 
       public:
          using MainType = typename type::first::type;
-         using FinalType = typename type::second::type;
+         using FinalType = typename type::second;
       };
 
       using MainAction  = typename Trait<T_ACTIONS...>::MainType;
-      using FinalAction = typename Trait<T_ACTIONS...>::FinalType;
+      using FinalAction = typename Trait<T_ACTIONS...>::FinalType::type;
+
+      constexpr static bool isRecover = Trait<T_ACTIONS...>::FinalType::isRecover;
 
    public:
       using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
@@ -65,7 +70,7 @@ namespace details {
       }
 
       OVERRIDE(isProtected() const -> bool) {
-         return V_IS_PROTECTED;
+         return isRecover;
       }
 
    private:
@@ -78,13 +83,11 @@ namespace details {
    };
 }
 
-#define __internal_PrOCeDuRe(prot, ...) TSL_NS::details::Procedure<prot, __VA_ARGS__>
-
 ////////////////////////////////////////////////////////////////////////////////////////
-#define __procedure(...) __internal_PrOCeDuRe(false, __VA_ARGS__)
-#define __prot_procedure(...) __internal_PrOCeDuRe(true, __VA_ARGS__)
+#define __procedure(...) TSL_NS::details::Procedure<__VA_ARGS__>
 
-#define __finally(...)   TSL_NS::details::FinalAction<__VA_ARGS__>
+#define __finally(...)   TSL_NS::details::FinalAction<false, __VA_ARGS__>
+#define __recover(...)   TSL_NS::details::FinalAction<true, __VA_ARGS__>
 
 TSL_NS_END
 

@@ -44,18 +44,18 @@
 而异步操作则需要通过 ``__asyn`` 来说明。同样的，你可以使用其它一些更加具体的修饰来明确一个异步操作的类型。
 比如：你可以使用 ``__req`` 来说明这是一个消息触发型的请求操作。
 
+另外，由于 ``__transaction`` 可以直接识别其内部结构是否是一个 ``__sequential`` ，所以 ``__sequential`` 可以被省略。
+
 所以，之前的例子可以修改为：
 
 .. code-block:: c++
 
-  __transaction (
-    __sequential
-      ( __req(Action1)
-      , __sync(Action2)
-      , __asyn(Action3)
-      , __asyn(Action4)
-      , __rsp(Action5))
-  );
+  __transaction
+  ( __req(Action1)
+  , __sync(Action2)
+  , __asyn(Action3)
+  , __asyn(Action4)
+  , __rsp(Action5));
 
 现在，我们可以看出，这段代码是对上述序列图简单而直接的描述。
 
@@ -252,12 +252,10 @@
 .. code-block:: c++
 
    __transaction
-   ( __sequential
-      ( __req(Action1)
-      , __sync(Action2)
-      , __concurrent(__asyn(Action3), __asyn(Action4))
-      , __rsp(Action5))
-   );
+   ( __req(Action1)
+   , __sync(Action2)
+   , __concurrent(__asyn(Action3), __asyn(Action4))
+   , __rsp(Action5));
 
 
 我们只需要将 ``Action3`` 和 ``Action4`` 放入一个叫做 ``__concurrent`` 的盒子里即可。

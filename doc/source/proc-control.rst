@@ -54,9 +54,9 @@
 
 .. code-block:: c++
 
-   bool IsAction2RunFirst(const TransactionInfo& info) {
-    Object* object = Respository::findInstance(info.getInstanceId());
-    return object->isAction2RunFirst();
+   auto IsAction2RunFirst(TransactionInfo const& info) -> bool {
+      Object* object = Respository::findInstance(info.getInstanceId());
+      return object->isAction2RunFirst();
    }
 
    __sequential

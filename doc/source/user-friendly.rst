@@ -36,9 +36,9 @@
 .. code-block::
 
    struct AsyncAction1 {
-      Status exec(const TransactionInfo&);
-      Status handleEvent(const TransactionInfo&, const Event&);
-      void kill(const TransactionInfo&, Status cause);
+      auto exec(TransactionInfo const&) -> Status;
+      auto handleEvent(TransactionInfo const&, Event const&) -> Status;
+      auto kill(TransactionInfo const&, Status cause) -> void;
    };
 
    __sequential

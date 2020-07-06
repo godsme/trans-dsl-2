@@ -69,13 +69,13 @@
 
 .. code-block:: c++
 
-    Status exec(const TransactionInfo&);
+   auto exec(TransactionInfo const&) -> Status;
 
 .. code-block:: c++
 
-    Status exec(const TransactionInfo&);
-    Status handleEvent(const TransactionInfo&, const Event&);
-    void kill(const TransactionInfo&, Status cause);
+    auto exec(TransactionInfo const&) -> Status;
+    auto handleEvent(TransactionInfo const&, Event const&) -> Status;
+    auto kill(TransactionInfo const&, Status cause) -> void;
 
 对于 **同步操作** ，你需要做的就是定一个原型为 ``Status (const TransactionInfo&)`` 的函数。
 
@@ -85,7 +85,7 @@
 
 .. code-block:: c++
 
-   Status Action2(const TransactionInfo&) {
+   auto Action2(TransactionInfo const&) -> Status {
      return OtherSystem::func();
    }
 
@@ -93,7 +93,7 @@
 
 .. code-block:: c++
 
-   auto Action2 = [](const TransactionInfo&) -> Status {
+   auto Action2 = [](TransactionInfo const&) -> Status {
      return OtherSystem::func();
    }
 
@@ -103,7 +103,7 @@
 .. code-block:: c++
 
   struct Action5 {
-    Status exec(const TransactionInfo&) {
+    auto exec(TransactionInfo const&) -> Status {
       // 构建并发送消息
       Response1 response;
       response.build();
@@ -117,7 +117,7 @@
 .. code-block:: c++
 
    DEF_SIMPLE_ASYNC_ACTION(Action3) {
-     Status exec(const TransactionInfo&) {
+     auto exec(TransactionInfo const&) -> Status {
        // 构建并发送请求消息
        Request3 request;
        request.build();
@@ -130,7 +130,7 @@
 
    private:
      // 定义事件处理函数
-     Status handleAction3Rsp(const TransactionInfo&, const Event& event) {
+     auto handleAction3Rsp(TransactionInfo const&, Event const& event) -> Status {
        // 处理应答消息
        handleRsp(event);
        // 返回成功，代表此 Action 成功处理结束
@@ -143,14 +143,14 @@
 .. code-block:: c++
 
    DEF_SIMPLE_ASYNC_ACTION(Action1) {
-     Status exec(const TransactionInfo&) {
+     auto exec(TransactionInfo const&) -> Status {
        // 声明自己要等待的消息类型，以及对应的处理函数
        return WAIT_ON(EV_ACTION1_REQ, handleAction1Req);
      }
 
    private:
      // 定义事件处理函数
-     Status handleAction1Req(const TransactionInfo&, const Event& event) {
+     auto handleAction1Req(TransactionInfo const&, Event const& event) -> Status {
        // 处理触发消息
        handleReq(event);
        // 返回成功，代表此 Action 成功处理结束
@@ -196,10 +196,10 @@
 
 .. code-block:: c++
 
-   Status start();
-   Status start(const Event& event);
+   auto start() -> Status;
+   auto start(Event const& event) -> Status;
 
-   Status handleEvent(const Event& event);
+   auto handleEvent(Event const& event) -> Status;
 
 
 所以，你可以选择任何一个 ``start`` 接口来启动一个事务。像一个异步操作一样， 如果其返回值是 ``SUCCESS`` ，
@@ -213,10 +213,10 @@
 
 .. code-block:: c++
 
-   Status runTransaction() {
+   auto runTransaction() -> Status {
      // 将之前定义的 Transaction 实例化 Transaction trans;
      // 启动
-     Status status = trans.start();
+     auto status = trans.start();
      if(status != CONTINUE) return status;
 
      // 消息处理循环

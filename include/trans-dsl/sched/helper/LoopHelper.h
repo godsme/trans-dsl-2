@@ -118,6 +118,12 @@ namespace details {
       template <typename T>
       static constexpr size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0;
 
+      ///////////////////////////////////////////////////////////////////////////////////////////
+//      template<typename ... Ts>
+//      using AllActionsSeq = VolatileSeq<SchedAction, Ts...>;
+//      constexpr static size_t totalNumOfActions = (TotalSeqActions<T_ENTRIES> + ... );
+//      using Base = typename Comb<totalNumOfActions-1, 0, AllActionsSeq, Extract<T_ENTRIES...>>::type;
+
       static constexpr size_t Align = (MaxSizeCalc{} << ... << Align_Of<T_ENTRIES>);
       static constexpr size_t Size  = (MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>);
       alignas(Align) char cache[Size];

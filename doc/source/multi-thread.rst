@@ -280,7 +280,7 @@
 
 .. code-block::
 
-  __procedure_s
+  __procedure
     ( __fork(THREAD1, __asyn(Action1))
     , __fork(THREAD2, __asyn(Action2))
     , __asyn(Action3))
@@ -306,7 +306,7 @@
 
 .. code-block::
 
-   __procedure_s
+   __procedure
      ( __fork(THREAD1, __asyn(Action1))
      , __asyn(Action2))
      , __finally(__on_fail(__asyn(Action3))))
@@ -322,20 +322,21 @@
 
 .. code-block::
 
-   __prot_procedure_s
+   __procedure
      ( __fork(THREAD1, __asyn(Action1))
      , __fork(THREAD2, __asyn(Action2))
      , __asyn(Action3)
      , __asyn(Action4))
-     , __finally_s
+     , __recover
          ( __on_fail(__asyn(Action5))
          , __on_succ(__asyn(Action6))))
 
 在 ``THREAD1`` 和 ``THREAD2`` 被成功 ``__fork`` 后，如果 ``Action2`` 在随后的处理过程中发生了错误，则主线程和``THREAD1`` 都会
 被 ``stop`` ，从而导致 ``THREAD1`` 的直接终止，而主线程的 ``Action3`` 也同样被终止， 并跳过 ``Action4`` ，
-直接进入 ``__finally_s`` 。而由于这个错误，``Action5`` 得到执行。由于整个过程是一个 ``__prot_procedure`` ，其最终失败还是成功，取决于 ``Action5`` 的执行结果。
+直接进入 ``__finally`` 。而由于这个错误，``Action5`` 得到执行。由于整个过程是一个 ``__prot_procedure`` ，其最终失败还是成功，取决于 ``Action5`` 的执行结果。
 
-但是，如果在 ``THREAD1`` 或 ``THREAD2`` 发生任何错误之前，主线程已成功进入 ``__finally_s`` ，
+但是，如果在 ``THREAD1`` 或 ``THREAD2`` 发生任何错误之前，主线程已成功进入 ``__finally`` ，由于 ``__finally`` 让主线程
+处于免疫模式，所以，其它线程发生的任何错误，都将无法再影响到主线程。从而也无法影响到整个事务的运行结果。
 
 
 匿名线程的失败

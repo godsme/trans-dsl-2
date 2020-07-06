@@ -31,6 +31,7 @@ namespace details {
 
 TSL_NS_END
 
-#define __time_guard(timerId, ...) TSL_NS::details::TimeGuard<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+#define __time_guard(timerId, ...) \
+TSL_NS::details::TimeGuard<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_TIMEGUARDHELPER_H

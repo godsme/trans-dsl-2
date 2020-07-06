@@ -46,10 +46,9 @@ namespace details {
       }
 
       auto startWithEvent(Event const& event) -> Status {
-         Status status = action.exec(*this);
-         if(status == Result::CONTINUE) {
-            return action.handleEvent(*this, event);
-         }
+         auto status = action.exec(*this);
+         if(status != Result::CONTINUE) return status;
+         return action.handleEvent(*this, event);
       }
 
       auto handleEvent(Event const& event) -> Status {
@@ -60,7 +59,7 @@ namespace details {
          return action.stop(*this, cause);
       }
 
-      auto kill(Status cause) -> void {
+      auto kill(Status cause) {
          action.kill(*this, cause);
       }
 

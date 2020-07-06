@@ -138,6 +138,8 @@
      , __asyn(Action2)
      , __finally(__asyn(Action3)));
 
+事实上，任何可以组合其它 `Action` 的关键字里，比如 ``__time_guard`` ， ``__fork`` ， ``__safe`` , ``__void`` , ``__case`` 等等，都拥有
+这样的能力。
 
 多线程
 ++++++++++++++

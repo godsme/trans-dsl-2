@@ -44,7 +44,7 @@ namespace details {
    };
 }
 
-#define __fork(tid, ...) TSL_NS::details::Fork<tid, __VA_ARGS__>
+#define __fork(tid, ...) TSL_NS::details::Fork<tid, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 TSL_NS_END
 

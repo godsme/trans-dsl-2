@@ -243,25 +243,25 @@
    , __fork(2, __asyn(ACTION2)));
 
    //////////////////////////////////////////////////////
-   __def(Trans) __as_trans
+   __transaction
    ( __apply(Fork2, __with(AsyncAction1, AsyncAction4))
    , __asyn(AsyncAction2)
    , __join());
 
-   __def(Trans2) __as_trans
+   __transaction
    ( __fork(1, __asyn(AsyncAction1))
    , __fork(2, __asyn(AsyncAction4))
-   , __asyn(AsyncAction2) // 24
+   , __asyn(AsyncAction2)
    , __join());
 
-   __def(Trans3) __as_trans
+   __transaction
    ( __sequential
        ( __fork(1, __asyn(AsyncAction1))
        , __fork(2, __asyn(AsyncAction4))
        , __asyn(AsyncAction2)
        , __join()));
 
-   __def(Trans4) __as_trans
+   __transaction
    ( __sequential(
        __sequential
          ( __fork(1, __asyn(AsyncAction1))

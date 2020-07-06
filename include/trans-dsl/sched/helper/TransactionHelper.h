@@ -10,8 +10,8 @@
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <cstddef>
 #include <trans-dsl/sched/domain/Event.h>
-#include <trans-dsl/utils/ThreadActionTrait.h>
-#include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include "AutoActionHelper.h"
+
 
 TSL_NS_BEGIN
 
@@ -21,37 +21,6 @@ namespace details {
       static_assert(sizeof...(ACTIONS) > 0, "transaction cannot be empty");
 
    private:
-      template<typename ... Tss>
-      struct FinalTrait;
-
-      template<typename T>
-      struct FinalTrait<T> {
-         using type = T;
-      };
-
-      template<typename ... Ts>
-      constexpr static bool IsProcedure = FinallyConcept<TakeRight_tt<1, FinalTrait, Ts...>>;
-
-      template<typename = void, typename ... Ts>
-      struct ProcedureTrait {
-         using type = __sequential(Ts...);
-      };
-
-      template<typename ... Ts>
-      struct ProcedureTrait<std::enable_if_t<IsProcedure<Ts...>>, Ts...> {
-         using type = __procedure(Ts...);
-      };
-
-      template<typename ... Ts>
-      struct SequentialTrait {
-         using type = typename ProcedureTrait<void, Ts...>::type;
-      };
-
-      template<typename  T>
-      struct SequentialTrait<T> {
-         using type = T;
-      };
-
       template<typename T, typename = void>
       struct MultiThreadTrait {
          using type = __multi_thread(T);
@@ -62,7 +31,7 @@ namespace details {
          using type = T;
       };
 
-      using Action = typename MultiThreadTrait<typename SequentialTrait<ACTIONS...>::type>::type;
+      using Action = typename MultiThreadTrait<AutoAction::SequentialTrait_t<ACTIONS...>>::type;
 
    public:
       using TransactionContext::updateInstanceId;

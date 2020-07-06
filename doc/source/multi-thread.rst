@@ -283,9 +283,9 @@
   ( __fork(THREAD1, __asyn(Action1))
   , __fork(THREAD2, __asyn(Action2))
   , __asyn(Action3))
-  , __finally( __sequential
-                 ( __asyn(Action4)
-                 , __join()))
+  , __finally
+      ( __asyn(Action4)
+      , __join()))
 
 注意，``__join`` 并不关心它所等待的线程是以成功还是失败，而只关心它们是否已经结束。
 

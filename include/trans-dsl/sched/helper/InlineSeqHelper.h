@@ -74,6 +74,15 @@ namespace details::inline_seq {
    struct Comb<0, M, USER, EXTRACTOR, Ts...> {
       using type = USER<Ts..., typename EXTRACTOR::template type<M>>;
    };
+
+
+   template<template<typename ...> typename USER, typename ... Ts>
+   struct Comb_t {
+      constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<Ts> + ... );
+      using type =  typename inline_seq::Comb<totalNumOfActions-1, 0, USER, inline_seq::Extract<Ts...>>::type;
+   };
+
+
 }
 
 TSL_NS_END

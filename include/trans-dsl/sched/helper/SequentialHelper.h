@@ -28,8 +28,9 @@ namespace details {
       ///////////////////////////////////////////////////////////////////////////////////////////
       template<typename ... Ts>
       using AllActionsSeq = VolatileSeq<SchedAction, Ts...>;
-      constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<T_ACTIONS> + ... );
-      using Base = typename inline_seq::Comb<totalNumOfActions-1, 0, AllActionsSeq, inline_seq::Extract<T_ACTIONS...>>::type;
+
+      using CombType = inline_seq::Comb_t<AllActionsSeq, T_ACTIONS...>;
+      using Base = typename CombType::type;
 
    public:
       struct Inner final : SchedSequential, private Base {
@@ -37,7 +38,7 @@ namespace details {
          using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
 
          // for seq elision
-         constexpr static size_t totalActions = (inline_seq::TotalSeqActions<T_ACTIONS> + ... );
+         constexpr static size_t totalActions = CombType::totalNumOfActions;
 
          template<size_t N>
          using ActionType = typename inline_seq::Extractor<N, T_ACTIONS...>::type;

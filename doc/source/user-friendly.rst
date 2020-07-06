@@ -13,13 +13,13 @@
 .. code-block::
 
    // normal function
-   auto SyncAction1(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-      return TSL_NS::Result::SUCCESS;
+   auto SyncAction1(TransactionInfo const&) -> Status {
+      return Result::SUCCESS;
    }
 
    // lambda
-   auto SyncAction2 = [](TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-      return TSL_NS::Result::SUCCESS;
+   auto SyncAction2 = [](TransactionInfo const&) -> Status {
+      return Result::SUCCESS;
    };
 
    __sequential

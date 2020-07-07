@@ -67,6 +67,8 @@ namespace details {
       : UserTransListener<T_LISTENERS...>, TransactionListener {
 
       enum { Num_Of_Listeners = sizeof...(T_LISTENERS) };
+      static_assert(Num_Of_Listeners <= 20, "too much listeners");
+      
       using Base = UserTransListener<T_LISTENERS...>;
 
       //////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +80,22 @@ namespace details {
          __CaLl_onActionStarting(2)
          __CaLl_onActionStarting(3)
          __CaLl_onActionStarting(4)
+         __CaLl_onActionStarting(5)
+         __CaLl_onActionStarting(6)
+         __CaLl_onActionStarting(7)
+         __CaLl_onActionStarting(8)
+         __CaLl_onActionStarting(9)
+         __CaLl_onActionStarting(10)
+         __CaLl_onActionStarting(11)
+         __CaLl_onActionStarting(12)
+         __CaLl_onActionStarting(13)
+         __CaLl_onActionStarting(14)
+         __CaLl_onActionStarting(15)
+         __CaLl_onActionStarting(16)
+         __CaLl_onActionStarting(17)
+         __CaLl_onActionStarting(18)
+         __CaLl_onActionStarting(19)
+         __CaLl_onActionStarting(20)
       }
 
       #define __cAlL_onActionStarting__m(n) case n: { onActionStarting_<n>(trans); break; }
@@ -98,6 +116,22 @@ namespace details {
          __CaLl_onActionEventConsumed(2)
          __CaLl_onActionEventConsumed(3)
          __CaLl_onActionEventConsumed(4)
+         __CaLl_onActionEventConsumed(5)
+         __CaLl_onActionEventConsumed(6)
+         __CaLl_onActionEventConsumed(7)
+         __CaLl_onActionEventConsumed(8)
+         __CaLl_onActionEventConsumed(9)
+         __CaLl_onActionEventConsumed(10)
+         __CaLl_onActionEventConsumed(11)
+         __CaLl_onActionEventConsumed(12)
+         __CaLl_onActionEventConsumed(13)
+         __CaLl_onActionEventConsumed(14)
+         __CaLl_onActionEventConsumed(15)
+         __CaLl_onActionEventConsumed(16)
+         __CaLl_onActionEventConsumed(17)
+         __CaLl_onActionEventConsumed(18)
+         __CaLl_onActionEventConsumed(19)
+         __CaLl_onActionEventConsumed(20)
       }
 
       #define __cAlL_onActionEventConsumed__m(n) case n: { onActionEventConsumed_<n>(trans, ev); break; }

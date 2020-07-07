@@ -72,7 +72,6 @@ namespace {
       }
    };
 
-
    TEST_CASE("ObservedActionIdRegistry") {
       REQUIRE(ObservedActionIdRegistry<1, 2>::Aids.isEnabled(1));
       REQUIRE(ObservedActionIdRegistry<1, 2>::Aids.isEnabled(2));

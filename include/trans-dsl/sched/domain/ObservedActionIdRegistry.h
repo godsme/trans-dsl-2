@@ -14,8 +14,9 @@ TSL_NS_BEGIN
 template<ActionId ... AIDs>
 struct ObservedActionIdRegistry {
 private:
+   static_assert(sizeof...(AIDs) < 64, "too many AIDs");
    using BitSet = cub::BitSet<uint64_t>;
-   constexpr static BitSet _Aids = ( ((uint64_t)1 << AIDs) | ... | 0 );
+   constexpr static BitSet _Aids = ( BitSet{((uint64_t)1 << AIDs)} | ... | BitSet{0} );
 public:
    constexpr static BitSet Aids = _Aids.empty() ? 1 : _Aids;
 };

@@ -30,7 +30,16 @@ namespace details {
    constexpr bool Has_onActionEventConsumed<T,
       ChEcK(VaL(T).onActionEventConsumed(VaL(ActionId), VaL(TransactionInfo const&), VaL(Event const&)))> = true;
 
+   template<typename T, typename = void>
+   constexpr bool Has_onActionDone = false;
 
+   template<typename T>
+   constexpr bool Has_onActionDone<T,
+      ChEcK(VaL(T).onActionDone(VaL(ActionId), VaL(TransactionInfo const&), VaL(Status)))> = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+namespace details {
    template<typename ... T_LISTENERS>
    struct UserTransListener;
 
@@ -44,6 +53,7 @@ namespace details {
 
    template<>
    struct UserTransListener<> {};
+}
 
 #define __BaSe(n) Base::
 #define __EnD_BaSe(n) Base
@@ -61,14 +71,16 @@ namespace details {
       macro(63) \
       default: break; \
    }
-   /////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////
+namespace details {
    template<typename ... T_LISTENERS>
    struct TransactionListenerDispatcher
       : UserTransListener<T_LISTENERS...>, TransactionListener {
 
       enum { Num_Of_Listeners = sizeof...(T_LISTENERS) };
       static_assert(Num_Of_Listeners <= 20, "too much listeners");
-      
+
       using Base = UserTransListener<T_LISTENERS...>;
 
       //////////////////////////////////////////////////////////////////////////////////
@@ -106,6 +118,7 @@ namespace details {
       }
 
       //////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////
       #define __CaLl_onActionEventConsumed_(n) \
         __Listener_CaLl(n, onActionEventConsumed, onActionEventConsumed(AID, trans, ev))
       #define __CaLl_onActionEventConsumed(n)  __Listener_CaLl_AlL(n, __CaLl_onActionEventConsumed_)
@@ -138,6 +151,43 @@ namespace details {
       #define __Call_onActionEventConsumed_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionEventConsumed__m)
       OVERRIDE(onActionEventConsumed(ActionId aid, TransactionInfo const& trans, Event const& ev) -> void) {
          __jump_call_listener(__Call_onActionEventConsumed_m)
+      }
+
+
+      //////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////
+#define __CaLl_onActionDone_(n) \
+        __Listener_CaLl(n, onActionDone, onActionDone(AID, trans, cause))
+#define __CaLl_onActionDone(n)  __Listener_CaLl_AlL(n, __CaLl_onActionDone_)
+
+      template<ActionId AID>
+      auto onActionDone_(TransactionInfo const &trans, Status cause) -> void {
+         __CaLl_onActionDone(1)
+         __CaLl_onActionDone(2)
+         __CaLl_onActionDone(3)
+         __CaLl_onActionDone(4)
+         __CaLl_onActionDone(5)
+         __CaLl_onActionDone(6)
+         __CaLl_onActionDone(7)
+         __CaLl_onActionDone(8)
+         __CaLl_onActionDone(9)
+         __CaLl_onActionDone(10)
+         __CaLl_onActionDone(11)
+         __CaLl_onActionDone(12)
+         __CaLl_onActionDone(13)
+         __CaLl_onActionDone(14)
+         __CaLl_onActionDone(15)
+         __CaLl_onActionDone(16)
+         __CaLl_onActionDone(17)
+         __CaLl_onActionDone(18)
+         __CaLl_onActionDone(19)
+         __CaLl_onActionDone(20)
+      }
+
+#define __cAlL_onActionDone__m(n) case n: { onActionDone_<n>(trans, cause); break; }
+#define __cAlL_onActionDone_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionDone__m)
+      OVERRIDE(onActionDone(ActionId aid, TransactionInfo const& trans, Status cause) -> void) {
+         __jump_call_listener(__cAlL_onActionDone_m)
       }
    };
 }

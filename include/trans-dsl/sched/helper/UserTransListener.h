@@ -40,6 +40,8 @@ namespace details {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 namespace details {
+   using TransListenerObservedAids = cub::BitSet<uint64_t>;
+
    template<typename ... T_LISTENERS>
    struct UserTransListener;
 
@@ -54,6 +56,8 @@ namespace details {
       constexpr static bool someone_has_onActionStarting      = has_onActionStarting | Base::someone_has_onActionStarting;
       constexpr static bool someone_has_onActionEventConsumed = has_onActionEventConsumed | Base::someone_has_onActionEventConsumed;
       constexpr static bool someone_has_onActionDone          = has_onActionDone | Base::someone_has_onActionDone;
+
+      constexpr static TransListenerObservedAids all_observed = Listener::Aids | Base::all_observed;
    };
 
    template<>
@@ -61,6 +65,7 @@ namespace details {
       constexpr static bool someone_has_onActionStarting = false;
       constexpr static bool someone_has_onActionEventConsumed = false;
       constexpr static bool someone_has_onActionDone = false;
+      constexpr static TransListenerObservedAids all_observed = 0;
    };
 }
 

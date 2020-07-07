@@ -28,6 +28,13 @@ TSL_NS_BEGIN
       default: break; \
    }
 
+#define __cHeCk_CaLl(n, name, params) \
+   case n: { \
+     if constexpr(Base::all_observed.isEnabled(n) || Base::all_observed.isEnabled(0)) \
+        name<n>params; \
+     break; \
+   }
+
 /////////////////////////////////////////////////////////////////////////////////
 namespace details {
    template<typename ... T_LISTENERS>
@@ -49,32 +56,34 @@ namespace details {
          __CaLl_onActionStarting(2)
          __CaLl_onActionStarting(3)
          __CaLl_onActionStarting(4)
-         __CaLl_onActionStarting(5)
-         __CaLl_onActionStarting(6)
-         __CaLl_onActionStarting(7)
-         __CaLl_onActionStarting(8)
-         __CaLl_onActionStarting(9)
-         __CaLl_onActionStarting(10)
-         __CaLl_onActionStarting(11)
-         __CaLl_onActionStarting(12)
-         __CaLl_onActionStarting(13)
-         __CaLl_onActionStarting(14)
-         __CaLl_onActionStarting(15)
-         __CaLl_onActionStarting(16)
-         __CaLl_onActionStarting(17)
-         __CaLl_onActionStarting(18)
-         __CaLl_onActionStarting(19)
-         __CaLl_onActionStarting(20)
+//         __CaLl_onActionStarting(5)
+//         __CaLl_onActionStarting(6)
+//         __CaLl_onActionStarting(7)
+//         __CaLl_onActionStarting(8)
+//         __CaLl_onActionStarting(9)
+//         __CaLl_onActionStarting(10)
+//         __CaLl_onActionStarting(11)
+//         __CaLl_onActionStarting(12)
+//         __CaLl_onActionStarting(13)
+//         __CaLl_onActionStarting(14)
+//         __CaLl_onActionStarting(15)
+//         __CaLl_onActionStarting(16)
+//         __CaLl_onActionStarting(17)
+//         __CaLl_onActionStarting(18)
+//         __CaLl_onActionStarting(19)
+//         __CaLl_onActionStarting(20)
       }
 
-      #define __cAlL_onActionStarting__m(n) case n: { onActionStarting_<n>(trans); break; }
+      #define __cAlL_onActionStarting__m(n) __cHeCk_CaLl(n, onActionStarting_, (trans))
       #define __Call_onActionStarting_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionStarting__m)
    public:
       OVERRIDE(onActionStarting(ActionId aid, TransactionInfo const& trans) -> void) {
-         __jump_call_listener(__Call_onActionStarting_m)
+         if constexpr(Base::someone_has_onActionStarting) {
+            __jump_call_listener(__Call_onActionStarting_m)
+         }
       }
 
-      //////////////////////////////////////////////////////////////////////////////////////
+//      //////////////////////////////////////////////////////////////////////////////////////
    private:
       //////////////////////////////////////////////////////////////////////////////////////
       #define __CaLl_onActionEventConsumed_(n) \
@@ -87,29 +96,32 @@ namespace details {
          __CaLl_onActionEventConsumed(2)
          __CaLl_onActionEventConsumed(3)
          __CaLl_onActionEventConsumed(4)
-         __CaLl_onActionEventConsumed(5)
-         __CaLl_onActionEventConsumed(6)
-         __CaLl_onActionEventConsumed(7)
-         __CaLl_onActionEventConsumed(8)
-         __CaLl_onActionEventConsumed(9)
-         __CaLl_onActionEventConsumed(10)
-         __CaLl_onActionEventConsumed(11)
-         __CaLl_onActionEventConsumed(12)
-         __CaLl_onActionEventConsumed(13)
-         __CaLl_onActionEventConsumed(14)
-         __CaLl_onActionEventConsumed(15)
-         __CaLl_onActionEventConsumed(16)
-         __CaLl_onActionEventConsumed(17)
-         __CaLl_onActionEventConsumed(18)
-         __CaLl_onActionEventConsumed(19)
-         __CaLl_onActionEventConsumed(20)
+//         __CaLl_onActionEventConsumed(5)
+//         __CaLl_onActionEventConsumed(6)
+//         __CaLl_onActionEventConsumed(7)
+//         __CaLl_onActionEventConsumed(8)
+//         __CaLl_onActionEventConsumed(9)
+//         __CaLl_onActionEventConsumed(10)
+//         __CaLl_onActionEventConsumed(11)
+//         __CaLl_onActionEventConsumed(12)
+//         __CaLl_onActionEventConsumed(13)
+//         __CaLl_onActionEventConsumed(14)
+//         __CaLl_onActionEventConsumed(15)
+//         __CaLl_onActionEventConsumed(16)
+//         __CaLl_onActionEventConsumed(17)
+//         __CaLl_onActionEventConsumed(18)
+//         __CaLl_onActionEventConsumed(19)
+//         __CaLl_onActionEventConsumed(20)
       }
 
-      #define __cAlL_onActionEventConsumed__m(n) case n: { onActionEventConsumed_<n>(trans, ev); break; }
+
+      #define __cAlL_onActionEventConsumed__m(n) __cHeCk_CaLl(n, onActionEventConsumed_, (trans, ev))
       #define __Call_onActionEventConsumed_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionEventConsumed__m)
    public:
       OVERRIDE(onActionEventConsumed(ActionId aid, TransactionInfo const& trans, Event const& ev) -> void) {
-         __jump_call_listener(__Call_onActionEventConsumed_m)
+         if constexpr(Base::someone_has_onActionEventConsumed) {
+            __jump_call_listener(__Call_onActionEventConsumed_m)
+         }
       }
 
       //////////////////////////////////////////////////////////////////////////////////////
@@ -125,29 +137,31 @@ namespace details {
          __CaLl_onActionDone(2)
          __CaLl_onActionDone(3)
          __CaLl_onActionDone(4)
-         __CaLl_onActionDone(5)
-         __CaLl_onActionDone(6)
-         __CaLl_onActionDone(7)
-         __CaLl_onActionDone(8)
-         __CaLl_onActionDone(9)
-         __CaLl_onActionDone(10)
-         __CaLl_onActionDone(11)
-         __CaLl_onActionDone(12)
-         __CaLl_onActionDone(13)
-         __CaLl_onActionDone(14)
-         __CaLl_onActionDone(15)
-         __CaLl_onActionDone(16)
-         __CaLl_onActionDone(17)
-         __CaLl_onActionDone(18)
-         __CaLl_onActionDone(19)
-         __CaLl_onActionDone(20)
+//         __CaLl_onActionDone(5)
+//         __CaLl_onActionDone(6)
+//         __CaLl_onActionDone(7)
+//         __CaLl_onActionDone(8)
+//         __CaLl_onActionDone(9)
+//         __CaLl_onActionDone(10)
+//         __CaLl_onActionDone(11)
+//         __CaLl_onActionDone(12)
+//         __CaLl_onActionDone(13)
+//         __CaLl_onActionDone(14)
+//         __CaLl_onActionDone(15)
+//         __CaLl_onActionDone(16)
+//         __CaLl_onActionDone(17)
+//         __CaLl_onActionDone(18)
+//         __CaLl_onActionDone(19)
+//         __CaLl_onActionDone(20)
       }
 
-      #define __cAlL_onActionDone__m(n) case n: { onActionDone_<n>(trans, cause); break; }
+      #define __cAlL_onActionDone__m(n) __cHeCk_CaLl(n, onActionDone_, (trans, cause))
       #define __cAlL_onActionDone_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionDone__m)
    public:
       OVERRIDE(onActionDone(ActionId aid, TransactionInfo const& trans, Status cause) -> void) {
-         __jump_call_listener(__cAlL_onActionDone_m)
+         if constexpr(Base::someone_has_onActionDone) {
+            __jump_call_listener(__cAlL_onActionDone_m)
+         }
       }
    };
 }

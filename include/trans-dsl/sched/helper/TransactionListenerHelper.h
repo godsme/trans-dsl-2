@@ -6,54 +6,10 @@
 #define TRANS_DSL_2_TRANSACTIONLISTENERHELPER_H
 
 #include <cstddef>
-#include <trans-dsl/sched/domain/Event.h>
-#include <trans-dsl/sched/helper/AutoActionHelper.h>
+#include <trans-dsl/sched/helper/UserTransListener.h>
 #include <trans-dsl/sched/domain/TransactionListener.h>
 
 TSL_NS_BEGIN
-
-#define ChEcK(...) std::enable_if_t<std::is_void_v<decltype(__VA_ARGS__)>>
-#define VaL(T) std::declval<T>()
-
-namespace details {
-   template<typename T, typename = void>
-   constexpr bool Has_onActionStarting = false;
-
-   template<typename T>
-   constexpr bool Has_onActionStarting<T,
-      ChEcK(VaL(T).onActionStarting(VaL(ActionId), VaL(TransactionInfo const&)))> = true;
-
-   template<typename T, typename = void>
-   constexpr bool Has_onActionEventConsumed = false;
-
-   template<typename T>
-   constexpr bool Has_onActionEventConsumed<T,
-      ChEcK(VaL(T).onActionEventConsumed(VaL(ActionId), VaL(TransactionInfo const&), VaL(Event const&)))> = true;
-
-   template<typename T, typename = void>
-   constexpr bool Has_onActionDone = false;
-
-   template<typename T>
-   constexpr bool Has_onActionDone<T,
-      ChEcK(VaL(T).onActionDone(VaL(ActionId), VaL(TransactionInfo const&), VaL(Status)))> = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////////
-namespace details {
-   template<typename ... T_LISTENERS>
-   struct UserTransListener;
-
-   template<typename H, typename ... Ts>
-   struct UserTransListener<H, Ts...> : H, UserTransListener<Ts...> {
-      using Base = UserTransListener<Ts...>;
-      using Listener = H;
-      constexpr static bool has_onActionStarting = Has_onActionStarting<H>;
-      constexpr static bool has_onActionEventConsumed = Has_onActionEventConsumed<H>;
-   };
-
-   template<>
-   struct UserTransListener<> {};
-}
 
 #define __BaSe(n) Base::
 #define __EnD_BaSe(n) Base
@@ -78,6 +34,7 @@ namespace details {
    struct TransactionListenerDispatcher
       : UserTransListener<T_LISTENERS...>, TransactionListener {
 
+   private:
       enum { Num_Of_Listeners = sizeof...(T_LISTENERS) };
       static_assert(Num_Of_Listeners <= 20, "too much listeners");
 
@@ -112,12 +69,13 @@ namespace details {
 
       #define __cAlL_onActionStarting__m(n) case n: { onActionStarting_<n>(trans); break; }
       #define __Call_onActionStarting_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionStarting__m)
-
+   public:
       OVERRIDE(onActionStarting(ActionId aid, TransactionInfo const& trans) -> void) {
          __jump_call_listener(__Call_onActionStarting_m)
       }
 
       //////////////////////////////////////////////////////////////////////////////////////
+   private:
       //////////////////////////////////////////////////////////////////////////////////////
       #define __CaLl_onActionEventConsumed_(n) \
         __Listener_CaLl(n, onActionEventConsumed, onActionEventConsumed(AID, trans, ev))
@@ -149,12 +107,13 @@ namespace details {
 
       #define __cAlL_onActionEventConsumed__m(n) case n: { onActionEventConsumed_<n>(trans, ev); break; }
       #define __Call_onActionEventConsumed_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionEventConsumed__m)
+   public:
       OVERRIDE(onActionEventConsumed(ActionId aid, TransactionInfo const& trans, Event const& ev) -> void) {
          __jump_call_listener(__Call_onActionEventConsumed_m)
       }
 
-
       //////////////////////////////////////////////////////////////////////////////////////
+   private:
       //////////////////////////////////////////////////////////////////////////////////////
 #define __CaLl_onActionDone_(n) \
         __Listener_CaLl(n, onActionDone, onActionDone(AID, trans, cause))
@@ -184,8 +143,9 @@ namespace details {
          __CaLl_onActionDone(20)
       }
 
-#define __cAlL_onActionDone__m(n) case n: { onActionDone_<n>(trans, cause); break; }
-#define __cAlL_onActionDone_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionDone__m)
+      #define __cAlL_onActionDone__m(n) case n: { onActionDone_<n>(trans, cause); break; }
+      #define __cAlL_onActionDone_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionDone__m)
+   public:
       OVERRIDE(onActionDone(ActionId aid, TransactionInfo const& trans, Status cause) -> void) {
          __jump_call_listener(__cAlL_onActionDone_m)
       }

@@ -58,6 +58,6 @@ namespace details {
 TSL_NS_END
 
 #define __multi_thread(...) TSL_NS::details::MultiThread<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
-#define __multi_thread_t(...) TSL_NS::details::MultiThread_t<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+#define __def_multi_thread(...) TSL_NS::details::MultiThread_t<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_MULTITHREADHELPER_H

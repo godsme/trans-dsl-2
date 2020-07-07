@@ -165,7 +165,7 @@ namespace {
       const EV_NS::ConsecutiveEventInfo event4{EV_MSG_4, msg4};
 
       WHEN("exec with a fork action") {
-         __multi_thread_t(
+         __def_multi_thread(
             __sequential(
                __fork(1, __asyn(AsyncAction1)),
                __fork(2, __asyn(AsyncAction4)),
@@ -249,7 +249,7 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -350,7 +350,7 @@ namespace {
             __asyn(AsyncAction2),
             __join(2));
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -391,7 +391,7 @@ namespace {
             __asyn(AsyncAction2),
             __join(2));
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -432,7 +432,7 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -489,7 +489,7 @@ namespace {
             __asyn(AsyncAction2),
             __join());
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -530,7 +530,7 @@ namespace {
               , __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction4)))),
             __join());
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -585,7 +585,7 @@ namespace {
             __concurrent(__fork(1, __asyn(AsyncAction1)), __fork(2, __asyn(AsyncAction2))),
             __join(2, 3, 4, 5));
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
@@ -623,7 +623,7 @@ namespace {
             __asyn(AsyncAction4)),
             __finally(__join(1)));
 
-         __multi_thread_t(MainAction) action;
+         __def_multi_thread(MainAction) action;
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 

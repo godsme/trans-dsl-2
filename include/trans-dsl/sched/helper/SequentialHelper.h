@@ -78,7 +78,7 @@ namespace details {
 }
 
 #define __sequential(...) TSL_NS::details::Sequential<__VA_ARGS__>
-#define __sequential_t(...) TSL_NS::details::Sequential_t<__VA_ARGS__>
+#define __def_sequential(...) TSL_NS::details::Sequential_t<__VA_ARGS__>
 
 TSL_NS_END
 

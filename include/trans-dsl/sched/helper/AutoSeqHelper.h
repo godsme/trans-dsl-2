@@ -14,14 +14,16 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename SIGNATURE>
+   struct DummySignature {};
+
+   template<typename SIGNATURE = DummySignature>
    struct AutoSeq final {
-      template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
+      template<typename ... T_ACTIONS>
       struct Inner : SIGNATURE {
          using type = __sequential(T_ACTIONS...);
       };
 
-      template<CONCEPT(SchedActionConcept) HEAD>
+      template<typename HEAD>
       struct Inner<HEAD> : SIGNATURE {
          using type = HEAD;
       };

@@ -214,7 +214,6 @@ namespace details {
             return nullptr;
          }
 
-
       };
    };
 
@@ -223,7 +222,7 @@ namespace details {
 }
 
 #define __loop(...) TSL_NS::details::Loop<1, __VA_ARGS__>
-#define __loop_t(...) TSL_NS::details::Loop_t<1, __VA_ARGS__>
+#define __def_loop(...) TSL_NS::details::Loop_t<1, __VA_ARGS__>
 #define __loop_max(times, ...) TSL_NS::details::Loop_<times, __VA_ARGS__>
 #define __forever(...) TSL_NS::details::Loop_<std::numeric_limits<uint32>::max(), __VA_ARGS__>
 

@@ -33,7 +33,7 @@ SIMPLE_EVENT(9);
 namespace {
    using namespace TSL_NS;
 
-   using Proc1 = __procedure_t
+   using Proc1 = __def_procedure
    ( __time_guard(TIMER_1
       , __sequential
                      ( __wait(1)
@@ -80,7 +80,7 @@ namespace {
    TEST_CASE("__sequential") {
       StupidTransactionContext context;
 
-      using Proc = __procedure_t
+      using Proc = __def_procedure
       ( __sequential
           ( __wait(1)
              , __wait(2)
@@ -202,7 +202,7 @@ namespace {
 
    using Concurrent2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 
-   using Proc = __procedure_t
+   using Proc = __def_procedure
    ( __sequential
         ( __wait(1)
            , __wait(2)
@@ -265,7 +265,7 @@ namespace {
 
    TEST_CASE("__multi_thread") {
       using Con2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
-      using Proc8 = __multi_thread_t(__procedure
+      using Proc8 = __def_multi_thread(__procedure
       ( __sequential
            ( __sequential
                ( __wait(1)

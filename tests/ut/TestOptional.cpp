@@ -14,7 +14,7 @@ namespace {
    bool is_true(const TransactionInfo&) { return true; }
 
    FIXTURE(TestOptional) {
-      __optional(is_true, __asyn(AsyncAction1)) optional;
+      __def_optional(is_true, __asyn(AsyncAction1)) optional;
 
       StupidTransactionContext context{};
 
@@ -35,7 +35,7 @@ namespace {
    auto is_false = [](const TransactionInfo&) { return false; };
 
    FIXTURE(TestOptional1) {
-      __optional(is_false, __asyn(AsyncAction1)) optional;
+      __def_optional(is_false, __asyn(AsyncAction1)) optional;
 
       const Msg1 msg1{10, 20};
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -58,7 +58,7 @@ namespace {
    };
 
    FIXTURE(TestOptional2) {
-      __optional(PredTrue, __asyn(AsyncAction1)) optional;
+      __def_optional(PredTrue, __asyn(AsyncAction1)) optional;
 
       StupidTransactionContext context{};
 
@@ -81,7 +81,7 @@ namespace {
    };
 
    FIXTURE(TestOptional3) {
-      __optional(PredFalse, __asyn(AsyncAction1)) optional;
+      __def_optional(PredFalse, __asyn(AsyncAction1)) optional;
 
       const Msg1 msg1{10, 20};
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -100,7 +100,7 @@ namespace {
    };
 
    FIXTURE(TestOptional4) {
-      __optional(__is_status(Result::OUT_OF_SCOPE), __asyn(AsyncAction1)) optional;
+      __def_optional(__is_status(Result::OUT_OF_SCOPE), __asyn(AsyncAction1)) optional;
 
       const Msg1 msg1{10, 20};
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};

@@ -30,7 +30,7 @@ namespace {
    };
 
    FIXTURE(TestLoop) {
-     __loop_t
+     __def_loop
         (__asyn(AsyncAction1)
         , __break_if(IsTrue, Result::OUT_OF_SCOPE)
         , __sync(SyncAction3)
@@ -53,7 +53,7 @@ namespace {
    };
 
    FIXTURE(TestLoop1) {
-      __loop_t
+      __def_loop
       (__sync(SyncAction1)
       , __break_if(is_true, Result::OUT_OF_SCOPE)
       , __asyn(AsyncAction1)
@@ -71,7 +71,7 @@ namespace {
    };
 
    FIXTURE(TestLoop2) {
-      __loop_t
+      __def_loop
       (__asyn(AsyncAction1)
       , __break_if(is_false, Result::OUT_OF_SCOPE)
       , __asyn(AsyncAction2)
@@ -97,7 +97,7 @@ namespace {
    };
 
    FIXTURE(TestLoop3) {
-      __loop_t
+      __def_loop
       (__asyn(FailedAsyncAction3)
       , __asyn(AsyncAction1)
       , __break_if(__is_failed, Result::OUT_OF_SCOPE)
@@ -125,7 +125,7 @@ namespace {
    };
 
    FIXTURE(TestLoop4) {
-      __loop_t
+      __def_loop
       (__asyn(FailedAsyncAction3)
       , __asyn(AsyncAction1)
       , __redo_if(__is_failed)
@@ -147,7 +147,7 @@ namespace {
    };
 
    FIXTURE(TestLoop5) {
-      __loop_t
+      __def_loop
       (__asyn(FailedAsyncAction3)
       , __asyn(AsyncAction1)
       , __until(__is_failed)
@@ -176,7 +176,7 @@ namespace {
             MainAction,
             __finally(__on_fail(__throw(Result::OUT_OF_SCOPE))));
 
-      __loop_t
+      __def_loop
       ( ThisAction
       , __while(__is_succ)
       ) action;

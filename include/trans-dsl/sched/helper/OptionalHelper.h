@@ -12,6 +12,7 @@
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/concepts/PredConcept.h>
 #include <trans-dsl/sched/helper/AutoActionHelper.h>
+#include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
 
 TSL_NS_BEGIN
 
@@ -19,26 +20,42 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<typename T_ACTION>
-   struct OptionalBase : SchedOptional {
-      using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
-   private:
-      OVERRIDE(getAction() -> SchedAction*) { return new (cache) T_ACTION; }
-   private:
-      alignas(alignof(T_ACTION)) unsigned char cache[sizeof(T_ACTION)];
+   struct OptionalBase {
+      template<const TransListenerObservedAids& AIDs>
+      class Inner : public SchedOptional {
+         using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+         OVERRIDE(getAction() -> SchedAction*) { return new (cache) Action; }
+         alignas(alignof(Action)) unsigned char cache[sizeof(Action)];
+      public:
+         using ThreadActionCreator = ThreadCreator_t<Action>;
+      };
    };
 
    ////////////////////////////////////////////////////////////////
-   template<PredFunction V_PRED, CONCEPT(SchedActionConcept) T_ACTION>
-   class OptionalFunction : public OptionalBase<T_ACTION> {
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
+   template<PredFunction V_PRED, typename T_ACTION>
+   class OptionalFunction final {
+      template<const TransListenerObservedAids& AIDs>
+      using Base = typename OptionalBase<T_ACTION>::template Inner<AIDs>;
+
+   public:
+      template<const TransListenerObservedAids& AIDs>
+      struct ActionRealType : public Base<AIDs> {
+         using ThreadActionCreator = typename  Base<AIDs>::ThreadActionCreator;
+      public:
+         OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
+      };
    };
 
    ////////////////////////////////////////////////////////////////
-   template<CONCEPT(PredConcept) T_PRED, CONCEPT(SchedActionConcept) T_ACTION, size_t V_SIZE = sizeof(T_PRED)>
-   class OptionalClass : public OptionalBase<T_ACTION>, T_PRED {
+   template<CONCEPT(PredConcept) T_PRED, typename T_ACTION>
+   class OptionalClass final {
       CONCEPT_ASSERT(PredConcept<T_PRED>);
-      OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
+
+   public:
+      template<const TransListenerObservedAids& AIDs>
+      class ActionRealType : T_PRED, public OptionalBase<T_ACTION>::template Inner<AIDs> {
+         OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
+      };
    };
 
    ////////////////////////////////////////////////////////////////
@@ -62,15 +79,20 @@ namespace details {
    inline auto IsStatus__(TransactionInfo const& info) -> bool {
       return info.getStatus() == V_STATUS;
    }
+
 }
 
 #define __is_succ TSL_NS::details::IsSucc__
 #define __is_failed TSL_NS::details::IsFailed__
 #define __is_status(status) TSL_NS::details::IsStatus__<status>
-#define __optional(pred, ...)   decltype(TSL_NS::details::deductOptionalClass__<pred, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
+
 #define __on_fail(...) __optional(__is_failed, __VA_ARGS__)
 #define __on_status(status, ...) __optional(__is_status(status), __VA_ARGS__)
 
+#define __optional(pred, ...)  \
+decltype(TSL_NS::details::deductOptionalClass__<pred, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
+
+#define __def_optional(pred, ...)  typename __optional(pred, __VA_ARGS__)::template ActionRealType<EmptyAids>
 
 TSL_NS_END
 

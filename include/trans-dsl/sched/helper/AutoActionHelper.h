@@ -37,6 +37,7 @@ namespace details {
    public:
       template<typename ... Ts>
       struct SequentialTrait {
+         static_assert(sizeof...(Ts) > 0, "should not be empty");
          using type = typename ProcedureTrait<void, Ts...>::type;
       };
 

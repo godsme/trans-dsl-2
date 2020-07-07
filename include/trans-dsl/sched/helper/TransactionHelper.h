@@ -16,10 +16,8 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename ... ACTIONS>
+   template<typename ACTION>
    struct Transaction : private TransactionContext{
-      static_assert(sizeof...(ACTIONS) > 0, "transaction cannot be empty");
-
    private:
       template<typename T, typename = void>
       struct MultiThreadTrait {
@@ -32,8 +30,7 @@ namespace details {
       };
 
    public:
-      using Internal = AutoAction::SequentialTrait_t<ACTIONS...>;
-      using Action = typename MultiThreadTrait<AutoAction::SequentialTrait_t<ACTIONS...>>::type;
+      using Action = typename MultiThreadTrait<ACTION>::type;
 
    public:
       using TransactionContext::updateInstanceId;
@@ -70,7 +67,8 @@ namespace details {
 
 TSL_NS_END
 
-#define __transaction(...) TSL_NS::details::Transaction<__VA_ARGS__>
+#define __transaction(...) \
+  TSL_NS::details::Transaction<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 #define __as_trans(...) __transaction(__VA_ARGS__)
 
 #endif //TRANS_DSL_2_TRANSACTIONHELPER_H

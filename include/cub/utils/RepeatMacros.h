@@ -190,9 +190,11 @@
 #define _REPEAT_58(macro) _REPEAT_57(macro) macro(57)
 #define _REPEAT_59(macro) _REPEAT_58(macro) macro(58)
 #define _REPEAT_60(macro) _REPEAT_59(macro) macro(59)
+#define _REPEAT_61(macro) _REPEAT_60(macro) macro(60)
+#define _REPEAT_62(macro) _REPEAT_61(macro) macro(61)
+#define _REPEAT_63(macro) _REPEAT_62(macro) macro(62)
+#define _REPEAT_64(macro) _REPEAT_63(macro) macro(63)
 
-#define _REPEAT(n, macro, end_macro) _REPEAT_##n (macro) _END_MACRO_##n(end_macro)
-#define _SIMPLE_REPEAT(n, macro) _REPEAT(n, macro, macro)
 
 #define _END_MACRO_0(macro)
 #define _END_MACRO_1(macro) macro(1)
@@ -255,6 +257,13 @@
 #define _END_MACRO_58(macro) macro(58)
 #define _END_MACRO_59(macro) macro(59)
 #define _END_MACRO_60(macro) macro(60)
+#define _END_MACRO_61(macro) macro(61)
+#define _END_MACRO_62(macro) macro(62)
+#define _END_MACRO_63(macro) macro(63)
+#define _END_MACRO_64(macro) macro(64)
+
+#define _REPEAT(n, macro, end_macro) _REPEAT_##n (macro) _END_MACRO_##n(end_macro)
+#define _SIMPLE_REPEAT(n, macro) _REPEAT(n, macro, macro)
 
 #define __PARTIAL_0(n, macro1, macro2)
 #define __PARTIAL_1(n, macro1, macro2) < macro1(n) macro2(1)>

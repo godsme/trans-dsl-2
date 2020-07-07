@@ -17,19 +17,19 @@ public:
    constexpr BitSet(T value = 0) : value{value} {}
 
    auto enable(unsigned char n) -> void {
-      value |= T(1 << n);
+      value |= T(T(1) << n);
    }
 
    auto clear(unsigned char n) -> void {
-      value &= T(~(1 << n));
+      value &= T(~(T(1) << n));
    }
 
    auto resize(unsigned char n) -> void {
-      value &= T((1 << n) - 1);
+      value &= T((T(1) << n) - 1);
    }
 
    constexpr auto isEnabled(unsigned char n) const -> bool {
-      return value & T(1 << n);
+      return value & T(T(1) << n);
    }
 
    constexpr auto empty() const -> bool {

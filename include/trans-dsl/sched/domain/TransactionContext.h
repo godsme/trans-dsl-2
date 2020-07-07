@@ -11,12 +11,12 @@
 #include <trans-dsl/sched/domain/RuntimeContext.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/action/TransactionInfo.h>
-#include "RuntimeContextInfo.h"
+#include <trans-dsl/sched/domain/RuntimeContextInfo.h>
+#include <trans-dsl/sched/domain/TransactionListener.h>
 
 TSL_NS_BEGIN
 
 struct TimerInfo;
-struct TransactionListener;
 struct MultiThreadContext;
 
 struct TransactionContext
@@ -27,8 +27,8 @@ struct TransactionContext
       return timerInfo;
    }
 
-   auto getListener() const -> TransactionListener* {
-      return listener;
+   auto getListener() const -> TransactionListener& {
+      return *listener;
    }
 
    auto getMultiThreadContext() const -> MultiThreadContext* {
@@ -56,10 +56,15 @@ protected:
       this->listener = &listener;
    }
 
+private:
+   static TransactionListener& getNullListener() {
+      static TransactionListener instance;
+      return instance;
+   }
 
 private:
    TimerInfo* timerInfo = nullptr;
-   TransactionListener* listener = nullptr;
+   TransactionListener* listener = &getNullListener();
    MultiThreadContext* multiThreadContext = nullptr;
 };
 

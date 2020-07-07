@@ -16,7 +16,7 @@ TSL_NS_BEGIN
 namespace details {
 
    template<CONCEPT(ActionConcept) T_ACTION>
-   struct Async final : SchedAction {
+   struct Async : SchedAction {
       CONCEPT_ASSERT(ActionConcept<T_ACTION>);
 
       OVERRIDE(exec(TransactionContext & context)->Status) {

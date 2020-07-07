@@ -57,7 +57,7 @@ namespace details {
 
    public:
       template<const TransListenerObservedAids& AIDs>
-      struct ActionRealType final : SchedSequential, Trait<AIDs>::type::BaseType {
+      struct ActionRealType : SchedSequential, Trait<AIDs>::type::BaseType {
       private:
          using Result = typename Trait<AIDs>::type;
       public:

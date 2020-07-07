@@ -40,7 +40,7 @@ namespace details {
    using SyncActionFunc = Status (*)(TransactionInfo const&);
 
    template<SyncActionFunc V_ACTION>
-   struct CallAction final : SchedSyncAction {
+   struct CallAction : SchedSyncAction {
       OVERRIDE(exec(TransactionContext & context)->Status) {
          return check(V_ACTION(context));
       }

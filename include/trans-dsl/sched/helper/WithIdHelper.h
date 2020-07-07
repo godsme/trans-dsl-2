@@ -36,7 +36,9 @@ namespace details {
       };
    public:
       template<const TransListenerObservedAids& AIDs>
-      using ActionRealType = typename Trait<AIDs, AIDs.isEnabled(AID)>::type;
+      struct ActionRealType : Trait<AIDs, AIDs.isEnabled(AID)>::type {
+         using ThreadActionCreator = ThreadCreator_t<Action<AIDs>>;
+      };
    };
 
    template<ActionId AID, typename ACTION>

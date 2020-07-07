@@ -27,7 +27,7 @@ namespace details {
       using Base = VolatileSeq<ActionPath, T_PATHS...>;
 
    public:
-      struct Inner final : SchedSwitchCase, private Base {
+      struct Inner : SchedSwitchCase, private Base {
          using ThreadActionCreator = ThreadCreator_t<T_PATHS...>;
       private:
          SeqInt i = 0;

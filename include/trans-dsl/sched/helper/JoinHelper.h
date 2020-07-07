@@ -21,7 +21,7 @@ namespace details {
    };
 
    template <ThreadId ... TIDs>
-   class Join final : public SchedJoin {
+   class Join : public SchedJoin {
       constexpr static ThreadBitMap threadBitMap = (ThreadBitMap{} | ... | ThreadIdBitMask<TIDs>::value);
       OVERRIDE(getThreadBitMap() const -> ThreadBitMap) { return threadBitMap; }
    };

@@ -13,7 +13,7 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<typename T> struct S;
+
    template<typename MAIN_ACTION>
    struct MultiThread {
       template<const TransListenerObservedAids& AIDs>
@@ -42,11 +42,8 @@ namespace details {
          static_assert(MAX_NUM_OF_THREADS == details::FinalThreadCreator<MainAction>::threadId + 1,
                        "you should use consecutive thread IDs to save memory & speed up this transaction");
 
-
-
          SchedAction *threads[MAX_NUM_OF_THREADS]{};
 
-         //S<MainAction> s;
          MainAction mainThreadAction;
          details::FinalThreadCreator<MainAction> threadCreator;
 

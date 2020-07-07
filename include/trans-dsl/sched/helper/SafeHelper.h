@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 
 namespace details {
    template<CONCEPT(SchedActionConcept) T_ACTION>
-   struct Safe final : SchedSafe {
+   struct Safe : SchedSafe {
       using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
    private:
       CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);

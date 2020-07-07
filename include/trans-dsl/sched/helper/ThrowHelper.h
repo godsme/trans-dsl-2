@@ -11,7 +11,7 @@ TSL_NS_BEGIN
 
 namespace details {
    template<Status V_CODE>
-   class Throw final : public SchedSyncAction {
+   class Throw : public SchedSyncAction {
       OVERRIDE(exec(TransactionContext&) -> Status) { return V_CODE; }
    };
 }

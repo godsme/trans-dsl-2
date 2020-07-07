@@ -30,13 +30,13 @@ namespace details {
 
    ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, CONCEPT(SchedActionConcept) T_ACTION>
-   class OptionalFunction final : public OptionalBase<T_ACTION> {
+   class OptionalFunction : public OptionalBase<T_ACTION> {
       OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
    };
 
    ////////////////////////////////////////////////////////////////
    template<CONCEPT(PredConcept) T_PRED, CONCEPT(SchedActionConcept) T_ACTION, size_t V_SIZE = sizeof(T_PRED)>
-   class OptionalClass final : public OptionalBase<T_ACTION>, T_PRED {
+   class OptionalClass : public OptionalBase<T_ACTION>, T_PRED {
       CONCEPT_ASSERT(PredConcept<T_PRED>);
       OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
    };

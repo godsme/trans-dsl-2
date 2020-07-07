@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <trans-dsl/sched/helper/UserTransListener.h>
 #include <trans-dsl/sched/domain/TransactionListener.h>
+#include <trans-dsl/sched/domain/ObservedActionIdRegistry.h>
 
 TSL_NS_BEGIN
 
@@ -40,7 +41,7 @@ namespace details {
    template<typename ... T_LISTENERS>
    struct TransactionListenerDispatcher
       : UserTransListener<T_LISTENERS...>, TransactionListener {
-
+      constexpr static TransListenerObservedAids all_observed = UserTransListener<T_LISTENERS...>::all_observed;
    private:
       enum { Num_Of_Listeners = sizeof...(T_LISTENERS) };
       static_assert(Num_Of_Listeners <= 20, "too much listeners");
@@ -165,6 +166,9 @@ namespace details {
       }
    };
 }
+
+#define __listeners(...) TSL_NS::details::TransactionListenerDispatcher<__VA_ARGS__>;
+
 TSL_NS_END
 
 #endif //TRANS_DSL_2_TRANSACTIONLISTENERHELPER_H

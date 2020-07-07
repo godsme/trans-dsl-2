@@ -10,7 +10,7 @@
 #include <trans-dsl/sched/domain/TransactionContext.h>
 #include <cstddef>
 #include <trans-dsl/sched/domain/Event.h>
-#include "AutoActionHelper.h"
+#include <trans-dsl/sched/helper/AutoActionHelper.h>
 
 
 TSL_NS_BEGIN

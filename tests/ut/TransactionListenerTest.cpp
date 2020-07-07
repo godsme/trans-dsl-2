@@ -61,7 +61,7 @@ namespace {
       }
    };
 
-   struct C : ObservedActionIdRegistry<> {
+   struct C : ObservedActionIdRegistry<1, 2, 3> {
       auto onActionStarting(ActionId aid, TransactionInfo const&) -> void {
          switch(aid) {
             case 1: C_1_reported = true; break;
@@ -113,6 +113,21 @@ namespace {
          }
       }
 
+      WHEN("report a AID=4 onActionStarting event") {
+         dispatcher.onActionStarting(4, context);
+         THEN("no one got reported") {
+            REQUIRE(!A_2_reported);
+            REQUIRE(!B_2_reported);
+            REQUIRE(!C_2_reported);
+
+            REQUIRE(!A_1_reported);
+            REQUIRE(!B_3_reported);
+            REQUIRE(!C_1_reported);
+            REQUIRE(!C_3_reported);
+            REQUIRE(!unexpected_aid);
+         }
+      }
+
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo event1{EV_MSG_1, msg1};
 
@@ -121,6 +136,20 @@ namespace {
          THEN("should have A both got reported") {
             REQUIRE(A_2_reported);
 
+            REQUIRE(!B_2_reported);
+            REQUIRE(!A_1_reported);
+            REQUIRE(!B_3_reported);
+            REQUIRE(!C_1_reported);
+            REQUIRE(!C_2_reported);
+            REQUIRE(!C_3_reported);
+            REQUIRE(!unexpected_aid);
+         }
+      }
+
+      WHEN("report a AID=2 onActionDone event") {
+         dispatcher.onActionDone(2, context, Result::SUCCESS);
+         THEN("no one got reported") {
+            REQUIRE(!A_2_reported);
             REQUIRE(!B_2_reported);
             REQUIRE(!A_1_reported);
             REQUIRE(!B_3_reported);

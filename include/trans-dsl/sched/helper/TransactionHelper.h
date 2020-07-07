@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <trans-dsl/sched/domain/Event.h>
 #include <trans-dsl/sched/helper/AutoActionHelper.h>
-
+#include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
 
 TSL_NS_BEGIN
 
@@ -30,7 +30,8 @@ namespace details {
       };
 
    public:
-      using Action = typename MultiThreadTrait<ACTION>::type;
+      using Action = ActionRealTypeTraits_t<EmptyAids,
+         typename MultiThreadTrait<ActionRealTypeTraits_t<EmptyAids, ACTION>>::type>;
 
    public:
       using TransactionContext::updateInstanceId;

@@ -34,7 +34,7 @@ namespace {
            , __asyn(AsyncAction2)
            , __sync(SyncAction2));
 
-      __procedure(
+      __procedure_t(
          MainActions,
          __finally(FinalActions)
       ) procedure;
@@ -114,7 +114,7 @@ namespace {
    };
 
    FIXTURE(TestProcedure1) {
-      __procedure(__sequential
+      __procedure_t(__sequential
         (__sync(SyncAction1)
         , __asyn(FailedAsyncAction3)
         , __asyn(AsyncAction2)
@@ -172,7 +172,7 @@ namespace {
         , __sync(SyncAction2))));
 
    FIXTURE(TestProcedure3) {
-      __procedure(MainProcedure,
+      __procedure_t(MainProcedure,
       __finally(__sequential
         (__sync(SyncAction1)
         , __asyn(AsyncAction1)
@@ -245,7 +245,7 @@ namespace {
    };
 
    FIXTURE(TestProcedure4) {
-      __procedure(
+      __procedure_t(
          __sync(FailedSyncAction4),
          __finally(__on_fail(__asyn(AsyncAction1)))
       ) procedure;
@@ -269,7 +269,7 @@ namespace {
    };
 
    FIXTURE(TestProcedure5) {
-      __procedure(
+      __procedure_t(
          __asyn(AsyncAction2),
          __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction1)))
       ) procedure;

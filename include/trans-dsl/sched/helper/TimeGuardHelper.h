@@ -16,22 +16,31 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<TimerId V_TIMER_ID, CONCEPT(SchedActionConcept) T_ACTION>
-   struct TimeGuard final : SchedTimeGuard{
-      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
-      using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-   private:
-      IMPL_ROLE_WITH_VAR(SchedAction, action);
-      IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
-   private:
-      T_ACTION action;
-      PlatformSpecifiedTimer timer{V_TIMER_ID};
+   template<TimerId V_TIMER_ID, typename T_ACTION>
+   struct TimeGuard final {
+      template<const TransListenerObservedAids& AIDs>
+      struct ActionRealType : SchedTimeGuard {
+         using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
+      private:
+         IMPL_ROLE_WITH_VAR(SchedAction, action);
+         IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
+      private:
+         using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+         Action action;
+         PlatformSpecifiedTimer timer{V_TIMER_ID};
+      };
    };
+
+   template<TimerId V_TIMER_ID, typename T_ACTION>
+   using TimeGuard_t = typename TimeGuard<V_TIMER_ID, T_ACTION>::template ActionRealType<EmptyAids>;
 }
 
 TSL_NS_END
 
 #define __time_guard(timerId, ...) \
 TSL_NS::details::TimeGuard<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+
+#define __time_guard_t(timerId, ...) \
+TSL_NS::details::TimeGuard_t<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_TIMEGUARDHELPER_H

@@ -13,6 +13,7 @@
 #include <trans-dsl/utils/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 
 TSL_NS_BEGIN
 
@@ -39,56 +40,81 @@ namespace details {
    };
 
    template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
-   class Concurrent final : public SchedConcurrent, GenericConcurrent<T_ACTIONS...> {
+   class Concurrent final  {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
-      static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
+
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
-      static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
+
 
       template<typename ... Ts>
       struct Elem {
          using type = GenericConcurrent<Ts...>;
       };
 
-      template <SeqInt N>
-      auto get() -> SchedAction* {
-         if constexpr(N < Num_Of_Actions) {
-            return TypeListExtractor_t<N, Elem, T_ACTIONS...>::get();
-         } else {
-            return nullptr;
+      template<typename ... Tss>
+      struct Base : GenericConcurrent<Tss...> {
+         template<SeqInt N>
+         auto get() -> SchedAction * {
+            if constexpr(N < Num_Of_Actions) {
+               return TypeListExtractor_t<N, Elem, Tss...>::get();
+            } else {
+               return nullptr;
+            }
          }
-      }
+
+         using ThreadActionCreator = ThreadCreator_t<Tss...>;
+      };
+
+      template<const TransListenerObservedAids& AIDs>
+      struct Traits {
+         template<typename T>
+         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+
+         using Base = Transform_t<Transformer, Base, T_ACTIONS...>;
+      };
 
    public:
-      using ThreadActionCreator = ThreadCreator_t<T_ACTIONS...>;
+      template<const TransListenerObservedAids& AIDs>
+      class ActionRealType : public SchedConcurrent, Traits<AIDs>::Base {
+         static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
+         static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");
 
-   private:
-      OVERRIDE(getNumOfActions() const -> SeqInt) {
-         return Num_Of_Actions;
-      }
+         using Base = typename Traits<AIDs>::Base;
+      public:
+         using ThreadActionCreator = typename Traits<AIDs>::Base::ThreadActionCreator;
 
-      ///////////////////////////////////////////////////////////////////////
-      #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return get<n>();
-      #define CoNcUrReNt_AcTiOn(n) { switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
-      #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) CoNcUrReNt_AcTiOn(n)
-      #define And_CoNcUrReNt_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) CoNcUrReNt_AcTiOn(n)
-      ///////////////////////////////////////////////////////////////////////
+      private:
+         OVERRIDE(getNumOfActions() const -> SeqInt) {
+            return Num_Of_Actions;
+         }
 
-      // Use if-constexpr to avoid unnecessary function template instantiation.
-      // Use switch-case to avoid recursion, and the generated jump-table by
-      // switch-case is fast.
-      OVERRIDE(get(SeqInt seq) -> SchedAction*) {
-         CoNcUrReNt_AcTiOn_DeCl(2)
-         And_CoNcUrReNt_AcTiOn_DeCl(3)
-         And_CoNcUrReNt_AcTiOn_DeCl(4)
-         And_CoNcUrReNt_AcTiOn_DeCl(5)
-         And_CoNcUrReNt_AcTiOn_DeCl(6)
-         return nullptr;
-      }
+         ///////////////////////////////////////////////////////////////////////
+         #define CoNcUrReNt_GeT_AcTiOn__(n) case n: return Base::template get<n>();
+         #define CoNcUrReNt_AcTiOn(n) { switch (seq) { SIMPLE_REPEAT(n, CoNcUrReNt_GeT_AcTiOn__) } }
+         #define CoNcUrReNt_AcTiOn_DeCl(n) if constexpr(Num_Of_Actions <= n) CoNcUrReNt_AcTiOn(n)
+         #define And_CoNcUrReNt_AcTiOn_DeCl(n) else if constexpr(Num_Of_Actions == n) CoNcUrReNt_AcTiOn(n)
+         ///////////////////////////////////////////////////////////////////////
+
+         // Use if-constexpr to avoid unnecessary function template instantiation.
+         // Use switch-case to avoid recursion, and the generated jump-table by
+         // switch-case is fast.
+         OVERRIDE(get(SeqInt seq) -> SchedAction*) {
+            CoNcUrReNt_AcTiOn_DeCl(2)
+            And_CoNcUrReNt_AcTiOn_DeCl(3)
+            And_CoNcUrReNt_AcTiOn_DeCl(4)
+            And_CoNcUrReNt_AcTiOn_DeCl(5)
+            And_CoNcUrReNt_AcTiOn_DeCl(6)
+            return nullptr;
+         }
+      };
    };
+
+   template<typename ... Ts>
+   using Concurrent_t = typename Concurrent<Ts...>::template ActionRealType<EmptyAids>;
 }
 
 #define __concurrent(...) TSL_NS::details::Concurrent<__VA_ARGS__>
+#define __concurrent_t(...) TSL_NS::details::Concurrent_t<__VA_ARGS__>
 
 TSL_NS_END
 

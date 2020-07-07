@@ -17,7 +17,7 @@ namespace {
    template<typename ... Ts> struct S;
    FIXTURE(TestSequentialAction) {
       using Action =
-      __sequential(
+      __sequential_t(
          __sync(SyncAction1),
          __sequential(__asyn(AsyncAction1),
          __sync(SyncAction3),

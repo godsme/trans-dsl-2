@@ -11,6 +11,7 @@
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/utils/TypeListSpliter.h>
 #include <trans-dsl/sched/helper/AutoSeqHelper.h>
+
 TSL_NS_BEGIN
 
 namespace details {
@@ -35,56 +36,74 @@ namespace details {
    };
 
    template<typename ... T_ACTIONS>
-   struct Procedure final : SchedProcedure {
+   struct Procedure final  {
       static_assert(sizeof...(T_ACTIONS) > 1, "__procedure should have at 1 action and 1 final action");
-   private:
-      template<typename ... Ts>
-      class Trait final {
-         struct MainActionSignature {};
 
-         template<typename ... Tss>
-         using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<Tss...>;
+      template<const TransListenerObservedAids& AIDs>
+      struct ActionRealType : SchedProcedure {
+      private:
+         template<typename ... Ts>
+         class Trait final {
+            struct MainActionSignature {};
 
-         using type = Split_t<sizeof...(Ts) - 1, MainActionTrait, FinalTrait, Ts...>;
+            template<typename ... Tss>
+            using MainActionTrait = typename AutoSeq<MainActionSignature>::template Inner<Tss...>;
+
+            template<typename T>
+            using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+
+            template<typename ... Tss>
+            using MainRealActions = Transform_t<Transformer, MainActionTrait, Tss...>;
+
+//            template<typename ... Tss>
+//            using FinalRealActions = Transform_t<Transformer, FinalTrait, Tss...>;
+
+            using type = Split_t<sizeof...(Ts) - 1, MainActionTrait, FinalTrait, Ts...>;
+
+         public:
+            using MainType = ActionRealTypeTraits_t<AIDs, typename type::first::type>;
+            using FinalType = typename type::second;
+            using FinalAction = ActionRealTypeTraits_t<AIDs, typename FinalType::type>;
+         };
+
+         constexpr static bool isRecover = Trait<T_ACTIONS...>::FinalType::isRecover;
+
+         using MainAction  = typename Trait<T_ACTIONS...>::MainType;
+         using FinalAction = typename Trait<T_ACTIONS...>::FinalAction;
 
       public:
-         using MainType = typename type::first::type;
-         using FinalType = typename type::second;
+         using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
+
+      private:
+         OVERRIDE(getAction()->SchedAction *) {
+            return new(cache) MainAction;
+         }
+
+         OVERRIDE(getFinalAction()->SchedAction *) {
+            return new(cache) FinalAction;
+         }
+
+         OVERRIDE(isProtected() const -> bool) {
+            return isRecover;
+         }
+
+      private:
+         enum : size_t {
+            alignment = std::max(alignof(MainAction), alignof(FinalAction)),
+            size = std::max(sizeof(MainAction), sizeof(FinalAction))
+         };
+
+         alignas(alignment) unsigned char cache[size];
       };
-
-      using MainAction  = typename Trait<T_ACTIONS...>::MainType;
-      using FinalAction = typename Trait<T_ACTIONS...>::FinalType::type;
-
-      constexpr static bool isRecover = Trait<T_ACTIONS...>::FinalType::isRecover;
-
-   public:
-      using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
-
-   private:
-      OVERRIDE(getAction()->SchedAction *) {
-         return new(cache) MainAction;
-      }
-
-      OVERRIDE(getFinalAction()->SchedAction *) {
-         return new(cache) FinalAction;
-      }
-
-      OVERRIDE(isProtected() const -> bool) {
-         return isRecover;
-      }
-
-   private:
-      enum : size_t {
-         alignment = std::max(alignof(MainAction), alignof(FinalAction)),
-         size = std::max(sizeof(MainAction), sizeof(FinalAction))
-      };
-
-      alignas(alignment) unsigned char cache[size];
    };
+
+   template<typename ... Ts>
+   using Procedure_t = typename Procedure<Ts...>::template ActionRealType<EmptyAids>;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
 #define __procedure(...) TSL_NS::details::Procedure<__VA_ARGS__>
+#define __procedure_t(...) TSL_NS::details::Procedure_t<__VA_ARGS__>
 
 #define __finally(...)   TSL_NS::details::FinalAction<false, __VA_ARGS__>
 #define __recover(...)   TSL_NS::details::FinalAction<true, __VA_ARGS__>

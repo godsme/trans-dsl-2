@@ -32,7 +32,7 @@ namespace details {
    private:
       using Elem = typename EXTRACTOR::template elem<M>;
    public:
-      using type = Transformer<N-1, M+1, TRANSFORM, RESULT, Ts..., typename TRANSFORM<Elem>::type>;
+      using type = typename Transformer<N-1, M+1, TRANSFORM, RESULT, EXTRACTOR, Ts..., typename TRANSFORM<Elem>::type>::type;
    };
 
    template<size_t M, template<typename> typename TRANSFORM, template<typename ...> typename RESULT, typename EXTRACTOR, typename ... Ts>
@@ -40,11 +40,17 @@ namespace details {
       using type = RESULT<Ts...>;
    };
 
-   template<template<typename> typename TRANSFORM, template<typename ...> typename RESULT, typename ... Ts>
-   using Tranform_t = typename Transformer<sizeof...(Ts), 0, TRANSFORM, RESULT, transformer::TypeN<Ts...>>::type;
+   template<
+      template<typename> typename TRANSFORMER,
+      template<typename ...> typename RESULT,
+      typename ... Ts>
+   using Transform_t = typename Transformer<sizeof...(Ts), 0, TRANSFORMER, RESULT, transformer::TypeN<Ts...>>::type;
 
-   template<template<typename> typename TRANSFORM, template<typename ...> typename RESULT, typename ... Ts>
-   using Tranform_tt = typename Tranform_t<TRANSFORM, RESULT, Ts...>::type;
+   template<
+      template<typename> typename TRANSFORMER,
+      template<typename ...> typename RESULT,
+      typename ... Ts>
+   using Transform_tt = typename Transform_t<TRANSFORMER, RESULT, Ts...>::type;
 }
 
 TSL_NS_END

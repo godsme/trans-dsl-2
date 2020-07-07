@@ -113,7 +113,7 @@ namespace {
    );
 
    SCENARIO("fragment with parameters") {
-      __apply(Fragment2, __with(__asyn(AsyncAction1), __asyn(AsyncAction2))) fragment;
+      __apply_t(Fragment2, __with(__asyn(AsyncAction1), __asyn(AsyncAction2))) fragment;
 
       StupidTransactionContext context{};
 

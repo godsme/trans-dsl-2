@@ -140,19 +140,33 @@ namespace details {
       }
    };
 
-   template<uint32_t V_MAX_TIMES, CONCEPT(LoopEntryConcept) ... T_ENTRIES>
+   template<uint32_t V_MAX_TIMES, typename ... T_ENTRIES>
    class Loop final  {
       enum { Num_Of_Entries = sizeof...(T_ENTRIES) };
       static_assert(Num_Of_Entries > 0, "loop cannot be empty");
       static_assert(Num_Of_Entries <= 30, "too many entries in a loop");
 
-      using Base = typename inline_seq::Comb_t<LoopBase, T_ENTRIES...>::type;
+      template <typename ... Ts>
+      struct Base {
+         using ThreadActionCreator = ThreadCreator_t<Ts...>;
+         using BaseType = typename inline_seq::Comb_t<LoopBase, Ts...>::type;
+      };
+
+      template<const TransListenerObservedAids& AIDs>
+      struct Trait {
+         template<typename T>
+         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+         using type = Transform_t<Transformer, Base, T_ENTRIES...>;
+      };
 
    public:
 
-      class Inner : public SchedLoop, Base {
+      template<const TransListenerObservedAids& AIDs>
+      class ActionRealType : public SchedLoop, Trait<AIDs>::type::BaseType {
+         using Result = typename Trait<AIDs>::type;
+         using Base = typename Result::BaseType;
       public:
-         using ThreadActionCreator = ThreadCreator_t<T_ENTRIES...>;
+         using ThreadActionCreator = typename Result::ThreadActionCreator;
 
       private:
          OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }
@@ -205,10 +219,11 @@ namespace details {
    };
 
    template<uint32_t V_MAX_TIMES, typename ... T_ENTRIES>
-   using Loop_ = typename Loop<V_MAX_TIMES, T_ENTRIES...>::Inner;
+   using Loop_t = typename Loop<V_MAX_TIMES, T_ENTRIES...>::template ActionRealType<EmptyAids>;
 }
 
-#define __loop(...) TSL_NS::details::Loop_<1, __VA_ARGS__>
+#define __loop(...) TSL_NS::details::Loop<1, __VA_ARGS__>
+#define __loop_t(...) TSL_NS::details::Loop_t<1, __VA_ARGS__>
 #define __loop_max(times, ...) TSL_NS::details::Loop_<times, __VA_ARGS__>
 #define __forever(...) TSL_NS::details::Loop_<std::numeric_limits<uint32>::max(), __VA_ARGS__>
 

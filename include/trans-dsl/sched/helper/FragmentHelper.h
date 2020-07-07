@@ -17,4 +17,6 @@
 #define __with(...) < __VA_ARGS__ >
 #define __apply(fragment, ...) fragment __VA_ARGS__
 
+#define __apply_t(fragment, ...) ActionRealTypeTraits_t<EmptyAids, __apply(fragment, __VA_ARGS__)>
+
 #endif //TRANS_DSL_2_FRAGMENTHELPER_H

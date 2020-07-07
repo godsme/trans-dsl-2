@@ -15,32 +15,33 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template <ThreadId TID, CONCEPT(SchedActionConcept) T_ACTION>
-   class Fork final : public SchedFork {
+   template <ThreadId TID, typename T_ACTION>
+   class Fork final {
       static_assert(TID < ThreadBitMap::max, "specified Thread ID is out of scope");
       static_assert(TID != 0, "0 is main thread, which has already been created");
-      CONCEPT_ASSERT(SchedActionConcept<T_ACTION>);
-
-   private:
-      struct Inner {
-         struct ThreadActionCreator {
-            static constexpr ThreadId threadId = TID;
-            static constexpr uint8_t  numOfThreads = 1;
-            auto createThreadAction(ThreadId tid) -> SchedAction * {
-               return (tid == TID) ? new(cache) T_ACTION : nullptr;
-            }
-
-         private:
-            alignas(alignof(T_ACTION)) char cache[sizeof(T_ACTION)];
-         };
-      };
 
    public:
-      using ThreadActionCreator = ThreadCreator_t<Inner, T_ACTION>;
+      template<const TransListenerObservedAids& AIDs>
+      struct ActionRealType : public SchedFork {
+      private:
+         using ActionType = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+         struct Inner {
+            struct ThreadActionCreator {
+               static constexpr ThreadId threadId = TID;
+               static constexpr uint8_t  numOfThreads = 1;
+               auto createThreadAction(ThreadId tid) -> SchedAction * {
+                  return (tid == TID) ? new(cache) ActionType : nullptr;
+               }
 
-   private:
-      OVERRIDE(getThreadId() const -> ThreadId) { return TID; }
-
+            private:
+               alignas(alignof(ActionType)) char cache[sizeof(ActionType)];
+            };
+         };
+      public:
+         using ThreadActionCreator = ThreadCreator_t<Inner, ActionType>;
+      private:
+         OVERRIDE(getThreadId() const -> ThreadId) { return TID; }
+      };
    };
 }
 

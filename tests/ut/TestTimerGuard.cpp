@@ -14,7 +14,7 @@ namespace {
    using namespace TSL_NS;
 
    SCENARIO("__time_guard") {
-     __time_guard(TIMER_1, __asyn(AsyncAction1)) action;
+     __time_guard_t(TIMER_1, __asyn(AsyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -37,7 +37,7 @@ namespace {
          __sync(SyncAction2),
          __finally(__asyn(AsyncAction1)));
 
-      __time_guard(TIMER_1, ProcedureAction) action;
+      __time_guard_t(TIMER_1, ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -78,7 +78,7 @@ namespace {
          __asyn(AsyncAction2),
          __finally(__asyn(AsyncAction1)));
 
-      __time_guard(TIMER_1, ProcedureAction) action;
+      __time_guard_t(TIMER_1, ProcedureAction) action;
 
       StupidTransactionContext context{};
 

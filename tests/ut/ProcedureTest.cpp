@@ -26,7 +26,7 @@ namespace {
       , __asyn(AsyncAction1)
       , __sync(SyncAction2));
 
-      __procedure(
+      __procedure_t(
          MainActions,
          __recover(FinalActions)
       ) procedure;

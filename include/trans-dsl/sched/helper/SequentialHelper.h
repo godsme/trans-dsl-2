@@ -19,7 +19,7 @@ struct SchedAction;
 
 namespace details {
 
-   template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
+   template<typename ... T_ACTIONS>
    class Sequential final {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");

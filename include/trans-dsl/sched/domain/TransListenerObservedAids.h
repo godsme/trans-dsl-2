@@ -1,0 +1,18 @@
+//
+// Created by Darwin Yuan on 2020/7/7.
+//
+
+#ifndef TRANS_DSL_2_TRANSLISTENEROBSERVEDAIDS_H
+#define TRANS_DSL_2_TRANSLISTENEROBSERVEDAIDS_H
+
+#include <trans-dsl/tsl_ns.h>
+#include <cub/base/BitSet.h>
+#include <cstdint>
+
+TSL_NS_BEGIN
+
+using TransListenerObservedAids = cub::BitSet<uint64_t>;
+
+TSL_NS_END
+
+#endif //TRANS_DSL_2_TRANSLISTENEROBSERVEDAIDS_H

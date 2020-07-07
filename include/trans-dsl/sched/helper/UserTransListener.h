@@ -9,6 +9,7 @@
 #include <trans-dsl/sched/domain/Event.h>
 #include <trans-dsl/sched/helper/AutoActionHelper.h>
 #include <trans-dsl/sched/domain/TransactionListener.h>
+#include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 
 TSL_NS_BEGIN
 
@@ -40,8 +41,6 @@ namespace details {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 namespace details {
-   using TransListenerObservedAids = cub::BitSet<uint64_t>;
-
    template<typename ... T_LISTENERS>
    struct UserTransListener;
 

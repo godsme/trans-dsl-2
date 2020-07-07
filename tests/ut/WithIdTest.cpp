@@ -98,8 +98,8 @@ namespace {
 
       GIVEN("a transaction has multi-with-id actions") {
          __def(Trans2) __as_trans
-         ( __with_id(3, __apply(Fork2, __with(AsyncAction1, AsyncAction4)))
-         , __with_id(4, __asyn(AsyncAction2))
+         ( __with_id(4, __apply(Fork2, __with(AsyncAction1, AsyncAction4)))
+         , __with_id(3, __asyn(AsyncAction2))
          , __join()
          );
 
@@ -109,13 +109,12 @@ namespace {
          }
 
          WHEN("bind a group listeners, __with_id should not be removed") {
-            using Trans2WithListner = __bind_listener(Trans2, Listeners);
+            using Trans2WithListener = __bind_listener(Trans2, Listeners);
 
-            Trans2WithListner trans;
-            REQUIRE(sizeof(Trans2WithListner) > sizeof(Trans2));
+            Trans2WithListener trans;
+            REQUIRE(sizeof(Trans2WithListener) > sizeof(Trans2));
+            REQUIRE(Result::CONTINUE == trans.start());
          }
-
       }
-
    }
 }

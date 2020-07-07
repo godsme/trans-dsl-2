@@ -22,8 +22,7 @@ namespace details {
 
    public:
       template<const TransListenerObservedAids& AIDs>
-      struct ActionRealType : public SchedFork {
-      private:
+      class ActionRealType : public SchedFork {
          using ActionType = ActionRealTypeTraits_t<AIDs, T_ACTION>;
          struct Inner {
             struct ThreadActionCreator {
@@ -37,10 +36,10 @@ namespace details {
                alignas(alignof(ActionType)) char cache[sizeof(ActionType)];
             };
          };
+
+         OVERRIDE(getThreadId() const -> ThreadId) { return TID; }
       public:
          using ThreadActionCreator = ThreadCreator_t<Inner, ActionType>;
-      private:
-         OVERRIDE(getThreadId() const -> ThreadId) { return TID; }
       };
    };
 }

@@ -18,15 +18,15 @@ struct SchedWithId : SchedAction  {
    OVERRIDE(stop(TransactionContext&, Status) -> Status);
 
 private:
-   enum class State {
+   enum class State : uint8_t {
       INIT,
       WORKING,
       STOPPING,
       DONE
    };
 
+   ActionId actionId{};
    State state = State::INIT;
-   ActionId actionId = 0;
 
 private:
    ABSTRACT(getActionId() const -> ActionId);

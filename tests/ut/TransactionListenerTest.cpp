@@ -72,6 +72,17 @@ namespace {
       }
    };
 
+   struct D : ObservedActionIdRegistry<> {
+      auto onActionStarting(ActionId aid, TransactionInfo const&) -> void {
+         switch(aid) {
+            case 1: C_1_reported = true; break;
+            case 2: C_2_reported = true; break;
+            case 3: C_3_reported = true; break;
+            default: unexpected_aid = true; break;
+         }
+      }
+   };
+
    TEST_CASE("ObservedActionIdRegistry") {
       REQUIRE(ObservedActionIdRegistry<1, 2>::Aids.isEnabled(1));
       REQUIRE(ObservedActionIdRegistry<1, 2>::Aids.isEnabled(2));
@@ -80,6 +91,28 @@ namespace {
 
    TEST_CASE("TransactionListenerDispatcher") {
       TSL_NS::details::TransactionListenerDispatcher<A, B, C> dispatcher;
+      clear_all_flags();
+
+      StupidTransactionContext context{};
+
+      WHEN("report a AID=4 onActionStarting event") {
+         dispatcher.onActionStarting(4, context);
+         THEN("no one got reported") {
+            REQUIRE(!A_2_reported);
+            REQUIRE(!B_2_reported);
+            REQUIRE(!C_2_reported);
+
+            REQUIRE(!A_1_reported);
+            REQUIRE(!B_3_reported);
+            REQUIRE(!C_1_reported);
+            REQUIRE(!C_3_reported);
+            REQUIRE(!unexpected_aid);
+         }
+      }
+   }
+
+   TEST_CASE("TransactionListenerDispatcher with observing all") {
+      TSL_NS::details::TransactionListenerDispatcher<A, B, D> dispatcher;
       clear_all_flags();
 
       StupidTransactionContext context{};
@@ -104,21 +137,6 @@ namespace {
             REQUIRE(A_2_reported);
             REQUIRE(B_2_reported);
             REQUIRE(C_2_reported);
-
-            REQUIRE(!A_1_reported);
-            REQUIRE(!B_3_reported);
-            REQUIRE(!C_1_reported);
-            REQUIRE(!C_3_reported);
-            REQUIRE(!unexpected_aid);
-         }
-      }
-
-      WHEN("report a AID=4 onActionStarting event") {
-         dispatcher.onActionStarting(4, context);
-         THEN("no one got reported") {
-            REQUIRE(!A_2_reported);
-            REQUIRE(!B_2_reported);
-            REQUIRE(!C_2_reported);
 
             REQUIRE(!A_1_reported);
             REQUIRE(!B_3_reported);

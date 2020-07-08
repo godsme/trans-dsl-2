@@ -13,7 +13,6 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
-#include <trans-dsl/utils/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/InlineSeqHelper.h>

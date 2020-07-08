@@ -9,7 +9,6 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/SequentialHelper.h>
-#include <trans-dsl/utils/TypeListSpliter.h>
 
 TSL_NS_BEGIN
 

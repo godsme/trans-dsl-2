@@ -10,7 +10,6 @@
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
-#include <trans-dsl/utils/TypeListExtractor.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/domain/TransListenerObservedAids.h>

@@ -30,47 +30,47 @@ namespace details {
 
       ///////////////////////////////////////////////////////////////////////////////////////////
 
-      template<typename ... T_TRANSFORMED>
-      struct Base  {
+      template<typename ... T_REAL_TYPES>
+      struct RealTypeSeq  {
          // for thread-resource-transfer
-         using ThreadActionCreator = ThreadCreator_t<T_TRANSFORMED...>;
+         using ThreadActionCreator = ThreadCreator_t<T_REAL_TYPES...>;
 
          // for inline sequential
          template<size_t N>
-         using ActionType = typename inline_seq::Extractor<N, T_TRANSFORMED...>::type;
-         constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<T_TRANSFORMED> + ... );
+         using ActionType = typename inline_seq::Extractor<N, T_REAL_TYPES...>::type;
+         constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<T_REAL_TYPES> + ... );
 
          template<typename ... Ts>
          using Seq = VolatileSeq<SchedAction, Ts...>;
 
-         using InlinedType = inline_seq::Inlined_t<Seq, T_TRANSFORMED...>;
-         using type = typename InlinedType::type;
+         using InlinedSeq = inline_seq::Inlined_t<Seq, T_REAL_TYPES...>;
+         using InlinedSeq_t = typename InlinedSeq::type;
       };
 
       template<TransListenerObservedAids const& AIDs>
       struct Trait {
          template<typename T>
-         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+         using ToActionRealType = ActionRealTypeTraits<AIDs, T>;
 
-         using BaseType = CUB_NS::Transform_t<Transformer, Base, T_ACTIONS...>;
+         using RealTypes = CUB_NS::Transform_t<ToActionRealType, RealTypeSeq, T_ACTIONS...>;
       };
 
    public:
       template<TransListenerObservedAids const& AIDs>
-      struct ActionRealType : SchedSequential, private Trait<AIDs>::BaseType::type {
+      struct ActionRealType : SchedSequential, private Trait<AIDs>::RealTypes::InlinedSeq_t {
       private:
-         using BaseType = typename Trait<AIDs>::BaseType;
+         using RealTypes = typename Trait<AIDs>::RealTypes;
       public:
-         using ThreadActionCreator = typename BaseType::ThreadActionCreator;
+         using ThreadActionCreator = typename RealTypes::ThreadActionCreator;
 
          // for seq inline
          template<size_t N>
-         using ActionType = typename BaseType::template ActionType<N>;
-         constexpr static size_t totalActions = BaseType::InlinedType::totalNumOfActions;
+         using ActionType = typename RealTypes::template ActionType<N>;
+         constexpr static size_t totalActions = RealTypes::InlinedSeq::totalNumOfActions;
 
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return BaseType::type::get(seq); }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return RealTypes::InlinedSeq_t::get(seq); }
       };
    };
 

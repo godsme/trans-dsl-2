@@ -67,9 +67,9 @@ namespace details {
       template<TransListenerObservedAids const& AIDs>
       struct Traits {
          template<typename T>
-         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+         using ToActionRealType = ActionRealTypeTraits<AIDs, T>;
 
-         using Base = CUB_NS::Transform_t<Transformer, Base, T_ACTIONS...>;
+         using Base = CUB_NS::Transform_t<ToActionRealType, Base, T_ACTIONS...>;
       };
 
    public:

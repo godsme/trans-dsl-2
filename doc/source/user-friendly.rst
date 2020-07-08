@@ -62,11 +62,11 @@
 最后都有一个 ``__finally`` 。它们之间的区别在于，``__procedure`` 无法从错误中恢复。而 ``__prot_procedure`` 可以。
 
 但这其中一个麻烦是：由于两者最后都是 ``__finally`` ，导致在阅读代码时，无法迅速的知道这是一个 ``__procedure`` ，还是一个
-``__prot_procedure`` ，另外，很多时候这也会 :ref:`妨害用户代码的的自由编写<free-code>` 。
-但它们的区别无非是是否可以通过 ``__finally`` 里的操作恢复之前的错误而已。
+``__prot_procedure`` ，另外，用户在 :ref:`自由编写<free-code>` DSL 代码时，根本无需指明这是一个 ``__procedure`` ，这种
+情况下，如何区分一个过程究竟是 ``__procedure`` 还是 ``__prot_procedure`` ?
 
-所以，``2.0`` 变更了定义它们的方式：不再有 ``__prot_procedure`` 。如果你需要从错误中恢复，最后不要使用 ``__finally`` ，而
-使用 ``__recover`` 。比如：
+而这两种语意的区别无非是是否可以通过 ``__finally`` 里的操作恢复之前的错误而已。所以，``2.0`` 变更了定义它们的方式：
+不再有 ``__prot_procedure`` 。如果你需要从错误中恢复，最后不要使用 ``__finally`` ，而使用 ``__recover`` 。比如：
 
 .. code-block::
 

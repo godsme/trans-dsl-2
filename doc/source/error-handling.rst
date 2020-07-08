@@ -334,16 +334,16 @@ stop的设计原则
    - 在 ``__finally`` 里，如果读到的错误码是 ``FORCE_STOPPED`` ，可再读取 ``stop_cause`` 。
 
 
-**__prot_procedure**
+**protected __procedure**
 ++++++++++++++++++++++++
 
 .. attention::
-   一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__prot_procedure`` 可以被 ``stop`` ，
+   一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 protected ``__procedure`` 可以被 ``stop`` ，
    其处理方式与 :ref:`procedure stop <procedure-stop>` 相同。
 
 
 .. attention::
-   ``__prot_procedure`` 天然处于 :ref:`沙箱模式 <sandbox-mode>` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
+   protected ``__procedure`` 天然处于 :ref:`沙箱模式 <sandbox-mode>` ，即，直到其运行结束之前，不会向外围运行时上下文通报任何错误。
 
 
 **__time_guard**

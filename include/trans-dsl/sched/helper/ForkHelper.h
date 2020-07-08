@@ -21,7 +21,7 @@ namespace details {
       static_assert(TID != 0, "0 is main thread, which has already been created");
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedFork {
          using ActionType = ActionRealTypeTraits_t<AIDs, T_ACTION>;
          struct Inner {

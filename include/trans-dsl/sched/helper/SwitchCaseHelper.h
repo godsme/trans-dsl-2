@@ -24,7 +24,7 @@ namespace details {
       static_assert(Num_Of_Paths >= 2, "should have at least 2 paths, or use __optional instead");
       static_assert(Num_Of_Paths <= 20, "too much paths in one ___switch");
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Trait {
          template<typename ... Tss>
          struct Base  {
@@ -40,7 +40,7 @@ namespace details {
       };
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : SchedSwitchCase, Trait<AIDs>::type::Paths {
          using ThreadActionCreator = typename Trait<AIDs>::type::ThreadActionCreator;
       private:

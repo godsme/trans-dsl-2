@@ -18,7 +18,7 @@ namespace details {
 
    template<TimerId V_TIMER_ID, typename T_ACTION>
    struct TimeGuard final {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : SchedTimeGuard {
          using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
       private:

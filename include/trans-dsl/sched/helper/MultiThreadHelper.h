@@ -16,7 +16,7 @@ namespace details {
 
    template<typename MAIN_ACTION>
    struct MultiThread {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : SchedMultiThread {
          auto exec(TransactionContext &context) -> Status {
             return SchedMultiThread::start(context, mainThreadAction);

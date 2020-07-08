@@ -18,7 +18,7 @@ namespace details {
 
    template<typename T_ACTION>
    struct Void final {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : SchedVoid {
          using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
       public:

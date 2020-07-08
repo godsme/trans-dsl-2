@@ -14,10 +14,10 @@ TSL_NS_BEGIN
 namespace details {
    template<ActionId AID, typename ACTION>
    class WithId final  {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       using Action = ActionRealTypeTraits_t<AIDs, ACTION>;
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Inner : SchedWithId {
       private:
          OVERRIDE(getActionId() const -> ActionId) { return AID; }
@@ -25,17 +25,17 @@ namespace details {
          Action<AIDs> action;
       };
 
-      template<const TransListenerObservedAids& AIDs, bool>
+      template<TransListenerObservedAids const& AIDs, bool>
       struct Trait {
          using type = Action<AIDs>;
       };
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Trait<AIDs, true>  {
          using type = Inner<AIDs>;
       };
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : Trait<AIDs, AIDs.isEnabled(AID)>::type {
          using ThreadActionCreator = ThreadCreator_t<Action<AIDs>>;
       };

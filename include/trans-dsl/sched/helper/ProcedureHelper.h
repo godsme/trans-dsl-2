@@ -43,7 +43,7 @@ namespace details {
       using FakeType = Split_t<sizeof...(T_ACTIONS) - 1, AutoSeq<>::template Inner, FinalTrait, T_ACTIONS...>;
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : SchedProcedure {
       private:
          using MainAction = ActionRealTypeTraits_t<AIDs, typename FakeType::first::type>;

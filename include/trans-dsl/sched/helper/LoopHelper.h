@@ -152,7 +152,7 @@ namespace details {
          using BaseType = typename inline_seq::Comb_t<LoopBase, Ts...>::type;
       };
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Trait {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
@@ -161,7 +161,7 @@ namespace details {
 
    public:
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedLoop, Trait<AIDs>::type::BaseType {
          using Result = typename Trait<AIDs>::type;
          using Base = typename Result::BaseType;

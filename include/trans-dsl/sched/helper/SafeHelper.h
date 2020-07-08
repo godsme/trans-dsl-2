@@ -15,7 +15,7 @@ TSL_NS_BEGIN
 namespace details {
    template<typename T_ACTION>
    struct Safe : SchedSafe {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : SchedSafe {
          using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
       public:

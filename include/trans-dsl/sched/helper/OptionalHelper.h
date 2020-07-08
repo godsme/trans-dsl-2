@@ -31,7 +31,7 @@ namespace details {
    ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, typename T_ACTION>
    struct OptionalFunction final {
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public OptionalBase<AIDs, T_ACTION> {
          using Action = typename OptionalBase<AIDs, T_ACTION>::Action;
          OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
@@ -44,7 +44,7 @@ namespace details {
    template<CONCEPT(PredConcept) T_PRED, typename T_ACTION>
    struct OptionalClass final {
       CONCEPT_ASSERT(PredConcept<T_PRED>);
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public OptionalBase<AIDs, T_ACTION> {
          using Action = typename OptionalBase<AIDs, T_ACTION>::Action;
 

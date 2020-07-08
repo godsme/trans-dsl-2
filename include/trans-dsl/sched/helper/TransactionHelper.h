@@ -30,7 +30,7 @@ namespace details {
       };
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : private TransactionContext {
       public:
          using RawType = ActionRealTypeTraits_t<AIDs, ACTION>;

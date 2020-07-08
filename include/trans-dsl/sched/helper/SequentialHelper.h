@@ -47,7 +47,7 @@ namespace details {
          using type = typename CombType::type;
       };
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Trait {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
@@ -56,7 +56,7 @@ namespace details {
       };
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct ActionRealType : SchedSequential, private Trait<AIDs>::BaseType::type {
       private:
          using BaseType = typename Trait<AIDs>::BaseType;

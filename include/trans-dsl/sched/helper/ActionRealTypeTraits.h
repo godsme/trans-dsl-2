@@ -10,17 +10,17 @@
 
 TSL_NS_BEGIN
 
-template<const TransListenerObservedAids& AIDs, typename T, typename = void>
+template<TransListenerObservedAids const& AIDs, typename T, typename = void>
 struct ActionRealTypeTraits {
    using type = T;
 };
 
-template<const TransListenerObservedAids& AIDs, typename T>
+template<TransListenerObservedAids const& AIDs, typename T>
 struct ActionRealTypeTraits<AIDs, T, std::void_t<typename T::template ActionRealType<AIDs> >> {
    using type = typename T::template ActionRealType<AIDs>;
 };
 
-template<const TransListenerObservedAids& AIDs, typename T>
+template<TransListenerObservedAids const& AIDs, typename T>
 using ActionRealTypeTraits_t = typename ActionRealTypeTraits<AIDs, T, void>::type;
 
 TSL_NS_END

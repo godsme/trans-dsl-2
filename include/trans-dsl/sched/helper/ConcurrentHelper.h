@@ -39,7 +39,7 @@ namespace details {
       }
    };
 
-   template<CONCEPT(SchedActionConcept) ... T_ACTIONS>
+   template<typename ... T_ACTIONS>
    class Concurrent final  {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
 
@@ -65,7 +65,7 @@ namespace details {
          using ThreadActionCreator = ThreadCreator_t<Tss...>;
       };
 
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       struct Traits {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
@@ -74,7 +74,7 @@ namespace details {
       };
 
    public:
-      template<const TransListenerObservedAids& AIDs>
+      template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedConcurrent, Traits<AIDs>::Base {
          static constexpr size_t Max_Num_Of_Actions = SchedConcurrent::Max_Num_Of_Children;
          static_assert(Num_Of_Actions <= Max_Num_Of_Actions, "too much actions in __concurrent");

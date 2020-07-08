@@ -15,7 +15,7 @@ class CppTransDslLexer(CppLexer):
                           '__as_trans', '__apply', '__with', '__is_failed', '__is_succ', '__not',
                           '__bind_listener', '__listeners'))
     FUNC_KEYWORDS  = set(('exec', 'handleEvent', 'kill', 'WAIT_ON'))
-    TYPE_KEYWORDS  = set(('ActionThreadId', 'TimerId', 'ActionId', 'Status', 'TransactionInfo', 'Event'))
+    TYPE_KEYWORDS  = set(('ActionThreadId', 'TimerId', 'ActionId', 'Status', 'TransactionInfo', 'Event', 'ObservedActionIdRegistry'))
     CONST_KEYWORDS = set(('SUCCESS', 'CONTINUE', 'UNKNOWN_EVENT', 'FAILED', 
                           'DEF_SIMPLE_ASYNC_ACTION'))
 

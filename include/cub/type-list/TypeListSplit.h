@@ -72,11 +72,22 @@ template<
 using take_tt = typename take_t<N, RESULT, IN...>::type;
 
 //////////////////////////////////////////////////////////////////////
+namespace details {
+   template<
+      size_t N,
+      template<typename ...> typename RESULT,
+      typename ... IN>
+   struct DropRight {
+      static_assert(N >= sizeof...(IN), "N is greater than the size of type list");
+      using type = take_t<sizeof...(IN) - N, RESULT, IN...>;
+   };
+}
+
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using dropRight_t = take_t<sizeof...(IN) - N, RESULT, IN...>;
+using dropRight_t = typename details::DropRight<N, RESULT, IN...>::type;
 
 template<
    size_t N,

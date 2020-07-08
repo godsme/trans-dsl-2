@@ -19,42 +19,39 @@ TSL_NS_BEGIN
 namespace details {
 
    ////////////////////////////////////////////////////////////////
-   template<typename T_ACTION>
-   struct OptionalBase {
-      template<const TransListenerObservedAids& AIDs>
-      class Inner : public SchedOptional {
-         using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
-         OVERRIDE(getAction() -> SchedAction*) { return new (cache) Action; }
-         alignas(alignof(Action)) unsigned char cache[sizeof(Action)];
-      public:
-         using ThreadActionCreator = ThreadCreator_t<Action>;
-      };
+   template<TransListenerObservedAids const& AIDs, typename T_ACTION>
+   class OptionalBase : public SchedOptional {
+   protected:
+      using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+   public:
+      using ThreadActionCreator = ThreadCreator_t<Action>;
    };
 
    ////////////////////////////////////////////////////////////////
    template<PredFunction V_PRED, typename T_ACTION>
-   class OptionalFunction final {
+   struct OptionalFunction final {
       template<const TransListenerObservedAids& AIDs>
-      using Base = typename OptionalBase<T_ACTION>::template Inner<AIDs>;
-
-   public:
-      template<const TransListenerObservedAids& AIDs>
-      struct ActionRealType : public Base<AIDs> {
-         using ThreadActionCreator = typename  Base<AIDs>::ThreadActionCreator;
-      public:
+      class ActionRealType : public OptionalBase<AIDs, T_ACTION> {
+         using Action = typename OptionalBase<AIDs, T_ACTION>::Action;
          OVERRIDE(isTrue(TransactionContext& context) -> bool) { return V_PRED(context); }
+         OVERRIDE(getAction() -> SchedAction*) { return new (cache) Action; }
+         alignas(alignof(Action)) unsigned char cache[sizeof(Action)];
       };
    };
 
    ////////////////////////////////////////////////////////////////
    template<CONCEPT(PredConcept) T_PRED, typename T_ACTION>
-   class OptionalClass final {
+   struct OptionalClass final {
       CONCEPT_ASSERT(PredConcept<T_PRED>);
-
-   public:
       template<const TransListenerObservedAids& AIDs>
-      class ActionRealType : T_PRED, public OptionalBase<T_ACTION>::template Inner<AIDs> {
+      class ActionRealType : public OptionalBase<AIDs, T_ACTION> {
+         using Action = typename OptionalBase<AIDs, T_ACTION>::Action;
+
          OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
+         OVERRIDE(getAction() -> SchedAction*) { return new (cache) Action; }
+
+         alignas(std::max(alignof(T_PRED), alignof(Action)))
+         unsigned char cache[std::max(sizeof(T_PRED), sizeof(Action))];
       };
    };
 
@@ -79,7 +76,6 @@ namespace details {
    inline auto IsStatus__(TransactionInfo const& info) -> bool {
       return info.getStatus() == V_STATUS;
    }
-
 }
 
 #define __is_succ TSL_NS::details::IsSucc__

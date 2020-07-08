@@ -31,10 +31,6 @@ Transaction DSL简介
    event
 
    monitor
+   user-friendly
    performance
    memory
-   user-friendly
-
-
-
-

@@ -10,11 +10,11 @@
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/VolatileSeq.h>
-#include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/InlineSeqHelper.h>
 #include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 #include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
-#include <trans-dsl/utils/TypeListTransformer.h>
+#include <cub/type-list/TypeListTransform.h>
+#include <trans-dsl/utils/ThreadActionTrait.h>
 
 TSL_NS_BEGIN
 
@@ -52,7 +52,7 @@ namespace details {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
 
-         using BaseType = Transform_t<Transformer, Base, T_ACTIONS...>;
+         using BaseType = CUB_NS::Transform_t<Transformer, Base, T_ACTIONS...>;
       };
 
    public:

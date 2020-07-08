@@ -70,7 +70,7 @@ namespace details {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
 
-         using Base = Transform_t<Transformer, Base, T_ACTIONS...>;
+         using Base = CUB_NS::Transform_t<Transformer, Base, T_ACTIONS...>;
       };
 
    public:

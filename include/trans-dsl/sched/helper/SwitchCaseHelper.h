@@ -36,7 +36,7 @@ namespace details {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
 
-         using type = Transform_t<Transformer, Base, T_PATHS...>;
+         using type = CUB_NS::Transform_t<Transformer, Base, T_PATHS...>;
       };
 
    public:

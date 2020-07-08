@@ -156,7 +156,7 @@ namespace details {
       struct Trait {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
-         using type = Transform_t<Transformer, Base, T_ENTRIES...>;
+         using type = CUB_NS::Transform_t<Transformer, Base, T_ENTRIES...>;
       };
 
    public:

@@ -8,6 +8,7 @@
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
+#include <cub/type-list/TypeListTakeRIght.h>
 
 TSL_NS_BEGIN
 
@@ -22,7 +23,7 @@ namespace details {
       };
 
       template<typename ... Ts>
-      constexpr static bool IsProcedure = FinallyConcept<TakeRight_tt<1, FinalTrait, Ts...>>;
+      constexpr static bool IsProcedure = FinallyConcept<CUB_NS::TakeRight_tt<1, FinalTrait, Ts...>>;
 
       template<typename = void, typename ... Ts>
       struct ProcedureTrait {

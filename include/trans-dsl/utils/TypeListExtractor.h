@@ -59,28 +59,6 @@ namespace details {
          using type = USER<TAIL...>;
       };
    };
-
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   class RightTaker final {
-      static_assert(N > 0, "N should not be 0");
-      static_assert(N < sizeof...(Ts), "N is out of scope");
-      template<typename ... Tss>
-      using Traits = typename TailTraits<USER>::template Inner<Tss...>;
-   public:
-      using type = TypeListExtractor_t<sizeof...(Ts) - N - 1, Traits, Ts...>;
-   };
-
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   using TakeRight_t = typename RightTaker<N, USER, Ts...>::type;
-
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   using TakeRight_tt = typename TakeRight_t<N, USER, Ts...>::type;
-
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   using Drop_t = TakeRight_t<sizeof...(Ts) - N, USER, Ts...>;
-
-   template<size_t N, template<typename ...> typename USER, typename ... Ts>
-   using Drop_tt = typename Drop_t<N, USER, Ts...>::type;
 }
 
 TSL_NS_END

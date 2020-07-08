@@ -23,6 +23,7 @@ namespace details {
    class OptionalBase : public SchedOptional {
    protected:
       using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+      CONCEPT_ASSERT(SchedActionConcept<Action>);
    public:
       using ThreadActionCreator = ThreadCreator_t<Action>;
    };

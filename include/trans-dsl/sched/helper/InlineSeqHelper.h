@@ -65,24 +65,21 @@ namespace details::inline_seq {
 
    ///////////////////////////////////////////////////////////////////////////////////////////
    template<size_t N, size_t M, template<typename ...> typename USER, typename EXTRACTOR, typename ... Ts>
-   struct Comb {
+   struct Inlined {
       using elem = typename EXTRACTOR::template type<M>;
-      using type = typename Comb<N - 1, M + 1, USER, EXTRACTOR, Ts..., elem>::type;
+      using type = typename Inlined<N - 1, M + 1, USER, EXTRACTOR, Ts..., elem>::type;
    };
 
    template<size_t M, template<typename ...> typename USER, typename EXTRACTOR, typename ... Ts>
-   struct Comb<0, M, USER, EXTRACTOR, Ts...> {
+   struct Inlined<0, M, USER, EXTRACTOR, Ts...> {
       using type = USER<Ts..., typename EXTRACTOR::template type<M>>;
    };
 
-
    template<template<typename ...> typename USER, typename ... Ts>
-   struct Comb_t {
+   struct Inlined_t {
       constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<Ts> + ... );
-      using type =  typename inline_seq::Comb<totalNumOfActions-1, 0, USER, inline_seq::Extract<Ts...>>::type;
+      using type =  typename inline_seq::Inlined<totalNumOfActions - 1, 0, USER, inline_seq::Extract<Ts...>>::type;
    };
-
-
 }
 
 TSL_NS_END

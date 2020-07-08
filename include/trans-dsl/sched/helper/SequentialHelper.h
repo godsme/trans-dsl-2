@@ -43,8 +43,8 @@ namespace details {
          template<typename ... Ts>
          using Seq = VolatileSeq<SchedAction, Ts...>;
 
-         using CombType = inline_seq::Comb_t<Seq, T_TRANSFORMED...>;
-         using type = typename CombType::type;
+         using InlinedType = inline_seq::Inlined_t<Seq, T_TRANSFORMED...>;
+         using type = typename InlinedType::type;
       };
 
       template<TransListenerObservedAids const& AIDs>
@@ -66,7 +66,7 @@ namespace details {
          // for seq inline
          template<size_t N>
          using ActionType = typename BaseType::template ActionType<N>;
-         constexpr static size_t totalActions = BaseType::CombType::totalNumOfActions;
+         constexpr static size_t totalActions = BaseType::InlinedType::totalNumOfActions;
 
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }

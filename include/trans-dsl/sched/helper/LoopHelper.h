@@ -148,7 +148,7 @@ namespace details {
       template <typename ... Ts>
       struct Base {
          using ThreadActionCreator = ThreadCreator_t<Ts...>;
-         using BaseType = typename inline_seq::Comb_t<LoopBase, Ts...>::type;
+         using BaseType = typename inline_seq::Inlined_t<LoopBase, Ts...>::type;
       };
 
       template<TransListenerObservedAids const& AIDs>

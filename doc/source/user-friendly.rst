@@ -58,8 +58,8 @@
 **__procedure**
 -----------------------------
 
-在 ``1.x`` 时，过程分为两种: `__procedure` 和 `__prot_procedure` ，它们有完全一致的结构： 前面时正常的 `Action` ，
-最后都有一个 ``__finally`` 。它们之间的区别在于，`__procedure` 无法从错误中恢复。而 `__prot_procedure` 可以。
+在 ``1.x`` 时，过程分为两种: ``__procedure`` 和 ``__prot_procedure`` ，它们有完全一致的结构： 前面时正常的 `Action` ，
+最后都有一个 ``__finally`` 。它们之间的区别在于，``__procedure`` 无法从错误中恢复。而 ``__prot_procedure`` 可以。
 
 但这其中一个麻烦是：由于两者最后都是 ``__finally`` ，导致在阅读代码时，无法迅速的知道这是一个 ``__procedure`` ，还是一个
 ``__prot_procedure`` ，而它们的区别无非是是否可以通过 ``__finally`` 里的操作恢复之前的错误而已。

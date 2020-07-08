@@ -20,7 +20,8 @@
 
    __sequential
      ( __req(Action1)
-     , __optional(ShouldExecAction2, __asyn(Action2)) , __asyn(Action3)
+     , __optional(ShouldExecAction2, __asyn(Action2))
+     , __asyn(Action3)
      , __asyn(Action4)
      , __rsp(Action5));
 
@@ -59,17 +60,17 @@
       return object->isAction2RunFirst();
    }
 
-   __sequential
-     ( __req(Action1)
-     , __optional
-         ( IsAction2RunFirst
-         , __asyn(Action2)
-         , __asyn(Action3))
-     , __optional
-         ( __not(IsAction2RunFirst),
-         , __asyn(Action3)
-         , __asyn(Action2))
-     , __rsp(Action4));
+   __transaction
+   ( __req(Action1)
+   , __optional
+       ( IsAction2RunFirst
+       , __asyn(Action2)
+       , __asyn(Action3))
+   , __optional
+       ( __not(IsAction2RunFirst),
+       , __asyn(Action3)
+       , __asyn(Action2))
+   , __rsp(Action4));
 
 首先，在这个例子中，谓词的实现使用了 ``TransactionInfo`` 来获取 `Instance ID` ， 进而通过它找到了对象，从而完成了判断。
 
@@ -89,16 +90,16 @@
 
 .. code-block:: c++
 
-   __sequential
-     ( __req(Action1)
-     , __switch( __case
-                   ( IsAction2RunFirst
-                   , __asyn(Action2)
-                   , __asyn(Action3))
-               , __otherwise
-                   ( __asyn(Action3)
-                   , __asyn(Action2)))
-    , __rsp(Action4));
+   __transaction
+   ( __req(Action1)
+   , __switch( __case
+                 ( IsAction2RunFirst
+                 , __asyn(Action2)
+                 , __asyn(Action3))
+             , __otherwise
+                 ( __asyn(Action3)
+                 , __asyn(Action2)))
+   , __rsp(Action4));
 
 
 从代码中可以看出，在一个 ``__switch`` 里，一条路径可以使用 ``__case`` 来描述， 而 ``__case`` 则和 ``__optional`` 一样，
@@ -123,11 +124,12 @@
 
 .. code-block:: c++
 
-  __sequential
-    ( __req(Action1)
-    , __optional(IsAction2RunFirst, __asyn(Action2))
-    , __asyn(Action3)
-    , __optional(__not(IsAction2RunFirst), __asyn(Action3)) , __rsp(Action4));
+  __transaction
+  ( __req(Action1)
+  , __optional(IsAction2RunFirst, __asyn(Action2))
+  , __asyn(Action3)
+  , __optional(__not(IsAction2RunFirst), __asyn(Action3))
+  , __rsp(Action4));
 
 
 异常处理
@@ -168,12 +170,12 @@
 .. code-block:: c++
 
   __procedure
-    ( __req(Action1)
-    , __sync(Action2)
-    , __concurrent(__asyn(Action3), __asyn(Action4))
-    , __finally
-        ( __rsp(Action5)
-        , __on_fail(__sync(Rollback))));
+  ( __req(Action1)
+  , __sync(Action2)
+  , __concurrent(__asyn(Action3), __asyn(Action4))
+  , __finally
+      ( __rsp(Action5)
+      , __on_fail(__sync(Rollback))));
 
 
 之所以额外提供 ``__procedure`` 的概念，是因为，通过它，用户可以在一个事务中定义多个过程，每个过程都可以利用这种机制，

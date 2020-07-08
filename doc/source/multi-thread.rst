@@ -273,7 +273,7 @@
    ( __fork(THREAD1, __asyn(Action1))
    , __fork(THREAD2, __asyn(Action2))
    , __asyn(Action3)
-   , __join())
+   , __join());
 
 如果主线程是一个 ``__procedure`` ，那么就应该在 ``__finally`` 里 ``__join``，比如：
 
@@ -285,7 +285,7 @@
   , __asyn(Action3))
   , __finally
       ( __asyn(Action4)
-      , __join()))
+      , __join()));
 
 注意，``__join`` 并不关心它所等待的线程是以成功还是失败，而只关心它们是否已经结束。
 
@@ -308,7 +308,7 @@
    __transaction
    ( __fork(THREAD1, __asyn(Action1))
    , __asyn(Action2))
-   , __finally(__on_fail(__asyn(Action3))))
+   , __finally(__on_fail(__asyn(Action3))));
 
 如果 ``Action1`` 的 ``exec`` 调用结果为某种错误，则 ``__fork`` 失败，从而 ``Action2`` 会被调过，直接进入 ``__finally`` ；
 而由于 ``__fork`` 失败，因而 ``__on_fail`` 谓词判断结果为 ``true`` ，所以， ``Action3`` 会得到执行。
@@ -328,7 +328,7 @@
      , __asyn(Action4))
      , __recover
          ( __on_fail(__asyn(Action5))
-         , __asyn(Action6)))
+         , __on_succ(__asyn(Action6))));
 
 在 ``THREAD1`` 和 ``THREAD2`` 被成功 ``__fork`` 后，如果 ``Action2`` 在随后的处理过程中发生了错误，则主线程和``THREAD1`` 都会
 被 ``stop`` ，从而导致 ``THREAD1`` 的直接终止，而主线程的 ``Action3`` 也同样被终止， 并跳过 ``Action4`` ，
@@ -376,7 +376,7 @@
    ( __concurrent
        ( __asyn(Action1)
        , __procedure(__asyn(Action2), __finally(__asyn(Action3))))
-       , __asyn(Action4)
+   , __asyn(Action4)
    , __finally(__asyn(Action5)))
 
 尽管如此，当一个匿名线程失败时，仍然会及时的通知给整个事务，从而让事 务内的其它线程可以尽早进入失败处理。

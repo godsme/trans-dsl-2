@@ -200,7 +200,8 @@
    auto start(Event const& event) -> Status;
 
    auto handleEvent(Event const& event) -> Status;
-
+   auto stop(Status cause) -> Status;
+   auto kill(Status cause) -> void;
 
 所以，你可以选择任何一个 ``start`` 接口来启动一个事务。像一个异步操作一样， 如果其返回值是 ``SUCCESS`` ，
 说明此事务已经成功的执行；如果其返回值是一个 **错误值** ，则说明此事务已经失败；

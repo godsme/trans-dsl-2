@@ -181,8 +181,8 @@
    ( __asyn(Action1)
    , __asyn(Action2)
    , __recover
-      ( __asyn(Action3)
-      , __asyn(Action4)));
+       ( __asyn(Action3)
+       , __asyn(Action4)));
 
 或者 ``__optional`` ，
 
@@ -328,12 +328,12 @@
        , __join()));
 
    __transaction
-   ( __sequential(
-       __sequential
-         ( __fork(1, __asyn(AsyncAction1))
-         , __fork(2, __asyn(AsyncAction4)))
-         , __asyn(AsyncAction2))
-   , __join());
+   ( __sequential
+      ( __sequential
+          ( __fork(1, __asyn(AsyncAction1))
+          , __fork(2, __asyn(AsyncAction4)))
+          , __asyn(AsyncAction2))
+      , __join()));
 
 这样，就让程序员可以基于好的理由，自由的提取任何片段，而不用担心付出任何资源代价。
 

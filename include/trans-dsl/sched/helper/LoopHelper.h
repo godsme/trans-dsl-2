@@ -133,7 +133,7 @@ namespace details {
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Expanded_Num_Of_Entries) {
-            return TypeListExtractor_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
+            return CUB_NS::Drop_tt<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
          } else {
             return nullptr;
          }

@@ -34,7 +34,7 @@ namespace details {
             TRANSFORM,
             RESULT,
             void,
-            Ts..., typename TRANSFORM<typename INPUT_LIST::Head>::type
+            __TYPE_LIST_APPEND(Ts..., typename TRANSFORM<typename INPUT_LIST::Head>::type)
          >::type;
    };
 }
@@ -44,7 +44,14 @@ template<
    template<typename>     typename TRANSFORMER,
    template<typename ...> typename RESULT,
    typename                    ... Ts>
-using Transform_t = typename details::Transform<TypeList < Ts...>, TRANSFORMER, RESULT, void>::type;
+using Transform_t =
+   typename details::Transform<
+      TypeList < Ts...>,
+      TRANSFORMER,
+      RESULT,
+      void
+      __EMPTY_OUTPUT_TYPE_LIST___
+   >::type;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<

@@ -9,8 +9,8 @@
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/SequentialHelper.h>
-#include <trans-dsl/utils/TypeListSpliter.h>
 #include <trans-dsl/sched/helper/AutoSeqHelper.h>
+#include <cub/type-list/TypeListSplit.h>
 
 TSL_NS_BEGIN
 
@@ -40,7 +40,7 @@ namespace details {
    class Procedure final  {
       static_assert(sizeof...(T_ACTIONS) > 1, "__procedure should have at 1 action and 1 final action");
 
-      using FakeType = Split_t<sizeof...(T_ACTIONS) - 1, AutoSeq<>::template Inner, FinalTrait, T_ACTIONS...>;
+      using FakeType = CUB_NS::Split_t<sizeof...(T_ACTIONS) - 1, AutoSeq<>::template Inner, FinalTrait, T_ACTIONS...>;
 
    public:
       template<TransListenerObservedAids const& AIDs>

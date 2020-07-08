@@ -12,34 +12,34 @@
 TSL_NS_BEGIN
 
 namespace details {
-   template<
-      size_t N,
-      template<typename ...> typename TRAIT,
-      typename ... Ts>
-   struct TypeListExtractor;
-
-   template<
-      size_t N,
-      template<typename ...> typename TRAIT,
-      typename HEAD,
-      typename ... TAIL>
-   struct TypeListExtractor<N, TRAIT, HEAD, TAIL...> {
-      using type = typename TypeListExtractor<SeqInt(N - 1), TRAIT, TAIL...>::type;
-   };
-
-   template<
-      template<typename ...> typename TRAIT,
-      typename HEAD,
-      typename ... TAIL>
-   struct TypeListExtractor<0, TRAIT, HEAD, TAIL...> {
-      using type = TRAIT<HEAD, TAIL...>;
-   };
-
-   template<
-      size_t N,
-      template<typename ...> typename TRAIT,
-      typename ... Ts>
-    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::type::type;
+//   template<
+//      size_t N,
+//      template<typename ...> typename TRAIT,
+//      typename ... Ts>
+//   struct TypeListExtractor;
+//
+//   template<
+//      size_t N,
+//      template<typename ...> typename TRAIT,
+//      typename HEAD,
+//      typename ... TAIL>
+//   struct TypeListExtractor<N, TRAIT, HEAD, TAIL...> {
+//      using type = typename TypeListExtractor<SeqInt(N - 1), TRAIT, TAIL...>::type;
+//   };
+//
+//   template<
+//      template<typename ...> typename TRAIT,
+//      typename HEAD,
+//      typename ... TAIL>
+//   struct TypeListExtractor<0, TRAIT, HEAD, TAIL...> {
+//      using type = TRAIT<HEAD, TAIL...>;
+//   };
+//
+//   template<
+//      size_t N,
+//      template<typename ...> typename TRAIT,
+//      typename ... Ts>
+//    using TypeListExtractor_t = typename TypeListExtractor<N, TRAIT, Ts...>::type::type;
 
    //////////////////////////////////////////////////
    template<typename ...> struct HeadTraits;

@@ -56,7 +56,7 @@ namespace details {
          template<SeqInt N>
          auto get() -> SchedAction * {
             if constexpr(N < Num_Of_Actions) {
-               return TypeListExtractor_t<N, Elem, Tss...>::get();
+               return CUB_NS::Drop_tt<N, Elem, Tss...>::get();
             } else {
                return nullptr;
             }

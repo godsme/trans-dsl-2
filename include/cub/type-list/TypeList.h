@@ -16,7 +16,27 @@ template<typename H, typename ... Ts>
 struct TypeList<H, Ts...> {
    using Head = H;
    using Tail = TypeList<Ts...>;
+   using type = void;
 };
+
+   template<
+      template<typename ...> typename RESULT,
+      typename ... Ts>
+   struct GenericTypeList {};
+
+   template<
+      template<typename ...> typename RESULT,
+      typename H,
+      typename ... Ts>
+   struct GenericTypeList<RESULT, H, Ts...> {
+      using Head = H;
+      using Tail = GenericTypeList<RESULT, Ts...>;
+
+      using type = RESULT<H, Ts...>;
+   };
+
+#define __EMPTY_OUTPUT_TYPE_LIST___
+#define __TYPE_LIST_APPEND(first, second) first, second
 
 CUB_NS_END
 

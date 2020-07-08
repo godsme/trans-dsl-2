@@ -8,7 +8,7 @@
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <trans-dsl/sched/helper/ProcedureHelper.h>
-#include <cub/type-list/TypeListTakeRIght.h>
+#include <cub/type-list/TypeListTakeRight.h>
 
 TSL_NS_BEGIN
 

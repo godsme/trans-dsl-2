@@ -17,16 +17,22 @@
       return Result::SUCCESS;
    }
 
-   // lambda
+   // lambda sync action
    auto SyncAction2 = [](TransactionInfo const&) -> Status {
       return Result::SUCCESS;
    };
 
+   // lambda predicate
+   auto IsTrue = [](TransactionInfo const&) -> bool {
+      return true;
+   };
+
    __sequential
      ( __sync(SyncAction1)
-     , __sync(SyncAction2)
+     , __optional(IsTrue, __sync(SyncAction2))
      , ...
      );
+
 
 
 - 对于 ``atom action`` ， 无需从任何接口类继承，而是直接定义相关函数即可。
@@ -48,6 +54,33 @@
      );
 
 这一方面免除了用户的负担，更重要的是，用户无需为不必要的虚函数付出任何额外代价。
+
+**__procedure**
+-----------------------------
+
+在 ``1.x`` 时，过程分为两种: `__procedure` 和 `__prot_procedure` ，它们有完全一致的结构： 前面时正常的 `Action` ，
+最后都有一个 ``__finally`` 。它们之间的区别在于，`__procedure` 无法从错误中恢复。而 `__prot_procedure` 可以。
+
+但这其中一个麻烦是：由于两者最后都是 ``__finally`` ，导致在阅读代码时，无法迅速的知道这是一个 ``__procedure`` ，还是一个
+``__prot_procedure`` ，而它们的区别无非是是否可以通过 ``__finally`` 里的操作恢复之前的错误而已。
+
+所以，``2.0`` 变更了定义它们的方式：不再有 ``__prot_procedure`` 。如果你需要从错误中恢复，最后不要使用 ``__finally`` ，而
+使用 ``__recover`` 。比如：
+
+.. code-block::
+
+   // 原来的 __procedure 语意
+   __procedure
+   ( __sync(Action1)
+   , __asyn(Action2)
+   , __finally(__asyn(Action3)));
+
+   // 原来的 __prot_procedure 语意
+   __procedure
+   ( __sync(Action1)
+   , __asyn(Action2)
+   , __recover(__asyn(Action3)));
+
 
 更加自由的编写代码
 ------------------------------

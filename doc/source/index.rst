@@ -31,7 +31,6 @@ Transaction DSL简介
    event
 
    monitor
-   appendix
    performance
    memory
    user-friendly

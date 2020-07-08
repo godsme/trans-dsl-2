@@ -361,7 +361,7 @@
    , __while(__is_failed));
 
 
-**__with_id 优化**
+**__with_id 自动感知及消除**
 ---------------------------
 
 参见 :ref:`register_of_observer`

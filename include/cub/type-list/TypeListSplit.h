@@ -22,7 +22,7 @@ namespace details {
          N - 1,
          typename IN::Tail,
          RESULT,
-         OUT..., typename IN::Head
+         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
       >::type;
    };
 

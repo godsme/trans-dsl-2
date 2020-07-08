@@ -81,11 +81,8 @@ namespace {
       }
    };
 
-   template<typename T> struct S;
-
    __def(Fork2, __params(__action(ACTION1), __action(ACTION2))) __as
    (__fork(1, __with_id(1, __asyn(ACTION1))), __fork(2, __with_id(2, __asyn(ACTION2))));
-
 
    using Listeners = __listeners(A, B, C);
 

@@ -140,20 +140,20 @@
 .. code-block::
 
    struct MyListener1 : ObservedActionIdRegistry<ID_TRANS, ID_SEQ> {
-        auto onActionDone(ActionId aid, TransactionInfo const&, Status) -> void {
-            switch(aid) {
-            case ID_TRANS: // blah...
-            case ID_SEQ:   // blah...
-            }
-        }
+     auto onActionDone(ActionId aid, TransactionInfo const&, Status) -> void {
+       switch(aid) {
+       case ID_TRANS: // blah...
+       case ID_SEQ:   // blah...
+       }
+     }
    };
 
    struct MyListener2 : ObservedActionIdRegistry<ID_TRANS> {
-        auto onActionStarting(ActionId aid, TransactionInfo const&) -> void {
-            switch(aid) {
-            case ID_TRANS: // blah...
-            }
-        }
+     auto onActionStarting(ActionId aid, TransactionInfo const&) -> void {
+       switch(aid) {
+       case ID_TRANS: // blah...
+       }
+     }
    };
 
 例子中，``MyListener1`` 关心 2 个 ``Action ID`` : ``ID_TRANS`` 和 ``ID_SEQ`` ；而 ``MyListener2`` 只关心 ``ID_TRANS`` 。

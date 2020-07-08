@@ -30,21 +30,21 @@ namespace details {
 
       ///////////////////////////////////////////////////////////////////////////////////////////
 
-      template<typename ... Tss>
+      template<typename ... T_TRANSFORMED>
       struct Base  {
          // for thread-resource-transfer
-         using ThreadActionCreator = ThreadCreator_t<Tss...>;
+         using ThreadActionCreator = ThreadCreator_t<T_TRANSFORMED...>;
 
          // for inline sequential
          template<size_t N>
-         using ActionType = typename inline_seq::Extractor<N, Tss...>::type;
-         constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<Tss> + ... );
+         using ActionType = typename inline_seq::Extractor<N, T_TRANSFORMED...>::type;
+         constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<T_TRANSFORMED> + ... );
 
          template<typename ... Ts>
          using Seq = VolatileSeq<SchedAction, Ts...>;
 
-         using CombType = inline_seq::Comb_t<Seq, Tss...>;
-         using BaseType = typename CombType::type;
+         using CombType = inline_seq::Comb_t<Seq, T_TRANSFORMED...>;
+         using type = typename CombType::type;
       };
 
       template<const TransListenerObservedAids& AIDs>
@@ -52,25 +52,26 @@ namespace details {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
 
-         using type = Transform_t<Transformer, Base, T_ACTIONS...>;
+         using BaseType = Transform_t<Transformer, Base, T_ACTIONS...>;
       };
 
    public:
       template<const TransListenerObservedAids& AIDs>
-      struct ActionRealType : SchedSequential, Trait<AIDs>::type::BaseType {
+      struct ActionRealType : SchedSequential, private Trait<AIDs>::BaseType::type {
       private:
-         using Result = typename Trait<AIDs>::type;
+         using BaseType = typename Trait<AIDs>::BaseType;
       public:
-         using ThreadActionCreator = typename Result::ThreadActionCreator;
-         constexpr static size_t totalActions = Result::CombType::totalNumOfActions;
+         using ThreadActionCreator = typename BaseType::ThreadActionCreator;
+
+         // for seq inline
          template<size_t N>
-         using ActionType = typename Result::template ActionType<N>;
+         using ActionType = typename BaseType::template ActionType<N>;
+         constexpr static size_t totalActions = BaseType::CombType::totalNumOfActions;
 
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Result::BaseType::get(seq); }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return BaseType::type::get(seq); }
       };
-
    };
 
    template<typename ... Ts>

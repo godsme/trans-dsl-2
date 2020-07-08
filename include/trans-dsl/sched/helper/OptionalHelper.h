@@ -47,7 +47,7 @@ namespace details {
       class ActionRealType : public OptionalBase<AIDs, T_ACTION> {
          using Action = typename OptionalBase<AIDs, T_ACTION>::Action;
 
-         OVERRIDE(isTrue(TransactionContext& context) -> bool) { return T_PRED::operator()(context); }
+         OVERRIDE(isTrue(TransactionContext& context) -> bool) { return (*(new (cache) T_PRED))(context); }
          OVERRIDE(getAction() -> SchedAction*) { return new (cache) Action; }
 
          alignas(std::max(alignof(T_PRED), alignof(Action)))
@@ -86,7 +86,8 @@ namespace details {
 #define __on_status(status, ...) __optional(__is_status(status), __VA_ARGS__)
 
 #define __optional(pred, ...)  \
-decltype(TSL_NS::details::deductOptionalClass__<pred, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
+  decltype(TSL_NS::details::deductOptionalClass__<pred, \
+  TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>())
 
 #define __def_optional(pred, ...)  typename __optional(pred, __VA_ARGS__)::template ActionRealType<EmptyAids>
 

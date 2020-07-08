@@ -19,9 +19,9 @@
 
    auto onActionStarting(ActionId, TransactionInfo const&) -> void;
    auto onActionEventConsumed(ActionId, TransactionInfo const&, Event const&) -> void;
-   auto onActionDone(ActionId, TransactionInfo const&, Status) -> void
-   auto onActionStopped(ActionId, TransactionInfo const&, Status) -> void
-   auto onActionKilled(ActionId, TransactionInfo const&, Status) -> void
+   auto onActionDone(ActionId, TransactionInfo const&, Status) -> void;
+   auto onActionStopped(ActionId, TransactionInfo const&, Status) -> void;
+   auto onActionKilled(ActionId, TransactionInfo const&, Status) -> void;
 
 
 注意，你无需继承自任何接口，直接在你的观察者类中选择实现你关心的方法，比如下面的观察者只关心 ``Action Done`` 事件：

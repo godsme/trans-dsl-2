@@ -59,6 +59,7 @@ auto SchedWithId::stop(TransactionContext& context, Status cause) -> Status {
          } else {
             state = State::STOPPING;
          }
+         return status;
       }
       default:
          return FATAL_BUG;

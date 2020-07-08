@@ -13,30 +13,50 @@
 **TransactionListener**
 ---------------------------
 
-每个观察者都应该实现一个名为 ``TransactionListener`` 的接口。其定义如下:
+每个观察者应该实现一个或者多个如下方法。其定义如下:
 
 .. code-block::
 
-   struct TransactionListener {
-      virtual void onActionStarting(ActionId) {}
-      virtual void onActionStarted(ActionId) {}
-      virtual void onActionEventConsumed(ActionId, Event const&) {}
-      virtual void onActionDone(ActionId, Status) {}
-      virtual void onActionStartStopping(ActionId, Status) {}
-      virtual void onActionStoppingStarted(ActionId) {}
-      virtual void onActionEventConsumed(ActionId, Event const&) {}
-      virtual void onActionStopped(ActionId, Status) {}
-      virtual void onActionInterrupted(const ActionId) {}
+   auto onActionStarting(ActionId, TransactionInfo const&) -> void;
+   auto onActionEventConsumed(ActionId, TransactionInfo const&, Event const&) -> void;
+   auto onActionDone(ActionId, TransactionInfo const&, Status) -> void
+   auto onActionStopped(ActionId, TransactionInfo const&, Status) -> void
+   auto onActionKilled(ActionId, TransactionInfo const&, Status) -> void
 
-      virtual ~TransactionListener() = default;
+
+注意，你无需继承自任何接口，直接在你的观察者类中选择实现你关心的方法，比如下面的观察者只关心 ``Action Done`` 事件：
+
+.. code-block::
+
+   struct MyObserver {
+      auto onActionDone(ActionId, TransactionInfo const&, Status) -> void {
+         // blah...
+      }
    };
 
-这个接口的方法分为三组，共 9 个。它的默认首先均为空，每个观察者可以选择自己感兴趣的方法进行实现，忽略那些自己不关系的。
+
+.. list-table::
+   :widths: 30  60
+   :header-rows: 1
+
+   * - 方法
+     - 被调用时机
+   * - ``onActionStarting``
+     - 一个操作开始执行之前( ``exec`` 被调用之前)
+   * - ``onActionEventConsumed``
+     - 一个事件被 ``handleEvent`` 接受(无论其返回 ``SUCCESS`` ，``CONTINUE`` 还是失败)
+   * - ``onActionDone``
+     - 一个操作已经运行结束，无论是成功还是失败。
+   * - ``onActionStopped``
+     - 一个操作已经被中止，无论成功或失败。
+   * - ``onActionKilled``
+     - 一个操作已经被暴力杀掉 （ ``kill`` 被调用之后）
+
 
 **__with_id**
 ----------------------
 
-你应该已经注意到， ``TransactionListener`` 的每一个方法都有一个类型为 ``ActionId`` 的参数。
+你应该已经注意到，观察者的每一个方法都有一个类型为 ``ActionId`` 的参数。
 这个参数是为了唯一的标识一个操作。问题是，这些观察者如何知道哪个 ``Action ID`` 对应哪个操作?
 
 答案是：由用户自己指定，指定的方式则是通过 ``__with_id`` 。通过 ``__with_id`` ，
@@ -100,5 +120,108 @@
 
 这种情况下，发生在子操作上的一切事件，会同时汇报给子操作和其父操作。
 
+.. _register_of_observer:
 
+观察者的定义及注册
+---------------------
+
+一个简单的事实是，任何一个 ``Transaction DSL`` 的关键字，背后都对应着一个内部 ``Action`` 的实现。只要你使用了它，你就潜在
+地为之付出空间和性能代价。
+
+``__with_id`` 也不例外。并且在一些现实项目中，维测类需求大都可以通过 ``观察者`` 的方式监控所有 ``Transaction`` 的运行。
+因而会有很多 ``观察者`` 。每个 ``观察者`` 关注的 ``Action ID`` 也不尽相同。
+
+另外，在运行时，这些维测类 ``观察者`` 可能会随时被关闭，也可能随时被打开。而我们希望它们被关闭时，``Transaction`` 在运行时无需
+为之付出任何代价（最好一个指令，一个字节都不付出）。
+
+为了达到这个目标，框架要求你定义每一个 ``观察者`` 时，需要通过 ``ObservedActionIdRegistry`` 来指明你关心的 ``Action ID`` 。
+比如：
+
+.. code-block::
+
+   struct MyListener1 : ObservedActionIdRegistry<ID_TRANS, ID_SEQ> {
+        auto onActionDone(ActionId aid, TransactionInfo const&, Status) -> void {
+            switch(aid) {
+            case ID_TRANS: // blah...
+            case ID_SEQ:   // blah...
+            }
+        }
+   };
+
+   struct MyListener2 : ObservedActionIdRegistry<ID_TRANS> {
+        auto onActionStarting(ActionId aid, TransactionInfo const&) -> void {
+            switch(aid) {
+            case ID_TRANS: // blah...
+            }
+        }
+   };
+
+例子中，``MyListener1`` 关心 2 个 ``Action ID`` : ``ID_TRANS`` 和 ``ID_SEQ`` ；而 ``MyListener2`` 只关心 ``ID_TRANS`` 。
+这需要通过继承 ``ObservedActionIdRegistry`` 并在模版参数里指明。
+
+
+然后，你可以通过 ``__bind_listener`` ，将这些 ``观察者`` 注册给一个 ``Transaction`` ：
+
+.. code-block::
+
+   __bind_listener(Transaction1, __listeners(MyListener1, MyListener2));
+
+
+如果 ``Transaction1`` 的定义如下：
+
+.. code-block::
+
+   __def(Transaction1) __as_trans
+   ( __with_id
+       ( ID_TRANS
+       , __procedure
+           ( __with_id
+               ( ID_SEQ
+               , __with_id(ID_1, __asyn(Action1))
+               , __with_id(ID_2, __asyn(Action2)))
+           , __finally(__rsp(Action3)))
+       , __with_id(ID_4, __asyn(Action4))));
+
+
+那么 ``bind_listener`` 之后， 框架发现 ``ID_1`` , ``ID_2``, ``ID_4`` 完全没有任何 ``观察者`` 关心，会立即将对应的
+``__with_id`` 给优化掉。也就是说，无论从空间消耗，还是运行时性能，都完全等价于下面的 ``Transaction`` :
+
+.. code-block::
+
+   __def(Transaction1) __as_trans
+   ( __with_id
+       ( ID_TRANS
+       , __procedure
+           ( __with_id
+               ( ID_SEQ
+               , __asyn(Action1)
+               , __asyn(Action2))
+           , __finally(__rsp(Action3)))
+       , __asyn(Action4)));
+
+
+即便对于剩下的 ``__with_id`` ，如果一个 ``观察者`` 并不关注它，框架同样会知道这一点，为之生成的运行时代码里，将不会有与之有关的
+任何一个指令。比如：``MyListener2`` 只关注 ``ID_TRANS`` ，而不关注 ``ID_SEQ`` ，那么当与 ``ID_SEQ`` 有关的任何事件，
+框架将不会通知给 ``MyListener2`` ，内部生成的指令完全不会进行任何判断或尝试，而是从机器指令级别，就将其排除出去。
+
+更进一步，由于 ``MyListener2`` 只关注 ``ID_TRANS`` 里的 ``onActionStarting`` ，因而，与此事件无关的任何其它事件，
+比如 ``onActionDone`` 等等，也会在编译时，从机器指令的层面就消除了与之有关的任何指令。也就是说，你不会为之付出一个指令的代价。
+
+综上所述，通过用户在定义一个 ``观察者`` 时，明确的指明自己关心的 ``Action ID`` ，框架将会保证，你无需为你不关注的事情付出任何一丁点
+代价。
+
+由此，很容易产生一个结论：对于任何一个 ``Transaction`` ，如果没有 ``观察者`` 关注它，那么其中所有的 ``__with_id`` 都会被优化掉。
+因而上面的 ``Transaction1`` 无论从空间到性能，将完全等价于：
+
+.. code-block::
+
+   __def(Transaction1) __as_trans
+   ( __procedure
+       ( __asyn(Action1)
+       , __asyn(Action2)
+       , __finally(__rsp(Action3)))
+   , __asyn(Action4));
+
+因而，如果你的系统需要在运行时，随时关闭和打开监控类需求。那么你只需要在开关关闭时，使用没有绑定任何 ``观察者`` 的 ``Transaction``，
+而在开关打开时，使用绑定了 ``观察者`` 的 ``Transaction`` 。从而，让你的系统在开关关闭时，不为之付出哪怕一个指令的代价。
 

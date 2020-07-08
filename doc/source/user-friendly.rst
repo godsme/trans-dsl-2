@@ -325,3 +325,7 @@
    , __while(__is_failed));
 
 
+**__with_id 优化**
+---------------------------
+
+参见 :ref:`register_of_observer`

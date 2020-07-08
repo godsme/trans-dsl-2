@@ -25,7 +25,7 @@ namespace {
    SCENARIO("__switch test", "[switch]") {
       StupidTransactionContext context{};
 
-      __switch(
+      __def_switch(
          __case(__is_status(Result::OUT_OF_SCOPE), __asyn(AsyncAction1)),
          __case(__is_status(Result::INVALID_DATA), __asyn(AsyncAction2)),
          __otherwise(__asyn(AsyncAction4))) action;

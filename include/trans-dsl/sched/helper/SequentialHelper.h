@@ -51,7 +51,6 @@ namespace details {
       struct Trait {
          template<typename T>
          using ToActionRealType = ActionRealTypeTraits<AIDs, T>;
-
          using RealTypes = CUB_NS::Transform_t<ToActionRealType, RealTypeSeq, T_ACTIONS...>;
       };
 

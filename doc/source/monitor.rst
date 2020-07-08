@@ -198,8 +198,50 @@
        , __asyn(Action4)));
 
 
+而对于下面这个例子，
+
+.. code-block::
+
+   __def(Transaction2) __as_trans
+   ( __with_id
+       ( ID_TRANS
+       , __with_id
+           ( ID_SEQ
+           , __asyn(Action1)
+           , __asyn(Action2)
+           , __asyn(Action3))
+       , __asyn(Action4)));
+
+如果连 ``ID_SEQ`` 也无人关注，那么优化掉的将不仅仅是 ``__with_id`` 。因为这个 ``__with_id`` 内部是一个隐含的
+``__sequential`` ，由于外面 ``ID_TRANS`` 也是一个隐含的 ``__sequential`` 结构，所以会发生内部 ``__sequential``
+的 :ref:`inline<inline-seq>` ，从而让其结果与如下形式等价：
+
+.. code-block::
+
+   __def(Transaction2) __as_trans
+   ( __with_id
+       ( ID_TRANS
+       , __asyn(Action1)
+       , __asyn(Action2)
+       , __asyn(Action3)
+       , __asyn(Action4)));
+
+而不是：
+
+.. code-block::
+
+   __def(Transaction2) __as_trans
+   ( __with_id
+       ( ID_TRANS
+       , __sequential
+           ( __asyn(Action1)
+           , __asyn(Action2)
+           , __asyn(Action3))
+       , __asyn(Action4)));
+
+
 即便对于剩下的 ``__with_id`` ，如果一个 ``观察者`` 并不关注它，框架同样会知道这一点，为之生成的运行时代码里，将不会有与之有关的
-任何一个指令。比如：``MyListener2`` 只关注 ``ID_TRANS`` ，而不关注 ``ID_SEQ`` ，那么当与 ``ID_SEQ`` 有关的任何事件，
+任何一个指令。比如：在之前的例子中，``MyListener2`` 只关注 ``ID_TRANS`` ，而不关注 ``ID_SEQ`` ，那么当与 ``ID_SEQ`` 有关的任何事件，
 框架将不会通知给 ``MyListener2`` ，内部生成的指令完全不会进行任何判断或尝试，而是从机器指令级别，就将其排除出去。
 
 更进一步，由于 ``MyListener2`` 只关注 ``ID_TRANS`` 里的 ``onActionStarting`` ，因而，与此事件无关的任何其它事件，

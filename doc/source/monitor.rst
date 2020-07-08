@@ -174,11 +174,10 @@
    __def(Transaction1) __as_trans
    ( __with_id
        ( ID_TRANS
-       , __procedure
-           ( __with_id
-               ( ID_SEQ
-               , __with_id(ID_1, __asyn(Action1))
-               , __with_id(ID_2, __asyn(Action2)))
+       , __with_id
+           ( ID_SEQ
+           , __with(ID_1, __sync(Action1))
+           , __with(ID_2, __asyn(Action2)))
            , __finally(__rsp(Action3)))
        , __with_id(ID_4, __asyn(Action4))));
 
@@ -191,11 +190,10 @@
    __def(Transaction1) __as_trans
    ( __with_id
        ( ID_TRANS
-       , __procedure
-           ( __with_id
-               ( ID_SEQ
-               , __asyn(Action1)
-               , __asyn(Action2))
+       , __with_id
+           ( ID_SEQ
+           , __asyn(Action1)
+           , __asyn(Action2))
            , __finally(__rsp(Action3)))
        , __asyn(Action4)));
 

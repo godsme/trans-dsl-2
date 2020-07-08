@@ -57,22 +57,22 @@ namespace details {
          __CaLl_onActionStarting(2)
          __CaLl_onActionStarting(3)
          __CaLl_onActionStarting(4)
-//         __CaLl_onActionStarting(5)
-//         __CaLl_onActionStarting(6)
-//         __CaLl_onActionStarting(7)
-//         __CaLl_onActionStarting(8)
-//         __CaLl_onActionStarting(9)
-//         __CaLl_onActionStarting(10)
-//         __CaLl_onActionStarting(11)
-//         __CaLl_onActionStarting(12)
-//         __CaLl_onActionStarting(13)
-//         __CaLl_onActionStarting(14)
-//         __CaLl_onActionStarting(15)
-//         __CaLl_onActionStarting(16)
-//         __CaLl_onActionStarting(17)
-//         __CaLl_onActionStarting(18)
-//         __CaLl_onActionStarting(19)
-//         __CaLl_onActionStarting(20)
+         __CaLl_onActionStarting(5)
+         __CaLl_onActionStarting(6)
+         __CaLl_onActionStarting(7)
+         __CaLl_onActionStarting(8)
+         __CaLl_onActionStarting(9)
+         __CaLl_onActionStarting(10)
+         __CaLl_onActionStarting(11)
+         __CaLl_onActionStarting(12)
+         __CaLl_onActionStarting(13)
+         __CaLl_onActionStarting(14)
+         __CaLl_onActionStarting(15)
+         __CaLl_onActionStarting(16)
+         __CaLl_onActionStarting(17)
+         __CaLl_onActionStarting(18)
+         __CaLl_onActionStarting(19)
+         __CaLl_onActionStarting(20)
       }
 
       #define __cAlL_onActionStarting__m(n) __cHeCk_CaLl(n, onActionStarting_, (trans))
@@ -97,22 +97,22 @@ namespace details {
          __CaLl_onActionEventConsumed(2)
          __CaLl_onActionEventConsumed(3)
          __CaLl_onActionEventConsumed(4)
-//         __CaLl_onActionEventConsumed(5)
-//         __CaLl_onActionEventConsumed(6)
-//         __CaLl_onActionEventConsumed(7)
-//         __CaLl_onActionEventConsumed(8)
-//         __CaLl_onActionEventConsumed(9)
-//         __CaLl_onActionEventConsumed(10)
-//         __CaLl_onActionEventConsumed(11)
-//         __CaLl_onActionEventConsumed(12)
-//         __CaLl_onActionEventConsumed(13)
-//         __CaLl_onActionEventConsumed(14)
-//         __CaLl_onActionEventConsumed(15)
-//         __CaLl_onActionEventConsumed(16)
-//         __CaLl_onActionEventConsumed(17)
-//         __CaLl_onActionEventConsumed(18)
-//         __CaLl_onActionEventConsumed(19)
-//         __CaLl_onActionEventConsumed(20)
+         __CaLl_onActionEventConsumed(5)
+         __CaLl_onActionEventConsumed(6)
+         __CaLl_onActionEventConsumed(7)
+         __CaLl_onActionEventConsumed(8)
+         __CaLl_onActionEventConsumed(9)
+         __CaLl_onActionEventConsumed(10)
+         __CaLl_onActionEventConsumed(11)
+         __CaLl_onActionEventConsumed(12)
+         __CaLl_onActionEventConsumed(13)
+         __CaLl_onActionEventConsumed(14)
+         __CaLl_onActionEventConsumed(15)
+         __CaLl_onActionEventConsumed(16)
+         __CaLl_onActionEventConsumed(17)
+         __CaLl_onActionEventConsumed(18)
+         __CaLl_onActionEventConsumed(19)
+         __CaLl_onActionEventConsumed(20)
       }
 
 
@@ -138,22 +138,22 @@ namespace details {
          __CaLl_onActionDone(2)
          __CaLl_onActionDone(3)
          __CaLl_onActionDone(4)
-//         __CaLl_onActionDone(5)
-//         __CaLl_onActionDone(6)
-//         __CaLl_onActionDone(7)
-//         __CaLl_onActionDone(8)
-//         __CaLl_onActionDone(9)
-//         __CaLl_onActionDone(10)
-//         __CaLl_onActionDone(11)
-//         __CaLl_onActionDone(12)
-//         __CaLl_onActionDone(13)
-//         __CaLl_onActionDone(14)
-//         __CaLl_onActionDone(15)
-//         __CaLl_onActionDone(16)
-//         __CaLl_onActionDone(17)
-//         __CaLl_onActionDone(18)
-//         __CaLl_onActionDone(19)
-//         __CaLl_onActionDone(20)
+         __CaLl_onActionDone(5)
+         __CaLl_onActionDone(6)
+         __CaLl_onActionDone(7)
+         __CaLl_onActionDone(8)
+         __CaLl_onActionDone(9)
+         __CaLl_onActionDone(10)
+         __CaLl_onActionDone(11)
+         __CaLl_onActionDone(12)
+         __CaLl_onActionDone(13)
+         __CaLl_onActionDone(14)
+         __CaLl_onActionDone(15)
+         __CaLl_onActionDone(16)
+         __CaLl_onActionDone(17)
+         __CaLl_onActionDone(18)
+         __CaLl_onActionDone(19)
+         __CaLl_onActionDone(20)
       }
 
       #define __cAlL_onActionDone__m(n) __cHeCk_CaLl(n, onActionDone_, (trans, cause))
@@ -164,6 +164,86 @@ namespace details {
             __jump_call_listener(__cAlL_onActionDone_m)
          }
       }
+
+      //////////////////////////////////////////////////////////////////////////////////////
+   private:
+      //////////////////////////////////////////////////////////////////////////////////////
+#define __CaLl_onActionStopped_(n) \
+        __Listener_CaLl(n, onActionStopped, onActionStopped(AID, trans, cause))
+#define __CaLl_onActionStopped(n)  __Listener_CaLl_AlL(n, __CaLl_onActionStopped_)
+
+      template<ActionId AID>
+      auto onActionStopped_(TransactionInfo const &trans, Status cause) -> void {
+         __CaLl_onActionStopped(1)
+         __CaLl_onActionStopped(2)
+         __CaLl_onActionStopped(3)
+         __CaLl_onActionStopped(4)
+         __CaLl_onActionStopped(5)
+         __CaLl_onActionStopped(6)
+         __CaLl_onActionStopped(7)
+         __CaLl_onActionStopped(8)
+         __CaLl_onActionStopped(9)
+         __CaLl_onActionStopped(10)
+         __CaLl_onActionStopped(11)
+         __CaLl_onActionStopped(12)
+         __CaLl_onActionStopped(13)
+         __CaLl_onActionStopped(14)
+         __CaLl_onActionStopped(15)
+         __CaLl_onActionStopped(16)
+         __CaLl_onActionStopped(17)
+         __CaLl_onActionStopped(18)
+         __CaLl_onActionStopped(19)
+         __CaLl_onActionStopped(20)
+      }
+
+#define __cAlL_onActionStopped__m(n) __cHeCk_CaLl(n, onActionStopped_, (trans, cause))
+#define __cAlL_onActionStopped_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionStopped__m)
+   public:
+      OVERRIDE(onActionStopped(ActionId aid, TransactionInfo const& trans, Status cause) -> void) {
+         if constexpr(Base::someone_has_onActionStopped) {
+            __jump_call_listener(__cAlL_onActionStopped_m)
+         }
+      }
+
+   //////////////////////////////////////////////////////////////////////////////////////
+   private:
+   //////////////////////////////////////////////////////////////////////////////////////
+      #define __CaLl_onActionKilled_(n) \
+        __Listener_CaLl(n, onActionKilled, onActionKilled(AID, trans, cause))
+      #define __CaLl_onActionKilled(n)  __Listener_CaLl_AlL(n, __CaLl_onActionKilled_)
+
+      template<ActionId AID>
+      auto onActionKilled_(TransactionInfo const &trans, Status cause) -> void {
+         __CaLl_onActionKilled(1)
+         __CaLl_onActionKilled(2)
+         __CaLl_onActionKilled(3)
+         __CaLl_onActionKilled(4)
+         __CaLl_onActionKilled(5)
+         __CaLl_onActionKilled(6)
+         __CaLl_onActionKilled(7)
+         __CaLl_onActionKilled(8)
+         __CaLl_onActionKilled(9)
+         __CaLl_onActionKilled(10)
+         __CaLl_onActionKilled(11)
+         __CaLl_onActionKilled(12)
+         __CaLl_onActionKilled(13)
+         __CaLl_onActionKilled(14)
+         __CaLl_onActionKilled(15)
+         __CaLl_onActionKilled(16)
+         __CaLl_onActionKilled(17)
+         __CaLl_onActionKilled(18)
+         __CaLl_onActionKilled(19)
+         __CaLl_onActionKilled(20)
+      }
+
+      #define __cAlL_onActionKilled__m(n) __cHeCk_CaLl(n, onActionKilled_, (trans, cause))
+      #define __cAlL_onActionKilled_m(n) _SIMPLE_REPEAT(n, __cAlL_onActionKilled__m)
+      public:
+         OVERRIDE(onActionKilled(ActionId aid, TransactionInfo const& trans, Status cause) -> void) {
+            if constexpr(Base::someone_has_onActionKilled) {
+               __jump_call_listener(__cAlL_onActionKilled_m)
+            }
+         }
    };
 }
 

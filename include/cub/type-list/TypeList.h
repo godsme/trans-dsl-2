@@ -10,17 +10,14 @@
 CUB_NS_BEGIN
 
 template<typename ... Ts>
-struct TypeList;
+struct TypeList {
+   using type = void;
+};
 
 template<typename H, typename ... Ts>
 struct TypeList<H, Ts...> {
    using Head = H;
    using Tail = TypeList<Ts...>;
-   using type = void;
-};
-
-template<>
-struct TypeList<> {
    using type = void;
 };
 

@@ -13,41 +13,41 @@ CUB_NS_BEGIN
 
 namespace details {
    template<
-      typename INPUT_LIST,
-      template<typename> typename TRANSFORM,
+      typename IN,
+      template<typename> typename F,
       template<typename ...> typename RESULT,
       typename = void,
-      typename ... Ts>
+      typename ... OUT>
    struct Transform {
-      using type = RESULT<Ts...>;
+      using type = RESULT<OUT...>; // 将最终结果输出给 RESULT
    };
 
    template<
-      typename INPUT_LIST,
-      template<typename> typename TRANSFORM,
+      typename IN,
+      template<typename> typename F,
       template<typename ...> typename RESULT,
-      typename ... Ts>
-   struct Transform<INPUT_LIST, TRANSFORM, RESULT, std::void_t<typename INPUT_LIST::Head>, Ts...> {
+      typename ... OUT>
+   struct Transform<IN, F, RESULT, std::void_t<typename IN::Head>, OUT...> {
       using type =
-         typename Transform<
-            typename INPUT_LIST::Tail,
-            TRANSFORM,
-            RESULT,
-            void,
-            __TYPE_LIST_APPEND(Ts..., typename TRANSFORM<typename INPUT_LIST::Head>::type)
-         >::type;
+      typename Transform<
+         typename IN::Tail,
+         F,
+         RESULT,
+         void,
+         __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
+      >::type;
    };
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<
-   template<typename>     typename TRANSFORMER,
+   template<typename>     typename F,
    template<typename ...> typename RESULT,
-   typename                    ... Ts>
+   typename                    ... IN>
 using Transform_t =
    typename details::Transform<
-      TypeList < Ts...>,
-      TRANSFORMER,
+      TypeList < IN...>,
+      F,
       RESULT,
       void
       __EMPTY_OUTPUT_TYPE_LIST___
@@ -55,10 +55,10 @@ using Transform_t =
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<
-   template<typename>     typename TRANSFORMER,
-   template<typename ...> typename RESULT,
-   typename                    ... Ts>
-using Transform_tt = typename Transform_t<TRANSFORMER, RESULT, Ts...>::type;
+   template<typename>     typename F,
+   template<typename ...> typename  RESULT,
+   typename    ... IN>
+using Transform_tt = typename Transform_t<F, RESULT, IN...>::type;
 
 CUB_NS_END
 

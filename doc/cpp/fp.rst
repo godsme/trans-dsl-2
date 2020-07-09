@@ -479,6 +479,9 @@ TypeList
 自从 ``C++11`` 引入了变参模版，极大的增强了范型编程的能力。这就意味着，我们在前面的 **数值** 列表，现在有了 **类型** 列表。因而，
 在实际项目中，我们也需要对类型列表有着和类型列表一样的操作。
 
+Elem
++++++++++++++++++++++
+
 比如，我们想从一个 **类型列表　** 中取出第 ``N`` 个类型：
 
 .. code-block:: c++
@@ -512,6 +515,9 @@ TypeList
    Elem 0 (H::Ts) = H
 
 当然，代码中没有明确应对 ``N`` 值超过列表长度的情况，在 ``C++`` 下，这回导致一个编译错误。而这正是我们想要的结果。
+
+Drop
++++++++++++++++++++++
 
 现在，我们再来实现另外一个经典函数：``drop`` ，即将列表中的前 ``N`` 个元素抛弃掉之后所得到的列表。
 
@@ -616,6 +622,8 @@ TypeList
 我们传入的 ``RESULT`` 函数就是 ``Head`` ，它拿到了一个 ``TypeList`` 之后，只取出第一个，即 ``H`` ，而把其余的全部都丢弃掉。
 而这正是如果利用这种回调机制操作类型的一个示例。
 
+Transform
++++++++++++++++++++++
 
 现在我们再实现另外一个非常经典的函数 ``map`` ，由于在 ``C++`` 中， ``map`` 在标准库里代表一个 ``k/v`` 容器，而将 ``fp`` 领域
 里的 ``map`` 称做 ``transform`` ，我们也继续遵守这个习俗。
@@ -713,7 +721,7 @@ TypeList
 
 用伪代码表现即为：
 
-.. code-block:: haskell
+.. code-block:: agda
 
    Transform                     :: [Set] -> (Set -> Set) -> (Set -> Set) -> [Set]
    Transform []     F RESULT OUT = RESULT OUT
@@ -736,11 +744,105 @@ TypeList
        __EMPTY_OUTPUT_TYPE_LIST___ // 输出列表最初为空
      >::type;
 
-所以，用户真正提供的参数只有三个， ``F`` 转化函数， ``IN`` 输入列表，以及用来回传最终结果回调模版 ``RESULT`` 。
+所以，用户真正提供的参数只有三个， ``F`` 转化函数， ``IN`` 输入列表，以及用来回传最终结果回调模版 ``RESULT`` 。 而
+宏 ``__EMPTY_OUTPUT_TYPE_LIST___`` 背后什么都没有，正如一个 ``Ts...`` 形式的列表如果为空是，就什么都没有一样，
+这样在阅读代码时，很容易忽略这里还有一个空参数。而通过 ``__EMPTY_OUTPUT_TYPE_LIST___`` 则可以起到提示的作用。
+
+Split
++++++++++++++++++++++
+
+现在我们再来实现 ``split`` 。其语意是在第 ``N`` 个位置，将一个输入列表一分为二。
+
+这个需求，又增加了新的困难，``Transform`` 只要求输出一个列表，但这要要求输出两个。而模版的变参列表只允许有一个。怎么办？
+
+首先，在有输出的情况下，用户必然是要传入回调。既然现在有两个输出，那么用户自然就需要两个回调。既然一个模版只允许有一个变参，
+那我们就分别两个回调传递个两个变参模版，一个给 ``TypeList<Ts...>``，一个给计算模版。
+
+所以，我需要先改造我们的 ``TypeList<Ts...>`` ，重新定义新的形式：
+
+.. code-block:: c++
+
+   template<
+      template<typename ...> typename RESULT,
+      typename ... Ts>
+   struct GenericTypeList {
+      using type = RESULT<>;
+   };
+
+   template<
+      template<typename ...> typename RESULT,
+      typename H,
+      typename ... Ts>
+   struct GenericTypeList<RESULT, H, Ts...> {
+      using Head = H;
+      using Tail = GenericTypeList<RESULT, Ts...>;
+
+      using type = RESULT<H, Ts...>;
+   };
+
+注意，``GenericTypeList`` 和之前的 ``TypeList`` 的唯一差别是多了一个回调  ``RESULT`` 。在这个参数列表的每个层级，
+总是传递当前的 ``Ts...`` 给回调，而需要哪一个只需要通过 ``type`` 取对应 ``Ts...`` 传入回调后得到的类型即可。
+
+而 ``Split`` 的实现，则关注在另外一个输出列表上：
+
+.. code-block:: c++
+
+   template<
+      size_t N,
+      typename IN,
+      template<typename ...> typename RESULT,
+      typename ... OUT>
+   struct Split {
+      using type = typename Split<
+         N - 1,
+         typename IN::Tail,
+         RESULT,
+         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
+      >::type;
+   };
+
+   template<
+      typename IN,
+      template<typename ...> typename RESULT,
+      typename ... OUT>
+   struct Split<0, IN, RESULT, OUT...> {
+      struct type {
+         using first  = RESULT<OUT...>;
+         using second = typename IN::type;
+      };
+   };
+
+第一个模版处理的是 ``N`` 还没有递减到 ``0`` 的中间过程，所以继续递归。注意，那里有两个递归：一是 ``typename IN::Tail`` ，
+代表输入列表也在不断的通过递归抛弃 ``Head`` ；而另一个递归则是 ``Split`` 自身的递归，
+``__TYPE_LIST_APPEND(OUT..., typename IN::Head)`` 则是将 ``IN`` 抛弃的 ``Head`` 拿过来，追加到第一个输出列表的
+后边。
+
+所以，每一次递归，都像是游标在原始列表上移动，不断把后半部分的第一个元素，变为前半部分的最后一个元素。
+
+而第二个模版则是已经到达了分割点，
+需要生成输出结果。因为有两个输出，因而分别被定义为 ``first`` 和 ``second`` 。前一个，
+是将生成的 ``OUT...`` 打包传递给 ``RESULT`` ，后半部分，则向 ``IN`` 索要；而 ``IN`` 正是我们之前定义
+的 ``GenericTypeList`` 。
+
+最终，上述的内部算法，在如下代码处得到应用：
+
+.. code-block:: c++
+
+   template<
+      size_t N,
+      template<typename ...> typename RESULT_1,
+      template<typename ...> typename RESULT_2,
+      typename ... IN>
+   using Split_t =
+      typename details::Split<
+         N,
+         GenericTypeList<RESULT_2, IN...>, // 将后半部分的回调，传递给输入
+         RESULT_1                          // 前半部分的回调
+         __EMPTY_OUTPUT_TYPE_LIST___       // 前半部分最初列表为空
+      >::type;
 
 
-
-
-
+``Split_t`` 的输入参数，清晰的反映了用户需要指定的信息: ``N`` 分割的位置；``RESULT_1``, ``RESULT_2`` 分别为分割后两个
+部分的回调。``IN`` 则是需要分割的输入列表。
 
 

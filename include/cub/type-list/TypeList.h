@@ -25,7 +25,9 @@ struct TypeList<H, Ts...> {
 template<
    template<typename ...> typename RESULT,
    typename ... Ts>
-struct GenericTypeList;
+struct GenericTypeList {
+   using type = RESULT<>;
+};
 
 template<
    template<typename ...> typename RESULT,
@@ -36,11 +38,6 @@ struct GenericTypeList<RESULT, H, Ts...> {
    using Tail = GenericTypeList<RESULT, Ts...>;
 
    using type = RESULT<H, Ts...>;
-};
-
-template<template<typename ...> typename RESULT>
-struct GenericTypeList<RESULT> {
-   using type = RESULT<>;
 };
 
 #define __EMPTY_OUTPUT_TYPE_LIST___

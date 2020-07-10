@@ -58,25 +58,6 @@ struct Elem {
    };
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////
-//template<template<typename>     typename F>
-//struct Transform {
-//   template<typename ANOTHER>
-//   struct Bind {
-//      template<typename ... Ts>
-//      struct Result {
-//         template <template<typename ...> typename RESULT>
-//         using type = typename Transform_t<F, ANOTHER::template Result, Ts...>::template type<RESULT>;
-//      };
-//   };
-//
-//   template<typename ... Ts>
-//   struct Result {
-//      template<template <typename ...> typename RESULT>
-//      using type = Transform_t<F, RESULT, Ts...>;
-//   };
-//};
-
 namespace details {
    template
       <template<typename> typename F,
@@ -140,7 +121,7 @@ struct FoldR_Init {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename ... Ts>
-struct TypeStream {
+class TypeStream final {
    template<typename ... OPs>
    struct Bind;
 
@@ -157,6 +138,7 @@ struct TypeStream {
    template<typename ...>
    struct __stupid {};
 
+public:
    template<typename ... OPs>
    struct _ooo_ {
       template<template<typename ...> typename RESULT>
@@ -165,10 +147,10 @@ struct TypeStream {
    };
 };
 
+CUB_NS_END
+
 #define __TypeStream__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
 #define __TypeStream_t(stream, ...) __TypeStream__(stream, __VA_ARGS__)::type
 #define __ts_output_to__(result) ::template output<result>
-
-CUB_NS_END
-
+   
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

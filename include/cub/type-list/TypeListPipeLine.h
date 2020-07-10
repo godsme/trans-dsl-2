@@ -10,6 +10,7 @@
 #include <cub/type-list/TypeListSplit.h>
 #include <cub/type-list/TypeListTransform.h>
 #include <cub/type-list/TypeListFold.h>
+#include <cub/type-list/TypeListFilter.h>
 
 CUB_NS_BEGIN
 
@@ -58,23 +59,52 @@ struct Elem {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
-template<template<typename>     typename F>
-struct Transform {
-   template<typename ANOTHER>
-   struct Bind {
+//template<template<typename>     typename F>
+//struct Transform {
+//   template<typename ANOTHER>
+//   struct Bind {
+//      template<typename ... Ts>
+//      struct Result {
+//         template <template<typename ...> typename RESULT>
+//         using type = typename Transform_t<F, ANOTHER::template Result, Ts...>::template type<RESULT>;
+//      };
+//   };
+//
+//   template<typename ... Ts>
+//   struct Result {
+//      template<template <typename ...> typename RESULT>
+//      using type = Transform_t<F, RESULT, Ts...>;
+//   };
+//};
+
+namespace details {
+   template
+      <template<typename> typename F,
+         template<template<typename> typename,
+         template<typename ...> typename, typename ...> typename OP>
+   struct GenericTransform {
+      template<typename ANOTHER>
+      struct Bind {
+         template<typename ... Ts>
+         struct Result {
+            template<template<typename ...> typename RESULT>
+            using type = typename OP<F, ANOTHER::template Result, Ts...>::template type<RESULT>;
+         };
+      };
+
       template<typename ... Ts>
       struct Result {
-         template <template<typename ...> typename RESULT>
-         using type = typename Transform_t<F, ANOTHER::template Result, Ts...>::template type<RESULT>;
+         template<template<typename ...> typename RESULT>
+         using type = OP<F, RESULT, Ts...>;
       };
    };
+}
 
-   template<typename ... Ts>
-   struct Result {
-      template<template <typename ...> typename RESULT>
-      using type = Transform_t<F, RESULT, Ts...>;
-   };
-};
+template < template<typename>     typename F>
+using Transform = details::GenericTransform<F, Transform_t>;
+
+template < template<typename>     typename F>
+using Filter = details::GenericTransform<F, Filter_t>;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<template <typename, typename> typename F>

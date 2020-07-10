@@ -42,7 +42,7 @@ namespace details {
             using AllSeq = RESULT<Ts...>;
          };
 
-         using InlinedSeq = typename InlineSeq::template type<Seq, T_REAL_TYPES...>;
+         using Base = typename InlineSeq::template type<Seq, T_REAL_TYPES...>;
       };
 
       template<TransListenerObservedAids const& AIDs>
@@ -54,15 +54,11 @@ namespace details {
 
    public:
       template<TransListenerObservedAids const& AIDs>
-      struct ActionRealType : SchedSequential, Trait<AIDs>::RealTypes::InlinedSeq {
-      private:
-         using RealTypes = typename Trait<AIDs>::RealTypes;
-      public:
-         using ThreadActionCreator = typename RealTypes::ThreadActionCreator;
-
+      struct ActionRealType : SchedSequential, Trait<AIDs>::RealTypes::Base {
+         using ThreadActionCreator = typename Trait<AIDs>::RealTypes::ThreadActionCreator;
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return RealTypes::InlinedSeq::get(seq); }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Trait<AIDs>::RealTypes::Base::get(seq); }
       };
    };
 

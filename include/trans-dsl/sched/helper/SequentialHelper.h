@@ -10,11 +10,12 @@
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/helper/VolatileSeq.h>
-#include <trans-dsl/sched/helper/InlineSeqHelper.h>
 #include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 #include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
 #include <cub/type-list/TypeListTransform.h>
+#include <cub/type-list/TypeListComposer.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <trans-dsl/sched/helper/InlineSeqHelper.h>
 
 TSL_NS_BEGIN
 
@@ -35,16 +36,13 @@ namespace details {
          // for thread-resource-transfer
          using ThreadActionCreator = ThreadCreator_t<T_REAL_TYPES...>;
 
-         // for inline sequential
-         template<size_t N>
-         using ActionType = typename inline_seq::Extractor<N, T_REAL_TYPES...>::type;
-         constexpr static size_t totalNumOfActions = (inline_seq::TotalSeqActions<T_REAL_TYPES> + ... );
-
          template<typename ... Ts>
-         using Seq = VolatileSeq<SchedAction, Ts...>;
+         struct Seq : VolatileSeq<SchedAction, Ts...> {
+            template<template<typename ...> typename RESULT>
+            using AllSeq = RESULT<Ts...>;
+         };
 
-         using InlinedSeq = inline_seq::Inlined_t<Seq, T_REAL_TYPES...>;
-         using InlinedSeq_t = typename InlinedSeq::type;
+         using InlinedSeq = typename InlineSeq::template type<Seq, T_REAL_TYPES...>;
       };
 
       template<TransListenerObservedAids const& AIDs>
@@ -56,20 +54,15 @@ namespace details {
 
    public:
       template<TransListenerObservedAids const& AIDs>
-      struct ActionRealType : SchedSequential, private Trait<AIDs>::RealTypes::InlinedSeq_t {
+      struct ActionRealType : SchedSequential, Trait<AIDs>::RealTypes::InlinedSeq {
       private:
          using RealTypes = typename Trait<AIDs>::RealTypes;
       public:
          using ThreadActionCreator = typename RealTypes::ThreadActionCreator;
 
-         // for seq inline
-         template<size_t N>
-         using ActionType = typename RealTypes::template ActionType<N>;
-         constexpr static size_t totalActions = RealTypes::InlinedSeq::totalNumOfActions;
-
       private:
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return RealTypes::InlinedSeq_t::get(seq); }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return RealTypes::InlinedSeq::get(seq); }
       };
    };
 

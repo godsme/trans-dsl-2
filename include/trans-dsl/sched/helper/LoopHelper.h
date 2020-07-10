@@ -15,7 +15,6 @@
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
-#include <trans-dsl/sched/helper/InlineSeqHelper.h>
 
 TSL_NS_BEGIN
 
@@ -148,7 +147,7 @@ namespace details {
       template <typename ... Ts>
       struct Base {
          using ThreadActionCreator = ThreadCreator_t<Ts...>;
-         using BaseType = typename inline_seq::Inlined_t<LoopBase, Ts...>::type;
+         using BaseType = typename InlineSeq::template type<LoopBase, Ts...>;
       };
 
       template<TransListenerObservedAids const& AIDs>

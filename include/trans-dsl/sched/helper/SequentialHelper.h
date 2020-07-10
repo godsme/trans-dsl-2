@@ -30,30 +30,29 @@ namespace details {
       static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
       ///////////////////////////////////////////////////////////////////////////////////////////
-      template<typename ... T_REAL_TYPES>
-      class RealTypeSeq  {
+      template<TransListenerObservedAids const& AIDs>
+      class Trait {
+         template<typename T>
+         using ToActionRealType = ActionRealTypeTraits<AIDs, T>;
+
          template<typename ... Ts>
          struct RealBase : CUB_NS::Flattenable<Ts...>, protected VolatileSeq<SchedAction, Ts...> {
             // for thread-resource-transfer
             using ThreadActionCreator = ThreadCreator_t<Ts...>;
          };
 
-      public:
-         using Base = typename FlattenSeq::template type<RealBase, T_REAL_TYPES...>;
-      };
+         template<typename ... T_REAL_TYPES>
+         using RealTypeSeq  = typename FlattenSeq::template type<RealBase, T_REAL_TYPES...>;
 
-      template<TransListenerObservedAids const& AIDs>
-      struct Trait {
-         template<typename T>
-         using ToActionRealType = ActionRealTypeTraits<AIDs, T>;
-         using RealTypes = CUB_NS::Transform_t<ToActionRealType, RealTypeSeq, T_ACTIONS...>;
+      public:
+         using Base = typename CUB_NS::Transform_t<ToActionRealType, RealTypeSeq, T_ACTIONS...>;
       };
 
    public:
       template<TransListenerObservedAids const& AIDs>
-      class ActionRealType : public SchedSequential, public Trait<AIDs>::RealTypes::Base {
+      class ActionRealType : public SchedSequential, public Trait<AIDs>::Base {
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
-         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Trait<AIDs>::RealTypes::Base::get(seq); }
+         OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Trait<AIDs>::Base::get(seq); }
       };
    };
 

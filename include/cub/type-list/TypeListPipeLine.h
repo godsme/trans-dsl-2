@@ -11,6 +11,7 @@
 #include <cub/type-list/TypeListTransform.h>
 #include <cub/type-list/TypeListFold.h>
 #include <cub/type-list/TypeListFilter.h>
+#include <cub/type-list/Flattenable.h>
 
 CUB_NS_BEGIN
 
@@ -119,6 +120,23 @@ struct FoldR_Init {
    };
 };
 
+struct Flatten {
+   template<typename ANOTHER>
+   struct Bind {
+      template<typename ... Ts>
+      struct Result {
+         template<template<typename ...> typename RESULT>
+         using type = typename Flatten_t<ANOTHER::template Result, Ts...>::template type<RESULT>;
+      };
+   };
+
+   template<typename ... Ts>
+   struct Result {
+      template<template<typename ...> typename RESULT>
+      using type = Flatten_t<RESULT, Ts...>;
+   };
+};
+
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename ... Ts>
 class TypeStream final {
@@ -152,5 +170,5 @@ CUB_NS_END
 #define __TypeStream__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
 #define __TypeStream_t(stream, ...) __TypeStream__(stream, __VA_ARGS__)::type
 #define __ts_output_to__(result) ::template output<result>
-   
+
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

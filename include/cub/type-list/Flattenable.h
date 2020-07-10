@@ -39,6 +39,9 @@ public:
    using type = typename FoldL_Init_t<Seq, Composer<>, Ts...>::template output<RESULT>;
 };
 
+template <template<typename ...> typename RESULT, typename ... Ts>
+using Flatten_t = typename FlattenSeq::template type<RESULT, Ts...>;
+
 CUB_NS_END
 
 #endif //TRANS_DSL_2_FLATTENABLE_H

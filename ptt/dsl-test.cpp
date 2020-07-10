@@ -28,7 +28,7 @@ SIMPLE_EVENT(7);
 SIMPLE_EVENT(8);
 SIMPLE_EVENT(9);
 
-using Seq1 = __procedure
+using Seq1 = __def_procedure
 ( __sequential
      ( __wait(1)
         , __wait(2)
@@ -54,7 +54,7 @@ void func() {
    proc.handleEvent(context, ev_9);
 }
 
-using Seq2 = __procedure
+using Seq2 = __def_procedure
 ( __time_guard(1,
    __sequential
      ( __wait(1)
@@ -144,17 +144,17 @@ DEF_SIMPLE_ASYNC_ACTION(AsyncAction1) {
    };
 
 using ProcedureAction1 =
-      __procedure(
+      __def_procedure(
          __wait(1),
          __finally(__asyn(AsyncAction2)));
 
 using ProcedureAction2 =
-      __procedure(
+      __def_procedure(
          __wait(2),
          __finally(__asyn(AsyncAction1)));
 
 using ProcedureAction3 =
-   __procedure(
+   __def_procedure(
       __wait(3),
       __finally(__asyn(AsyncAction4)));
 
@@ -170,7 +170,8 @@ const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
 const Msg4 msg4{ 30 };
 const EV_NS::ConsecutiveEventInfo eventInfo4{EV_MSG_4, msg4};
 
-using Con1 = __concurrent(ProcedureAction1, ProcedureAction2);
+using Con1 = __def_concurrent(ProcedureAction1, ProcedureAction2);
+
 void func1() {
     Con1 action;
 
@@ -187,7 +188,8 @@ void func1() {
 //   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
 
-using Con2 = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+using Con2 = __def_concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+using Con2Action = __concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 void func2() {
     Con2 action;
 
@@ -208,7 +210,7 @@ void func2() {
 //   assert(SUCCESS  == action.handleEvent(context, eventInfo2));
 }
 
-using Proc2 = __procedure
+using Proc2 = __def_procedure
 ( __sequential
      ( __wait(1)
      , __wait(2)
@@ -216,7 +218,7 @@ using Proc2 = __procedure
      , __wait(4)
      , __wait(5)
      , __wait(6)
-     , Con2),
+     , Con2Action),
   __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 );
 
@@ -242,7 +244,7 @@ void func3() {
 }
 
 using Proc3 = 
-__time_guard(1, 
+__def_time_guard(1, 
   __procedure( 
     __sequential
      ( __wait(1)
@@ -251,11 +253,11 @@ __time_guard(1,
      , __wait(4)
      , __wait(5)
      , __wait(6)
-     , Con2),
+     , Con2Action),
   __finally(__sequential(__wait(7), __wait(8), __wait(9))))
 );
 
-using Proc4 = __procedure
+using Proc4 = __def_procedure
 ( __sequential( __sequential
      ( __wait(1)
      , __wait(2)
@@ -263,20 +265,20 @@ using Proc4 = __procedure
      , __wait(4)
      , __wait(5)
      , __wait(6))
-     , Con2),
+     , Con2Action),
   __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 );
 
-using Proc5 = __multi_thread(Proc2);
-using Proc6 = __multi_thread(Proc3);
-using Proc7 = __multi_thread(Proc4);
+using Proc5 = __def_multi_thread(Proc2);
+using Proc6 = __def_multi_thread(Proc3);
+using Proc7 = __def_multi_thread(Proc4);
 
-using Proc8 = __multi_thread(__procedure
+using Proc8 = __def_multi_thread(__procedure
 ( __sequential
     ( __sequential
         ( __wait(1)
         , __wait(2)
-        , __fork(1, Con2)
+        , __fork(1, Con2Action)
         , __wait(3)
         , __wait(4)
         , __wait(5)
@@ -285,12 +287,12 @@ using Proc8 = __multi_thread(__procedure
   __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 ));
 
-using Proc9 = __multi_thread(
+using Proc9 = __def_multi_thread(
 __procedure
 ( __sequential
    ( __wait(1)
    , __wait(2)
-   , __fork(1, Con2)
+   , __fork(1, Con2Action)
    , __wait(3)
    , __wait(4)
    , __wait(5)
@@ -299,7 +301,7 @@ __procedure
 , __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 ));
 
-using Proc10 = __multi_thread(
+using Proc10 = __def_multi_thread(
 __procedure
    ( __sequential
         ( __wait(1)
@@ -308,7 +310,7 @@ __procedure
         , __wait(4)
         , __wait(5)
         , __wait(6)
-        , Con2
+        , Con2Action
         , __join(1))
    , __finally(__sequential(__wait(7), __wait(8), __wait(9)))
 ));

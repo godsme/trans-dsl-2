@@ -46,8 +46,6 @@ namespace details {
 
          MainAction mainThreadAction;
          details::FinalThreadCreator<MainAction> threadCreator;
-
-         static_assert(MAX_NUM_OF_THREADS > 1, "the specified tid is out of scope");
       };
    };
 

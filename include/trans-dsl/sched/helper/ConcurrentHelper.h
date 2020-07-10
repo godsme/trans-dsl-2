@@ -103,7 +103,7 @@ namespace details {
 }
 
 #define __concurrent(...) TSL_NS::details::Concurrent<__VA_ARGS__>
-#define __concurrent_t(...) TSL_NS::details::Concurrent_t<__VA_ARGS__>
+#define __def_concurrent(...) TSL_NS::details::Concurrent_t<__VA_ARGS__>
 
 TSL_NS_END
 

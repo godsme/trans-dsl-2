@@ -15,7 +15,7 @@ namespace {
    using namespace TSL_NS;
 
    SCENARIO("__concurrent with 2 async actions") {
-      __concurrent_t(__asyn(AsyncAction1), __asyn(AsyncAction2)) action;
+      __def_concurrent(__asyn(AsyncAction1), __asyn(AsyncAction2)) action;
 
       StupidTransactionContext context{};
 
@@ -68,7 +68,7 @@ namespace {
    };
 
    SCENARIO("__concurrent with 2 sync actions") {
-      __concurrent_t(__sync(SyncAction1), __sync(SyncAction1)) action;
+      __def_concurrent(__sync(SyncAction1), __sync(SyncAction1)) action;
 
       StupidTransactionContext context{};
 
@@ -78,7 +78,7 @@ namespace {
    };
 
    SCENARIO("__concurrent with a failed action") {
-      __concurrent_t(__asyn(AsyncAction1), __sync(FailedSyncAction4)) action;
+      __def_concurrent(__asyn(AsyncAction1), __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -91,7 +91,7 @@ namespace {
    __procedure(__asyn(AsyncAction4), __finally(__asyn(AsyncAction2)));
 
    SCENARIO("__concurrent with a failed action & a procedure") {
-      __concurrent_t(ProcedureAction1, __sync(FailedSyncAction4)) action;
+      __def_concurrent(ProcedureAction1, __sync(FailedSyncAction4)) action;
 
       StupidTransactionContext context{};
 
@@ -120,7 +120,7 @@ namespace {
    __procedure(__asyn(AsyncAction4), __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
 
    SCENARIO("__concurrent with a immediate-stopped procedure ") {
-      __concurrent_t(__sync(FailedSyncAction4), ProcedureAction) action;
+      __def_concurrent(__sync(FailedSyncAction4), ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -130,7 +130,7 @@ namespace {
    };
 
    SCENARIO("__concurrent with a failed async action") {
-      __concurrent_t(__asyn(FailedAsyncAction3), ProcedureAction) action;
+      __def_concurrent(__asyn(FailedAsyncAction3), ProcedureAction) action;
 
       StupidTransactionContext context{};
 
@@ -181,7 +181,7 @@ namespace {
       __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
 
    SCENARIO("__concurrent without internal error") {
-      __concurrent_t(__asyn(FailedAsyncAction3), ProcedureAction2) action;
+      __def_concurrent(__asyn(FailedAsyncAction3), ProcedureAction2) action;
 
       StupidTransactionContext context{};
 
@@ -204,7 +204,7 @@ namespace {
       __finally(__asyn(AsyncAction2)));
 
    SCENARIO("__concurrent ") {
-      __concurrent_t(__asyn(AsyncAction1), ProcedureAction3) action;
+      __def_concurrent(__asyn(AsyncAction1), ProcedureAction3) action;
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
@@ -243,7 +243,7 @@ namespace {
       __finally(__asyn(AsyncAction1)));
 
    SCENARIO("__concurrent with") {
-      __concurrent_t(ProcedureAction4, ProcedureAction5) action;
+      __def_concurrent(ProcedureAction4, ProcedureAction5) action;
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};

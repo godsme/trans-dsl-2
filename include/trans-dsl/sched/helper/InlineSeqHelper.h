@@ -14,6 +14,24 @@ struct SchedAction;
 
 namespace details::inline_seq {
 
+   template<typename COMPOSER, typename T, typename = void>
+   struct InlineSeq {
+      using type = typename COMPOSER::template type<T>;
+   };
+
+   template<typename ... Ts>
+   struct Seq {
+      template<template<typename ...> typename RESULT>
+      using AllSeq = RESULT<Ts...>;
+   };
+
+
+   template<typename COMPOSER, typename T>
+   struct InlineSeq<COMPOSER, T, std::enable_if_t<std::is_base_of_v<SchedSequential, T>>> {
+      using type = typename T::template AllSeq<COMPOSER::template type>;
+   };
+
+
    template<typename T, typename =  void>
    constexpr static size_t TotalSeqActions = 1;
 

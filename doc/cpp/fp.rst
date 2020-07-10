@@ -91,7 +91,7 @@ List
    template <> constexpr auto fib<1> = 1;
    template <> constexpr auto fib<0> = 0;
 
-其中 ``std::integral`` 是 `C++20` 引入的 `Concepts` ，它比 `Haskell` 的 `TypeClass` 更为强大。但在本例中，起到的作用
+其中 ``std::integral`` 是 ``C++20`` 引入的 `Concepts` ，它比 ``Haskell`` 的 ``TypeClass`` 更为强大。但在本例中，起到的作用
 一样。
 
 但这个例子只是通过模式匹配在做 **数值** 演算。而对于 ``List`` 的例子，我们则是通过模式匹配进行类型选择。从本质上理解，如果模糊
@@ -155,7 +155,7 @@ List
    };
 
 很明显，这种写法要啰嗦的多。毕竟都是非常平凡的构造，写起来很无聊。另外，最重要的是，这样的写法，``C++`` 无法自动推演
-出来``N`` 的值。因为构造函数的参数 ``List<T, N-1>`` 里，``N`` 处于一个计算表达式里。这在 ``C++`` 的定义中属于
+出来 ``N`` 的值。因为构造函数的参数 ``List<T, N-1>`` 里，``N`` 处于一个计算表达式里。这在 ``C++`` 的定义中属于
 不可推演上下文。
 
 13.10.2.5 [temp.deduct.type]:
@@ -258,7 +258,7 @@ List
 第一行类型声明。其意思是：有两个类型 ``A`` 和 ``B`` ，函数的输入参数有两个 : 第一个参数 ``(A->B)`` ，这是从 ``A`` 类型到 ``B`` 类型
 的映射函数，``List A`` 是一个元素为 ``A`` 类型的 ``List`` ，函数的求值结果是元素类型为 ``B`` 的 ``List`` 。
 
-`C++` 的实现非常类似：
+``C++`` 的实现非常类似：
 
 .. code-block:: c++
 
@@ -288,14 +288,14 @@ List
 
 .. code-block:: agda
 
-   _++_ : {A : Set} -> List A -> List A -> List A
+   _++_            : {A : Set} -> List A -> List A -> List A
    [] ++ ys        = ys
    (x :: xs) ++ ys = x :: (xs ++ ys)
 
 这个函数的类型很容易懂，不再赘述。其中新的元素是 ``_++_`` ，这是这个函数的名字，两边的下划线说明这是一个中位操作符。所以其下面
 定义函数实现时，也直接使用了中位操作方式。
 
-`C++` 的实现则是重载操作符。但算法一摸一样：
+``C++`` 的实现则是重载操作符。但算法一摸一样：
 
 .. code-block:: c++
 
@@ -413,7 +413,7 @@ List
    Optional<func>;
    Optional<lambda>;
 
-很不幸，由于仿函数是 **类型** ，而 普通函数和 ``lambda`` 是 **值** 。这属于完全不同的集合。而C++ 即不允许 **类模版** 在特化时使用不同
+很不幸，由于仿函数是 **类型** ，而 普通函数和 ``lambda`` 是 **值** 。这属于完全不同的集合。而 ``C++`` 既不允许 **类模版** 在特化时使用不同
 类别的参数，也不允许有两个类模版的 **主模版** (primary template) 同名。因而，针对这两种情况，我们只能定义两个不同名的模版类：
 
 .. code-block:: c++
@@ -433,8 +433,8 @@ List
 这样用户就不得不在不同情况下，明确用不同的名字的模版来实力化。这就给用户带来了不便。究竟有没有一种方法，可以让用户用同一个名字，
 或者同一个表达式就能在不知情的情况下，自动选择匹配的情况？
 
-而高度灵活的函数模版这时候成了救世主。因为函数的重载非常灵活：两个同名函数可以除了名字一样，其它都不一样。比如，参数个数，参数类型。如果是
-模版的话，模版的参数列表也可以完全不同。所以，我们可以定义两个同名函数：
+而高度灵活的函数模版这时候成了救世主。因为函数的重载非常灵活：两个同名函数可以除了名字一样，其它都不一样。
+比如，参数个数，参数类型。如果是模版的话，模版的参数列表也可以完全不同。所以，我们可以定义两个同名函数：
 
 .. code-block:: c++
 
@@ -467,10 +467,6 @@ List
 对于这个目的，声明就足够了。
 
 现在，可以再去看看那两个函数声明，其表现形式，到意图，像不像前面提到的类模版 ``Deduction Guide`` ?
-
-SFINAE
------------------
-
 
 
 TypeList
@@ -549,24 +545,24 @@ Drop
 .. code-block:: c++
 
    template<
-      size_t N,
+      size_t                          N,
       template<typename ...> typename RESULT,
-      typename ... Ts>
+      typename                    ... Ts>
    struct Drop;
 
    template<
-      size_t N,
+      size_t                          N,
       template<typename ...> typename RESULT,
-      typename H,
-      typename ... Ts>
+      typename                        H,
+      typename                    ... Ts>
    struct Drop<N, RESULT, H, Ts...> {
       using type = typename Drop<N-1, RESULT, Ts...>::type;
    };
 
    template<
       template<typename ...> typename RESULT,
-      typename H,
-      typename ... Ts>
+      typename                        H,
+      typename                    ... Ts>
    struct Drop<0, RESULT, H, Ts...> {
       using type = RESULT<H, Ts...>;
    };
@@ -596,9 +592,9 @@ Drop
 .. code-block:: c++
 
    template<
-     size_t N,
+     size_t                          N,
      template<typename ...> typename RESULT,
-     typename ... Ts>
+     typename                    ... Ts>
    using Drop_t = typename details::Drop<N, RESULT, Ts...>::type;
 
 我们之前已经谈到， ``Elem`` 和 ``Drop`` 的算法完全一直，无非就是所要的结果不同。因而，我们可以废弃掉之前 ``Elem`` 的实现，
@@ -686,20 +682,20 @@ Transform
 .. code-block:: c++
 
    template<
-      typename IN,
-      template<typename> typename F,
+      typename                        IN,
+      template<typename> typename     F,
       template<typename ...> typename RESULT,
       typename = void,
-      typename ... OUT>
+      typename                    ... OUT>
    struct Transform {
       using type = RESULT<OUT...>; // 将最终结果输出给 RESULT
    };
 
    template<
-      typename IN,
-      template<typename> typename F,
+      typename                        IN,
+      template<typename> typename     F,
       template<typename ...> typename RESULT,
-      typename ... OUT>
+      typename                    ... OUT>
    struct Transform<IN, F, RESULT, std::void_t<typename IN::Head>, OUT...> {
       using type =
         typename Transform<
@@ -764,15 +760,15 @@ Split
 
    template<
       template<typename ...> typename RESULT,
-      typename ... Ts>
+      typename                    ... Ts>
    struct GenericTypeList {
       using type = RESULT<>;
    };
 
    template<
       template<typename ...> typename RESULT,
-      typename H,
-      typename ... Ts>
+      typename                        H,
+      typename                    ... Ts>
    struct GenericTypeList<RESULT, H, Ts...> {
       using Head = H;
       using Tail = GenericTypeList<RESULT, Ts...>;
@@ -788,10 +784,10 @@ Split
 .. code-block:: c++
 
    template<
-      size_t N,
-      typename IN,
+      size_t                          N,
+      typename                        IN,
       template<typename ...> typename RESULT,
-      typename ... OUT>
+      typename                    ... OUT>
    struct Split {
       using type = typename Split<
          N - 1,
@@ -802,9 +798,9 @@ Split
    };
 
    template<
-      typename IN,
+      typename                        IN,
       template<typename ...> typename RESULT,
-      typename ... OUT>
+      typename                    ... OUT>
    struct Split<0, IN, RESULT, OUT...> {
       struct type {
          using first  = RESULT<OUT...>;

@@ -161,7 +161,7 @@ public:
    struct _ooo_ {
       template<template<typename ...> typename RESULT>
       using output = typename Bind<OPs...>::type::template Result<Ts...>::template type<RESULT>;
-      using type = typename Bind<OPs...>::type::template Result<Ts...>::template type<__stupid>;
+      using type   = typename Bind<OPs...>::type::template Result<Ts...>::template type<__stupid>;
    };
 };
 
@@ -169,6 +169,6 @@ CUB_NS_END
 
 #define __TypeStream__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
 #define __TypeStream_t(stream, ...) __TypeStream__(stream, __VA_ARGS__)::type
-#define __ts_output_to__(result) ::template output<result>
+#define __Output__To__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

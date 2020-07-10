@@ -12,10 +12,8 @@
 #include <trans-dsl/sched/helper/VolatileSeq.h>
 #include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 #include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
-#include <cub/type-list/TypeListTransform.h>
-#include <cub/type-list/TypeListComposer.h>
+#include <cub/type-list/TypeListPipeLine.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
-#include <cub/type-list/Flattenable.h>
 
 TSL_NS_BEGIN
 
@@ -41,11 +39,9 @@ namespace details {
             using ThreadActionCreator = ThreadCreator_t<Ts...>;
          };
 
-         template<typename ... T_REAL_TYPES>
-         using RealTypeSeq  = typename FlattenSeq::template type<RealBase, T_REAL_TYPES...>;
-
       public:
-         using Base = typename CUB_NS::Transform_t<ToActionRealType, RealTypeSeq, T_ACTIONS...>;
+         using Base = __TypeStream__(T_ACTIONS..., Transform<ToActionRealType>, Flatten)
+                      __Output__To__(RealBase);
       };
 
    public:

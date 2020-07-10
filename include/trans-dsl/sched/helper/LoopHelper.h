@@ -15,7 +15,7 @@
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
-#include <cub/type-list/Flattenable.h>
+#include <cub/type-list/TypeListPipeLine.h>
 
 TSL_NS_BEGIN
 
@@ -151,18 +151,18 @@ namespace details {
       template<TransListenerObservedAids const& AIDs>
       class Trait {
          template<typename T>
-         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
-         template <typename ... Ts>
-         using Base = typename FlattenSeq::template type<LoopBase, Ts...>;
+         using RealType = ActionRealTypeTraits<AIDs, T, void>;
+
       public:
-         using type = CUB_NS::Transform_t<Transformer, Base, T_ENTRIES...>;
+         using Base = __TypeStream__(T_ENTRIES..., Transform<RealType>, Flatten)
+                      __Output__To__(LoopBase);
       };
 
    public:
 
       template<TransListenerObservedAids const& AIDs>
-      class ActionRealType : public SchedLoop, public Trait<AIDs>::type {
-         using Base = typename Trait<AIDs>::type;
+      class ActionRealType : public SchedLoop, public Trait<AIDs>::Base {
+         using Base = typename Trait<AIDs>::Base;
 
       private:
          OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }

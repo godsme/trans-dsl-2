@@ -167,8 +167,8 @@ public:
 
 CUB_NS_END
 
-#define __TypeStream__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
-#define __TypeStream_t(stream, ...) __TypeStream__(stream, __VA_ARGS__)::type
-#define __Output__To__(result) ::template output<result>
+#define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
+#define __TL_Pipeline_t(stream, ...) __TL_Pipeline__(stream, __VA_ARGS__)::type
+#define __TL_OutputTo__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

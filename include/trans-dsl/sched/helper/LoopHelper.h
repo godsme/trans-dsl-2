@@ -85,7 +85,7 @@ namespace details {
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T>
-   struct ActionTraits {
+   struct ActionTraits final {
       using Action = T;
       constexpr static bool isAction = true;
    };
@@ -148,13 +148,13 @@ namespace details {
       static_assert(Num_Of_Entries <= 30, "too many entries in a loop");
 
       template<TransListenerObservedAids const& AIDs>
-      class Trait {
+      class Trait final {
          template<typename T>
-         using RealType = ActionRealTypeTraits<AIDs, T, void>;
+         using ToRealType = ActionRealTypeTraits<AIDs, T, void>;
 
       public:
-         using Base = __TypeStream__(T_ENTRIES..., Transform<RealType>, Flatten)
-                      __Output__To__(LoopBase);
+         using Base = __TL_Pipeline__(T_ENTRIES..., Transform<ToRealType>, Flatten)
+                      __TL_OutputTo__(LoopBase);
       };
 
    public:

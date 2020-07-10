@@ -40,8 +40,8 @@ namespace details {
          };
 
       public:
-         using Base = __TypeStream__(T_ACTIONS..., Transform<ToActionRealType>, Flatten)
-                      __Output__To__(RealBase);
+         using Base = __TL_Pipeline__(T_ACTIONS..., Transform<ToActionRealType>, Flatten)
+                      __TL_OutputTo__(RealBase);
       };
 
    public:

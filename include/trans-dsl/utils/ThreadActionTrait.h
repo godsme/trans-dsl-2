@@ -46,7 +46,7 @@ namespace details {
          };
       };
    public:
-      using type = __TypeStream_t(Ts..., Transform<Trait>, FoldROpt<Combine>);
+      using type = __TL_Pipeline_t(Ts..., Transform<Trait>, FoldROpt<Combine>);
    };
 
    template<typename ... Ts>

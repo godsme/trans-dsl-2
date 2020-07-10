@@ -109,7 +109,6 @@ namespace details {
 
    template<typename ... T_ENTRIES>
    class LoopBase : public GenericLoop<VOID_PLACEHOLDER_2 T_ENTRIES...> {
-
       // skip all loop predication.
       template <typename T>
       static constexpr size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0;
@@ -159,12 +158,10 @@ namespace details {
       };
 
    public:
-
       template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedLoop, public Trait<AIDs>::Base {
          using Base = typename Trait<AIDs>::Base;
 
-      private:
          OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }
 
          ///////////////////////////////////////////////////////////////////////

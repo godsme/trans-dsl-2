@@ -468,6 +468,11 @@ List
 
 现在，可以再去看看那两个函数声明，其表现形式，到意图，像不像前面提到的类模版 ``Deduction Guide`` ?
 
+.. Important::
+
+   - ``C++``  **类模版** 不允许在特化时使用不同的参数类别；也不允许不同的类主模版有同名；
+   - 但 **函数模版** 没有这类限制；
+   - 因而，你总是可以将不同的 **类模版** ，最后通过函数模版来实现表达式的统一。
 
 TypeList
 ----------------------
@@ -511,6 +516,60 @@ Elem
    Elem 0 (H::Ts) = H
 
 当然，代码中没有明确应对 ``N`` 值超过列表长度的情况，在 ``C++`` 下，这回导致一个编译错误。而这正是我们想要的结果。
+
+另外，你如果仔细观察，会发现 ``Elem`` 模版里只有一个元素，即 ``type`` 。这种情况下，其实 ``Elem`` 类模版是没有价值的；因为它
+一则是静态的，即没有人会用它所实例化得到的类型去创建对象；二则，它里面只有一个静态元素，并不起到包的作用（当一个类，或者模版里
+有多个元素时，并且这些元素都是静态的，那么类某种程度就像是一个包，或者名字空间一样）。
+
+因而，如果我们可以直接这么写，就可以让代码更加简洁：
+
+.. code-block:: c++
+
+   template<size_t N, typename ... Ts>
+   using Elem = typename Elem<N, Ts...>;
+
+   template<size_t N, typename H, typename ... Ts>
+   using Elem<N, H, Ts...> = typename Elem<N-1, Ts...>;
+
+   template<typename H, typename ... Ts>
+   using Elem<0, H, Ts...> = H;
+
+但很不幸， ``using`` 一个类型，在 ``C++`` 里属于 **别名** (Alias)，而别名模版只是别名而已，不支持特化。
+
+所以，我们还是只能使用类模版的方式。但对比两者，我们我们可以看出，我们真正关心的是其中的 ``type`` 。而不是外面的类模版。所以后者
+才更真实直接的在表达我们本来的语意。之所以采取前者那种间接表达方式，是因为 ``C++`` 的限制。
+
+或许未来 ``C++`` 标准委员会意识到这是一种广泛的需求，因为这是 ``C++`` 泛型编程极为常见的需求，标准库里到处都是这种用法。
+
+事实上，在 ``C++11`` 之前，你只有两种模版类型：类模版和函数模版。因而，对于处理结构性问题时，只有类模版一条途径，哪怕只是简单的值计算。
+我们还是举之前 `斐波那契数列` 的例子，在 ``C++11`` 之前，
+
+.. code-block:: c++
+
+   template <unsigned int N>
+   struct Fib {
+      static const unsigned int value = Fib<N-1>::value + fib<N-2>::value;
+   }
+
+   template <> struct Fib<1> {
+      static const unsigned int value = 1;
+   }
+
+   template <> struct Fib<0> {
+      static const unsigned int value = 0;
+   }
+
+同样的， 模版 ``Fib`` 存在的唯一目的，是为了提供静态的 ``value`` ，（正如上面为了提供静态的 ``type`` ）。
+那时候，``C++`` 也不支持 ``constexpr`` ，所以也无法通过函数来进行这样的编译时值计算。因而只能以这样的方式实现。
+
+随后，``C++11`` 引入了 ``constexpr`` ，而 ``C++14`` 终于提供了  **变量模版** 。于是程序员终于可以在意图只是
+通过模版定义单个常量时，可以直接使用更加简洁的方式，直接表达的自己意图。
+
+值的枷锁已经被解除，单个类型的枷锁或许很快也会被打破。要知道，在 ``C++11`` 之前，甚至 **类型别名模版** 都不支持。
+
+但无论如何，我们必须明确，``Elem`` 的例子里，如果将 ``Elem`` 看作一个函数，从语意上，函数真正的求值结果是里面
+的 ``type`` ，而不是外面的 ``struct/class`` 。
+
 
 Drop
 +++++++++++++++++++++
@@ -595,7 +654,7 @@ Drop
      size_t                          N,
      template<typename ...> typename RESULT,
      typename                    ... Ts>
-   using Drop_t = typename details::Drop<N, RESULT, Ts...>::type;
+   using Drop_t = typename Drop<N, RESULT, Ts...>::type;
 
 我们之前已经谈到， ``Elem`` 和 ``Drop`` 的算法完全一直，无非就是所要的结果不同。因而，我们可以废弃掉之前 ``Elem`` 的实现，
 复用 ``Drop`` 的实现，而复用的方式，是通过传入自己特定的 ``RESULT`` 函数。
@@ -732,7 +791,7 @@ Transform
      template<typename ...> typename RESULT,
      typename                    ... IN>
    using Transform_t =
-     typename details::Transform<
+     typename Transform<
        TypeList < IN...>,          // 将 IN... 保存到 TypeList
        F,
        RESULT,
@@ -830,7 +889,7 @@ Split
       template<typename ...> typename RESULT_2,
       typename ... IN>
    using Split_t =
-      typename details::Split<
+      typename Split<
          N,
          GenericTypeList<RESULT_2, IN...>, // 将后半部分的回调，传递给输入
          RESULT_1                          // 前半部分的回调
@@ -840,5 +899,14 @@ Split
 
 ``Split_t`` 的输入参数，清晰的反映了用户需要指定的信息: ``N`` 分割的位置；``RESULT_1``, ``RESULT_2`` 分别为分割后两个
 部分的回调。``IN`` 则是需要分割的输入列表。
+
+.. Important::
+
+   - **类模版** 的参数列表只允许有一个变参列表；
+   - **模版** 是 ``C++`` 泛型元编程的一等公民；
+   - 变参列表只能通过模版参数传入，并在模版内部通过引述模版参数来使用；不能在模版外部通过别名或其它方式直接指代；
+   - 可以通过回调方式，在模版内部继续传递变参列表给回调模版；
+   - 和通过传入一个函数来达到代码开闭原则一样；你总是设计一个高阶模版，其接受一个或多个模版做为输入，利用回调机制来实现开闭；
+
 
 

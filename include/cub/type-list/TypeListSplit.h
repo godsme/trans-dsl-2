@@ -17,19 +17,23 @@ namespace details {
       typename IN,
       typename ... OUT>
    struct Split {
-      template<template <typename ...> typename RESULT_1, template <typename ...> typename RESULT_2>
+      template
+         < template <typename ...> typename RESULT_1
+         , template <typename ...> typename RESULT_2 >
       using output = typename Split<
-         N - 1,
-         typename IN::Tail,
-         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::template output<RESULT_1, RESULT_2>;
+            N - 1,
+            typename IN::Tail,
+            __TYPE_LIST_APPEND(OUT..., typename IN::Head)
+         >::template output<RESULT_1, RESULT_2>;
    };
 
    template<
       typename IN,
       typename ... OUT>
    struct Split<0, IN, OUT...> {
-      template<template <typename ...> typename RESULT_1, template <typename ...> typename RESULT_2>
+      template
+         < template <typename ...> typename RESULT_1
+         , template <typename ...> typename RESULT_2 >
       struct output {
          using first  = RESULT_1<OUT...>;
          using second = typename IN::template output<RESULT_2>;
@@ -58,7 +62,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using take_t =
+using Take_t =
    typename details::Split<
       N,
       TypeList<IN...>
@@ -69,7 +73,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using take_tt = typename take_t<N, RESULT, IN...>::type;
+using Take_tt = typename Take_t<N, RESULT, IN...>::type;
 
 //////////////////////////////////////////////////////////////////////
 namespace details {
@@ -79,7 +83,7 @@ namespace details {
       typename ... IN>
    struct DropRight {
       static_assert(N >= sizeof...(IN), "N is greater than the size of type list");
-      using type = take_t<sizeof...(IN) - N, RESULT, IN...>;
+      using type = Take_t<sizeof...(IN) - N, RESULT, IN...>;
    };
 }
 
@@ -87,13 +91,13 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using dropRight_t = typename details::DropRight<N, RESULT, IN...>::type;
+using DropRight_t = typename details::DropRight<N, RESULT, IN...>::type;
 
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using dropRight_tt = typename dropRight_t<N, RESULT, IN...>::type;
+using DropRight_tt = typename DropRight_t<N, RESULT, IN...>::type;
 
 CUB_NS_END
 

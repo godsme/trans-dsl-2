@@ -9,8 +9,7 @@
 #include <type_traits>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/sched/domain/ThreadId.h>
-#include <cub/type-list/TypeListFold.h>
-#include <cub/type-list/TypeListTransform.h>
+#include <cub/type-list/TypeListPipeLine.h>
 #include <algorithm>
 
 TSL_NS_BEGIN
@@ -33,6 +32,8 @@ namespace details {
 }
 
 namespace details {
+   USING_CUB_NS
+
    template<typename ... Ts>
    class ThreadCreator {
       template<typename T1, typename T2>
@@ -47,11 +48,8 @@ namespace details {
          };
       };
 
-      template<typename ... Tss>
-      using CombineAll = CUB_NS::FoldROpt_t<Combine, Tss...>;
-
    public:
-      using type = CUB_NS::Transform_t<ThreadCreatorTrait, CombineAll, Ts...>;
+      using type = __TypeStream_t(Ts..., Transform<ThreadCreatorTrait>, FoldROpt<Combine>);
    };
 
    template<typename ... Ts>

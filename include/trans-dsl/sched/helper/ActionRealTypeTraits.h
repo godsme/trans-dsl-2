@@ -21,7 +21,7 @@ struct ActionRealTypeTraits<AIDs, T, std::void_t<typename T::template ActionReal
 };
 
 template<TransListenerObservedAids const& AIDs, typename T>
-using ActionRealTypeTraits_t = typename ActionRealTypeTraits<AIDs, T, void>::type;
+using ActionRealTypeTraits_t = typename ActionRealTypeTraits<AIDs, T>::type;
 
 TSL_NS_END
 

@@ -20,7 +20,11 @@ struct SchedAction;
 
 namespace details {
    template<typename ... T_ACTIONS>
-   struct GenericConcurrent;
+   struct GenericConcurrent {
+      auto get() -> SchedAction * {
+         return nullptr;
+      }
+   };
 
    template<typename T_HEAD, typename ... T_TAIL>
    struct GenericConcurrent<T_HEAD, T_TAIL...> : GenericConcurrent<T_TAIL...> {
@@ -31,31 +35,17 @@ namespace details {
       T_HEAD action;
    };
 
-   template<>
-   struct GenericConcurrent<> {
-      auto get() -> SchedAction * {
-         return nullptr;
-      }
-   };
-
    template<typename ... T_ACTIONS>
    class Concurrent final  {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
-
       static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
 
-
-      template<typename ... Ts>
-      struct Elem {
-         using type = GenericConcurrent<Ts...>;
-      };
-
       template<typename ... Tss>
-      struct Base : GenericConcurrent<Tss...> {
+      struct Base : private GenericConcurrent<Tss...> {
          template<SeqInt N>
          auto get() -> SchedAction * {
             if constexpr(N < Num_Of_Actions) {
-               return CUB_NS::Drop_tt<N, Elem, Tss...>::get();
+               return CUB_NS::Drop_t<N, GenericConcurrent, Tss...>::get();
             } else {
                return nullptr;
             }

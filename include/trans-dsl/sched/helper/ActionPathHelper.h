@@ -38,7 +38,6 @@ namespace details {
             return *(new(cache) Action);
          }
 
-      private:
          // for any action path, both pred & action would not
          // be constructed until having to.
          alignas(std::max(alignof(T_PRED), alignof(Action)))
@@ -60,7 +59,6 @@ namespace details {
             return *(new(cache) Action);
          }
 
-      private:
          // for any action path, the action would not
          // be constructed until having to.
          alignas(Action) char cache[sizeof(Action)];

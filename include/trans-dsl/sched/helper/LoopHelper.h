@@ -21,7 +21,7 @@ TSL_NS_BEGIN
 
 namespace details {
    template<VOID_CONCEPT_2 typename ... T_ACTIONS>
-   struct GenericLoop;
+   struct GenericLoop {};
 
    ///////////////////////////////////////////////////////////////////////////////////////
    template<typename T_HEAD, typename ... T_TAIL>
@@ -37,7 +37,7 @@ namespace details {
    ///////////////////////////////////////////////////////////////////////////////////////
    template<
       template<typename T> typename T_TRAITS,
-      typename T_HEAD,
+      typename     T_HEAD,
       typename ... T_TAIL>
    struct GenericLoopVolatileEntry : GenericLoop<VOID_PLACEHOLDER_2 T_TAIL...> {
       auto get(char* cache, bool& isAction) -> SchedAction* {
@@ -100,15 +100,11 @@ namespace details {
       : GenericLoopVolatileEntry<ActionTraits, T_HEAD, T_TAIL...>{};
 
    /////////////////////////////////////////////////////////////////////////////////////////////
-   template<>
-   struct GenericLoop<> {};
-
    template<typename T>
    DEF_CONCEPT(LoopEntryConcept, LoopPredConcept<T> || SchedActionConcept<T>);
 
-
    template<typename ... T_ENTRIES>
-   class LoopBase : public GenericLoop<VOID_PLACEHOLDER_2 T_ENTRIES...> {
+   class LoopBase : protected GenericLoop<VOID_PLACEHOLDER_2 T_ENTRIES...> {
       // skip all loop predication.
       template <typename T>
       static constexpr size_t Size_Of  = SchedActionConcept<T> ? sizeof(T) : 0;
@@ -119,9 +115,7 @@ namespace details {
       static constexpr size_t Size  = (MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>);
 
       template<typename ... Ts>
-      struct LoopEntry {
-         using type = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
-      };
+      using LoopEntry  = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;
 
    protected:
       enum { Expanded_Num_Of_Entries = sizeof...(T_ENTRIES) };
@@ -131,7 +125,7 @@ namespace details {
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
          if constexpr(N < Expanded_Num_Of_Entries) {
-            return CUB_NS::Drop_tt<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
+            return CUB_NS::Drop_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
          } else {
             return nullptr;
          }

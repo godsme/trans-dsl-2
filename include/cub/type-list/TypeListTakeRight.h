@@ -14,40 +14,39 @@ CUB_NS_BEGIN
 namespace details {
    template<
       size_t N,
-      template<typename ...> typename RESULT,
       typename ... Ts>
    struct Drop;
 
    template<
       size_t N,
-      template<typename ...> typename RESULT,
       typename H,
       typename ... Ts>
-   struct Drop<N, RESULT, H, Ts...> {
-      using type = typename Drop<N-1, RESULT, Ts...>::type;
+   struct Drop<N, H, Ts...> {
+      template<template<typename ...> typename RESULT>
+      using output = typename Drop<N-1, Ts...>::template output<RESULT>;
    };
 
    template<
-      template<typename ...> typename RESULT,
       typename H,
       typename ... Ts>
-   struct Drop<0, RESULT, H, Ts...> {
-      using type = RESULT<H, Ts...>;
+   struct Drop<0, H, Ts...> {
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<H, Ts...>;
    };
 
-   template<
-      template<typename ...> typename RESULT>
-   struct Drop<0, RESULT> {
-      using type = RESULT<>;
+   template<>
+   struct Drop<0> {
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<>;
    };
 
    template<
       size_t N,
-      template<typename ...> typename RESULT,
       typename ... Ts>
    struct TakeRight {
       static_assert(N <= sizeof...(Ts), "N is bigger than sizeof type list");
-      using type = typename Drop<sizeof...(Ts) - N, RESULT, Ts...>::type;
+      template<template<typename ...> typename RESULT>
+      using output = typename Drop<sizeof...(Ts) - N, Ts...>::template output<RESULT>;
    };
 
    template<typename ... Ts>
@@ -63,7 +62,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using Drop_t = typename details::Drop<N, RESULT, Ts...>::type;
+using Drop_t = typename details::Drop<N, Ts...>::template output<RESULT>;
 
 template<
    size_t N,
@@ -75,7 +74,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using TakeRight_t = typename details::TakeRight<N, RESULT, Ts...>::type;
+using TakeRight_t = typename details::TakeRight<N, Ts...>::template output<RESULT>;
 
 template<
    size_t N,
@@ -87,6 +86,7 @@ template<
    size_t N,
    typename ... Ts>
 using Elem_t = Drop_tt<N, details::Head, Ts...>;
+
 
 CUB_NS_END
 

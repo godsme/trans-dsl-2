@@ -37,7 +37,6 @@ namespace details {
    class ThreadCreator {
       template<typename T1, typename T2>
       struct Combine {
-         // T1, T2 are both not void, combine them as one type.
          struct type : private T1, private T2 {
             static constexpr uint8_t numOfThreads = T1::numOfThreads + T2::numOfThreads;
             static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);

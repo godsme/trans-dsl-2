@@ -30,18 +30,19 @@ namespace details {
       static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
       ///////////////////////////////////////////////////////////////////////////////////////////
-
       template<typename ... T_REAL_TYPES>
-      struct RealTypeSeq  {
-         // for thread-resource-transfer
-         using ThreadActionCreator = ThreadCreator_t<T_REAL_TYPES...>;
-
+      class RealTypeSeq  {
          template<typename ... Ts>
-         struct Seq : VolatileSeq<SchedAction, Ts...> {
+         struct Seq : protected VolatileSeq<SchedAction, Ts...> {
+            // for thread-resource-transfer
+            using ThreadActionCreator = ThreadCreator_t<T_REAL_TYPES...>;
+
+            // for inline seq
             template<template<typename ...> typename RESULT>
             using AllSeq = RESULT<Ts...>;
          };
 
+      public:
          using Base = typename InlineSeq::template type<Seq, T_REAL_TYPES...>;
       };
 
@@ -54,9 +55,7 @@ namespace details {
 
    public:
       template<TransListenerObservedAids const& AIDs>
-      struct ActionRealType : SchedSequential, Trait<AIDs>::RealTypes::Base {
-         using ThreadActionCreator = typename Trait<AIDs>::RealTypes::ThreadActionCreator;
-      private:
+      class ActionRealType : public SchedSequential, public Trait<AIDs>::RealTypes::Base {
          OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
          OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Trait<AIDs>::RealTypes::Base::get(seq); }
       };

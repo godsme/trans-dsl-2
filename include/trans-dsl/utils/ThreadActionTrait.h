@@ -9,6 +9,8 @@
 #include <type_traits>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
 #include <trans-dsl/sched/domain/ThreadId.h>
+#include <cub/type-list/TypeListFold.h>
+#include <cub/type-list/TypeListTransform.h>
 #include <algorithm>
 
 TSL_NS_BEGIN
@@ -17,31 +19,22 @@ struct SchedAction;
 
 namespace details {
    template<typename T, typename = void>
-   struct ThreadCreatorTrait {
+   struct ThreadCreatorTrait_ {
       using type = void;
    };
 
    template<typename T>
-   struct ThreadCreatorTrait<T, std::void_t<typename T::ThreadActionCreator>> {
+   struct ThreadCreatorTrait_<T, std::void_t<typename T::ThreadActionCreator>> {
       using type = typename T::ThreadActionCreator;
    };
 
    template<typename T>
-   using ThreadCreatorTrait_t = typename ThreadCreatorTrait<T, void>::type ;
+   using ThreadCreatorTrait = ThreadCreatorTrait_<T>;
 }
 
 namespace details {
-   template<typename T1, typename T2, typename = void>
-   struct ThreadCreatorCombinator;
-
    template<typename T1, typename T2>
-   struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<std::is_void_v<T2>>> {
-      // T1 is not a void for sure, skip T2 if it's void.
-      using type = T1;
-   };
-
-   template<typename T1, typename T2>
-   struct ThreadCreatorCombinator<T1, T2, std::enable_if_t<!std::is_void_v<T2>>> {
+   struct ThreadCreatorCombinator {
       // T1, T2 are both not void, combine them as one type.
       struct type : private T1, private T2 {
          static constexpr uint8_t numOfThreads = T1::numOfThreads + T2::numOfThreads;
@@ -52,37 +45,20 @@ namespace details {
          }
       };
    };
-
-   template<typename T1, typename T2>
-   using ThreadCreatorCombinator_t = typename ThreadCreatorCombinator<T1, T2, void>::type;
 }
 
 namespace details {
-   template<typename = void, typename ... Ts>
-   struct ThreadCreator;
+   template<typename ... Ts>
+   class ThreadCreator {
+      template<typename ... Tss>
+      using CombineAll = cub::FoldROpt_t<ThreadCreatorCombinator, Tss...>;
+
+   public:
+      using type = CUB_NS::Transform_t<ThreadCreatorTrait, CombineAll, Ts...>;
+   };
 
    template<typename ... Ts>
-   using ThreadCreator_t = typename ThreadCreator<void, Ts...>::type;
-
-   template <typename T>
-   constexpr bool IsVoidThreadCreator = std::is_void_v<ThreadCreatorTrait_t<T>>;
-
-   template<typename H, typename ... Ts>
-   struct ThreadCreator<std::enable_if_t<IsVoidThreadCreator<H>>, H, Ts...> {
-      // skip if H is void. But finally we might still get void
-      // if all Ts does not contain a fork object, directly or indirectly.
-      using type = ThreadCreator_t<Ts...>;
-   };
-
-   template<typename H, typename ... Ts>
-   struct ThreadCreator<std::enable_if_t<!IsVoidThreadCreator<H>>, H, Ts...> {
-      using type = ThreadCreatorCombinator_t<ThreadCreatorTrait_t<H>, ThreadCreator_t<Ts...>>;
-   };
-
-   template<>
-   struct ThreadCreator<void> {
-      using type = void;
-   };
+   using ThreadCreator_t = typename ThreadCreator<Ts...>::type;
 }
 
 namespace details {

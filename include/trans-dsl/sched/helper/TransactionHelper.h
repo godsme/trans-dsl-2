@@ -19,13 +19,13 @@ namespace details {
    template<typename ACTION>
    struct Transaction {
    private:
-      template<typename T, typename = void>
+      template<typename T, typename T2>
       struct MultiThreadTrait {
          using type = __multi_thread(T);
       };
 
       template<typename T>
-      struct MultiThreadTrait<T, std::enable_if_t<std::is_void_v<ThreadCreator_t<T>>>> {
+      struct MultiThreadTrait<T, void> {
          using type = T;
       };
 
@@ -34,7 +34,7 @@ namespace details {
       class ActionRealType : private TransactionContext {
       public:
          using RawType = ActionRealTypeTraits_t<AIDs, ACTION>;
-         using TraitsType = typename MultiThreadTrait<RawType>::type;
+         using TraitsType = typename MultiThreadTrait<RawType, ThreadCreator_t<RawType>>::type;
          using Action = ActionRealTypeTraits_t<AIDs, TraitsType>;
 
          using Outer = Transaction<ACTION>;

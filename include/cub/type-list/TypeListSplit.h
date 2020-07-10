@@ -15,27 +15,29 @@ namespace details {
    template<
       size_t N,
       typename IN,
-      template<typename ...> typename RESULT,
       typename ... OUT>
    struct Split {
-      using type = typename Split<
+      template<template <typename ...> typename RESULT_1, template <typename ...> typename RESULT_2>
+      using output = typename Split<
          N - 1,
          typename IN::Tail,
-         RESULT,
          __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::type;
+      >::template output<RESULT_1, RESULT_2>;
    };
 
    template<
       typename IN,
-      template<typename ...> typename RESULT,
       typename ... OUT>
-   struct Split<0, IN, RESULT, OUT...> {
-      struct type {
-         using first  = RESULT<OUT...>;
-         using second = typename IN::type;
+   struct Split<0, IN, OUT...> {
+      template<template <typename ...> typename RESULT_1, template <typename ...> typename RESULT_2>
+      struct output {
+         using first  = RESULT_1<OUT...>;
+         using second = typename IN::template output<RESULT_2>;
       };
    };
+
+   template<typename ...>
+   struct __never_used_dummy__ {};
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -47,10 +49,9 @@ template<
 using Split_t =
    typename details::Split<
       N,
-      GenericTypeList<RESULT_2, IN...>,
-      RESULT_1
+      TypeList<IN...>
       __EMPTY_OUTPUT_TYPE_LIST___
-   >::type;
+   >::template output<RESULT_1, RESULT_2>;
 
 //////////////////////////////////////////////////////////////////////
 template<
@@ -60,10 +61,9 @@ template<
 using take_t =
    typename details::Split<
       N,
-      TypeList<IN...>,
-      RESULT
+      TypeList<IN...>
       __EMPTY_OUTPUT_TYPE_LIST___
-   >::type::first;
+   >::template output<RESULT, details::__never_used_dummy__>::first;
 
 template<
    size_t N,

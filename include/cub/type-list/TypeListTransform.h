@@ -15,27 +15,26 @@ namespace details {
    template<
       typename IN,
       template<typename> typename F,
-      template<typename ...> typename RESULT,
       typename = void,
       typename ... OUT>
    struct Transform {
-      using type = RESULT<OUT...>; // 将最终结果输出给 RESULT
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<OUT...>;
    };
 
    template<
       typename IN,
       template<typename> typename F,
-      template<typename ...> typename RESULT,
       typename ... OUT>
-   struct Transform<IN, F, RESULT, std::void_t<typename IN::Head>, OUT...> {
-      using type =
-      typename Transform<
-         typename IN::Tail,
-         F,
-         RESULT,
-         void,
-         __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
-      >::type;
+   struct Transform<IN, F, std::void_t<typename IN::Head>, OUT...> {
+      template<template<typename ...> typename RESULT>
+      using output =
+         typename Transform<
+            typename IN::Tail,
+            F,
+            void,
+            __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
+         >::template output<RESULT>;
    };
 }
 
@@ -48,10 +47,9 @@ using Transform_t =
    typename details::Transform<
       TypeList < IN...>,
       F,
-      RESULT,
       void
       __EMPTY_OUTPUT_TYPE_LIST___
-   >::type;
+   >::template output<RESULT>;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<

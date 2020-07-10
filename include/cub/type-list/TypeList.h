@@ -11,33 +11,17 @@ CUB_NS_BEGIN
 
 template<typename ... Ts>
 struct TypeList {
-   using type = void;
+   template<template <typename ...> typename RESULT>
+   using output = RESULT<>;
 };
 
 template<typename H, typename ... Ts>
 struct TypeList<H, Ts...> {
    using Head = H;
    using Tail = TypeList<Ts...>;
-   using type = void;
-};
 
-///////////////////////////////////////////////
-template<
-   template<typename ...> typename RESULT,
-   typename ... Ts>
-struct GenericTypeList {
-   using type = RESULT<>;
-};
-
-template<
-   template<typename ...> typename RESULT,
-   typename H,
-   typename ... Ts>
-struct GenericTypeList<RESULT, H, Ts...> {
-   using Head = H;
-   using Tail = GenericTypeList<RESULT, Ts...>;
-
-   using type = RESULT<H, Ts...>;
+   template<template <typename ...> typename RESULT>
+   using output = RESULT<H, Ts...>;
 };
 
 #define __EMPTY_OUTPUT_TYPE_LIST___

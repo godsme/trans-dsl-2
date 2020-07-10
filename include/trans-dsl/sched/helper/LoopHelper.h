@@ -15,6 +15,7 @@
 #include <trans-dsl/sched/helper/MaxSizeCalc.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
+#include <cub/type-list/Flattenable.h>
 
 TSL_NS_BEGIN
 
@@ -136,6 +137,9 @@ namespace details {
             return nullptr;
          }
       }
+
+   public:
+      using ThreadActionCreator = ThreadCreator_t<T_ENTRIES...>;
    };
 
    template<uint32_t V_MAX_TIMES, typename ... T_ENTRIES>
@@ -144,27 +148,21 @@ namespace details {
       static_assert(Num_Of_Entries > 0, "loop cannot be empty");
       static_assert(Num_Of_Entries <= 30, "too many entries in a loop");
 
-      template <typename ... Ts>
-      struct Base {
-         using ThreadActionCreator = ThreadCreator_t<Ts...>;
-         using BaseType = typename InlineSeq::template type<LoopBase, Ts...>;
-      };
-
       template<TransListenerObservedAids const& AIDs>
-      struct Trait {
+      class Trait {
          template<typename T>
          using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+         template <typename ... Ts>
+         using Base = typename FlattenSeq::template type<LoopBase, Ts...>;
+      public:
          using type = CUB_NS::Transform_t<Transformer, Base, T_ENTRIES...>;
       };
 
    public:
 
       template<TransListenerObservedAids const& AIDs>
-      class ActionRealType : public SchedLoop, Trait<AIDs>::type::BaseType {
-         using Result = typename Trait<AIDs>::type;
-         using Base = typename Result::BaseType;
-      public:
-         using ThreadActionCreator = typename Result::ThreadActionCreator;
+      class ActionRealType : public SchedLoop, public Trait<AIDs>::type {
+         using Base = typename Trait<AIDs>::type;
 
       private:
          OVERRIDE(getMaxTime() const -> uint32_t) { return V_MAX_TIMES; }

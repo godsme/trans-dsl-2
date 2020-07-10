@@ -15,7 +15,7 @@
 #include <cub/type-list/TypeListTransform.h>
 #include <cub/type-list/TypeListComposer.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
-#include <trans-dsl/sched/helper/InlineSeqHelper.h>
+#include <cub/type-list/Flattenable.h>
 
 TSL_NS_BEGIN
 
@@ -33,17 +33,13 @@ namespace details {
       template<typename ... T_REAL_TYPES>
       class RealTypeSeq  {
          template<typename ... Ts>
-         struct Seq : protected VolatileSeq<SchedAction, Ts...> {
+         struct RealBase : CUB_NS::Flattenable<Ts...>, protected VolatileSeq<SchedAction, Ts...> {
             // for thread-resource-transfer
-            using ThreadActionCreator = ThreadCreator_t<T_REAL_TYPES...>;
-
-            // for inline seq
-            template<template<typename ...> typename RESULT>
-            using AllSeq = RESULT<Ts...>;
+            using ThreadActionCreator = ThreadCreator_t<Ts...>;
          };
 
       public:
-         using Base = typename InlineSeq::template type<Seq, T_REAL_TYPES...>;
+         using Base = typename FlattenSeq::template type<RealBase, T_REAL_TYPES...>;
       };
 
       template<TransListenerObservedAids const& AIDs>

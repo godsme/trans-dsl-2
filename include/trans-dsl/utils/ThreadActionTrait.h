@@ -17,25 +17,23 @@ TSL_NS_BEGIN
 struct SchedAction;
 
 namespace details {
-   template<typename T, typename = void>
-   struct ThreadCreatorTrait_ {
-      using type = void;
-   };
-
-   template<typename T>
-   struct ThreadCreatorTrait_<T, std::void_t<typename T::ThreadActionCreator>> {
-      using type = typename T::ThreadActionCreator;
-   };
-
-   template<typename T>
-   using ThreadCreatorTrait = ThreadCreatorTrait_<T, void>;
-}
-
-namespace details {
    USING_CUB_NS
 
    template<typename ... Ts>
    class ThreadCreator {
+      template<typename T, typename = void>
+      struct Trait_ {
+         using type = void;
+      };
+
+      template<typename T>
+      struct Trait_<T, std::void_t<typename T::ThreadActionCreator>> {
+         using type = typename T::ThreadActionCreator;
+      };
+
+      template<typename T>
+      using Trait = Trait_<T, void>;
+
       template<typename T1, typename T2>
       struct Combine {
          struct type : private T1, private T2 {
@@ -47,9 +45,8 @@ namespace details {
             }
          };
       };
-
    public:
-      using type = __TypeStream_t(Ts..., Transform<ThreadCreatorTrait>, FoldROpt<Combine>);
+      using type = __TypeStream_t(Ts..., Transform<Trait>, FoldROpt<Combine>);
    };
 
    template<typename ... Ts>

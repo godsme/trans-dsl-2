@@ -29,29 +29,27 @@ namespace details {
    };
 
    template<typename T>
-   using ThreadCreatorTrait = ThreadCreatorTrait_<T>;
-}
-
-namespace details {
-   template<typename T1, typename T2>
-   struct ThreadCreatorCombinator {
-      // T1, T2 are both not void, combine them as one type.
-      struct type : private T1, private T2 {
-         static constexpr uint8_t numOfThreads = T1::numOfThreads + T2::numOfThreads;
-         static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);
-         auto createThreadAction(ThreadId tid) -> SchedAction* {
-            auto action = T1::createThreadAction(tid);
-            return action == nullptr ? T2::createThreadAction(tid) : action;
-         }
-      };
-   };
+   using ThreadCreatorTrait = ThreadCreatorTrait_<T, void>;
 }
 
 namespace details {
    template<typename ... Ts>
    class ThreadCreator {
+      template<typename T1, typename T2>
+      struct Combine {
+         // T1, T2 are both not void, combine them as one type.
+         struct type : private T1, private T2 {
+            static constexpr uint8_t numOfThreads = T1::numOfThreads + T2::numOfThreads;
+            static constexpr ThreadId threadId = std::max(T1::threadId, T2::threadId);
+            auto createThreadAction(ThreadId tid) -> SchedAction* {
+               auto action = T1::createThreadAction(tid);
+               return action == nullptr ? T2::createThreadAction(tid) : action;
+            }
+         };
+      };
+
       template<typename ... Tss>
-      using CombineAll = cub::FoldROpt_t<ThreadCreatorCombinator, Tss...>;
+      using CombineAll = CUB_NS::FoldROpt_t<Combine, Tss...>;
 
    public:
       using type = CUB_NS::Transform_t<ThreadCreatorTrait, CombineAll, Ts...>;

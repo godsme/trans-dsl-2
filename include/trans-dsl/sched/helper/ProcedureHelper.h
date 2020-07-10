@@ -30,10 +30,8 @@ namespace details {
    struct FinalTrait;
 
    template<CONCEPT(FinallyConcept) T>
-   struct FinalTrait<T> {
+   struct FinalTrait<T> : T {
       CONCEPT_ASSERT(FinallyConcept<T>);
-      constexpr static bool isRecover = T::isRecover;
-      using type = typename T::type;
    };
 
    template<typename ... T_ACTIONS>

@@ -19,15 +19,18 @@ namespace details {
    template<TimerId V_TIMER_ID, typename T_ACTION>
    struct TimeGuard final {
       template<TransListenerObservedAids const& AIDs>
-      struct ActionRealType : SchedTimeGuard {
-         using ThreadActionCreator = ThreadCreator_t<T_ACTION>;
-      private:
+      class ActionRealType : public SchedTimeGuard {
+         using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+         CONCEPT_ASSERT(SchedActionConcept<Action>);
+
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          IMPL_ROLE_WITH_VAR(RelativeTimer, timer);
-      private:
-         using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
+
          Action action;
          PlatformSpecifiedTimer timer{V_TIMER_ID};
+
+      public:
+         using ThreadActionCreator = ThreadCreator_t<Action>;
       };
    };
 

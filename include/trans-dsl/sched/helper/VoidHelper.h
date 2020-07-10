@@ -19,14 +19,15 @@ namespace details {
    template<typename T_ACTION>
    struct Void final {
       template<TransListenerObservedAids const& AIDs>
-      class ActionRealType : SchedVoid {
+      class ActionRealType : public SchedVoid {
          using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
-      public:
-         using ThreadActionCreator = ThreadCreator_t<Action>;
          CONCEPT_ASSERT(SchedActionConcept<Action>);
-      private:
+
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          Action action;
+
+      public:
+         using ThreadActionCreator = ThreadCreator_t<Action>;
       };
    };
 

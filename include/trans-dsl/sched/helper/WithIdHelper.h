@@ -18,8 +18,7 @@ namespace details {
       using Action = ActionRealTypeTraits_t<AIDs, ACTION>;
 
       template<TransListenerObservedAids const& AIDs>
-      struct Inner : SchedWithId {
-      private:
+      class Used : public SchedWithId {
          OVERRIDE(getActionId() const -> ActionId) { return AID; }
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          Action<AIDs> action;
@@ -32,7 +31,7 @@ namespace details {
 
       template<TransListenerObservedAids const& AIDs>
       struct Trait<AIDs, true>  {
-         using type = Inner<AIDs>;
+         using type = Used<AIDs>;
       };
    public:
       template<TransListenerObservedAids const& AIDs>

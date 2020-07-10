@@ -16,23 +16,11 @@ struct TransactionInfo;
 
 namespace details {
    /////////////////////////////////////////////////////////////////////////
-   template<typename T_ACTION, size_t V_SIZE=sizeof(T_ACTION) VOID_CONCEPT>
-   struct SyncAction;
-
-   template<CONCEPT(SyncActionClassConcept) T_ACTION, size_t V_SIZE>
-   struct SyncAction<T_ACTION, V_SIZE ENABLE_C(SyncActionClassConcept, T_ACTION)> : SchedSyncAction {
-      OVERRIDE(exec(TransactionContext & context)->Status) {
-         return check(action(context));
-      }
-
-   private:
-      T_ACTION action;
-   };
-
    template<CONCEPT(SyncActionClassConcept) T_ACTION>
-   struct SyncAction<T_ACTION, 1 ENABLE_C(SyncActionClassConcept, T_ACTION)> : SchedSyncAction {
+   struct SyncAction : SchedSyncAction, private T_ACTION {
+      CONCEPT_ASSERT(SyncActionClassConcept<T_ACTION>);
       OVERRIDE(exec(TransactionContext & context)->Status) {
-         return check(T_ACTION{}(context));
+         return check(T_ACTION::operator()(context));
       }
    };
 

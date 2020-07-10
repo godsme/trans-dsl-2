@@ -27,16 +27,16 @@ namespace details {
       template<TransListenerObservedAids const& AIDs>
       struct Trait {
          template<typename ... Tss>
-         struct Base  {
+         struct RealTypes  {
             // for thread-resource-transfer
             using ThreadActionCreator = ThreadCreator_t<Tss...>;
             using Paths = VolatileSeq<ActionPath, Tss...>;
          };
 
          template<typename T>
-         using Transformer = ActionRealTypeTraits<AIDs, T, void>;
+         using ToRealTypes = ActionRealTypeTraits<AIDs, T, void>;
 
-         using type = CUB_NS::Transform_t<Transformer, Base, T_PATHS...>;
+         using type = CUB_NS::Transform_t<ToRealTypes, RealTypes, T_PATHS...>;
       };
 
    public:

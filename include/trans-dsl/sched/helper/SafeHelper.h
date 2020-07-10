@@ -18,12 +18,12 @@ namespace details {
       template<TransListenerObservedAids const& AIDs>
       class ActionRealType : SchedSafe {
          using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
-      public:
-         using ThreadActionCreator = ThreadCreator_t<Action>;
          CONCEPT_ASSERT(SchedActionConcept<Action>);
-      private:
+
          IMPL_ROLE_WITH_VAR(SchedAction, action);
          Action action;
+      public:
+         using ThreadActionCreator = ThreadCreator_t<Action>;
       };
    };
 }

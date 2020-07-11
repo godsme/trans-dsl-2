@@ -21,18 +21,18 @@ struct Flattenable : FlattenableSignature {
 };
 
 class FlattenSeq final {
-   template<typename COMPOSER, typename T, typename = void>
+   template<typename ACC, typename T, typename = void>
    struct Seq_ {
-      using type = typename COMPOSER::template type<T>;
+      using type = typename ACC::template type<T>;
    };
 
-   template<typename COMPOSER, typename T>
-   struct Seq_<COMPOSER, T, std::enable_if_t < std::is_base_of_v < CUB_NS::FlattenableSignature, T>>> {
-      using type = typename T::template OutputAllTypesTo<COMPOSER::template type>;
+   template<typename ACC, typename T>
+   struct Seq_<ACC, T, std::enable_if_t < std::is_base_of_v < CUB_NS::FlattenableSignature, T>>> {
+      using type = typename T::template OutputAllTypesTo<ACC::template type>;
    };
 
-   template<typename COMPOSER, typename T>
-   using Seq = Seq_<COMPOSER, T, void>;
+   template<typename ACC, typename T>
+   using Seq = Seq_<ACC, T, void>;
 
 public:
    template<template<typename ...> typename RESULT, typename ... Ts>

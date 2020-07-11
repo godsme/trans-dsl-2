@@ -13,12 +13,18 @@ template<typename ... Ts>
 struct TypeList {
    template<template <typename ...> typename RESULT>
    using output = RESULT<>;
+
+   template<typename ... Ts2>
+   using concat = TypeList<Ts2...>;
 };
 
 template<typename H, typename ... Ts>
 struct TypeList<H, Ts...> {
    using Head = H;
    using Tail = TypeList<Ts...>;
+
+   template<typename ... Ts2>
+   using concat = TypeList<H, Ts..., Ts2...>;
 
    template<template <typename ...> typename RESULT>
    using output = RESULT<H, Ts...>;

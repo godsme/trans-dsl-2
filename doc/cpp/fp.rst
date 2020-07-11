@@ -822,12 +822,10 @@ Transform
 所以，我之前其实撒谎了。我一直在宣称 ``C++`` 的 ``TypeList`` 无法指代。其实指的是 ``Ts...`` 形式的列表无法指代。但一旦
 将其保存在刚刚定义的 ``TypeList`` 里，它就可以指代了。
 
-但是，以 ``TypeList<Ts...>`` 的方式给用户，用户将再也不能以 ``Ts...`` 的方式使用，而那是很多变参模版要求的使用方式。
+但是，以 ``TypeList<Ts...>`` 的方式给用户，但需用需要的是 ``Ts...`` ，最终用户还是必须通过回调的方式才能使用 ``Ts...`` 形式，
+（这个我们后面会谈到），既然迟早都要回调，那还不如让用户完全意识不到 ``TypeList<Ts...>`` 这样一个中间结构，尽早回调。
 
-但用户拿到 ``Ts...`` 之后，如果的确需要 ``TypeList`` 结构，却可以自由的从 ``Ts...`` 转化
-为 ``TypeList<Ts...>`` 。因而， ``Ts...`` 方式才真正保证了用户的最大自由度。我们不应该破坏这一点。
-
-而 ``TypeList<Ts...>`` 当作我们算法的内部结构，自然是没有任何问题的。下面就是 ``Transform`` 的实现：
+下面就是 ``Transform`` 的实现：
 
 .. code-block:: c++
 
@@ -1302,12 +1300,130 @@ Flatten
 稍加思考，我们就知道这是一个 ``fold`` 操作，即遍历整个列表，将每一个元素递归性的进行 ``flatten`` ，
 然后将得到到每个 ``list`` 不断连接，合成一个 ``list`` 。
 
-可问题是，我们如何构造一个 ``ACC`` ，让其可以将两个 ``Ts...`` 合成一个 ``Ts...`` ？
+我们知道 ``Fold`` 需要一个如下原型的 ``OP`` :
+
+.. code-block:: c++
+
+   template <typename ACC, typename T>
+   struct OP;
+
+即，将 ``T`` 和与前面的 ``ACC`` 进行某种计算，得到新的 ``ACC`` 做为结果。
+
+而对于我们的 ``flatten`` 问题，传入的 ``T`` 需要 ``OP`` 将其展开成一个 ``Ts...``
+（也可能只是 ``T`` ，如果其不是一个 ``List`` 的话）。
+
+然后将得到的 ``T`` 或者 ``Ts...`` ，追加到 ``ACC`` 所代表的 ``Ts...`` 后面，得到一个新的 ``Ts...`` 。
+
+这就意味着，``ACC`` 自身要么是一个 ``Ts...`` ，要么 ``保存`` 了一个 ``Ts...`` ，否则，上述算法不可能实现。
+
+从 ``template <typename ACC, typename T> struct OP`` 的原型看， ``ACC`` 自身肯定不是 ``Ts...`` ，所以它
+只能 ``保存`` 一个 ``Ts...`` ，并且这个 ``Ts..`` 还可以和另外一个 ``Ts...`` 进行合并。
+
+问题是，怎么可能让一个 ``类型`` (原型里 ``ACC`` 是一个 ``typename`` ，代表 ``ACC`` 是 ``类型`` )
+保存一个 ``Ts...`` ？我们之前早就讨论过， ``Ts...`` 是不可能直接指代的。
+
+但我们也同样讨论过，模版具有 ``闭包`` 的性质，我们可以利用这个性质，结合 ``高阶模版`` ，就可以保存一个 ``Ts...`` ，并且这个
+``Ts...`` 可以和其它的 ``Ts...`` 进行合并。这就是下面的定义：
+
+.. code-block:: c++
+
+   template<typename ... Ts1>
+   struct Accumulator {
+      template<typename ... Ts2>
+      using type = Accumulator<Ts1..., Ts2...>;
+   };
+
+外面的是一个 ``Accumulator`` ，是一个 ``高阶模版`` ，其参数用来 ``保存`` 一个 ``Ts1...`` ，
+其返回的 ``type``  是另外一个模版，其职责是将其环境中 ``Ts1...`` 和用户新传入的 ``Ts2...`` 进行连接，
+得到一个新的 ``Accumulator`` ，这个结构是不是很漂亮？
+
+另外一个新的问题是，我们如何区分一个类型是可展开的？而另外一些类型不可以？很简单，要求可展开的类型都继承这样一个类：
+
+.. code-block:: c++
+
+   struct FlattenableSignature {};
+
+   template<typename ... Ts>
+   struct Flattenable : FlattenableSignature {
+      template<template<typename ...> typename RESULT>
+      using OutputAllTypesTo = RESULT<Ts...>;
+   };
+
+其中 ``FlattenableSignature`` 是一个签名类，用于判别，而 ``Flattenable`` 也是高阶模版，
+它让外界可以通过 ``OutputAllTypesTo`` ，以回调的方式得到它的 ``Ts...`` 。
+
+另外，注意，无论是 ``FlattenableSignature`` ，还是高阶模版 ``Flattenable`` 都没有任何数据成员，也没有任何
+虚函数或虚基类，所以继承它们不会增加任何子类自身的开销。
+
+下面定义我们真正符合 ``Fold`` 要求的 ``ACC`` :
+
+.. code-block:: c++
+
+   template<typename Accumulator, typename T, typename = void>
+   struct FlattenAcc {
+      using type = typename Accumulator::template type<T>;
+   };
+
+   template<typename Accumulator, typename T>
+   struct FlattenAcc
+      < Accumulator
+      , T
+      , std::enable_if_t < std::is_base_of_v < CUB_NS::FlattenableSignature, T>>> {
+      using type = typename T::template OutputAllTypesTo<Accumulator::template type>;
+   };
+
+``FlattenAcc`` 模版的前两个参数，正是 ``Fold`` 的 ``OP`` 原型所要求的两个参数，而第三个是在 ``C++20`` 之前
+( ``C++20`` 直接使用 ``concept`` 即可），不得不使用的 ``SFINAE`` 技术，
+通过 ``std::is_base_of_v < CUB_NS::FlattenableSignature, T>>`` 来区分两种情况，而不得不额外引入的参数。
+
+第一种情况， ``T`` 不是一个 ``Flattenable`` 的，那就直接将 ``T`` 合并到 ``Accumulator`` 里保存的 ``Ts...`` 里。
+
+第二中情况，``T`` 是一个 ``Flattenable`` 的，则将模版 ``Accumulator::template type`` 当作回调从
+``Flattenable`` 的高阶模版 ``OutputAllTypesTo`` 那里拿到其 ``Ts...`` ，而 ``Accumulator::template type``
+会将这两个 ``Ts...`` 进行衔接，并返回一个新的 ``Accumulator`` 。
+
+而为了消除掉 ``FlattenAcc`` 那个额外的 ``void`` 参数：
+
+.. code-block:: c++
+
+   template<typename ACC, typename T>
+   using FlattenAcc_t = FlattenAcc<ACC, T, void>;
+
+这样我们就我们就可以直接调用 ``FoldL_Init_t`` :
+
+   using Acc = FoldL_Init_t<FlattenAcc_t, Accumulator<>, Ts...>;
 
 
+其中， ``OP`` 是 ``FlattenAcc_t`` ，由于初始时，结果列表为空， 所以 ``INIT`` 是 ``Accumulator<>`` 。
+而结算的结果，是一个 ``Accumulator<Ts...>`` ，而为了取出其中的 ``Ts...`` ，我们故伎重演，给它增加
+一个回调接口：
+
+.. code-block:: C++
+
+   template<typename ... Ts>
+   struct Accumulator {
+      template<typename ... NewTs>
+      using type = Accumulator<Ts..., NewTs...>;
+
+      // 取回 Ts... 的回调接口
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<Ts...>;
+   };
 
 
+然后，我们就可以将其输出到我们提供的回调模版 ``OUTPUT`` 上了：
 
+   template <typename ... Ts>
+   struct MyClass {
+     // 回调之后，Ts ... 即 Flatten 之后的结果
+     // 可以使用 Ts... 继续自己的计算
+   };
 
+   // result 是模版 MyClass ，被 Ts... 实例化后的类型
+   using result = typename Acc::template output<MyClass>;
 
+.. Important:
 
+   - ``C++`` 泛型计算，是完全函数式的；
+   - ``C++`` 泛型，即可以计算数值，也可以计算类型，而两者都是 ``图灵完备`` 的；
+   - 模版是泛型计算的一等公民：对于高阶模版的支持，及 ``闭包`` 性质，可以将其理解为范型计算时的 ``lambda`` ；

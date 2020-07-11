@@ -35,12 +35,17 @@ class FlattenSeq final {
    using Seq = Seq_<ACC, T, void>;
 
 public:
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = typename FoldLInit_t<Seq, Accumulator<>, Ts...>::template output<RESULT>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = typename type_list::FoldLInit_t<IN, Seq, Accumulator<>>::template output<RESULT>;
 };
 
+namespace type_list {
+   template <typename IN, template<typename ...> typename RESULT>
+   using Flatten_t = typename FlattenSeq::template type<IN, RESULT>;
+}
+
 template <template<typename ...> typename RESULT, typename ... Ts>
-using Flatten_t = typename FlattenSeq::template type<RESULT, Ts...>;
+using Flatten_t = typename type_list::Flatten_t<TypeList<Ts...>, RESULT>;
 
 CUB_NS_END
 

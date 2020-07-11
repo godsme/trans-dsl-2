@@ -37,6 +37,9 @@ namespace details {
 template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
 using Zip_t = typename details::Zip<ListWrapper<IN_1>, ListWrapper<IN_2>, void>::template output<RESULT>;
 
+template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
+using Zip_tt = typename Zip_t<IN_1, IN_2, RESULT>::type;
+
 CUB_NS_END
 
 #endif //TRANS_DSL_2_TYPELISTZIP_H

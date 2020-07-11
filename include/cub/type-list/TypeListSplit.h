@@ -8,6 +8,7 @@
 #include <cub/cub_ns.h>
 #include <cstddef>
 #include <cub/type-list/TypeList.h>
+#include <cub/type-list/Tuple.h>
 
 CUB_NS_BEGIN
 
@@ -34,10 +35,9 @@ namespace details {
       template
          < template <typename ...> typename RESULT_1
          , template <typename ...> typename RESULT_2 >
-      struct output {
-         using first  = RESULT_1<OUT...>;
-         using second = typename IN::template output<RESULT_2>;
-      };
+      using output = __TL_make_pair(
+         RESULT_1<OUT...>,
+         typename IN::template output<RESULT_2>);
    };
 
    template<typename ...>

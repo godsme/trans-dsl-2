@@ -10,18 +10,25 @@
 
 CUB_NS_BEGIN
 
+   struct __ValueKind{};
+   struct __TypeKind{};
+
+   template <auto V>
+   auto DeductionKind() -> __ValueKind;
+
+   template <typename T>
+   auto DeductionKind() -> __TypeKind;
+
 template <typename T, T N, T STEP = 1>
 struct InfiniteValueList {
-   using type = T;
    constexpr static T Head = N;
    using Tail = InfiniteValueList<T, N + STEP, STEP>;
 };
 
-template <typename T, T V>
+template <auto V>
 struct RepeatValueList {
-   using type = T;
-   constexpr static T Head = V;
-   using Tail = RepeatValueList<T, V>;
+   constexpr static auto Head = V;
+   using Tail = RepeatValueList<V>;
 };
 
 template <typename T>

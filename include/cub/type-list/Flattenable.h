@@ -17,7 +17,7 @@ struct FlattenableSignature {};
 template<typename ... Ts>
 struct Flattenable : FlattenableSignature {
    template<template<typename ...> typename RESULT>
-   using OutputAllTypesTo = RESULT<Ts...>;
+   using __Secrete_OutputAllTypesTo = RESULT<Ts...>;
 };
 
 class FlattenSeq final {
@@ -28,7 +28,7 @@ class FlattenSeq final {
 
    template<typename ACC, typename T>
    struct Seq_<ACC, T, std::enable_if_t < std::is_base_of_v < CUB_NS::FlattenableSignature, T>>> {
-      using type = typename T::template OutputAllTypesTo<ACC::template type>;
+      using type = typename T::template __Secrete_OutputAllTypesTo<ACC::template type>;
    };
 
    template<typename ACC, typename T>

@@ -48,16 +48,24 @@ namespace details {
    };
 }
 
-template
-   < template<typename> typename     PRED
-   , template<typename ...> typename RESULT
-   , typename                    ... IN>
-using Filter_t = typename details::Filter<TypeList<IN...>, PRED>::template output<RESULT>;
+namespace type_list {
+   template
+      < typename                        IN
+         , template<typename> typename     PRED
+         , template<typename ...> typename RESULT>
+   using Filter_t = typename details::Filter<IN, PRED>::template output<RESULT>;
+}
 
 template
    < template<typename> typename     PRED
-   , template<typename ...> typename RESULT
-   , typename                    ... IN>
+      , template<typename ...> typename RESULT
+      , typename                    ... IN>
+using Filter_t = type_list::Filter_t<TypeList<IN...>, PRED, RESULT>;
+
+template
+   < template<typename> typename     PRED
+      , template<typename ...> typename RESULT
+      , typename                    ... IN>
 using Filter_tt = Filter_t<PRED, RESULT, IN...>;
 
 CUB_NS_END

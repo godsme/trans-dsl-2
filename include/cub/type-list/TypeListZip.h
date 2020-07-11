@@ -34,8 +34,13 @@ namespace details {
    };
 }
 
+namespace type_list {
+   template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
+   using ZipWith_t = typename details::Zip<IN_1, ListWrapper<IN_2>, void>::template output<RESULT>;
+}
+
 template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
-using ZipWith_t = typename details::Zip<TypeList<Ts...>, ListWrapper<IN_2>, void>::template output<RESULT>;
+using ZipWith_t = type_list::ZipWith_t<TypeList<Ts...>, IN_2, RESULT>;
 
 template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
 using ZipWith_tt = typename ZipWith_t<IN_2, RESULT, Ts...>::type;

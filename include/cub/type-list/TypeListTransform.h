@@ -29,27 +29,34 @@ namespace details {
    struct Transform<IN, F, std::void_t<typename IN::Head>, OUT...> {
       template<template<typename ...> typename RESULT>
       using output =
-         typename Transform<
-            typename IN::Tail,
-            F,
-            void,
-            __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
-         >::template output<RESULT>;
+      typename Transform<
+         typename IN::Tail,
+         F,
+         void,
+         __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
+      >::template output<RESULT>;
    };
 }
 
+namespace type_list {
+   template<
+      template<typename>     typename F,
+      template<typename ...> typename RESULT,
+      typename                        TYPE_LIST>
+   using Transform_t =
+   typename details::Transform<
+      TYPE_LIST,
+      F,
+      void
+      __EMPTY_OUTPUT_TYPE_LIST___
+   >::template output<RESULT>;
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 template<
    template<typename>     typename F,
    template<typename ...> typename RESULT,
    typename                    ... IN>
-using Transform_t =
-   typename details::Transform<
-      TypeList < IN...>,
-      F,
-      void
-      __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT>;
+using Transform_t = type_list::Transform_t<F, RESULT, TypeList < IN...>>;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<

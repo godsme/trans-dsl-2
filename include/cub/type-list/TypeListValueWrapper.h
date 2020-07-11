@@ -35,7 +35,7 @@ struct ListWrapper {
 template<typename LIST>
 struct ListWrapper<LIST, std::enable_if_t<std::is_base_of_v<ValueListSignature, LIST>>> {
    using Head = ValueWrapper<LIST::Head>;
-   using Tail = typename LIST::Tail;
+   using Tail = ListWrapper<typename LIST::Tail>;
 };
 
 CUB_NS_END

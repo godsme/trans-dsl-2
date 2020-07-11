@@ -5,28 +5,19 @@
 #ifndef TRANS_DSL_2_INFINITEINTLIST_H
 #define TRANS_DSL_2_INFINITEINTLIST_H
 
-#include <cstddef>
-#include <cub/cub_ns.h>
+#include <cub/type-list/TypeListValueWrapper.h>
+#include <cub/type-list/ValueListSignature.h>
 
 CUB_NS_BEGIN
 
-   struct __ValueKind{};
-   struct __TypeKind{};
-
-   template <auto V>
-   auto DeductionKind() -> __ValueKind;
-
-   template <typename T>
-   auto DeductionKind() -> __TypeKind;
-
 template <typename T, T N, T STEP = 1>
-struct InfiniteValueList {
+struct InfiniteValueList : ValueListSignature {
    constexpr static T Head = N;
    using Tail = InfiniteValueList<T, N + STEP, STEP>;
 };
 
 template <auto V>
-struct RepeatValueList {
+struct RepeatValueList : ValueListSignature {
    constexpr static auto Head = V;
    using Tail = RepeatValueList<V>;
 };
@@ -36,6 +27,7 @@ struct RepeatTypeList {
    using Head = T;
    using Tail = RepeatTypeList<T>;
 };
+
 
 CUB_NS_END
 

@@ -12,7 +12,7 @@
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/sched/concepts/ConceptHelper.h>
-#include <trans-dsl/sched/helper/MaxSizeCalc.h>
+#include <trans-dsl/sched/helper/MaxSize.h>
 #include <cub/utils/RepeatMacros.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>
 #include <cub/type-list/TypeListPipeLine.h>
@@ -111,8 +111,8 @@ namespace details {
       template <typename T>
       static constexpr size_t Align_Of = SchedActionConcept<T> ? alignof(T) : 0;
 
-      static constexpr size_t Align = (MaxSizeCalc{} << ... << Align_Of<T_ENTRIES>);
-      static constexpr size_t Size  = (MaxSizeCalc{} << ... << Size_Of<T_ENTRIES>);
+      static constexpr size_t Align = (MaxSize{} << ... << Align_Of<T_ENTRIES>);
+      static constexpr size_t Size  = (MaxSize{} << ... << Size_Of<T_ENTRIES>);
 
       template<typename ... Ts>
       using LoopEntry  = GenericLoop<VOID_PLACEHOLDER_2 Ts...>;

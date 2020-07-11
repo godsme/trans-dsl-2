@@ -7,7 +7,7 @@
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
-#include <trans-dsl/sched/helper/MaxSizeCalc.h>
+#include <trans-dsl/sched/helper/MaxSize.h>
 #include <cub/utils/RepeatMacros.h>
 #include <cub/type-list/TypeListTakeRight.h>
 
@@ -18,8 +18,8 @@ namespace details {
    class VolatileSeq  {
       static constexpr size_t Num_Of_Elements = sizeof...(Ts);
       enum {
-         Size  = ( MaxSizeCalc{} << ... << sizeof(Ts) ),
-         Align = ( MaxSizeCalc{} << ... << alignof(Ts) )
+         Size  = ( MaxSize{} << ... << sizeof(Ts) ),
+         Align = ( MaxSize{} << ... << alignof(Ts) )
       };
       alignas(Align) char cache[Size];
 

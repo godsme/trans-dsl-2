@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_FLATTENABLE_H
 
 #include <cub/cub_ns.h>
-#include <cub/type-list/TypeListComposer.h>
+#include <cub/type-list/TypeListAccumulator.h>
 #include <cub/type-list/TypeListFold.h>
 #include <type_traits>
 
@@ -36,7 +36,7 @@ class FlattenSeq final {
 
 public:
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = typename FoldL_Init_t<Seq, Composer<>, Ts...>::template output<RESULT>;
+   using type = typename FoldL_Init_t<Seq, Accumulator<>, Ts...>::template output<RESULT>;
 };
 
 template <template<typename ...> typename RESULT, typename ... Ts>

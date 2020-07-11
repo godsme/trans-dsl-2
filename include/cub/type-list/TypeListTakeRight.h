@@ -15,15 +15,9 @@ namespace details {
    template<
       size_t N,
       typename ... Ts>
-   struct Drop;
-
-   template<
-      size_t N,
-      typename H,
-      typename ... Ts>
-   struct Drop<N, H, Ts...> {
+   struct Drop {
       template<template<typename ...> typename RESULT>
-      using output = typename Drop<N-1, Ts...>::template output<RESULT>;
+      using output = RESULT<>;
    };
 
    template<
@@ -34,10 +28,13 @@ namespace details {
       using output = RESULT<H, Ts...>;
    };
 
-   template<>
-   struct Drop<0> {
+   template<
+      size_t N,
+      typename H,
+      typename ... Ts>
+   struct Drop<N, H, Ts...> {
       template<template<typename ...> typename RESULT>
-      using output = RESULT<>;
+      using output = typename Drop<N-1, Ts...>::template output<RESULT>;
    };
 
    template<

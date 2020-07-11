@@ -592,11 +592,19 @@ Drop
   using Elem_t = typename Elem<N, Ts...>::type; // 这里访问那个指代
 
 但不幸的是，``C++`` 类型列表无法指代。你无法通过诸如：``using type... = Ts...`` 的方式，
-来指代一个从模版参数传入的参数列表（或许 ``C++`` 在未来会解决这个问题？）。因而，也就无法返回一个结果列表。
+来指代一个从模版参数传入的参数列表。因而，也就无法直接返回一个结果列表。
 
 我们在之前已经看到，模版参数可以是 **类型** 或者 **数值** 。还有一种允许的模版参数类型就是 **模版** 。之前我们一直强调，
 模版的语意是求类型的 **函数** ；这就意味着，一个函数的参数也可以是函数，而能将函数当作参数，或者能返回函数的函数，被称作
 高阶函数。而允许高阶函数是函数做为一等公民的关键特征。与之对应，模版也是 ``C++`` 泛型编程的一等公民。
+
+高阶函数(Higher Order Function):
+  In mathematics and computer science, a higher-order function is a function that does at least one of the following:
+
+  - takes one or more functions as arguments (i.e. procedural parameters),
+  - returns a function as its result.
+
+  All other functions are first-order functions
 
 所以，对于刚才的问题，我们可以传入一个函数（也就是模版），其参数是一个变参（即类型列表），这样我们就可以把计算出来的参数列表做为结果
 传递给那个模版，由那个模版根据调用者的需要，随意处理。下面是我们的实现：
@@ -677,6 +685,83 @@ Drop
 我们传入的 ``RESULT`` 函数就是 ``Head`` ，它拿到了一个 ``TypeList`` 之后，只取出第一个，即 ``H`` ，而把其余的全部都丢弃掉。
 而这正是如果利用这种回调机制操作类型的一个示例。
 
+除了直接的回调方式，还有另外一种方式：先让 ``Drop`` 自身计算结束，然后返回给一个 **高阶模版** 。用户可以在那个时候，
+通过这个 **高阶模版** ，以回调的方式获取结果：
+
+.. code-block:: c++
+
+   template<
+      size_t       N,
+      typename ... Ts>
+   struct Drop {
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<>;
+   };
+
+   template<
+      typename     H,
+      typename ... Ts>
+   struct Drop<0, H, Ts...> {
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<H, Ts...>;
+   };
+
+   template<
+      size_t       N,
+      typename     H,
+      typename ... Ts>
+   struct Drop<N, H, Ts...> {
+      template<template<typename ...> typename RESULT>
+      using output = typename Drop<N-1, Ts...>::template output<RESULT>;
+   };
+
+其中， 模版``output`` 即是计算返回的高阶模版。 而回调的时机则推迟到：
+
+.. code-block:: c++
+
+   template<
+     size_t                          N,
+     template<typename ...> typename RESULT,
+     typename                    ... Ts>
+   using Drop_t = typename details::Drop<N, Ts...>::template output<RESULT>;
+
+这种返回 **高阶模版** 的做法，让模版计算和 ``lambda`` 一样，拥有了 **闭包** ，即计算时自由访问环境的能力。我们先来看
+一个 ``C++`` ``lambda`` 的例子：
+
+.. code-block:: c++
+
+   auto l1 =
+   [](int a, int b) -> int {
+      return [=](int c) -> int {
+         return a + b + c;  // 访问 a, b
+      }
+   }
+
+   auto l2     = l1(10, 20); // l2 is a lambda
+   auto result = l2(30);
+
+对比一下模版的例子：
+
+.. code-block:: c++
+
+   template<
+      size_t       N,
+      typename     H,
+      typename ... Ts>
+   struct Drop<N, H, Ts...> {
+      template<template<typename ...> typename RESULT>
+      using output = // 访问外围模版的 Ts...
+        typename Drop<N-1, Ts...>::template output<RESULT>;
+   };
+
+   using T1 = Drop<1, int, double, char>;  // 调用Drop得到 T1 类型
+   using T2 = T1::template output<Result>; // 调用T1类型的 output模版，得到我们的结果
+
+.. Important:
+
+   深刻理解 **模版** 就是 ``lambda``，它可以是高阶 ``lambda`` ，并拥有和 ``lambda`` 一样的闭包能力，
+   会帮助你充分利用 ``C++`` 模版对类型进行计算的能力。
+
 Transform
 +++++++++++++++++++++
 
@@ -705,7 +790,7 @@ Transform
 
 因而，我们必须将输出的列表随时保存在模版参数上，然后将最终结果想 ``Drop`` 算法一样，传递用户的回调。
 
-同时，``C++`` 又有另外一个约束，即类模版的变参列表只允许有一个，并且必须放在最后。（不知道未来 ``C++`` 是否可以放开这样的限制，
+同时，``C++`` 有另外一个约束，即类模版的变参列表只允许有一个，并且必须放在最后。（不知道未来 ``C++`` 是否可以放开这样的限制，
 如果两个类型列表中，存在一个非类型参数，其实是可以区分的）。所以这个宝贵的变参列表位置一旦留给输出，那么输入列表该放在何处？
 
 答案是，将其保存在另外一个模版里，其操作方式，应该和我们最初定义 ``List`` 非常类似：
@@ -727,13 +812,19 @@ Transform
 
    using list = TypeList<int, double, char>;
 
-   list::head               // int
-   list::tail::head         // double
-   list::tail::tail::head   // char
+   list::head                     // int
+   list::tail::head               // double
+   list::tail::tail::head         // char
+   list::tail::tail::tail::head   // 编译出错
+
+   TypeList<>::head               // 编译出错
 
 所以，我之前其实撒谎了。我一直在宣称 ``C++`` 的 ``TypeList`` 无法指代。其实指的是 ``Ts...`` 形式的列表无法指代。但一旦
-将其保存在刚刚定义的 ``TypeList`` 里，它就可以指代了。 但是以 ``TypeList<Ts...>`` 的方式给用户，用户将再也不能以 ``Ts...`` 的方式使用，
-而那是很多变参模版的基本要求。但用户拿到 ``Ts...`` 之后，如果的确需要 ``TypeList`` 结构，却可以自由的从 ``Ts...`` 转化
+将其保存在刚刚定义的 ``TypeList`` 里，它就可以指代了。
+
+但是，以 ``TypeList<Ts...>`` 的方式给用户，用户将再也不能以 ``Ts...`` 的方式使用，而那是很多变参模版要求的使用方式。
+
+但用户拿到 ``Ts...`` 之后，如果的确需要 ``TypeList`` 结构，却可以自由的从 ``Ts...`` 转化
 为 ``TypeList<Ts...>`` 。因而， ``Ts...`` 方式才真正保证了用户的最大自由度。我们不应该破坏这一点。
 
 而 ``TypeList<Ts...>`` 当作我们算法的内部结构，自然是没有任何问题的。下面就是 ``Transform`` 的实现：
@@ -741,29 +832,28 @@ Transform
 .. code-block:: c++
 
    template<
-      typename                        IN,
-      template<typename> typename     F,
-      template<typename ...> typename RESULT,
+      typename                    IN,
+      template<typename> typename F,
       typename = void,
-      typename                    ... OUT>
+      typename                ... OUT>
    struct Transform {
-      using type = RESULT<OUT...>; // 将最终结果输出给 RESULT
+      template<template<typename ...> typename RESULT>
+      using output = RESULT<OUT...>;
    };
 
    template<
-      typename                        IN,
-      template<typename> typename     F,
-      template<typename ...> typename RESULT,
-      typename                    ... OUT>
-   struct Transform<IN, F, RESULT, std::void_t<typename IN::Head>, OUT...> {
-      using type =
-        typename Transform<
-           typename IN::Tail,
-           F,
-           RESULT,
-           void,
-           __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
-        >::type;
+      typename                    IN,
+      template<typename> typename F,
+      typename                ... OUT>
+   struct Transform<IN, F, std::void_t<typename IN::Head>, OUT...> {
+      template<template<typename ...> typename RESULT>
+      using output =
+         typename Transform<
+            typename IN::Tail,
+            F,
+            void,
+            __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
+         >::template output<RESULT>;
    };
 
 代码看起来很长，但只是只是参数列表很长，真正的有逻辑的地方只有三处：
@@ -774,13 +864,25 @@ Transform
 3. ``OUT..., typename F<typename IN::Head>::type`` 将通过 ``F`` 转换后的类型，追加到输出列表 ``OUT`` 后面。
    注意，其中的宏 ``TYPE_LIST_APPEND`` 什么都没做，只是为了表明代码意图。
 
-用伪代码表现即为：
+.. Important:
+
+   你应该已经注意到：
+
+   - 将 ``...`` 放到变量 **左侧** 是 **打包** (pack) 语意；
+   - 将 ``...`` 放到变量 **右侧** 是 **解包** (unpack) 语意；
+
+   另外，不像函数式语言里的 ``list`` ，只能自然地在头部追加元素，即 ``x:list`` ；如果想往尾部追加，
+   则是一个 ``list`` 衔接操作，即 ``list ++ [x]`` 。 ``C++`` 的 ``type list`` 非常自由，
+   如果在头部追加，则是 ``X, Ts...`` ，尾部追加，则是 ``Ts..., X`` ，两个 ``type list`` 衔接，
+   则是 ``Ts1..., Ts2...`` 。
+
+上述算饭，用 ``agda`` 伪代码表现即为：
 
 .. code-block:: agda
 
-   Transform                     :: [Set] -> (Set -> Set) -> (Set -> Set) -> [Set]
-   Transform []     F RESULT OUT = RESULT OUT
-   Transform (x:xs) F RESULT OUT = Transform xs F RESULT (xs ++ [F x])
+   Transform              :: [Set] -> (Set -> Set) -> (Set -> Set) -> [Set]
+   Transform []     F OUT = OUT
+   Transform (x:xs) F OUT = Transform xs F (xs ++ [F x])
 
 当然这只是内部实现，给用户提供的真正接口是：
 
@@ -794,10 +896,9 @@ Transform
      typename Transform<
        TypeList < IN...>,          // 将 IN... 保存到 TypeList
        F,
-       RESULT,
        void                        // 为了SFINAE条件判断
        __EMPTY_OUTPUT_TYPE_LIST___ // 输出列表最初为空
-     >::type;
+     >::template output<RESULT>;
 
 所以，用户真正提供的参数只有三个， ``F`` 转化函数， ``IN`` 输入列表，以及用来回传最终结果回调模版 ``RESULT`` 。 而
 宏 ``__EMPTY_OUTPUT_TYPE_LIST___`` 背后什么都没有，正如一个 ``Ts...`` 形式的列表如果为空是，就什么都没有一样，
@@ -817,53 +918,52 @@ Split
 
 .. code-block:: c++
 
-   template<
-      template<typename ...> typename RESULT,
-      typename                    ... Ts>
-   struct GenericTypeList {
-      using type = RESULT<>;
+   template<typename ... Ts>
+   struct TypeList {
+     template<template <typename ...> typename RESULT>
+     using output = RESULT<>;
    };
 
-   template<
-      template<typename ...> typename RESULT,
-      typename                        H,
-      typename                    ... Ts>
-   struct GenericTypeList<RESULT, H, Ts...> {
-      using Head = H;
-      using Tail = GenericTypeList<RESULT, Ts...>;
+   template<typename H, typename ... Ts>
+   struct TypeList<H, Ts...> {
+     using Head = H;
+     using Tail = TypeList<Ts...>;
 
-      using type = RESULT<H, Ts...>;
+     template<template <typename ...> typename RESULT>
+     using output = RESULT<H, Ts...>;
    };
 
-注意，``GenericTypeList`` 和之前的 ``TypeList`` 的唯一差别是多了一个回调  ``RESULT`` 。在这个参数列表的每个层级，
-总是传递当前的 ``Ts...`` 给回调，而需要哪一个只需要通过 ``type`` 取对应 ``Ts...`` 传入回调后得到的类型即可。
+注意，这与之前的 ``TypeList`` 的唯一差别是多了一个高阶模版 ``output`` ，其用法和语意与我们在 ``Transform`` 一节讨论的一样。
 
 而 ``Split`` 的实现，则关注在另外一个输出列表上：
 
 .. code-block:: c++
 
    template<
-      size_t                          N,
-      typename                        IN,
-      template<typename ...> typename RESULT,
-      typename                    ... OUT>
+      size_t       N,
+      typename     IN,
+      typename ... OUT>
    struct Split {
-      using type = typename Split<
-         N - 1,
-         typename IN::Tail,
-         RESULT,
-         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::type;
+      template
+         < template <typename ...> typename RESULT_1
+         , template <typename ...> typename RESULT_2 >
+      using output = typename Split<
+            N - 1,
+            typename IN::Tail,
+            __TYPE_LIST_APPEND(OUT..., typename IN::Head)
+         >::template output<RESULT_1, RESULT_2>;
    };
 
    template<
-      typename                        IN,
-      template<typename ...> typename RESULT,
-      typename                    ... OUT>
-   struct Split<0, IN, RESULT, OUT...> {
-      struct type {
-         using first  = RESULT<OUT...>;
-         using second = typename IN::type;
+      typename     IN,
+      typename ... OUT>
+   struct Split<0, IN, OUT...> {
+      template
+         < template <typename ...> typename RESULT_1
+         , template <typename ...> typename RESULT_2 >
+      struct output {
+         using first  = RESULT_1<OUT...>;
+         using second = typename IN::template output<RESULT_2>;
       };
    };
 
@@ -876,8 +976,8 @@ Split
 
 而第二个模版则是已经到达了分割点，
 需要生成输出结果。因为有两个输出，因而分别被定义为 ``first`` 和 ``second`` 。前一个，
-是将生成的 ``OUT...`` 打包传递给 ``RESULT`` ，后半部分，则向 ``IN`` 索要；而 ``IN`` 正是我们之前定义
-的 ``GenericTypeList`` 。
+是将生成的 ``OUT...`` 打包传递给 ``RESULT_1`` ，后半部分，则向 ``IN`` 索要；而 ``IN`` 正是我们之前定义
+的 ``TypeList`` 。
 
 最终，上述的内部算法，在如下代码处得到应用：
 
@@ -891,10 +991,9 @@ Split
    using Split_t =
       typename Split<
          N,
-         GenericTypeList<RESULT_2, IN...>, // 将后半部分的回调，传递给输入
-         RESULT_1                          // 前半部分的回调
+         TypeList<IN...>                   // 将IN...传入，得到输入列表
          __EMPTY_OUTPUT_TYPE_LIST___       // 前半部分最初列表为空
-      >::type;
+      >::template output<RESULT_1, RESULT_2>;
 
 
 ``Split_t`` 的输入参数，清晰的反映了用户需要指定的信息: ``N`` 分割的位置；``RESULT_1``, ``RESULT_2`` 分别为分割后两个
@@ -902,11 +1001,313 @@ Split
 
 .. Important::
 
-   - **类模版** 的参数列表只允许有一个变参列表；
-   - **模版** 是 ``C++`` 泛型元编程的一等公民；
-   - 变参列表只能通过模版参数传入，并在模版内部通过引述模版参数来使用；不能在模版外部通过别名或其它方式直接指代；
-   - 可以通过回调方式，在模版内部继续传递变参列表给回调模版；
-   - 和通过传入一个函数来达到代码开闭原则一样；你总是设计一个高阶模版，其接受一个或多个模版做为输入，利用回调机制来实现开闭；
+   - **类模版** 的参数列表只允许有一个变参列表；因而，当需要多个变参列表时，则需要通过其它模版相助。
+
+
+Fold
++++++++++++++++++++++
+
+``fold`` 是 ``list`` 非常重要的一个操作。其语意是遍历整个 ``list`` ，两两计算，最终得到一个结果。
+
+它有两个版本：从左边 ``fold`` ，还是从右边 ``fold`` ，即：
+
+.. code-block::
+
+   (((x[1] op x[2]) op x[3]) op ...)      // 从左边开始fold
+   (... op (x[n-2] op (x[n-1] op x[n])))  // 从右边开始fold
+
+而两个版本，都分为 **有初始值** 和 **无初初始值** 两种情况，即：
+
+.. code-block::
+
+   (((init op x[1]) op [x2]) op ...)
+   (... op (x[n-1] op (x[n] op init)))
+
+``C++17`` 提供了 ``fold expression`` ，从而让用户不再像过去一样，必须通过类模版的递归演算，来计算一个类型列表相关的值。比如：
+
+.. code-block:: c++
+
+   template <typename ... Ts>
+   struct Foo {
+      enum { Sum_Of_Size = (0 + ... + sizeof(Ts) };
+   };
+
+这里用到的是，有初识值 ``0`` 的从左边开始的，操作为 ``+`` 的 ``fold`` 计算。其结果是列表中所有类型的大小的总和。
+
+当然，对于 ``+`` 这种性质的计算，你也可以用从右边开始的 ``fold`` 。
+
+   template <typename ... Ts>
+   struct Foo {
+      enum { Sum_Of_Size = (sizeof(Ts) + ... + 0) };
+   };
+
+如果你可以确保，输入的类型列表非空，你甚至不用写初识值，因而更加简洁：
+
+   template <typename ... Ts>
+   struct Foo {
+      enum { Sum_Of_Size = (sizeof(Ts) + ... ) };
+   };
+
+但如果不能保证列表非空，则必须有初始值，否则，编译就会出错。（本身也的确让 ``fold`` 无法得到一个计算结果）
+
+当然，``fold`` 的能力，不会只是像上述的加法一样简单。比如，我想求所有类型尺寸的最大尺寸：
+
+.. code-block:: c++
+
+   struct MaxSize {
+      constexpr MaxSize(size_t size = 0) : size(size) {}
+      constexpr operator size_t() const { return size; }
+      size_t size = 0;
+   };
+
+   constexpr MaxSize operator<<(MaxSize maxSize, size_t size) {
+      return std::max(maxSize.size, size);
+   }
+
+   template <typename ... Ts>
+   struct Foo {
+      enum { Max_Size = ( MaxSize{} << ... << sizeof(Ts) ) };
+   };
+
+这个例有三个关键点：
+
+1. ``C++`` 的 ``fold expression`` 的操作必须是 ``C++`` 已经存在的二元操作符。几乎所有的二元操作符都可以用于
+   ``fold express`` 。如果一个二元操作符的 ``builtin`` 语意不满足你要求，或无法计算你的类型，你可以针对你的类型
+   重载某个二元操作符。
+2. 为了让重载的二元操作符不要影响其它类型，你必须定义一个自己的类型，在本例中，就是 ``MaxSize`` ；
+3. 任何一个可以在被编译时计算使用到的函数必须是 ``constexpr`` 。本例子中，其构造函数，及类型转换函数，
+   都必须是 ``constexpr`` 。当然，本例中，``MaxSize`` 可以没有构造函数，那它将是一个 ``聚合`` 。
+   那么使用它的地方都必须是 ``聚合`` 语法。比如：
+
+.. code-block:: c++
+
+   struct MaxSize {
+      constexpr operator size_t() const { return size; }
+      size_t size = 0;
+   };
+
+   constexpr MaxSize operator<<(MaxSize maxSize, size_t size) {
+      return MaxSize{ std::max(maxSize.size, size) };
+   }
+
+   template <typename ... Ts>
+   struct Foo {
+      enum { Max_Size = ( MaxSize{} << ... << MaxSize{sizeof(Ts)} ) };
+   };
+
+这使用起来，麻烦一些，所以我们为 ``MaxSize`` 提供了 ``constexpr`` 构造函数。
+
+如果参与 ``fold`` 演算的类型到值的映射，不像直接调用 ``sizeof`` 这么简单，
+也可以使用模版变量来辅助：
+
+.. code-block:: c++
+
+   template <typename ... Ts>
+   struct Foo {
+      template <typename T>
+      constexpr static size_t Size_Of  = std::is_base_of_v<Bar, T> ? sizeof(T) : 0;
+
+      enum { Max_Size = ( MaxSize{} << ... << Size_Of<Ts> ) };
+   };
+
+其算法是，只计算 ``Bar`` 子类的最大尺寸，其它类型则不参与计算。
+
+运行时（而不是我们上述编译时例子）也可以使用 ``fold expression`` ：
+
+.. code-block:: c++
+
+   struct Node {
+     int value;
+     Node* left;
+     Node* right;
+     Node(int i=0) : value(i), left(nullptr), right(nullptr) {}
+     ...
+   };
+
+   auto left = &Node::left;
+   auto right = &Node::right;
+   // traverse tree, using fold expression:
+   template<typename T, typename... TP>
+   Node* traverse (T np, TP... paths) {
+     return (np ->* ... ->* paths);
+   }
+
+或者：
+
+.. code-block:: c++
+
+   template<typename T>
+   class AddSpace {
+      AddSpace(T const& r): ref(r) {}
+      T const& ref;
+   };
+
+   std::ostream& operator<< (std::ostream& os, AddSpace<T> s) {
+      return os << s.ref << ’ ’; // output passed argument and a space
+   }
+
+   template<typename... Args>
+   void print (Args... args) {
+      ( std::cout << ... << AddSpace(args) ) << ’\n’;
+   􏰃}
+
+可以看出，``C++17`` 推出的 ``fold expression`` ，极大的简化了程序员对于 **变参** 的计算。
+
+但不幸的是，``fold expression`` 只能计算 **数值** ，而不能用来计算 **类型** （前面例子中与类型有关的计算，也是要把
+类型映射到数值）。
+
+所以，我们必须得自己实现一个：
+
+.. code-block:: c++
+
+   template
+     < template<typename, typename> typename OP
+     , typename                          ... Ts>
+   struct FoldR;
+
+   template
+     < template<typename, typename> typename OP
+     , typename                              ACC
+     , typename                          ... Ts>
+   struct FoldR<F, ACC, Ts...> {
+      using type = ACC; // 列表为空，返回计算结果 ACC
+   };
+
+   template
+     < template<typename, typename> typename OP
+     , typename                              ACC
+     , typename                              H
+     , typename                          ... Ts>
+   struct FoldR<OP, ACC, H, Ts...> {
+      using type = typename OP<ACC, typename FoldR<OP, H, Ts...>::type>::type;
+   };
+
+这是一个右折叠算法。其中 ``OP`` 即二元操作，``ACC`` 代表 **累计值** ，``Ts...`` 即输入列表。
+
+其算法用伪代码描述，即为：
+
+.. code-block:: agda
+
+   foldr : {A B : Set} → (A → B → B) → B → List A → B
+   foldr op acc []        =  acc
+   foldr op acc (x ∷ xs)  =  x op (foldr op acc xs)
+
+当然，从类型看，这个描述是计算值的，但无关紧要。
+
+注意，``FoldR`` 的主模版里是没有 ``ACC`` 的，这就意味着，主模版没有特别为初始值预留参数。但别担心，这样的实现，同时支持
+有初始值和无初始值两种场景：
+
+.. code-block:: c++
+
+   template
+     < template <typename, typename> typename OP
+     , typename                           ... Ts>
+   using FoldR_t = typename details::FoldR<OP, Ts...>::type;
+
+   template
+     < template <typename, typename> typename OP
+     , typename                               INIT
+     , typename                           ... Ts>
+   using FoldR_Init_t = FoldR_t<OP, Ts..., INIT>;
+
+也就是说，当你有初始值时，做为 ``右折叠`` ，只需要将初始值追加到类型列表最后即可。
+
+下面是 ``左折叠`` 的实现：
+
+.. code-block:: c++
+
+   template
+     < template<typename, typename> typename OP
+     , typename                          ... Ts>
+   struct FoldL;
+
+   template
+     < template<typename, typename> typename OP
+     , typename                              ACC
+     , typename                          ... Ts>
+   struct FoldL<OP, ACC, Ts...> {
+      using type = ACC;
+   };
+
+   template
+     < template<typename, typename> typename OP
+     , typename                              ACC
+     , typename                              H
+     , typename                          ... Ts>
+   struct FoldL<OP, ACC, H, Ts...> {
+      using type = typename FoldL<OP, typename OP<ACC, H>::type, Ts...>::type;
+   };
+
+其算法用 ``agda`` 代码描述如下：
+
+.. code-block:: agda
+
+   foldr : {A B : Set} → (A → B → B) → B → List A → B
+   foldr op acc []        =  acc
+   foldr op acc (x ∷ xs)  =  foldl op (op acc x) xs
+
+注意， ``左折叠`` 是一个 ``尾递归`` (tail recursion) 算法，因而可以进行优化，但 ``右折叠`` 则不是，因为其必须层层递归，将
+右边的结果得到之后，才可以和左边一起进行 ``OP`` 计算，这从递归本质上，无法优化。
+
+同样， ``左折叠`` 主模版也没有 ``ACC`` ，因为只需要在有 ``INIT`` 的情况，将 ``INIT`` 放在列表头即可：
+
+.. code-block:: c++
+
+   template
+     < template <typename, typename> typename OP
+     , typename                           ... Ts>
+   using FoldL_t = typename details::FoldL<OP, Ts...>::type;
+
+   template
+     < template <typename, typename> typename OP
+     , typename                               INIT
+     , typename                           ... Ts>
+   using FoldL_Init_t = FoldL_t<OP, INIT, Ts...>;
+
+有了 ``Fold`` ，我们就可以进行这样的计算：
+
+.. code-block:: c++
+
+   template<typename T1, typename T2>
+   struct Combine {
+      struct type : private T1, private T2 {
+        auto createAction(ID id) -> Action* {
+           auto action = T1::createAction(id);
+           return action == nullptr ? T2::createAction(tid) : action;
+      };
+   };
+
+   using type = FoldL_t<Combine, Ts...>;
+
+从而将一些列的 ``ActionCreator`` 折叠成一个 ``ActionCreator`` 。
+
+Flatten
+++++++++++++++++++
+
+比如，有这样一个结构：
+
+.. code-block:: c++
+
+   Seq<int, Seq<double, Seq<short, float>, char>, long>
+
+我们希望将内部的 ``Seq`` 展开到外部的 ``Seq`` 里，变为：
+
+.. code-block:: c++
+
+   Seq<int, double, short, float, char, long>
+
+这就是经典的 ``list`` 里有 ``list`` ，里面的 ``list`` 里可以再有 ``list`` …… ，无论嵌套有多深，都可以通过
+``flatten`` 操作将其展开到最外层的 ``list`` 里。即将一个树状结构转化为一个平面结构。
+
+稍加思考，我们就知道这是一个 ``fold`` 操作，即遍历整个列表，将每一个元素递归性的进行 ``flatten`` ，
+然后将得到到每个 ``list`` 不断连接，合成一个 ``list`` 。
+
+可问题是，我们如何构造一个 ``ACC`` ，让其可以将两个 ``Ts...`` 合成一个 ``Ts...`` ？
+
+
+
+
+
 
 
 

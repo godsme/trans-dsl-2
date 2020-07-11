@@ -12,6 +12,7 @@
 #include <cub/type-list/TypeListFold.h>
 #include <cub/type-list/TypeListFilter.h>
 #include <cub/type-list/Flattenable.h>
+#include <cub/type-list/TypeListZip.h>
 
 CUB_NS_BEGIN
 
@@ -134,6 +135,25 @@ struct Flatten {
    struct Result {
       template<template<typename ...> typename RESULT>
       using type = Flatten_t<RESULT, Ts...>;
+   };
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template<typename LIST>
+struct ZipWith {
+   template<typename ANOTHER>
+   struct Bind {
+      template<typename ... Ts>
+      struct Result {
+         template<template<typename ...> typename RESULT>
+         using type = typename ZipWith_t<LIST, ANOTHER::template Result, Ts...>::template type<RESULT>;
+      };
+   };
+
+   template<typename ... Ts>
+   struct Result {
+      template<template<typename ...> typename RESULT>
+      using type = ZipWith_t<LIST, RESULT, Ts...>;
    };
 };
 

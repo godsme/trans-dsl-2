@@ -34,11 +34,11 @@ namespace details {
    };
 }
 
-template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
-using Zip_t = typename details::Zip<ListWrapper<IN_1>, ListWrapper<IN_2>, void>::template output<RESULT>;
+template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
+using ZipWith_t = typename details::Zip<TypeList<Ts...>, ListWrapper<IN_2>, void>::template output<RESULT>;
 
-template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
-using Zip_tt = typename Zip_t<IN_1, IN_2, RESULT>::type;
+template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
+using ZipWith_tt = typename ZipWith_t<IN_2, RESULT, Ts...>::type;
 
 CUB_NS_END
 

@@ -90,7 +90,7 @@ template
    < template <typename, typename> typename OP
    , typename                               INIT
    , typename                           ... Ts>
-using FoldR_Init_t = FoldR_t<OP, Ts..., INIT>;
+using FoldRInit_t = FoldR_t<OP, Ts..., INIT>;
 
 template< template <typename, typename> typename OP, typename ... Ts>
 using FoldROpt_t = typename details::FoldOpt<OP>::template FoldR<Ts...>;;
@@ -109,7 +109,7 @@ template
    < template <typename, typename> typename OP
    , typename                               INIT
    , typename                           ... Ts>
-using FoldL_Init_t = FoldL_t<OP, INIT, Ts...>;
+using FoldLInit_t = FoldL_t<OP, INIT, Ts...>;
 
 template< template <typename, typename> typename OP, typename ... Ts>
 using FoldLOpt_t = typename details::FoldOpt<OP>::template FoldL<Ts...>;;

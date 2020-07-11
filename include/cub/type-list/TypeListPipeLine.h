@@ -69,14 +69,21 @@ struct Filter {
 template< template <typename, typename> typename F>
 struct FoldR {
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = FoldR_t<F, Ts...>;
+   using type = RESULT<FoldR_t<F, Ts...>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template <typename, typename> typename OP>
 struct FoldROpt {
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = FoldROpt_t<OP, Ts...>;
+   using type = RESULT<FoldROpt_t<OP, Ts...>>;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template< template <typename, typename> typename F>
+struct FoldL {
+   template<template<typename ...> typename RESULT, typename ... Ts>
+   using type = RESULT<FoldL_t<F, Ts...>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +99,34 @@ template
    , typename                               INIT>
 struct FoldR_Init {
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = FoldR_Init_t<F, INIT, Ts...>;
+   using type = RESULT<FoldRInit_t<F, INIT, Ts...>>;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template
+   < template <typename, typename> typename F
+   , typename                               INIT>
+struct FoldL_Init {
+   template<template<typename ...> typename RESULT, typename ... Ts>
+   using type = RESULT<FoldLInit_t<F, INIT, Ts...>>;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template
+   < template <typename, typename> typename F
+      , typename                               INIT>
+struct FoldROptInit {
+   template<template<typename ...> typename RESULT, typename ... Ts>
+   using type = RESULT<FoldROptInit_t<F, INIT, Ts...>>;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
+template
+   < template <typename, typename> typename F
+      , typename                               INIT>
+struct FoldLOptInit {
+   template<template<typename ...> typename RESULT, typename ... Ts>
+   using type = RESULT<FoldLOptInit_t<F, INIT, Ts...>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -151,22 +185,23 @@ public:
    };
 };
 
-template<typename ... Ts>
-struct __StUpId_ReSuLt_TrAiT {
-   static_assert(sizeof...(Ts) == 1);
-};
+namespace details {
+   template<typename ... Ts>
+   struct __StUpId_ReSuLt_TrAiT {
+      static_assert(sizeof...(Ts) == 1);
+   };
 
-template<typename H>
-struct __StUpId_ReSuLt_TrAiT<H> {
-   using type = H;
-};
-
+   template<typename H>
+   struct __StUpId_ReSuLt_TrAiT<H> {
+      using type = H;
+   };
+}
 
 CUB_NS_END
 
 #define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
 #define __TL_Pipeline_t(stream, ...) \
-__TL_Pipeline__(stream, __VA_ARGS__)::template output<__StUpId_ReSuLt_TrAiT>::type
+__TL_Pipeline__(stream, __VA_ARGS__)::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
 #define __TL_OutputTo__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

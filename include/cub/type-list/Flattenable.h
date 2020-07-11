@@ -36,7 +36,7 @@ class FlattenSeq final {
 
 public:
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = typename FoldL_Init_t<Seq, Accumulator<>, Ts...>::template output<RESULT>;
+   using type = typename FoldLInit_t<Seq, Accumulator<>, Ts...>::template output<RESULT>;
 };
 
 template <template<typename ...> typename RESULT, typename ... Ts>

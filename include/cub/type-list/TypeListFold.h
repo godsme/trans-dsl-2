@@ -120,6 +120,63 @@ template
    , typename                           ... Ts>
 using FoldLOptInit_t = FoldLOpt_t<OP, INIT, Ts...>;;
 
+namespace type_list{
+   template< template <typename, typename> typename OP, typename  TYPE_LIST>
+   struct Fold {
+      template<typename ... Ts>
+      using FoldR_Result = typename details::FoldR<OP, Ts...>::type;
+      using FoldR_t = typename TYPE_LIST::template output<FoldR_Result>;
+
+      template<typename ... Ts>
+      using FoldROpt_Result = typename details::FoldOpt<OP>::template FoldR<Ts...>;
+      using FoldROpt_t = typename TYPE_LIST::template output<FoldROpt_Result>;
+
+      template<typename ... Ts>
+      using FoldL_Result = typename details::FoldL<OP, Ts...>::type;
+      using FoldL_t = typename TYPE_LIST::template output<FoldL_Result>;
+
+      template<typename ... Ts>
+      using FoldLOpt_Result = typename details::FoldOpt<OP>::template FoldL<Ts...>;
+      using FoldLOpt_t = typename TYPE_LIST::template output<FoldLOpt_Result>;
+   };
+
+   template< template <typename, typename> typename OP, typename  TYPE_LIST>
+   using FoldR_t = typename Fold<OP, TYPE_LIST>::FoldR_t;
+
+   template< template <typename, typename> typename OP, typename  TYPE_LIST>
+   using FoldROpt_t = typename Fold<OP, TYPE_LIST>::FoldROpt_t;
+
+   template< template <typename, typename> typename OP, typename  TYPE_LIST>
+   using FoldL_t = typename Fold<OP, TYPE_LIST>::FoldL_t;
+
+   template< template <typename, typename> typename OP, typename  TYPE_LIST>
+   using FoldLOpt_t = typename Fold<OP, TYPE_LIST>::FoldLOpt_t;
+
+   template
+      < template <typename, typename> typename OP
+      , typename                               INIT
+      , typename                               TYPE_LIST>
+   using FoldL_Init_t = typename Fold<OP, typename TYPE_LIST::template preappend<INIT>>::FoldL_t;
+
+   template
+      < template <typename, typename> typename OP
+      , typename                               INIT
+      , typename                               TYPE_LIST>
+   using FoldR_Init_t = typename Fold<OP, typename TYPE_LIST::template append<INIT>>::FoldR_t;
+
+   template
+      < template <typename, typename> typename OP
+      , typename                               INIT
+      , typename                               TYPE_LIST>
+   using FoldLOptInit_t = typename Fold<OP, typename TYPE_LIST::template preappend<INIT>>::FoldLOpt_t;
+
+   template
+      < template <typename, typename> typename OP
+      , typename                               INIT
+      , typename                               TYPE_LIST>
+   using FoldROptInit_t = typename Fold<OP, typename TYPE_LIST::template append<INIT>>::FoldROpt_t;
+}
+
 CUB_NS_END
 
 #endif //TRANS_DSL_2_TYPELISTFOLD_H

@@ -15,7 +15,10 @@ struct TypeList {
    using output = RESULT<>;
 
    template<typename ... Ts2>
-   using concat = TypeList<Ts2...>;
+   using preappend = TypeList<Ts2...>;
+
+   template<typename ... Ts2>
+   using append = TypeList<Ts2...>;
 };
 
 template<typename H, typename ... Ts>
@@ -24,7 +27,10 @@ struct TypeList<H, Ts...> {
    using Tail = TypeList<Ts...>;
 
    template<typename ... Ts2>
-   using concat = TypeList<H, Ts..., Ts2...>;
+   using preappend = TypeList<Ts2..., H, Ts...>;
+
+   template<typename ... Ts2>
+   using append = TypeList<H, Ts..., Ts2...>;
 
    template<template <typename ...> typename RESULT>
    using output = RESULT<H, Ts...>;

@@ -16,12 +16,12 @@ namespace {
       using type = typename T::first;
    };
    template<typename ... Ts>
-   struct PipeLineTest {
+   struct PipeLineTest1 {
       using type = __TL_Pipeline__(Ts..., ZipWith<InfiniteValueList<int, 1>>, Transform<Transformer>)
                    __TL_OutputTo__(Result);
    };
 
    TEST_CASE("pipe-line") {
-      REQUIRE(std::is_same_v<Result<int, double, short>,PipeLineTest<int, double, short>::type>);
+      REQUIRE(std::is_same_v<Result<int, double, short>,PipeLineTest1<int, double, short>::type>);
    }
 }

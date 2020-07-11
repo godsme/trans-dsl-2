@@ -35,6 +35,7 @@ namespace details {
       T_HEAD action;
    };
 
+
    template<typename ... T_ACTIONS>
    class Concurrent final  {
       static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);

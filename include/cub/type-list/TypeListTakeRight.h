@@ -13,32 +13,32 @@ CUB_NS_BEGIN
 
 namespace details {
    template<
+      typename  IN,
       size_t    N,
-      typename  TYPE_LIST,
       typename = void>
    struct Drop;
 
-   template<typename  TYPE_LIST>
-   struct Drop<0, TYPE_LIST> {
+   template<typename  IN>
+   struct Drop<IN, 0> {
       template<template<typename ...> typename RESULT>
-      using output = typename TYPE_LIST::template output<RESULT>;
+      using output = typename IN::template output<RESULT>;
    };
 
    template<
-      size_t N,
-      typename  TYPE_LIST>
-   struct Drop<N, TYPE_LIST, std::void_t<typename TYPE_LIST::Head>> {
+      typename  IN,
+      size_t N>
+   struct Drop<IN, N, std::void_t<typename IN::Head>> {
       template<template<typename ...> typename RESULT>
-      using output = typename Drop<N-1, typename TYPE_LIST::Tail>::template output<RESULT>;
+      using output = typename Drop<typename IN::Tail, N-1>::template output<RESULT>;
    };
 
    template<
-      size_t N,
-      typename  TYPE_LIST>
+      typename  IN,
+      size_t N>
    struct TakeRight {
-      static_assert(N <= TYPE_LIST::size, "N is bigger than sizeof type list");
+      static_assert(N <= IN::size, "N is bigger than sizeof type list");
       template<template<typename ...> typename RESULT>
-      using output = typename Drop<TYPE_LIST::size - N, TYPE_LIST>::template output<RESULT>;
+      using output = typename Drop<IN, IN::size - N>::template output<RESULT>;
    };
 
    template<typename ... Ts>
@@ -52,34 +52,34 @@ namespace details {
 
 namespace type_list {
    template<
+      typename IN,
       size_t N,
-      template<typename ...> typename RESULT,
-      typename TYPE_LIST>
-   using Drop_t = typename details::Drop<N, TYPE_LIST>::template output<RESULT>;
+      template<typename ...> typename RESULT>
+   using Drop_t = typename details::Drop<IN, N>::template output<RESULT>;
 
    template<
+      typename IN,
       size_t N,
-      template<typename ...> typename RESULT,
-      typename TYPE_LIST>
-   using Drop_tt = typename Drop_t<N, RESULT, TYPE_LIST>::type;
+      template<typename ...> typename RESULT>
+   using Drop_tt = typename Drop_t<IN, N, RESULT>::type;
 
    template<
+      typename IN,
       size_t N,
-      template<typename ...> typename RESULT,
-      typename TYPE_LIST>
-   using TakeRight_t = typename details::TakeRight<N, TYPE_LIST>::template output<RESULT>;
+      template<typename ...> typename RESULT>
+   using TakeRight_t = typename details::TakeRight<IN, N>::template output<RESULT>;
 
    template<
-      size_t N,
-      typename TYPE_LIST>
-   using Elem_t = Drop_tt<N, details::Head, TYPE_LIST>;
+      typename IN,
+      size_t N>
+   using Elem_t = Drop_tt<IN, N, details::Head>;
 }
 
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using Drop_t = type_list::Drop_t<N, RESULT, TypeList<Ts...>>;
+using Drop_t = type_list::Drop_t<TypeList<Ts...>, N, RESULT>;
 
 template<
    size_t N,
@@ -91,7 +91,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using TakeRight_t = type_list::TakeRight_t<N, RESULT, TypeList<Ts...>>;
+using TakeRight_t = type_list::TakeRight_t<TypeList<Ts...>, N, RESULT>;
 
 template<
    size_t N,
@@ -102,7 +102,7 @@ using TakeRight_tt = typename TakeRight_t<N, RESULT, Ts...>::type;
 template<
    size_t N,
    typename ... Ts>
-using Elem_t = type_list::Elem_t<N, TypeList<Ts...>>;
+using Elem_t = type_list::Elem_t<TypeList<Ts...>, N>;
 
 
 CUB_NS_END

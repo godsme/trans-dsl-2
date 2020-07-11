@@ -63,7 +63,7 @@ public:
    };
 };
 
-#define __TL_make_pair(p1, p2) Pair::Trait<p1, p2>::type
+#define __TL_make_pair(p1, p2) typename Pair::Trait<p1, p2>::type
 
 CUB_NS_END
 

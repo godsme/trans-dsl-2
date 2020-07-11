@@ -106,7 +106,7 @@ add_executable(trans-dsl-test-catch
         tests/pt/catch.cpp tests/ut/TestTransaction.cpp
         tests/ut/FragmentTest.cpp tests/ut/ProcedureTest.cpp
         tests/ut/TransactionListenerTest.cpp
-        tests/ut/WithIdTest.cpp)
+        tests/ut/WithIdTest.cpp tests/ut/TypeListTest.cpp)
 
 target_link_libraries(trans-dsl-test-catch trans-dsl-2)
 

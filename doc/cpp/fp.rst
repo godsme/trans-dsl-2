@@ -27,8 +27,8 @@ List
 ``A`` 的类型为 ``Set`` ；而被定义的类型： ``List``， 其类型也是 ``Set`` 。
 
 在类型系统理论中，每一个类型都是一个 **集合** ，比如：``bool`` 是一个集合，集合里的元素是其 **值域** ： ``true`` 和 ``false`` 。
-而 ``int`` 则是整个整数集合。加法类型，即 `C/C++` 中的 `union` ，其 **值域** 则是 ``union`` 中每种类型 **值域** 的并集
-（这就是为何被称做加法类型）；而乘法类型，即 `C/C++` 中的 `struct` ，其 **值域** 则是 ``struct`` 中每个 ``field`` 的
+而 ``int`` 则是整个整数集合。加法类型，即 ``C/C++`` 中的 ``union`` ，其 **值域** 则是 ``union`` 中每种类型 **值域** 的并集
+（这就是为何被称做加法类型）；而乘法类型，即 ``C/C++`` 中的 ``struct`` ，其 **值域** 则是 ``struct`` 中每个 ``field`` 的
 **值域** 相乘 。总之，不难理解，每一个类型都是一个集合。
 
 但所有类型放在一起，也是一个集合。这个集合被称做 ``Set1`` 。之所以被叫做 ``Set1`` ，因为理论上，所有的
@@ -58,7 +58,7 @@ List
 请花上一点时间，仔细对照这两段代码。它们之间的语意映射关系相当直接和清楚。
 这其中，``typename`` 正是 ``Agda`` 中的 ``Set`` 。另外， ``C++`` 的构造函数的返回值类型正是其构造的类型本身，因而无须描述。
 
-你或许会感叹 `Agda` 可以直接使用符号来定义构造。但那不是本文的重点。
+你或许会感叹 ``Agda`` 可以直接使用符号来定义构造。但那不是本文的重点。
 
 当然，``C++`` 只是那么描述，是无法完成一个 ``List`` 真正的职责的。下面给出一个可以工作的实现：
 
@@ -91,7 +91,7 @@ List
    template <> constexpr auto fib<1> = 1;
    template <> constexpr auto fib<0> = 0;
 
-其中 ``std::integral`` 是 ``C++20`` 引入的 `Concepts` ，它比 ``Haskell`` 的 ``TypeClass`` 更为强大。但在本例中，起到的作用
+其中 ``std::integral`` 是 ``C++20`` 引入的 ``concept`` ，它比 ``Haskell`` 的 ``TypeClass`` 更为强大。但在本例中，起到的作用
 一样。
 
 但这个例子只是通过模式匹配在做 **数值** 演算。而对于 ``List`` 的例子，我们则是通过模式匹配进行类型选择。从本质上理解，如果模糊
@@ -1032,7 +1032,12 @@ Fold
 
 这里用到的是，有初识值 ``0`` 的从左边开始的，操作为 ``+`` 的 ``fold`` 计算。其结果是列表中所有类型的大小的总和。
 
+从这个简单的例子可以看出，``C++`` 的 ``fold expression`` 不只在做 ``fold`` ，还先做了 ``map`` ，本例中即 ``sizeof`` 。
+所以，其实际上是 ``map-reduce`` ：先 ``map`` ，然后将 ``map`` 后的结果进行 ``fold`` 。
+
 当然，对于 ``+`` 这种性质的计算，你也可以用从右边开始的 ``fold`` 。
+
+.. code-block:: c++
 
    template <typename ... Ts>
    struct Foo {
@@ -1040,6 +1045,8 @@ Fold
    };
 
 如果你可以确保，输入的类型列表非空，你甚至不用写初识值，因而更加简洁：
+
+.. code-block:: c++
 
    template <typename ... Ts>
    struct Foo {
@@ -1130,9 +1137,10 @@ Fold
      return (np ->* ... ->* paths);
    }
 
+
 或者：
 
-.. code-block:: c++
+.. code-block:: C++
 
    template<typename T>
    class AddSpace {
@@ -1156,7 +1164,7 @@ Fold
 
 所以，我们必须得自己实现一个：
 
-.. code-block:: c++
+.. code-block:: C++
 
    template
      < template<typename, typename> typename OP
@@ -1390,6 +1398,8 @@ Flatten
    using FlattenAcc_t = FlattenAcc<ACC, T, void>;
 
 这样我们就我们就可以直接调用 ``FoldL_Init_t`` :
+
+.. code-block:: c++
 
    using Acc = FoldL_Init_t<FlattenAcc_t, Accumulator<>, Ts...>;
 

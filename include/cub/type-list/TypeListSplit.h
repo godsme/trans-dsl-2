@@ -44,30 +44,46 @@ namespace details {
    struct __never_used_dummy__ {};
 }
 
+namespace type_list {
+   template<
+      size_t N,
+      template<typename ...> typename RESULT_1,
+      template<typename ...> typename RESULT_2,
+      typename       TYPE_LIST>
+   using Split_t =
+   typename details::Split<
+      N,
+      TYPE_LIST
+      __EMPTY_OUTPUT_TYPE_LIST___
+   >::template output<RESULT_1, RESULT_2>;
+
+   //////////////////////////////////////////////////////////////////////
+   template<
+      size_t N,
+      template<typename ...> typename RESULT,
+      typename       TYPE_LIST>
+   using Take_t =
+   typename details::Split<
+      N,
+      TYPE_LIST
+      __EMPTY_OUTPUT_TYPE_LIST___
+   >::template output<RESULT, details::__never_used_dummy__>::first;
+}
+
 //////////////////////////////////////////////////////////////////////
 template<
    size_t N,
    template<typename ...> typename RESULT_1,
    template<typename ...> typename RESULT_2,
    typename ... IN>
-using Split_t =
-   typename details::Split<
-      N,
-      TypeList<IN...>
-      __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT_1, RESULT_2>;
+using Split_t = type_list::Split_t<N, RESULT_1, RESULT_2, TypeList<IN...>>;
 
 //////////////////////////////////////////////////////////////////////
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using Take_t =
-   typename details::Split<
-      N,
-      TypeList<IN...>
-      __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT, details::__never_used_dummy__>::first;
+using Take_t = type_list::Take_t<N, RESULT, TypeList<IN...>>;
 
 template<
    size_t N,
@@ -80,18 +96,32 @@ namespace details {
    template<
       size_t N,
       template<typename ...> typename RESULT,
-      typename ... IN>
+      typename       TYPE_LIST>
    struct DropRight {
-      static_assert(N >= sizeof...(IN), "N is greater than the size of type list");
-      using type = Take_t<sizeof...(IN) - N, RESULT, IN...>;
+      static_assert(N >= TYPE_LIST::size, "N is greater than the size of type list");
+      using type = type_list::Take_t<TYPE_LIST::size - N, RESULT, TYPE_LIST>;
    };
+}
+
+namespace type_list {
+   template<
+      size_t N,
+      template<typename ...> typename RESULT,
+      typename       TYPE_LIST>
+   using DropRight_t = typename details::DropRight<N, RESULT, TYPE_LIST>::type;
+
+   template<
+      size_t N,
+      template<typename ...> typename RESULT,
+      typename       TYPE_LIST>
+   using DropRight_tt = DropRight_t<N, RESULT, TYPE_LIST>;
 }
 
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using DropRight_t = typename details::DropRight<N, RESULT, IN...>::type;
+using DropRight_t = type_list::DropRight_t<N, RESULT, TypeList<IN...>>;
 
 template<
    size_t N,

@@ -11,6 +11,8 @@ CUB_NS_BEGIN
 
 template<typename ... Ts>
 struct TypeList {
+   constexpr static size_t size = 0;
+
    template<template <typename ...> typename RESULT>
    using output = RESULT<>;
 
@@ -23,6 +25,8 @@ struct TypeList {
 
 template<typename H, typename ... Ts>
 struct TypeList<H, Ts...> {
+   constexpr static size_t size = sizeof...(Ts) + 1;
+
    using Head = H;
    using Tail = TypeList<Ts...>;
 

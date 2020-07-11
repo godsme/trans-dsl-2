@@ -48,7 +48,7 @@ struct Take {
 template<size_t N>
 struct Elem {
    template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Elem_t<N, Ts...>;
+   using type = RESULT<Elem_t<N, Ts...>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -80,6 +80,13 @@ struct FoldROpt {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
+template< template <typename, typename> typename OP>
+struct FoldLOpt {
+   template<template<typename ...> typename RESULT, typename ... Ts>
+   using type = RESULT<FoldLOpt_t<OP, Ts...>>;
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////
 template
    < template <typename, typename> typename F
    , typename                               INIT>
@@ -100,8 +107,6 @@ struct ZipWith {
    template<template<typename ...> typename RESULT, typename ... Ts>
    using type = ZipWith_t<LIST, RESULT, Ts...>;
 };
-
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename ... Types>
@@ -138,23 +143,30 @@ class TypeStream final {
       using type = GenericComposer<H>;
    };
 
-   template<typename ...>
-   struct __stupid {};
-
 public:
    template<typename ... OPs>
    struct _ooo_ {
       template<template<typename ...> typename RESULT>
       using output = typename Compose<OPs...>::type::template Result<Types...>::template type<RESULT>;
-
-      using type   = typename Compose<OPs...>::type::template Result<Types...>::template type<__stupid>;
    };
 };
+
+template<typename ... Ts>
+struct __StUpId_ReSuLt_TrAiT {
+   static_assert(sizeof...(Ts) == 1);
+};
+
+template<typename H>
+struct __StUpId_ReSuLt_TrAiT<H> {
+   using type = H;
+};
+
 
 CUB_NS_END
 
 #define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
-#define __TL_Pipeline_t(stream, ...) __TL_Pipeline__(stream, __VA_ARGS__)::type
+#define __TL_Pipeline_t(stream, ...) \
+__TL_Pipeline__(stream, __VA_ARGS__)::template output<__StUpId_ReSuLt_TrAiT>::type
 #define __TL_OutputTo__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

@@ -147,7 +147,7 @@ namespace details {
          using ToRealType = ActionRealTypeTraits<AIDs, T, void>;
 
       public:
-         using Base = __TL_Pipeline__(T_ENTRIES..., Transform<ToRealType>, Flatten)
+         using Base = __TL_Raw_Pipeline__(T_ENTRIES..., Transform<ToRealType>, Flatten)
                       __TL_OutputTo__(LoopBase);
       };
 

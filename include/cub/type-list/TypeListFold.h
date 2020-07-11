@@ -177,8 +177,8 @@ namespace type_list{
 
    template
       < typename                               IN
-         , template <typename, typename> typename OP
-         , typename                               INIT>
+      , template <typename, typename> typename OP
+      , typename                               INIT>
    using FoldROptInit_t = typename Fold<OP>::template FoldROpt_t<typename IN::template append<INIT>>;
 }
 

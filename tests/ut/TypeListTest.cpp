@@ -17,7 +17,7 @@ namespace {
    };
    template<typename ... Ts>
    struct PipeLineTest1 {
-      using type = __TL_Pipeline__(Ts..., ZipWith<InfiniteValueList<int, 1>>, Transform<Transformer>)
+      using type = __TL_Raw_Pipeline__(Ts..., ZipWith<InfiniteValueList<int, 1>>, Transform<Transformer>)
                    __TL_OutputTo__(Result);
    };
 

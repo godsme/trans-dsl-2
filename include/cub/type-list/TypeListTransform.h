@@ -40,12 +40,12 @@ namespace details {
 
 namespace type_list {
    template<
+      typename   IN,
       template<typename>     typename F,
-      template<typename ...> typename RESULT,
-      typename                        TYPE_LIST>
+      template<typename ...> typename RESULT>
    using Transform_t =
    typename details::Transform<
-      TYPE_LIST,
+      IN,
       F,
       void
       __EMPTY_OUTPUT_TYPE_LIST___
@@ -56,7 +56,7 @@ template<
    template<typename>     typename F,
    template<typename ...> typename RESULT,
    typename                    ... IN>
-using Transform_t = type_list::Transform_t<F, RESULT, TypeList < IN...>>;
+using Transform_t = type_list::Transform_t<TypeList < IN...>, F, RESULT>;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 template<

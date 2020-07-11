@@ -19,78 +19,78 @@ CUB_NS_BEGIN
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t N>
 struct Drop {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Drop_t<N, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::Drop_t<IN, N, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t N>
 struct DropRight {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = DropRight_t<N, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::DropRight_t<IN, N, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t N>
 struct TakeRight {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = TakeRight_t<N, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::TakeRight_t<IN, N, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template <size_t N>
 struct Take {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Take_t<N, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::Take_t<IN, N, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<size_t N>
 struct Elem {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<Elem_t<N, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::Elem_t<IN, N>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template < template<typename>     typename F>
 struct Transform {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Transform_t<F, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::Transform_t<IN, F, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template<typename> typename     PRED>
 struct Filter {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Filter_t<PRED, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::Filter_t<IN, PRED, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template <typename, typename> typename F>
 struct FoldR {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldR_t<F, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldR_t<IN, F>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template <typename, typename> typename OP>
 struct FoldROpt {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldROpt_t<OP, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldROpt_t<IN, OP>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template <typename, typename> typename F>
 struct FoldL {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldL_t<F, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldL_t<IN, F>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template< template <typename, typename> typename OP>
 struct FoldLOpt {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldLOpt_t<OP, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldLOpt_t<IN, OP>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -98,8 +98,8 @@ template
    < template <typename, typename> typename F
    , typename                               INIT>
 struct FoldR_Init {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldRInit_t<F, INIT, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldRInit_t<IN, F, INIT>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +107,8 @@ template
    < template <typename, typename> typename F
    , typename                               INIT>
 struct FoldL_Init {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldLInit_t<F, INIT, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldLInit_t<IN, F, INIT>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +116,8 @@ template
    < template <typename, typename> typename F
       , typename                               INIT>
 struct FoldROptInit {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldROptInit_t<F, INIT, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldROptInit_t<IN, F, INIT>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -125,41 +125,46 @@ template
    < template <typename, typename> typename F
       , typename                               INIT>
 struct FoldLOptInit {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = RESULT<FoldLOptInit_t<F, INIT, Ts...>>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = RESULT<type_list::FoldLOptInit_t<IN, F, INIT>>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 struct Flatten {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = Flatten_t<RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::Flatten_t<IN, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
 template<typename LIST>
 struct ZipWith {
-   template<template<typename ...> typename RESULT, typename ... Ts>
-   using type = ZipWith_t<LIST, RESULT, Ts...>;
+   template<typename IN, template<typename ...> typename RESULT>
+   using type = type_list::ZipWith_t<IN, LIST, RESULT>;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
-template<typename ... Types>
+template<typename IN>
 class TypeStream final {
    template<typename OP>
    struct GenericComposer {
       template<typename ANOTHER>
       struct Compose {
-         template<typename ... Ts>
+         template<typename INPUT>
          struct Result {
+            template<typename ... Ts>
+            struct OutputAdapter {
+               using type = typename ANOTHER::template Result<TypeList<Ts...>>;
+            };
+
             template<template<typename ...> typename RESULT>
-            using type = typename OP::template type<ANOTHER::template Result, Ts...>::template type<RESULT>;
+            using type = typename OP::template type<INPUT, OutputAdapter>::type::template type<RESULT>;
          };
       };
 
-      template<typename ... Ts>
+      template<typename INPUT>
       struct Result {
          template<template<typename ...> typename RESULT>
-         using type = typename OP::template type<RESULT, Ts...>;
+         using type = typename OP::template type<INPUT, RESULT>;
       };
    };
 
@@ -181,7 +186,7 @@ public:
    template<typename ... OPs>
    struct _ooo_ {
       template<template<typename ...> typename RESULT>
-      using output = typename Compose<OPs...>::type::template Result<Types...>::template type<RESULT>;
+      using output = typename Compose<OPs...>::type::template Result<IN>::template type<RESULT>;
    };
 };
 
@@ -200,8 +205,9 @@ namespace details {
 CUB_NS_END
 
 #define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
-#define __TL_Pipeline_t(stream, ...) \
-__TL_Pipeline__(stream, __VA_ARGS__)::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
+#define __TL_Raw_Pipeline__(stream, ...) __TL_Pipeline__(CUB_NS::TypeList<stream>, __VA_ARGS__)
+#define __TL_Raw_Pipeline_t(stream, ...) \
+__TL_Raw_Pipeline__(stream, __VA_ARGS__)::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
 #define __TL_OutputTo__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

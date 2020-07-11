@@ -132,8 +132,8 @@ namespace {
          __wait(3),
          __finally(__asyn(AsyncAction4)));
 
-      using Concurrent1 = __concurrent_t(ProcedureAction1, ProcedureAction2);
-      using Concurrent2 = __concurrent_t(ProcedureAction1, ProcedureAction2, ProcedureAction3);
+      using Concurrent1 = __def_concurrent(ProcedureAction1, ProcedureAction2);
+      using Concurrent2 = __def_concurrent(ProcedureAction1, ProcedureAction2, ProcedureAction3);
 
       const Msg1 msg1{ 10, 20 };
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};

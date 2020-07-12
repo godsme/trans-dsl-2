@@ -108,7 +108,7 @@ List
 
 .. code-block:: agda
 
-  Class     :: (T : Set) -> int -> Set
+  Class     : (T : Set) -> int -> Set
   Class T I = struct { using type = T; }
 
 即, 模版名字是函数名，其有两个参数，其中 ``T`` 通过花括号里 ``{T : Set}`` 说明 ``T`` 是一个类型。其参数为 ``T`` 和 ``int``
@@ -118,7 +118,7 @@ List
 
 .. code-block:: agda
 
-  List     :: (T : Set) -> size_t -> Set
+  List     : (T : Set) -> size_t -> Set
   List T N = struct { const T head; const List<T, N-1> tail; }
   List T 0 = struct { }
 
@@ -247,12 +247,12 @@ List
    constexpr auto list1 = makeList<1,2,3,4>;
 
 
-下面我们来看与 `List` 有关的操作。比如最典型的 ``map`` 操作。下面是 `Agda` 的实现：
+下面我们来看与 ``List`` 有关的操作。比如最典型的 ``map`` 操作。下面是 ``Agda`` 的实现：
 
 .. code-block:: agda
 
-   map : {A B : Set} -> (A -> B) -> List A -> List B
-   map f [] = []
+   map             : {A B : Set} -> (A -> B) -> List A -> List B
+   map f []        = []
    map f (x :: xs) = f x :: map f xs
 
 第一行类型声明。其意思是：有两个类型 ``A`` 和 ``B`` ，函数的输入参数有两个 : 第一个参数 ``(A->B)`` ，这是从 ``A`` 类型到 ``B`` 类型
@@ -378,7 +378,7 @@ List
 
 .. code-block:: agda
 
-   Optional           :: ( PRED : Set ) -> size_t -> Set
+   Optional           : ( PRED : Set ) -> size_t -> Set
    Optional PRED 1    = struct { ... } // 2nd struct def
    Optional PRED SIZE = struct { ... } // 1st struct def
 
@@ -876,7 +876,7 @@ Transform
 
 .. code-block:: agda
 
-   Transform              :: [Set] -> (Set -> Set) -> (Set -> Set) -> [Set]
+   Transform              : [Set] -> (Set -> Set) -> (Set -> Set) -> [Set]
    Transform []     F OUT = OUT
    Transform (x:xs) F OUT = Transform xs F (xs ++ [F x])
 
@@ -899,6 +899,52 @@ Transform
 所以，用户真正提供的参数只有三个， ``F`` 转化函数， ``IN`` 输入列表，以及用来回传最终结果回调模版 ``RESULT`` 。 而
 宏 ``__EMPTY_OUTPUT_TYPE_LIST___`` 背后什么都没有，正如一个 ``Ts...`` 形式的列表如果为空是，就什么都没有一样，
 这样在阅读代码时，很容易忽略这里还有一个空参数。而通过 ``__EMPTY_OUTPUT_TYPE_LIST___`` 则可以起到提示的作用。
+
+``Transform`` 非常有用，比如，我们想给一个类型加上 ``Wrapper`` ，
+
+.. code-block:: c++
+
+   template <typename T> struct Wrapper {...};
+
+   template <typename ... Ts>
+   struct Bar {
+      // Ts... 里每一个类型都是 Wrapper<T> 的形式。
+   };
+
+   template <typename ... Ts>
+   struct Foo {
+      template <typename T>
+      struct AddWrapper { using type = Wrapper<T>; };
+
+      using bar = Transform_t<AddWrapper, Bar, Ts...>;
+      // ...
+   }
+
+或者，识别出一组类型里，所有继承自某个类的类型：
+
+.. code-block:: c++
+
+   template <typename T, typename = void>
+   struct ActionTrait {
+      using type = void;
+   };
+
+   template <typename T>
+   struct ActionTrait<T, std::enabled_if_t<std::is_base_class_v<Action, T>>> {
+      using type = T;
+   };
+
+   template <typename ... Ts>
+   struct Bar {
+      // Ts... 里，要么是 void, 要么是Action的子类
+   };
+
+   template <typename ... Ts>
+   struct Foo {
+      using bar = Transform_t<ActionTrait, Bar, Ts...>;
+      // ...
+   }
+
 
 Split
 +++++++++++++++++++++
@@ -1141,9 +1187,9 @@ Fold
    }
 
 
-或者,
+或者，我们想在输出对象的时候，在后面增加一个空格：
 
-.. code-block:: C++
+.. code-block:: c++
 
    template<typename T>
    class AddSpace {
@@ -1197,9 +1243,9 @@ Fold
 
 .. code-block:: agda
 
-   foldr : {A B : Set} → (A → B → B) → B → List A → B
-   foldr op acc []        =  acc
-   foldr op acc (x ∷ xs)  =  x op (foldr op acc xs)
+   foldr                 : {A B : Set} → (A → B → B) → B → List A → B
+   foldr op acc []       =  acc
+   foldr op acc (x::xs)  =  x op (foldr op acc xs)
 
 当然，从类型看，这个描述是计算值的，但无关紧要。
 
@@ -1247,13 +1293,13 @@ Fold
       using type = typename FoldL<OP, typename OP<ACC, H>::type, Ts...>::type;
    };
 
-其算法用 ``agda`` 代码描述如下：
+其算法用 ``Agda`` 代码描述如下：
 
 .. code-block:: agda
 
-   foldr : {A B : Set} → (A → B → B) → B → List A → B
-   foldr op acc []        =  acc
-   foldr op acc (x ∷ xs)  =  foldl op (op acc x) xs
+   foldr                 : {A B : Set} -> (A -> B -> B) -> B -> List A -> B
+   foldr op acc []       =  acc
+   foldr op acc (x::xs)  =  foldl op (op acc x) xs
 
 注意， ``左折叠`` 是一个 ``尾递归`` (tail recursion) 算法，因而可以进行优化，但 ``右折叠`` 则不是，因为其必须层层递归，将
 右边的结果得到之后，才可以和左边一起进行 ``OP`` 计算，这从递归本质上，无法优化。
@@ -1437,16 +1483,274 @@ Flatten
    // result 是模版 MyClass ，被 Ts... 实例化后的类型
    using result = typename Acc::template output<MyClass>;
 
-
-optional
-__________
-
-todo
-
 pipeline
 ____________
 
-todo
+当对一个类型列表进行处理时，有可能需要一些列的操作。一个个单独写，然后手工将它们串结起来，即麻烦，也更不容易阅读和理解。
+
+如果有一种手段将多个操作 ``compose`` 在一起，并以 ``pipeline`` 的方式呈现，则无论对于使用，还是对于阅读理解
+代码，都大有益处。
+
+从本质抽象上，可以进入 ``pipeline`` 的每一个操作的 **输入** 都由两部分组成：
+
+1. 类型列表；
+2. 其它参数；
+
+而输出，则应该则可能是：
+
+1. 类型列表，比如 ``Transform`` ，``Filter`` ，``ZipWith`` 等等；
+2. 单个类型，比如 ``Elem`` ， ``Fold`` 等；
+
+而从管道的性质上，输入是一个类型列表，输出也是类一个类型列表。所以，我们必须处理输入时除了类型列表以外的参数，以及输出时是单个类型的情况。
+
+首先，对于一个操作输入参数存在其它参数的情况，我们可以定义这样的结构，（以 ``Transform`` 为例子 )
+
+.. code-block:: c++
+
+   template <template <typename T> typename F>
+   struct Transform {
+      template <typename INPUT_TYPE_LIST>
+      using output = Transform_t<F, INPUT_TYPE_LIST>;
+   };
+
+``Transform`` 模版的参数是除了 ``TypeList`` 之外的其它参数；而内部的 ``output`` 模版，则是一个单纯的管道元素：
+输入是一个 ``TYPE_LIST`` ，输出也一个 ``TYPE_LIST`` （ ``output`` 在实例化之后为一个 ``TypeList`` ）。
+
+注意，我们这里没有用 ``Ts...`` 方式来表现一个 ``TypeList`` ，因为我们想让情况简化，而使用了我们之前定义的 ``TypeList`` ，
+以及任何可以被解析为 ``Head : Tail`` 的结构。等整个 ``pipeline`` 结束后，如果一个结构能够转化成 ``Ts...`` 形式，到
+那时候我们再转换。
+
+上面例子中的两层结构，是这个设计的一个重点，外面的结构是面向用户的，内部的结构是给 ``pipeline`` 框架用来把一些列
+操作 ``compose`` 成 ``PipeLine`` 的。 所有的操作，都应该提供一个这个的结构，比如 ``ZipWith`` :
+
+.. code-block:: c++
+
+   template<typename ANOTHER_LIST>
+   struct ZipWith {
+      template<typename INPUT_TYPE_LIST>
+      using output = type_list::ZipWith_t<INPUT_TYPE_LIST, ANOTHER_LIST>;
+   };
+
+``Zip`` 是把两个 ``List`` 变换成一对对形成 ``Pair`` 的 ``List`` 。其效果如下：
+
+.. code-block::
+
+   Zip [int, double] [long, short] => [(int, long), (double, short)];
+
+所以，我们把其中一个 ``List`` 当作其它参数，另外一个留给 ``pipeline`` ，因而名字也就变成了 ``ZipWith`` 。
+
+在所有的操作都形成上面的两层结构之后，我们就可以先定义一个能把两个操作 ``compose`` 在一起的类模版：
+
+.. code-block:: c++
+
+   template<typename OP>
+   struct ListOperation {
+
+      template<typename INPUT>
+      struct Result {
+          using output = typename OP::template type<INPUT>;
+      };
+
+      template<typename COMPOSED_OP>
+      struct Compose {
+         template<typename INPUT>
+         class Result {
+            using output1 = typename OP::template output<INPUT>;
+         public:
+            using output  = typename COMPOSED_OP::template Result<output1>::output;
+         };
+      };
+   };
+
+``ListOperation`` 的输入参数是一个 ``OP`` ，即之前定义的两级结构模版被实例化之后的类，比如：
+
+.. code-block:: c++
+
+   Transform<ToWrapper>
+   ZipWith<AnotherList>
+
+它如果不和别的 ``OP`` 组合，则可以直接调用 ``Result`` 模版，从而根据 ``INPUT`` 计算出结果。
+
+如果它要和别的 `OP` 组合，则可以调用 ``Compose`` 模版，其输入即是另外一个 ``OP`` ，其结果是也是一个
+名为 ``Result`` 的模版，此时，如果你调用这个 ``Result`` 模版，给定一个 ``INPUT`` ，就可以计算出
+两个 ``OP`` 以管道的形式，衔接在一起的计算结果。
+
+这就是设计的另外一个关键：无论一个 ``OP`` 是否``Compose`` 其它 ``OP`` ，你总是得到一个接口形式一样，
+名字也一样的 ``Result`` 模版 。只不过不组合的情况下，调的是自己；组合的情况下，调的是二者组合在一起的结构。
+
+而二者组合一起的算法相当直接：
+
+.. code-block:: c++
+
+     template<typename INPUT>
+     class Result {
+        using output1 = typename OP::template output<INPUT>;
+     public:
+        using output  = typename COMPOSED_OP::template Result<output1>::output;
+     };
+
+即根据参数输入的 ``INPUT`` ，调用 ``OP`` 的内部结构，得到 ``output1`` 之后，再把 ``output`` 当
+作 ``COMPOSED_OP`` 的输入，最终的 ``output`` 即两者组合计算出的结果。如果以管道的形式体现，其语意则是：
+
+.. code-block:: c++
+
+   INPUT | OP | COMPOSED_OP => output
+
+有了这个 ``ListOperation`` 之后，我们就可以定义我们的 ``Pipe line`` 了：
+
+.. code-block:: c++
+
+   template<typename INPUT, typename ... OPs>
+   class Pipeline {
+       template<typename ... Ts>
+       struct ComposeAll;
+
+       template<typename H, typename ... Ts>
+       struct ComposeAll<H, Ts...> {
+          using output = typename ListOperation<H>::template Compose<typename ComposeAll<Ts...>::output>;
+       };
+
+       template<typename H>
+       struct ComposeAll<H> {
+          using output = ListOperation<H>;
+       };
+
+    public:
+        using output = typename ComposeAll<OPs...>::output::template Result<IN>::output;
+    };
+
+``Pipeline`` 的参数是初始的 ``TypeList`` ，以及 ``OPs`` ，即参与 ``pipeline`` 的多个操作。
+内部的 ``ComposeAll`` 完成的工作很简单，即通过我们前面定义的 ``ListOperation`` 模版，将
+所有 ``OP`` 连接在一起。而最后定义的 ``output`` ，即 ``pipeline`` 计算的最终结果。
+
+然后，我们就可以这样使用它：
+
+.. code-block:: c++
+
+   using Result = typename Pipeline
+                   < TypeList<Ts...>
+                   , Filter<ActionTrait>
+                   , Transform<AddWrapper>
+                   , FoldL<CombineToOne>
+                   >::output;
+
+如果，最终的结果是一个 ``TypeList`` 而不是单个类型，你可以通过 ``TypeList`` 的 ``output`` 模版，以回调的方式，将
+一个 ``Ts...`` 传递个你的回调模版。
+
+我们前面提到的另外一个问题还没有解决：如果管道中的某个操作输出的是单个类型，而不是一个 ``TypeList`` ，
+但后续其它 ``OP`` 毫无疑问需要的是一个 ``TypeList`` ，怎么办？
+
+答案是，在两个管道衔接处，增加一个检查，如果返现是单个类型 ``T`` ， 就将其转化为 ``TypeList<T>`` ，即将 ``x`` 转
+化为 ``[x]`` 。
+
+.. code-block:: c++
+
+   template<typename T, typename = void>
+   struct TypeListTrait {
+      using type = TypeList<T>;
+   };
+
+   template<typename T>
+   struct TypeListTrait<T, std::enable_if_t<std::is_base_of_v<TypeListSignature, T>>> {
+      using type = T;
+   };
+
+   template<typename INPUT>
+   class Result {
+      using output1 = typename TypeListTrait<typename OP::template output<INPUT>>::type;
+   public:
+      using output  = typename COMPOSED_OP::template Result<output1>::output;
+   };
+
+
+然后，我们就可以在中间使用 ``Elem`` 了（当然也可以使用其它只输出单个类型的 ``OP`` ）：
+
+.. code-block:: c++
+
+   using Result = typename Pipeline
+                   < TypeList<Ts...>
+                   , Filter<ActionTrait>
+                   , Elem<0>
+                   , Transform<AddWrapper>
+                   , FoldL<CombineToOne>
+                   >::output;
+
+延迟估值
+-------------------
+
+``C++`` 的泛型天然就是延迟估值的，因而你可以构造一个无穷列表：
+
+.. code-block:: c++
+
+   template <typename T, T N, T STEP = 1>
+   struct InfiniteValueList {
+      constexpr static T Head = N;
+      using Tail = InfiniteValueList<T, N + STEP, STEP>;
+   };
+
+   template <auto V>
+   struct RepeatValueList {
+      constexpr static auto Head = V;
+      using Tail = RepeatValueList<V>;
+   };
+
+你不用担心这样的结构定义会无穷递归下去而导致编译器崩溃。并且你可以安全的写如下算法的代码：
+
+.. code-block:: c++
+
+   Pipeline
+     < InfiniteValueList<int, 1, 2>
+     , Drop<2>
+     , Take<5>>
+     // 结果是 5, 7, 9, 11, 13
+
+   Pipeline
+     < TypeList<int, double, char>
+     , ZipWith<RepeatValueList<5>>>
+     // 结果是 [(int, 5), (double, 5), (char, 5)]
+
+Optional
+-------------------
+
+``Optional`` 是一个存在非常广泛的语意。比如，指针空与非空，非法值与合法值，存在与不存在 ... 等等；在 ``Haskell`` 语言里，
+这种概念被称做 ``Maybe`` 。
+
+而在类型的世界里，则可以将 ``void`` 看作 ``None`` （或 ``Nothing`` )， ``void`` 和其它类型一样，本身也是一个类型，
+但其值域为空。也就是说，你无法用它实例化任何数据。
+
+所以，在对类型进行，``transform`` , ``filter`` , 或者 ``fold`` 操作时，你总是可以用 ``void`` 当作 ``None`` 语意。比如：
+
+.. code-block:: c++
+
+   template <typename T, typename = void>
+   struct ActionTrait {
+      using type = void;
+   };
+
+   template <typename T>
+   struct ActionTrait<T, std::enabled_if_t<std::is_base_class_v<Action, T>>> {
+      using type = T;
+   };
+
+其语意是，一个类型如果是 ``Action`` 的子类，返回的则是 ``Maybe<T>`` ，否则返回 ``Nothing`` 。
+
+
+.. code-block:: c++
+
+   template <typename ... Ts>
+   struct Bar {
+      // Ts... 里，全是Action的子类
+   };
+
+   using Result = typename Pipeline
+                   < TypeList<Ts...>
+                   , Transform<ActionTrait>
+                   , Filter<Maybe>
+                   >::output::template output<Bar>;
+
+甚至，你可以将对于 ``void`` 的过滤操作自动内嵌到操作中，比如， ``Transform`` 可以提供一个版本，
+自动抛弃掉结果为 ``void`` 的类型；或者，在 ``Fold`` 时，自动跳过是 ``void`` 的类型。但这都是优化的事情，即便不提供，
+由于有了 ``Filter`` ，也都可以完成计算。
 
 .. important::
 

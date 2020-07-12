@@ -156,40 +156,40 @@ class TypeStream final {
       using type = T;
    };
 
-   template<typename A_OP>
-   struct GenericComposer {
-      template<typename B_OP>
-      struct Bind {
+   template<typename OP>
+   struct ListOperation {
+
+      template<typename COMPOSED_OP>
+      struct Compose {
          template<typename INPUT>
-         class Result {
-            using output = typename TypeListTrait<typename A_OP::template type<INPUT>>::type;
-         public:
-            using type = typename B_OP::template Result<output>::type;
+         struct Result {
+            using output = typename TypeListTrait<typename OP::template type<INPUT>>::type;
+            using type = typename COMPOSED_OP::template Result<output>::type;
          };
       };
 
       template<typename INPUT>
       struct Result {
-         using type = typename A_OP::template type<INPUT>;
+         using type = typename OP::template type<INPUT>;
       };
    };
 
    //////////////////////////////////////////////////////////////////////////
    template<typename ... Ts>
-   struct Compose;
+   struct ComposeAll;
 
    template<typename H, typename ... Ts>
-   struct Compose<H, Ts...> {
-      using type = typename GenericComposer<H>::template Bind<typename Compose<Ts...>::type>;
+   struct ComposeAll<H, Ts...> {
+      using type = typename ListOperation<H>::template Compose<typename ComposeAll<Ts...>::type>;
    };
 
    template<typename H>
-   struct Compose<H> {
-      using type = GenericComposer<H>;
+   struct ComposeAll<H> {
+      using type = ListOperation<H>;
    };
 
 public:
-   using type = typename Compose<OPs...>::type::template Result<IN>::type;
+   using type = typename ComposeAll<OPs...>::type::template Result<IN>::type;
 };
 
 CUB_NS_END

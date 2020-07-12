@@ -143,7 +143,7 @@ struct ZipWith {
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////
-template<typename IN>
+template<typename IN, typename ... OPs>
 class TypeStream final {
 
    template<typename T, typename = void>
@@ -175,12 +175,12 @@ class TypeStream final {
    };
 
    //////////////////////////////////////////////////////////////////////////
-   template<typename ... OPs>
+   template<typename ... Ts>
    struct Compose;
 
-   template<typename H, typename ... OPs>
-   struct Compose<H, OPs...> {
-      using type = typename GenericComposer<H>::template Bind<typename Compose<OPs...>::type>;
+   template<typename H, typename ... Ts>
+   struct Compose<H, Ts...> {
+      using type = typename GenericComposer<H>::template Bind<typename Compose<Ts...>::type>;
    };
 
    template<typename H>
@@ -189,28 +189,17 @@ class TypeStream final {
    };
 
 public:
-   template<typename ... OPs>
-   using _ooo_ = typename Compose<OPs...>::type::template Result<IN>::type;
+   using type = typename Compose<OPs...>::type::template Result<IN>::type;
 };
-
-namespace details {
-   template<typename ... Ts>
-   struct __StUpId_ReSuLt_TrAiT {
-      static_assert(sizeof...(Ts) == 1);
-   };
-
-   template<typename H>
-   struct __StUpId_ReSuLt_TrAiT<H> {
-      using type = H;
-   };
-}
 
 CUB_NS_END
 
-#define __TL_Stream_type ::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
-#define __TL_Pipeline(stream, ...) typename CUB_NS::TypeStream<CUB_NS::ListWrapper<stream>>::template _ooo_<__VA_ARGS__>
+#define __TL_PiPeLiNe(stream, ...) typename CUB_NS::TypeStream<stream, __VA_ARGS__>::type
+
+#define __TL_Pipeline(stream, ...) __TL_PiPeLiNe(CUB_NS::ListWrapper<stream>, __VA_ARGS__)
 #define __TL_Pipeline_t(stream, ...) __TL_Pipeline(stream, __VA_ARGS__)
-#define __TL_Raw_Pipeline__(stream, ...) __TL_Pipeline(CUB_NS::TypeList<stream>, __VA_ARGS__)
+
+#define __TL_Raw_Pipeline__(stream, ...) __TL_PiPeLiNe(CUB_NS::TypeList<stream>, __VA_ARGS__)
 #define __TL_Raw_Pipeline_t(stream, ...) __TL_Raw_Pipeline__(stream, __VA_ARGS__)
 
 #define __TL_OutputTo(result) ::template output<result>

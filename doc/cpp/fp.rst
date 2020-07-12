@@ -483,7 +483,7 @@ TypeList
 Elem
 +++++++++++++++++++++
 
-比如，我们想从一个 **类型列表　** 中取出第 ``N`` 个类型：
+比如，我们想从一个 **类型列表** 中取出第 ``N`` 个类型：
 
 .. code-block:: c++
 
@@ -835,8 +835,7 @@ Transform
       typename = void,
       typename                ... OUT>
    struct Transform {
-      template<template<typename ...> typename RESULT>
-      using output = RESULT<OUT...>;
+      using type = TypeList<OUT...>;
    };
 
    template<
@@ -844,14 +843,13 @@ Transform
       template<typename> typename F,
       typename                ... OUT>
    struct Transform<IN, F, std::void_t<typename IN::Head>, OUT...> {
-      template<template<typename ...> typename RESULT>
-      using output =
+      using type =
          typename Transform<
             typename IN::Tail,
             F,
             void,
             __TYPE_LIST_APPEND(OUT..., typename F<typename IN::Head>::type)
-         >::template output<RESULT>;
+         >::type;
    };
 
 代码看起来很长，但只是只是参数列表很长，真正的有逻辑的地方只有三处：
@@ -896,7 +894,7 @@ Transform
        F,
        void                        // 为了SFINAE条件判断
        __EMPTY_OUTPUT_TYPE_LIST___ // 输出列表最初为空
-     >::template output<RESULT>;
+     >::type::template output<RESULT>;
 
 所以，用户真正提供的参数只有三个， ``F`` 转化函数， ``IN`` 输入列表，以及用来回传最终结果回调模版 ``RESULT`` 。 而
 宏 ``__EMPTY_OUTPUT_TYPE_LIST___`` 背后什么都没有，正如一个 ``Ts...`` 形式的列表如果为空是，就什么都没有一样，
@@ -942,26 +940,20 @@ Split
       typename     IN,
       typename ... OUT>
    struct Split {
-      template
-         < template <typename ...> typename RESULT_1
-         , template <typename ...> typename RESULT_2 >
-      using output = typename Split<
+      using type = typename Split<
             N - 1,
             typename IN::Tail,
             __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-         >::template output<RESULT_1, RESULT_2>;
+         >::type;
    };
 
    template<
       typename     IN,
       typename ... OUT>
    struct Split<0, IN, OUT...> {
-      template
-         < template <typename ...> typename RESULT_1
-         , template <typename ...> typename RESULT_2 >
-      struct output {
-         using first  = RESULT_1<OUT...>;
-         using second = typename IN::template output<RESULT_2>;
+      struct type {
+         using first  = TypeList<OUT...>;
+         using second = IN;
       };
    };
 
@@ -986,13 +978,24 @@ Split
       template<typename ...> typename RESULT_1,
       template<typename ...> typename RESULT_2,
       typename ... IN>
-   using Split_t =
-      typename Split<
-         N,
-         TypeList<IN...>                   // 将IN...传入，得到输入列表
-         __EMPTY_OUTPUT_TYPE_LIST___       // 前半部分最初列表为空
-      >::template output<RESULT_1, RESULT_2>;
+   class Splitter {
+      using RawType =
+        type_list::Split_t
+            < N
+            , TypeList<IN...>                 // 将IN...传入，得到输入列表
+            __EMPTY_OUTPUT_TYPE_LIST___       // 前半部分最初列表为空
+            >;
+   public:
+      using type = __TL_make_pair(typename RawType::first::template output<RESULT_1>,
+                                  typename RawType::second::template output<RESULT_2>);
+   };
 
+   template<
+      size_t N,
+      template<typename ...> typename RESULT_1,
+      template<typename ...> typename RESULT_2,
+      typename ... IN>
+   using Split_t = typename Splitter<N, RESULT_1, RESULT_2, IN...>::type;
 
 ``Split_t`` 的输入参数，清晰的反映了用户需要指定的信息: ``N`` 分割的位置；``RESULT_1``, ``RESULT_2`` 分别为分割后两个
 部分的回调。``IN`` 则是需要分割的输入列表。
@@ -1138,7 +1141,7 @@ Fold
    }
 
 
-或者：
+或者,
 
 .. code-block:: C++
 

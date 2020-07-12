@@ -74,7 +74,7 @@ namespace details {
       size_t N,
       template<typename ...> typename RESULT_1,
       template<typename ...> typename RESULT_2>
-   struct SplitUtil {
+   struct Splitter {
       using RawType = type_list::Split_t<IN, N>;
       using type = __TL_make_pair(typename RawType::first::template output<RESULT_1>,
                                   typename RawType::second::template output<RESULT_2>);
@@ -85,7 +85,7 @@ template<
    template<typename ...> typename RESULT_1,
    template<typename ...> typename RESULT_2,
    typename ... IN>
-using Split_t = typename details::SplitUtil<TypeList<IN...>, N, RESULT_1, RESULT_2>::type;
+using Split_t = typename details::Splitter<TypeList<IN...>, N, RESULT_1, RESULT_2>::type;
 
 //////////////////////////////////////////////////////////////////////
 template<

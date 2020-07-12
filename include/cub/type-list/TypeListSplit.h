@@ -14,34 +14,54 @@ CUB_NS_BEGIN
 
 namespace details {
    template<
-      size_t N,
       typename IN,
+      size_t N,
       typename ... OUT>
    struct Split {
       template
-         < template <typename ...> typename RESULT_1
-         , template <typename ...> typename RESULT_2 >
+         <template<typename ...> typename RESULT_1,
+            template<typename ...> typename RESULT_2>
       using output = typename Split<
-            N - 1,
-            typename IN::Tail,
-            __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-         >::template output<RESULT_1, RESULT_2>;
+         typename IN::Tail,
+         N - 1,
+         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
+      >::template output<RESULT_1, RESULT_2>;
    };
 
    template<
       typename IN,
       typename ... OUT>
-   struct Split<0, IN, OUT...> {
+   struct Split<IN, 0, OUT...> {
       template
-         < template <typename ...> typename RESULT_1
-         , template <typename ...> typename RESULT_2 >
+         <template<typename ...> typename RESULT_1,
+            template<typename ...> typename RESULT_2>
       using output = __TL_make_pair(
-         RESULT_1<OUT...>,
+         RESULT_1 < OUT...>,
          typename IN::template output<RESULT_2>);
    };
+}
 
-   template<typename ...>
-   struct __never_used_dummy__ {};
+namespace details {
+   template<
+      typename IN,
+      size_t N,
+      typename ... OUT>
+   struct Take {
+      template< template <typename ...> typename RESULT>
+      using output = typename Take<
+         typename IN::Tail,
+         N - 1,
+         __TYPE_LIST_APPEND(OUT..., typename IN::Head)
+      >::template output<RESULT>;
+   };
+
+   template<
+      typename IN,
+      typename ... OUT>
+   struct Take<IN, 0, OUT...> {
+      template< template <typename ...> typename RESULT>
+      using output = RESULT<OUT...>;
+   };
 }
 
 namespace type_list {
@@ -52,22 +72,22 @@ namespace type_list {
       template<typename ...> typename RESULT_2>
    using Split_t =
    typename details::Split<
-      N,
-      IN
+      IN,
+      N
       __EMPTY_OUTPUT_TYPE_LIST___
    >::template output<RESULT_1, RESULT_2>;
 
    //////////////////////////////////////////////////////////////////////
    template<
       typename       IN,
-      size_t N,
+      size_t         N,
       template<typename ...> typename RESULT>
    using Take_t =
-   typename details::Split<
-      N,
-      IN
+   typename details::Take<
+      IN,
+      N
       __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT, details::__never_used_dummy__>::first;
+   >::template output<RESULT>;
 }
 
 //////////////////////////////////////////////////////////////////////

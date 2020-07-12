@@ -28,6 +28,7 @@ struct RepeatTypeList {
    using Tail = RepeatTypeList<T>;
 };
 
+#define __infinite_list(...) InfiniteValueList<__VA_ARGS__>
 
 CUB_NS_END
 

@@ -13,9 +13,9 @@ CUB_NS_BEGIN
 
 struct ValueWrapperSignature {};
 
-template <auto V>
-struct ValueWrapper : ValueWrapperSignature {
-   constexpr static auto value = V;
+template <auto VALUE>
+struct V : ValueWrapperSignature {
+   constexpr static auto value = VALUE;
 };
 
 template<typename T, typename = void>
@@ -34,7 +34,7 @@ struct ListWrapper {
 
 template<typename LIST>
 struct ListWrapper<LIST, std::enable_if_t<std::is_base_of_v<ValueListSignature, LIST>>> {
-   using Head = ValueWrapper<LIST::Head>;
+   using Head = V<LIST::Head>;
    using Tail = ListWrapper<typename LIST::Tail>;
 };
 

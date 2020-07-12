@@ -204,10 +204,14 @@ namespace details {
 
 CUB_NS_END
 
-#define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<stream>::template _ooo_<__VA_ARGS__>
+#define __TL_Stream_type ::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
+#define __TL_Pipeline__(stream, ...) typename CUB_NS::TypeStream<CUB_NS::ListWrapper<stream>>::template _ooo_<__VA_ARGS__>
+#define __TL_Pipeline_t(stream, ...) \
+__TL_Pipeline__(stream, __VA_ARGS__)__TL_Stream_type
 #define __TL_Raw_Pipeline__(stream, ...) __TL_Pipeline__(CUB_NS::TypeList<stream>, __VA_ARGS__)
 #define __TL_Raw_Pipeline_t(stream, ...) \
-__TL_Raw_Pipeline__(stream, __VA_ARGS__)::template output<CUB_NS::details::__StUpId_ReSuLt_TrAiT>::type
+__TL_Raw_Pipeline__(stream, __VA_ARGS__)__TL_Stream_type
+
 #define __TL_OutputTo__(result) ::template output<result>
 
 #endif //TRANS_DSL_2_TYPELISTPIPELINE_H

@@ -148,7 +148,7 @@ namespace details {
 
       public:
          using Base = __TL_Raw_Pipeline__(T_ENTRIES..., Transform<ToRealType>, Flatten)
-                      __TL_OutputTo__(LoopBase);
+                      __TL_OutputTo(LoopBase);
       };
 
    public:

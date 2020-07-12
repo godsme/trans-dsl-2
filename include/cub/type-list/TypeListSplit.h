@@ -18,26 +18,18 @@ namespace details {
       size_t N,
       typename ... OUT>
    struct Split {
-      template
-         <template<typename ...> typename RESULT_1,
-            template<typename ...> typename RESULT_2>
-      using output = typename Split<
+      using type = typename Split<
          typename IN::Tail,
          N - 1,
          __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::template output<RESULT_1, RESULT_2>;
+      >::type;
    };
 
    template<
       typename IN,
       typename ... OUT>
    struct Split<IN, 0, OUT...> {
-      template
-         <template<typename ...> typename RESULT_1,
-            template<typename ...> typename RESULT_2>
-      using output = __TL_make_pair(
-         RESULT_1 < OUT...>,
-         typename IN::template output<RESULT_2>);
+      using type = __TL_make_pair(TypeList<OUT...>, IN);
    };
 }
 
@@ -47,63 +39,60 @@ namespace details {
       size_t N,
       typename ... OUT>
    struct Take {
-      template< template <typename ...> typename RESULT>
-      using output = typename Take<
+      using type = typename Take<
          typename IN::Tail,
          N - 1,
          __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::template output<RESULT>;
+      >::type;
    };
 
    template<
       typename IN,
       typename ... OUT>
-   struct Take<IN, 0, OUT...> {
-      template< template <typename ...> typename RESULT>
-      using output = RESULT<OUT...>;
+   struct Take<IN, 0,  OUT...> {
+      using type = TypeList<OUT...>;
    };
 }
 
 namespace type_list {
    template<
       typename       IN,
-      size_t         N,
-      template<typename ...> typename RESULT_1,
-      template<typename ...> typename RESULT_2>
-   using Split_t =
-   typename details::Split<
-      IN,
-      N
-      __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT_1, RESULT_2>;
+      size_t         N>
+   using Split_t = typename details::Split<IN, N>::type;
 
    //////////////////////////////////////////////////////////////////////
    template<
       typename       IN,
-      size_t         N,
-      template<typename ...> typename RESULT>
-   using Take_t =
-   typename details::Take<
-      IN,
-      N
-      __EMPTY_OUTPUT_TYPE_LIST___
-   >::template output<RESULT>;
+      size_t         N>
+   using Take_t = typename details::Take<IN, N>::type;
 }
 
 //////////////////////////////////////////////////////////////////////
+namespace details {
+   template<
+      typename IN,
+      size_t N,
+      template<typename ...> typename RESULT_1,
+      template<typename ...> typename RESULT_2>
+   struct SplitUtil {
+      using RawType = type_list::Split_t<IN, N>;
+      using type = __TL_make_pair(typename RawType::first::template output<RESULT_1>,
+                                  typename RawType::second::template output<RESULT_2>);
+   };
+}
 template<
    size_t N,
    template<typename ...> typename RESULT_1,
    template<typename ...> typename RESULT_2,
    typename ... IN>
-using Split_t = type_list::Split_t<TypeList<IN...>, N, RESULT_1, RESULT_2>;
+using Split_t = typename details::SplitUtil<TypeList<IN...>, N, RESULT_1, RESULT_2>::type;
 
 //////////////////////////////////////////////////////////////////////
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using Take_t = type_list::Take_t<TypeList<IN...>, N, RESULT>;
+using Take_t = typename type_list::Take_t<TypeList<IN...>, N>::template output<RESULT>;
 
 template<
    size_t N,
@@ -115,33 +104,25 @@ using Take_tt = typename Take_t<N, RESULT, IN...>::type;
 namespace details {
    template<
       typename IN,
-      size_t N,
-      template<typename ...> typename RESULT>
+      size_t N>
    struct DropRight {
       static_assert(N >= IN::size, "N is greater than the size of type list");
-      using type = type_list::Take_t<IN, IN::size - N, RESULT>;
+      using type = type_list::Take_t<IN, IN::size - N>;
    };
 }
 
 namespace type_list {
    template<
       typename        IN,
-      size_t          N,
-      template<typename ...> typename RESULT>
-   using DropRight_t = typename details::DropRight<IN, N, RESULT>::type;
-
-   template<
-      typename       IN,
-      size_t N,
-      template<typename ...> typename RESULT>
-   using DropRight_tt = DropRight_t<IN, N, RESULT>;
+      size_t          N>
+   using DropRight_t = typename details::DropRight<IN, N>::type;
 }
 
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... IN>
-using DropRight_t = type_list::DropRight_t<TypeList<IN...>, N, RESULT>;
+using DropRight_t = typename type_list::DropRight_t<TypeList<IN...>, N>::template output<RESULT>;
 
 template<
    size_t N,

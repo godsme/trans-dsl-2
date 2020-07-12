@@ -15,8 +15,7 @@ CUB_NS_BEGIN
 namespace details {
    template <typename IN_1, typename IN_2, typename = void, typename ... OUT>
    struct Zip {
-      template<template<typename...> typename RESULT>
-      using output = RESULT<OUT...>;
+      using type = TypeList<OUT...>;
    };
 
    template <typename IN_1, typename IN_2, typename ... OUT>
@@ -25,22 +24,21 @@ namespace details {
       using Elem2 = typename IN_2::Head;
 
    public:
-      template<template<typename...> typename RESULT>
-      using output = typename Zip
+      using type = typename Zip
          < typename IN_1::Tail
          , typename IN_2::Tail
          , void, OUT..., __TL_make_pair(Elem1, Elem2)
-         >::template output<RESULT>;
+         >::type;
    };
 }
 
 namespace type_list {
-   template<typename IN_1, typename IN_2, template<typename ...> typename RESULT>
-   using ZipWith_t = typename details::Zip<IN_1, ListWrapper<IN_2>, void>::template output<RESULT>;
+   template<typename IN_1, typename IN_2>
+   using ZipWith_t = typename details::Zip<IN_1, ListWrapper<IN_2>, void>::type;
 }
 
 template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
-using ZipWith_t = type_list::ZipWith_t<TypeList<Ts...>, IN_2, RESULT>;
+using ZipWith_t = typename type_list::ZipWith_t<TypeList<Ts...>, IN_2>::template output<RESULT>;
 
 template<typename IN_2, template<typename ...> typename RESULT, typename ... Ts>
 using ZipWith_tt = typename ZipWith_t<IN_2, RESULT, Ts...>::type;

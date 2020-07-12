@@ -15,8 +15,7 @@ namespace details {
 
    template<typename IN, template<typename> typename PRED, typename = void, typename  ... OUT>
    struct Filter {
-      template<template<typename ...> typename RESULT>
-      using output = RESULT<OUT...>;
+      using type = TypeList<OUT...>;
    };
 
    template<
@@ -24,13 +23,12 @@ namespace details {
       template<typename> typename PRED,
       typename                ... OUT>
    struct Filter<IN, PRED, std::enable_if<PRED<typename IN::Head>::value>, OUT...> {
-      template<template<typename ...> typename RESULT>
-      using output = typename Filter<
+      using type = typename Filter<
          typename IN::Tail,
          PRED,
          void,
          __TYPE_LIST_APPEND(OUT..., typename IN::Head)
-      >::template output<RESULT>;
+      >::type;
    };
 
    template<
@@ -38,34 +36,32 @@ namespace details {
       template<typename> typename PRED,
       typename                ... OUT>
    struct Filter<IN, PRED, std::enable_if<!PRED<typename IN::Head>::value>, OUT...> {
-      template<template<typename ...> typename RESULT>
-      using output = typename Filter<
+      using type = typename Filter<
          typename IN::Tail,
          PRED,
          void,
          OUT...
-      >::template output<RESULT>;
+      >::type;
    };
 }
 
 namespace type_list {
    template
       < typename                        IN
-         , template<typename> typename     PRED
-         , template<typename ...> typename RESULT>
-   using Filter_t = typename details::Filter<IN, PRED>::template output<RESULT>;
+      , template<typename> typename     PRED>
+   using Filter_t = typename details::Filter<IN, PRED>::type;
 }
 
 template
    < template<typename> typename     PRED
       , template<typename ...> typename RESULT
       , typename                    ... IN>
-using Filter_t = type_list::Filter_t<TypeList<IN...>, PRED, RESULT>;
+using Filter_t = typename type_list::Filter_t<TypeList<IN...>, PRED>::template output<RESULT>;
 
 template
    < template<typename> typename     PRED
-      , template<typename ...> typename RESULT
-      , typename                    ... IN>
+   , template<typename ...> typename RESULT
+   , typename                    ... IN>
 using Filter_tt = Filter_t<PRED, RESULT, IN...>;
 
 CUB_NS_END

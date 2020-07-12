@@ -20,16 +20,14 @@ namespace details {
 
    template<typename  IN>
    struct Drop<IN, 0> {
-      template<template<typename ...> typename RESULT>
-      using output = typename IN::template output<RESULT>;
+      using type = IN;
    };
 
    template<
       typename  IN,
       size_t N>
    struct Drop<IN, N, std::void_t<typename IN::Head>> {
-      template<template<typename ...> typename RESULT>
-      using output = typename Drop<typename IN::Tail, N-1>::template output<RESULT>;
+      using type = typename Drop<typename IN::Tail, N-1>::type;
    };
 
    template<
@@ -37,8 +35,7 @@ namespace details {
       size_t N>
    struct TakeRight {
       static_assert(N <= IN::size, "N is bigger than sizeof type list");
-      template<template<typename ...> typename RESULT>
-      using output = typename Drop<IN, IN::size - N>::template output<RESULT>;
+      using type = typename Drop<IN, IN::size - N>::type;
    };
 
    template<typename ... Ts>
@@ -53,33 +50,25 @@ namespace details {
 namespace type_list {
    template<
       typename IN,
-      size_t N,
-      template<typename ...> typename RESULT>
-   using Drop_t = typename details::Drop<IN, N>::template output<RESULT>;
-
-   template<
-      typename IN,
-      size_t N,
-      template<typename ...> typename RESULT>
-   using Drop_tt = typename Drop_t<IN, N, RESULT>::type;
-
-   template<
-      typename IN,
-      size_t N,
-      template<typename ...> typename RESULT>
-   using TakeRight_t = typename details::TakeRight<IN, N>::template output<RESULT>;
+      size_t N>
+   using Drop_t = typename details::Drop<IN, N>::type;
 
    template<
       typename IN,
       size_t N>
-   using Elem_t = Drop_tt<IN, N, details::Head>;
+   using TakeRight_t = typename details::TakeRight<IN, N>::type;
+
+   template<
+      typename IN,
+      size_t N>
+   using Elem_t = typename Drop_t<IN, N>::Head;
 }
 
 template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using Drop_t = type_list::Drop_t<TypeList<Ts...>, N, RESULT>;
+using Drop_t = typename type_list::Drop_t<TypeList<Ts...>, N>::template output<RESULT>;
 
 template<
    size_t N,
@@ -91,7 +80,7 @@ template<
    size_t N,
    template<typename ...> typename RESULT,
    typename ... Ts>
-using TakeRight_t = type_list::TakeRight_t<TypeList<Ts...>, N, RESULT>;
+using TakeRight_t = typename type_list::TakeRight_t<TypeList<Ts...>, N>::template output<RESULT>;
 
 template<
    size_t N,

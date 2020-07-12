@@ -16,16 +16,18 @@ namespace {
    struct Transformer {
       using type = Tag<typename T::first, T::second>;
    };
+
+   template<typename T> struct Identity { using type = T; };
    template<typename ... Ts>
    struct PipeLineTest1 {
       using type = __TL_Raw_Pipeline__(Ts..., ZipWith<__infinite_list(int, 1)>, Transform<Transformer>)
-                   __TL_OutputTo__(Result);
+                   __TL_OutputTo(Result);
    };
 
    TEST_CASE("pipe-line") {
       REQUIRE(std::is_same_v<Result<Tag<int, 1>, Tag<double, 2>, Tag<short, 3>>, PipeLineTest1<int, double, short>::type>);
-      //using type = __TL_Pipeline__(__infinite_list(long, 1, 2), Take<5>)__TL_OutputTo__(Result);
+      using type = __TL_Pipeline(__infinite_list(long, 1), Drop<5>, Take<5>, Elem<0>); //__TL_OutputTo(Result);
 
-      //S<type> ss;
+      S<type> ss;
    }
 }

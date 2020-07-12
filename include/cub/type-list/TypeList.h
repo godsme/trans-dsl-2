@@ -6,11 +6,11 @@
 #define TRANS_DSL_2_TYPELIST_H
 
 #include <cub/cub_ns.h>
-
+#include <cub/type-list/ListSignature.h>
 CUB_NS_BEGIN
 
 template<typename ... Ts>
-struct TypeList {
+struct TypeList : TypeListSignature {
    constexpr static size_t size = 0;
 
    template<template <typename ...> typename RESULT>
@@ -24,7 +24,7 @@ struct TypeList {
 };
 
 template<typename H, typename ... Ts>
-struct TypeList<H, Ts...> {
+struct TypeList<H, Ts...> : TypeListSignature {
    constexpr static size_t size = sizeof...(Ts) + 1;
 
    using Head = H;

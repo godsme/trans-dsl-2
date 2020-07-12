@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_INFINITEINTLIST_H
 
 #include <cub/type-list/TypeListValueWrapper.h>
-#include <cub/type-list/ValueListSignature.h>
+#include <cub/type-list/ListSignature.h>
 
 CUB_NS_BEGIN
 
@@ -23,7 +23,7 @@ struct RepeatValueList : ValueListSignature {
 };
 
 template <typename T>
-struct RepeatTypeList {
+struct RepeatTypeList : TypeListSignature {
    using Head = T;
    using Tail = RepeatTypeList<T>;
 };

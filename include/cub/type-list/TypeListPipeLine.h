@@ -146,13 +146,25 @@ struct ZipWith {
 template<typename IN>
 class TypeStream final {
 
+   template<typename T, typename = void>
+   struct TypeListTrait {
+      using type = TypeList<T>;
+   };
+
+   template<typename T>
+   struct TypeListTrait<T, std::enable_if_t<std::is_base_of_v<TypeListSignature, T>>> {
+      using type = T;
+   };
+
    template<typename A_OP>
    struct GenericComposer {
       template<typename B_OP>
       struct Bind {
          template<typename INPUT>
-         struct Result {
-            using type = typename B_OP::template Result<typename A_OP::template type<INPUT>>::type;
+         class Result {
+            using output = typename TypeListTrait<typename A_OP::template type<INPUT>>::type;
+         public:
+            using type = typename B_OP::template Result<output>::type;
          };
       };
 

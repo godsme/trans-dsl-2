@@ -17,7 +17,7 @@ namespace {
       using type = Tag<typename T::first, T::second>;
    };
 
-   template<typename T> struct Identity { using type = T; };
+   template<typename T> struct Identity { using type = Tag<T, 0>; };
    template<typename ... Ts>
    struct PipeLineTest1 {
       using type = __TL_Raw_Pipeline__(Ts..., ZipWith<__infinite_list(int, 1)>, Transform<Transformer>)

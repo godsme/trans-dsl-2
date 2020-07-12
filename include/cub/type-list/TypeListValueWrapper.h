@@ -7,7 +7,7 @@
 
 #include <cub/cub_ns.h>
 #include <type_traits>
-#include <cub/type-list/ValueListSignature.h>
+#include <cub/type-list/ListSignature.h>
 
 CUB_NS_BEGIN
 
@@ -27,13 +27,13 @@ struct ValueTrait<T, std::enable_if_t<std::is_base_of_v<ValueWrapperSignature, T
 };
 
 template <typename LIST, typename = void>
-struct ListWrapper {
+struct ListWrapper : TypeListSignature {
    using Head = typename LIST::Head;
    using Tail = typename LIST::Tail;
 };
 
 template<typename LIST>
-struct ListWrapper<LIST, std::enable_if_t<std::is_base_of_v<ValueListSignature, LIST>>> {
+struct ListWrapper<LIST, std::enable_if_t<std::is_base_of_v<ValueListSignature, LIST>>> : TypeListSignature {
    using Head = V<LIST::Head>;
    using Tail = ListWrapper<typename LIST::Tail>;
 };

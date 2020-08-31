@@ -52,6 +52,11 @@ struct tuple  : private detail::tuple_env_t<Xs...> {
       return detail::ebo_get<typename tuple<Xs...>::template ebi<N>>(*this);
    }
 
+   template<std::size_t N>
+   auto get() noexcept -> decltype(auto) {
+      return detail::ebo_get<typename tuple<Xs...>::template ebi<N>>(*this);
+   }
+
 private:
    template<std::size_t ... I, typename Ys>
    constexpr auto tuple_equals(std::index_sequence<I...>, Ys const& ys) const noexcept {

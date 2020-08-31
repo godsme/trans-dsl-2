@@ -49,6 +49,16 @@ namespace detail {
    constexpr auto ebo_get(ebo<K, V, false> const &x) -> V const & {
       return x.data_;
    }
+
+   template<typename K, typename V>
+   constexpr auto ebo_get(ebo<K, V, true> &x) -> V& {
+      return x;
+   }
+
+   template<typename K, typename V>
+   constexpr auto ebo_get(ebo<K, V, false> &x) -> V& {
+      return x.data_;
+   }
 }
 
 TSL_NS_END

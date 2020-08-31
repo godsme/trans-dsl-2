@@ -8,7 +8,7 @@
 #include <trans-dsl/tsl_config.h>
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
-#include <trans-dsl/utils/ActionTuple.h>
+#include <trans-dsl/sched/helper/ActionTuple.h>
 #include <trans-dsl/sched/action/SchedConcurrent.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <cub/utils/RepeatMacros.h>

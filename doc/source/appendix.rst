@@ -1,7 +1,7 @@
 语言及框架
 ==============
 
-.. code-blocks::
+.. code-block::
 
    __def(sub_name [, __params(para [, ...])]) __as(actions...);
 

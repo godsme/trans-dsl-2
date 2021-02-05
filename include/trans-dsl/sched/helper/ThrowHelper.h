@@ -5,19 +5,21 @@
 #ifndef TRANS_DSL_2_THROWHELPER_H
 #define TRANS_DSL_2_THROWHELPER_H
 
-#include <trans-dsl/sched/action/SchedSyncAction.h>
+#include <trans-dsl/sched/action/SchedThrow.h>
 
 TSL_NS_BEGIN
 
 namespace details {
-   template<Status V_CODE>
-   class Throw : public SchedSyncAction {
-      OVERRIDE(exec(TransactionContext&) -> Status) { return V_CODE; }
+   template<Status V_CODE = Result::UNSPECIFIED>
+   class Throw : public SchedThrow {
+       auto getStatus() const -> Status override {
+           return V_CODE;
+       }
    };
 }
 
 TSL_NS_END
 
-#define __throw(code) TSL_NS::details::Throw<code>
+#define __throw(...) TSL_NS::details::Throw<__VA_ARGS__>
 
 #endif //TRANS_DSL_2_THROWHELPER_H

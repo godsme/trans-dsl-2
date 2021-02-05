@@ -10,6 +10,7 @@
 #include <trans-dsl/action/DummyAsyncAction.h>
 #include <trans-dsl/sched/domain/Event.h>
 #include <cstddef>
+#include <variant>
 
 TSL_NS_BEGIN
 
@@ -18,17 +19,15 @@ struct EventHandlerRegistry {
    EventHandlerRegistry();
 
    auto handleEvent(
-      details::DummyAsyncAction* this__,
       TransactionInfo const& trans,
       Event const& event) -> Status;
 
    auto addHandler(EventId eventId, details::NormalFunction handler) -> Status;
+   auto addHandler(EventId eventId, details::MemberFunction handler) -> Status;
    auto reset() -> void;
-   auto isWaiting() -> bool {
-      return handler != nullptr;
-   }
+   auto isWaiting() const -> bool;
 private:
-   details::NormalFunction handler;
+   std::variant<std::monostate, details::MemberFunction, details::NormalFunction> handler;
    EventId eventId;
 };
 

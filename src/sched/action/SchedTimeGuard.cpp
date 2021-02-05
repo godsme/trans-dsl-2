@@ -71,6 +71,7 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const& event) -> Status {
    auto status = ROLE(SchedAction).handleEvent(context, event);
    likely_branch

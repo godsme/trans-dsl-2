@@ -7,15 +7,18 @@
 
 #include <trans-dsl/tsl_status.h>
 #include <trans-dsl/sched/domain/Event.h>
+#include <functional>
 
 TSL_NS_BEGIN
 
 struct TransactionInfo;
 
 namespace details {
-   struct DummyAsyncAction {};
-   using DummyEventHandler = Status (DummyAsyncAction::*)(TransactionInfo const&, Event const&);
-   using NormalFunction = Status (*)(DummyAsyncAction*, TransactionInfo const&, Event const&);
+    struct DummyClass{};
+   struct DummyMsgType {};
+   //using DummyEventHandler = Status (DummyAsyncAction::*)(TransactionInfo const&, Event const&);
+   using NormalFunction = Status (*)(TransactionInfo const&, DummyMsgType const&);
+   using MemberFunction = Status (*)(DummyClass const*, TransactionInfo const&, DummyMsgType const&);
 }
 
 TSL_NS_END

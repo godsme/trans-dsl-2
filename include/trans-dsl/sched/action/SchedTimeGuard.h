@@ -24,6 +24,7 @@ private:
    auto checkInternalError(TransactionContext& context) -> void;
    auto startTimer(TransactionContext& context) -> Status;
    auto onTimeout(TransactionContext& context) -> Status;
+   auto stopAction(TransactionContext& context) -> Status;
 
 private:
    enum class State : uint8_t {

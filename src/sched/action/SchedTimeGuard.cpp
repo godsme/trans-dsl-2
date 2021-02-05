@@ -45,22 +45,26 @@ auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
+auto SchedTimeGuard::stopAction(TransactionContext& context) -> Status {
+    auto status = ROLE(SchedAction).stop(context, Result::FATAL_BUG);
+    state = (status == Result::CONTINUE) ? State::STOPPING : State::DONE;
+    return status;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    unlikely_branch
    if(unlikely(state != State::INIT)) return Result::FATAL_BUG;
 
    unlikely_branch
-   if(auto status = startTimer(context); unlikely(cub::is_failed_status(status))) {
-      state = State::DONE;
-      return status;
-   }
-
-   unlikely_branch
    if(auto status = ROLE(SchedAction).exec(context); unlikely(!is_working_status(status))) {
-      ROLE(RelativeTimer).stop();
       state = State::DONE;
       return status;
    } else {
+      unlikely_branch
+      if(auto status = startTimer(context); unlikely(cub::is_failed_status(status))) {
+          return stopAction(context) == Result::CONTINUE ? Result::CONTINUE : status;
+      }
       state = State::WORKING;
       checkInternalError(context);
       return Result::CONTINUE;

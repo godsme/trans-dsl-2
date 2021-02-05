@@ -69,6 +69,8 @@ struct action : TSL_NS::details::ReflexSimpleAsyncAction<action>
 
 #define WAIN_ON(eventId, handler) waitOn(eventId, handler)
 
+#define MSG_HANDLER(msg_type) []([[maybe_unused]] TSL_NS::TransactionInfo const& trans, [[maybe_unused]] msg_type const& msg) -> TSL_NS::Status
+
 TSL_NS_END
 
 #endif //TRANS_DSL_2_SIMPLEASYNCACTION_H

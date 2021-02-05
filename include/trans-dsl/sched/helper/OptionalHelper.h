@@ -73,15 +73,16 @@ namespace details {
       return Result::SUCCESS == info.getStatus();
    }
 
-   template<Status V_STATUS>
+   template<Status ... V_STATUS>
    inline auto IsStatus__(TransactionInfo const& info) -> bool {
-      return info.getStatus() == V_STATUS;
+      auto status = info.getStatus();
+      return ((status == V_STATUS) || ...);
    }
 }
 
 #define __is_succ TSL_NS::details::IsSucc__
 #define __is_failed TSL_NS::details::IsFailed__
-#define __is_status(status) TSL_NS::details::IsStatus__<status>
+#define __is_status(status, ...) TSL_NS::details::IsStatus__<status, ##__VA_ARGS__>
 
 #define __on_fail(...) __optional(__is_failed, __VA_ARGS__)
 #define __on_status(status, ...) __optional(__is_status(status), __VA_ARGS__)

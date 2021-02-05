@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/12.
 //
 
-#include <cctest/cctest.h>
+#include <catch.hpp>
 #include <trans-dsl/sched/helper/AsyncActionHelper.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
@@ -29,168 +29,168 @@ namespace {
       int i = 0;
    };
 
-   FIXTURE(TestLoop) {
+   SCENARIO("Loop") {
      __def_loop
         (__asyn(AsyncAction1)
         , __break_if(IsTrue, Result::OUT_OF_SCOPE)
         , __sync(SyncAction3)
         , __redo_if(IsTrue)) action;
 
-     StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-     TEST("exec should return CONTINUE") {
-        ASSERT_EQ(Result::CONTINUE, action.exec(context));
-     }
+        WHEN("exec should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+        }
 
-      TEST("exec -> handleEvent should return OUT_OF_SCOPE") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::OUT_OF_SCOPE, action.handleEvent(context, event1));
-      }
+        WHEN("exec -> handleEvent should return OUT_OF_SCOPE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            REQUIRE(Result::OUT_OF_SCOPE == action.handleEvent(context, event1));
+        }
    };
 
-   FIXTURE(TestLoop1) {
-      __def_loop
-      (__sync(SyncAction1)
-      , __break_if(is_true, Result::OUT_OF_SCOPE)
-      , __asyn(AsyncAction1)
-      , __redo_if(IsTrue)) action;
+    SCENARIO("TestLoop1") {
+        __def_loop
+        (__sync(SyncAction1)
+        , __break_if(is_true, Result::OUT_OF_SCOPE)
+        , __asyn(AsyncAction1)
+        , __redo_if(IsTrue)) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-      TEST("exec should return OUT_OF_SCOPE") {
-         ASSERT_EQ(Result::OUT_OF_SCOPE, action.exec(context));
-      }
+        WHEN("exec should return OUT_OF_SCOPE") {
+            REQUIRE(Result::OUT_OF_SCOPE == action.exec(context));
+        }
    };
 
-   FIXTURE(TestLoop2) {
-      __def_loop
-      (__asyn(AsyncAction1)
-      , __break_if(is_false, Result::OUT_OF_SCOPE)
-      , __asyn(AsyncAction2)
-      , __redo_if(IsTrue)) action;
+    SCENARIO("TestLoop2") {
+        __def_loop
+        (__asyn(AsyncAction1)
+        , __break_if(is_false, Result::OUT_OF_SCOPE)
+        , __asyn(AsyncAction2)
+        , __redo_if(IsTrue)) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-      const Msg2 msg2{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
-      TSL_NS::Event event2{eventInfo2};
+        const Msg2 msg2{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+        TSL_NS::Event event2{eventInfo2};
 
-      TEST("should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event2));
-      }
+        WHEN("should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
+        }
    };
 
-   FIXTURE(TestLoop3) {
-      __def_loop
-      (__asyn(FailedAsyncAction3)
-      , __asyn(AsyncAction1)
-      , __break_if(__is_failed, Result::OUT_OF_SCOPE)
-      , __asyn(AsyncAction2)
-      , __redo_if(IsTrue)) action;
+    SCENARIO("TestLoop3") {
+        __def_loop
+        (__asyn(FailedAsyncAction3)
+        , __asyn(AsyncAction1)
+        , __break_if(__is_failed, Result::OUT_OF_SCOPE)
+        , __asyn(AsyncAction2)
+        , __redo_if(IsTrue)) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-      const Msg2 msg2{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
-      TSL_NS::Event event2{eventInfo2};
+        const Msg2 msg2{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
+        TSL_NS::Event event2{eventInfo2};
 
-      const Msg3 msg3{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
-      TSL_NS::Event event3{eventInfo3};
+        const Msg3 msg3{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+        TSL_NS::Event event3{eventInfo3};
 
-      TEST("should return OUT_OF_SCOPE") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::OUT_OF_SCOPE, action.handleEvent(context, event3));
-      }
+        WHEN("should return OUT_OF_SCOPE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            REQUIRE(Result::OUT_OF_SCOPE == action.handleEvent(context, event3));
+        }
    };
 
-   FIXTURE(TestLoop4) {
-      __def_loop
-      (__asyn(FailedAsyncAction3)
-      , __asyn(AsyncAction1)
-      , __redo_if(__is_failed)
-      , __asyn(AsyncAction2)
-      ) action;
+    SCENARIO("TestLoop4") {
+        __def_loop
+        ( __asyn(FailedAsyncAction3)
+        , __asyn(AsyncAction1)
+        , __redo_if(__is_failed)
+        , __asyn(AsyncAction2)
+        ) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg3 msg3{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
-      TSL_NS::Event event3{eventInfo3};
+        const Msg3 msg3{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+        TSL_NS::Event event3{eventInfo3};
 
-      TEST("should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-         ASSERT_EQ(Result::CONTINUE, action.handleEvent(context, event3));
-      }
+        WHEN("should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event3));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event3));
+            REQUIRE(Result::CONTINUE == action.handleEvent(context, event3));
+        }
    };
 
-   FIXTURE(TestLoop5) {
-      __def_loop
-      (__asyn(FailedAsyncAction3)
-      , __asyn(AsyncAction1)
-      , __until(__is_failed)
-      ) action;
+    SCENARIO("TestLoop5") {
+        __def_loop
+        (__asyn(FailedAsyncAction3)
+        , __asyn(AsyncAction1)
+        , __until(__is_failed)
+        ) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg3 msg3{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
-      TSL_NS::Event event3{eventInfo3};
+        const Msg3 msg3{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+        TSL_NS::Event event3{eventInfo3};
 
-      TEST("should return FAILED") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         ASSERT_EQ(Result::FAILED, action.handleEvent(context, event3));
-      }
+        WHEN("should return FAILED") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            REQUIRE(Result::FAILED == action.handleEvent(context, event3));
+        }
    };
 
-   FIXTURE(TestLoop6) {
-      using MainAction =
+    SCENARIO("TestLoop6") {
+        using MainAction =
          __sequential
          (__asyn(AsyncAction1)
          , __asyn(AsyncAction2));
 
-      using ThisAction =
+        using ThisAction =
          __procedure(
             MainAction,
             __finally(__on_fail(__throw(Result::OUT_OF_SCOPE))));
 
-      __def_loop
-      ( ThisAction
-      , __while(__is_succ)
-      ) action;
+        __def_loop
+        ( ThisAction
+        , __while(__is_succ)
+        ) action;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-      TEST("should return SUCCESS") {
-         ASSERT_EQ(Result::CONTINUE, action.exec(context));
-         context.getRuntimeContext().reportFailure(Result::INVALID_DATA);
-         ASSERT_EQ(Result::OUT_OF_SCOPE, action.stop(context, Result::DUPTID));
-      }
+        WHEN("should return SUCCESS") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+            context.getRuntimeContext().reportFailure(Result::INVALID_DATA);
+            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::DUPTID));
+        }
    };
 }

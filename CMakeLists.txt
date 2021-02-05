@@ -90,14 +90,12 @@ add_library(trans-dsl-2 STATIC
         include/trans-dsl/utils/AssertionHelper.h include/trans-dsl/sched/action/SchedMultiThread.h
         src/sched/action/SchedMultiThread.cpp include/trans-dsl/utils/ThreadActionTrait.h include/cub/base/BitSet.h include/trans-dsl/sched/helper/TransactionHelper.h include/trans-dsl/sched/helper/MultiThreadHelper.h include/trans-dsl/sched/helper/AutoSeqHelper.h include/trans-dsl/sched/helper/AutoActionHelper.h include/trans-dsl/sched/helper/TransactionListenerHelper.h include/trans-dsl/sched/domain/TransactionListener.h include/trans-dsl/sched/domain/ActionId.h include/trans-dsl/sched/domain/ObservedActionIdRegistry.h include/trans-dsl/sched/helper/UserTransListener.h include/trans-dsl/sched/helper/ActionRealTypeTraits.h include/trans-dsl/sched/domain/TransListenerObservedAids.h include/trans-dsl/sched/action/SchedWithId.h src/sched/action/SchedWithId.cpp include/trans-dsl/sched/helper/WithIdHelper.h include/cub/type-list/TypeList.h include/cub/type-list/TypeListTransform.h include/cub/type-list/TypeListTakeRight.h include/cub/type-list/TypeListSplit.h include/cub/type-list/TypeListFold.h include/cub/type-list/TypeListPipeLine.h include/cub/type-list/TypeListFilter.h include/cub/type-list/TypeListAccumulator.h include/cub/type-list/Flattenable.h include/cub/type-list/InfiniteIntList.h include/cub/type-list/Tuple.h include/cub/type-list/TypeListZip.h include/cub/type-list/TypeListValueWrapper.h include/cub/type-list/ListSignature.h include/trans-dsl/utils/ebo.h include/trans-dsl/utils/tuple_t.h include/trans-dsl/utils/integral_c.h include/trans-dsl/utils/type_c.h include/trans-dsl/utils/size_c.h include/trans-dsl/sched/helper/ActionTuple.h)
 
+
 add_executable(trans-dsl-test
         tests/ut/TestLoop.cpp
-        tests/ut/TestOptional.cpp tests/ut/TestProcedure.cpp tests/ut/StupidTransactionContext.h
-        tests/ut/TestSequentialAction.cpp)
-
-target_link_libraries(trans-dsl-test trans-dsl-2 cctest_main cctest)
-
-add_executable(trans-dsl-test-catch
+        tests/ut/TestOptional.cpp
+        tests/ut/TestProcedure.cpp
+        tests/ut/TestSequentialAction.cpp
         tests/ut/TestSwitchCase.cpp
         tests/ut/TestConcurrent.cpp
         tests/ut/TestSimpleAsyncAction.cpp
@@ -108,7 +106,7 @@ add_executable(trans-dsl-test-catch
         tests/ut/TransactionListenerTest.cpp
         tests/ut/WithIdTest.cpp tests/ut/TypeListTest.cpp)
 
-target_link_libraries(trans-dsl-test-catch trans-dsl-2)
+target_link_libraries(trans-dsl-test trans-dsl-2)
 
 add_executable(trans-dsl-bench
         tests/pt/nanobench.cpp

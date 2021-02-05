@@ -2,7 +2,7 @@
 // Created by Darwin Yuan on 2020/6/11.
 //
 
-#include <cctest/cctest.h>
+#include <catch.hpp>
 #include <event/impl/ConsecutiveEventInfo.h>
 #include <trans-dsl/sched/helper/AsyncActionHelper.h>
 #include "StupidTransactionContext.h"
@@ -17,8 +17,8 @@
 namespace {
    using namespace TSL_NS;
 
-   FIXTURE(TestProcedure) {
-      using MainActions =
+   SCENARIO("TestProcedure") {
+        using MainActions =
          __sequential
            (__sync(SyncAction1)
            , __asyn(AsyncAction1)
@@ -26,7 +26,7 @@ namespace {
            , __asyn(AsyncAction2)
            , __sync(SyncAction2));
 
-      using FinalActions =
+        using FinalActions =
          __sequential
            (__sync(SyncAction1)
            , __asyn(AsyncAction1)
@@ -34,86 +34,86 @@ namespace {
            , __asyn(AsyncAction2)
            , __sync(SyncAction2));
 
-      __def_procedure(
+        __def_procedure(
          MainActions,
          __finally(FinalActions)
-      ) procedure;
+        ) procedure;
 
-      StupidTransactionContext context{};
+        StupidTransactionContext context{};
 
-      const Msg1 msg1{ 10, 20 };
-      const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
-      TSL_NS::Event event1{eventInfo1};
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
 
-      const Msg3 msg3{ 30 };
-      const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
-      TSL_NS::Event event3{eventInfo3};
+        const Msg3 msg3{ 30 };
+        const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
+        TSL_NS::Event event3{eventInfo3};
 
-      TEST("exec should return CONTINUE") {
-         std::cout << sizeof(procedure) <<  " " << sizeof(FinalActions)  << std::endl;
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-      }
+        WHEN("exec should return CONTINUE") {
+            std::cout << sizeof(procedure) <<  " " << sizeof(FinalActions)  << std::endl;
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+        }
 
-      TEST("call exec again, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.exec(context));
-      }
+        WHEN("call exec again, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::FATAL_BUG == procedure.exec(context));
+        }
 
-      TEST("call exec -> handleEvent(event1), should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-      }
+        WHEN("call exec -> handleEvent(event1), should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+        }
 
-      TEST("call exec -> event1 -> event3, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-      }
+        WHEN("call exec -> event1 -> event3, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event3));
+        }
 
-      TEST("call exec -> event1 -> stop, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("call exec -> event1 -> stop, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
 
-      TEST("call exec -> event1 -> stop -> stop, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("call exec -> event1 -> stop -> stop, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
 
-      TEST("call exec -> event1 -> kill -> event3, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         procedure.kill(context, Result::DUPTID);
-         ASSERT_EQ(Result::FATAL_BUG, procedure.handleEvent(context, event3));
-      }
+        WHEN("call exec -> event1 -> kill -> event3, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            procedure.kill(context, Result::DUPTID);
+            REQUIRE(Result::FATAL_BUG == procedure.handleEvent(context, event3));
+        }
 
-      TEST("call exec -> event1 -> kill -> stop, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         procedure.kill(context, Result::DUPTID);
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("call exec -> event1 -> kill -> stop, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            procedure.kill(context, Result::DUPTID);
+            REQUIRE(Result::FATAL_BUG == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
 
-      TEST("call exec -> event1 -> event3 -> event1, should return FAILED") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-      }
+        WHEN("call exec -> event1 -> event3 -> event1, should return FAILED") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event3));
+            REQUIRE(Result::FAILED   == procedure.handleEvent(context, event1));
+        }
 
-      TEST("stop a failed procedure should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("stop a failed procedure should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event1));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event3));
+            REQUIRE(Result::FAILED   == procedure.handleEvent(context, event1));
+            REQUIRE(Result::FATAL_BUG == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
    };
 
-   FIXTURE(TestProcedure1) {
+    SCENARIO("TestProcedure1") {
       __def_procedure(__sequential
         (__sync(SyncAction1)
         , __asyn(FailedAsyncAction3)
@@ -135,30 +135,30 @@ namespace {
       const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
       TSL_NS::Event event3{eventInfo3};
 
-      TEST("exec should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-      }
+        WHEN("exec should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+        }
 
-      TEST("call exec again, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.exec(context));
-      }
+        WHEN("call exec again, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::FATAL_BUG == procedure.exec(context));
+        }
 
-      TEST("call exec -> event1, should return UNKNOWN_EVENT") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::UNKNOWN_EVENT, procedure.handleEvent(context, event1));
-      }
+        WHEN("call exec -> event1, should return UNKNOWN_EVENT") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::UNKNOWN_EVENT == procedure.handleEvent(context, event1));
+        }
 
-      TEST("call exec -> event3, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-      }
+        WHEN("call exec -> event3, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event3));
+        }
 
-      TEST("call exec -> event3 -> event1, should return FAILED") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event3));
-         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-      }
+        WHEN("call exec -> event3 -> event1, should return FAILED") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event3));
+            REQUIRE(Result::FAILED   == procedure.handleEvent(context, event1));
+        }
    };
 
    using MainProcedure =
@@ -171,7 +171,7 @@ namespace {
         , __asyn(AsyncAction2)
         , __sync(SyncAction2))));
 
-   FIXTURE(TestProcedure3) {
+    SCENARIO("TestProcedure3") {
       __def_procedure(MainProcedure,
       __finally(__sequential
         (__sync(SyncAction1)
@@ -193,58 +193,58 @@ namespace {
       const EV_NS::ConsecutiveEventInfo eventInfo3{EV_MSG_3, msg3};
       TSL_NS::Event event3{eventInfo3};
 
-      TEST("exec should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-      }
+        WHEN("exec should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+        }
 
-      TEST("call exec again, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.exec(context));
-      }
+        WHEN("call exec again, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::FATAL_BUG == procedure.exec(context));
+        }
 
-      TEST("call exec -> stop, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("call exec -> stop, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
 
-      TEST("call exec -> stop -> stop, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("call exec -> stop -> stop, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
 
-      TEST("call exec -> stop -> event2, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-      }
+        WHEN("call exec -> stop -> event2, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
+        }
 
-      TEST("call exec -> stop -> event2 -> event1, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
-      }
+        WHEN("call exec -> stop -> event2 -> event1, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
+            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+        }
 
-      TEST("after success, if handleEvent, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.handleEvent(context, event1));
-      }
+        WHEN("after success, if handleEvent, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
+            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::FATAL_BUG == procedure.handleEvent(context, event1));
+        }
 
-      TEST("after success, if stop, should return FATAL_BUG") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::CONTINUE, procedure.handleEvent(context, event2));
-         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FATAL_BUG, procedure.stop(context, Result::OUT_OF_SCOPE));
-      }
+        WHEN("after success, if stop, should return FATAL_BUG") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
+            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::FATAL_BUG == procedure.stop(context, Result::OUT_OF_SCOPE));
+        }
    };
 
-   FIXTURE(TestProcedure4) {
+    SCENARIO("TestProcedure4") {
       __def_procedure(
          __sync(FailedSyncAction4),
          __finally(__on_fail(__asyn(AsyncAction1)))
@@ -256,19 +256,19 @@ namespace {
       const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
       TSL_NS::Event event1{eventInfo1};
 
-      TEST("after exec, should return CONTINUE") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
-      }
+        WHEN("after exec, should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::FAILED   == context.getRuntimeEnvStatus());
+        }
 
-      TEST("after exec -> event1, should return SUCCESS") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::FAILED, procedure.handleEvent(context, event1));
-         ASSERT_EQ(Result::FAILED, context.getRuntimeEnvStatus());
-      }
+        WHEN("after exec -> event1, should return SUCCESS") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::FAILED   == procedure.handleEvent(context, event1));
+            REQUIRE(Result::FAILED   == context.getRuntimeEnvStatus());
+        }
    };
 
-   FIXTURE(TestProcedure5) {
+    SCENARIO("TestProcedure5") {
       __def_procedure(
          __asyn(AsyncAction2),
          __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction1)))
@@ -284,18 +284,18 @@ namespace {
       const EV_NS::ConsecutiveEventInfo eventInfo2{EV_MSG_2, msg2};
       TSL_NS::Event event2{eventInfo2};
 
-      TEST("after exec -> event2, should return SUCCESS") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::SUCCESS, procedure.handleEvent(context, event2));
+        WHEN("after exec -> event2, should return SUCCESS") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::SUCCESS  == procedure.handleEvent(context, event2));
+        }
+
+        WHEN("after exec, if stop, should return INVALID_DATA") {
+            REQUIRE(Result::CONTINUE == procedure.exec(context));
+            REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
       }
 
-      TEST("after exec, if stop, should return INVALID_DATA") {
-         ASSERT_EQ(Result::CONTINUE, procedure.exec(context));
-         ASSERT_EQ(Result::CONTINUE, procedure.stop(context, Result::OUT_OF_SCOPE));
-         ASSERT_EQ(Result::FORCE_STOPPED, procedure.handleEvent(context, event1));
-      }
-
-      TEST("abc") {
+        WHEN("abc") {
 //         __procedure
 //            ( __sequential
 //               ( __wait(1)

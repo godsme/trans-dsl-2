@@ -13,10 +13,10 @@ RelativeTimer::RelativeTimer(TimerId timerId)
 {}
 
 /////////////////////////////////////////////////////////////////
-Status RelativeTimer::start(TimerInfo const& info) {
+Status RelativeTimer::start(TimerInfo const& info, TransactionInfo const& trans) {
    stop();
 
-   TimeLength len = info.getTimeLength(timerId);
+   TimeLength len = info.getTimeLength(timerId, trans);
    if(len <= 0) {
       return Result::FAILED;
    }

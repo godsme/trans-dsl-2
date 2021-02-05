@@ -10,7 +10,7 @@
 TSL_NS_BEGIN
 
 struct PlatformSpecifiedTimerInfo : TimerInfo {
-   OVERRIDE(getTimeLength(TimerId) const -> TimeLength);
+   OVERRIDE(getTimeLength(TimerId, TransactionInfo const&) const -> TimeLength);
 };
 
 TSL_NS_END

@@ -15,13 +15,14 @@
 
 TSL_NS_BEGIN
 
+struct TransactionInfo;
 struct TimerInfo;
 
 DEFINE_ROLE(RelativeTimer)
 {
    explicit RelativeTimer(TimerId timerId);
 
-   Status start(TimerInfo const&);
+   Status start(TimerInfo const&, TransactionInfo const&);
    void stop();
 
    bool matches(Event const& event) const;

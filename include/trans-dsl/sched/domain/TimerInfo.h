@@ -12,8 +12,10 @@
 
 TSL_NS_BEGIN
 
+struct TransactionInfo;
+
 DEFINE_ROLE(TimerInfo) {
-  ABSTRACT(getTimeLength(TimerId) const -> TimeLength);
+  ABSTRACT(getTimeLength(TimerId, TransactionInfo const&) const -> TimeLength);
 };
 
 TSL_NS_END

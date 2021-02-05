@@ -41,7 +41,7 @@ auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
       return Result::FATAL_BUG;
    }
 
-   return ROLE(RelativeTimer).start(*timerInfo);
+   return ROLE(RelativeTimer).start(*timerInfo, context);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

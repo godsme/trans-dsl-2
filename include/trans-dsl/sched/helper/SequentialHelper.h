@@ -5,7 +5,6 @@
 #ifndef TRANS_DSL_2_SEQUENTIALHELPER_H
 #define TRANS_DSL_2_SEQUENTIALHELPER_H
 
-#include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/action/SchedSequential.h>
 #include <trans-dsl/utils/SeqInt.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
@@ -56,7 +55,7 @@ namespace details {
    using Sequential_t = typename Sequential<Ts...>::template ActionRealType<EmptyAids>;
 }
 
-#define __sequential(...) TSL_NS::details::Sequential<__VA_ARGS__>
+#define __sequential(...)     TSL_NS::details::Sequential<__VA_ARGS__>
 #define __def_sequential(...) TSL_NS::details::Sequential_t<__VA_ARGS__>
 
 TSL_NS_END

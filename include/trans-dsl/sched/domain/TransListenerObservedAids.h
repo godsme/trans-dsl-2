@@ -13,7 +13,7 @@ TSL_NS_BEGIN
 
 using TransListenerObservedAids = cub::BitSet<uint64_t>;
 
-constexpr TransListenerObservedAids EmptyAids{0};
+inline constexpr TransListenerObservedAids EmptyAids{0};
 
 TSL_NS_END
 

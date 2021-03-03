@@ -96,12 +96,16 @@ auto SchedLoop::exec(TransactionContext& context) -> Status {
 ////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) -> Status {
    Status status = action->handleEvent(context, event);
-   if (is_working_status(status) || stopping) {
+   if (is_working_status(status)) {
       return status;
    }
 
    if(cub::is_failed_status(status)) {
       reportFailure(status);
+   }
+
+   if(stopping) {
+      return Result::FORCE_STOPPED;
    }
 
    return looping(context);

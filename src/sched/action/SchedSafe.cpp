@@ -4,12 +4,13 @@
 
 #include <trans-dsl/sched/action/SchedSafe.h>
 #include <trans-dsl/utils/ActionStatus.h>
+#include <trans-dsl/utils/AssertionHelper.h>
 
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSafe::exec(TransactionContext& context) -> Status {
-   if(state != State::IDLE) return Result::FATAL_BUG;
+   BUG_CHECK(state == State::IDLE);
    Status status = ROLE(SchedAction).exec(context);
    state = is_working_status(status) ? State::WORKING : State::DONE;
    return status;
@@ -17,16 +18,16 @@ auto SchedSafe::exec(TransactionContext& context) -> Status {
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSafe::handleEvent(TransactionContext& context, Event const& event) -> Status {
-   if(state != State::WORKING) return FATAL_BUG;
+   BUG_CHECK(state == State::WORKING);
    Status status = ROLE(SchedAction).handleEvent(context, event);
-   if(is_working_status(status)) {
+   if(!is_working_status(status)) {
       state = State::DONE;
    }
    return status;
 }
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedSafe::stop(TransactionContext&, Status) -> Status {
-   if(state != State::WORKING) return FATAL_BUG;
+   BUG_CHECK(state == State::WORKING);
    return Result::CONTINUE;
 }
 

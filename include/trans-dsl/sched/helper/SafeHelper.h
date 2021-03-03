@@ -16,7 +16,7 @@ namespace details {
    template<typename T_ACTION>
    struct Safe : SchedSafe {
       template<TransListenerObservedAids const& AIDs>
-      class ActionRealType : SchedSafe {
+      class ActionRealType : public SchedSafe {
          using Action = ActionRealTypeTraits_t<AIDs, T_ACTION>;
          CONCEPT_ASSERT(SchedActionConcept<Action>);
 
@@ -30,6 +30,6 @@ namespace details {
 
 TSL_NS_END
 
-#define __safe(...) TSL_NS::details::Safe_<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+#define __safe(...) TSL_NS::details::Safe<TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
 
 #endif //TRANS_DSL_2_SAFEHELPER_H

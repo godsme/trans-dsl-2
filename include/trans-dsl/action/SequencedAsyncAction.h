@@ -27,12 +27,7 @@ private:
 
 protected:
     template<typename M>
-    auto WAIT_ON(
-        EventId eventId,
-        uint32_t seqNum,
-        M&& handler
-    ) -> Status
-    {
+    auto WAIT_ON(EventId eventId, uint32_t seqNum, M&& handler) -> Status {
         if constexpr (MsgHandlerTrait<M>::IsNormalFunction) {
             return addHandler(eventId, seqNum, handler);
         } else {

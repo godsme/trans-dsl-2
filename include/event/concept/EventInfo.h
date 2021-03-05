@@ -25,6 +25,7 @@ DEFINE_ROLE(EventInfo) {
 
    ABSTRACT(getMsg() const                     -> const void*);
    ABSTRACT(getMsgSize() const                 -> size_t);
+   ABSTRACT(getSequenceNum() const             -> uint32_t);
 
 private:
    mutable EventId      eventId;

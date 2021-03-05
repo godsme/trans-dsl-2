@@ -21,6 +21,10 @@ namespace
       OVERRIDE(getMsgSize() const -> size_t) {
          return 0;
       }
+
+      OVERRIDE(getSequenceNum() const -> uint32_t) {
+          return 0xFFFF'FFFF;
+      }
    };
 }
 

@@ -53,7 +53,9 @@ struct Event
       return *info;
    }
 
-   auto getSequenceNum() const -> uint32_t;
+   auto getSequenceNum() const -> uint32_t {
+       return info == nullptr ? 0xFFFF'FFFF : info->getSequenceNum();
+   }
 
    auto consume() const    -> void {
       consumed = true;

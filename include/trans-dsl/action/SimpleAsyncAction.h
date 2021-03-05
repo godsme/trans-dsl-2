@@ -13,20 +13,6 @@ TSL_NS_BEGIN
 struct TransactionInfo;
 
 class SimpleAsyncAction : public SingleEventAsyncAction {
-protected:
-   template<typename M>
-   auto WAIT_ON(
-      EventId eventId,
-      M&& handler
-      ) -> Status
-   {
-       if constexpr (MsgHandlerTrait<M>::IsNormalFunction) {
-           return addHandler(eventId, handler);
-       } else {
-           static_assert(sizeof(M) == 1);
-           return addHandler(eventId, extractP2MF(&M::operator()));
-       }
-   }
 };
 
 #define DEF_SIMPLE_ASYNC_ACTION(action) \

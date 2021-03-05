@@ -13,32 +13,19 @@ TSL_NS_BEGIN
 
 struct TransactionInfo;
 
-class SequencedAsyncAction : public SingleEventAsyncAction {
-    template<typename HANDLER_TYPE>
-    auto doAddHandler(EventId eventId, uint32_t seqNum, HANDLER_TYPE handler) -> Status;
+struct SequencedAsyncAction : SingleEventAsyncAction {
+    auto exec(TransactionInfo const&) -> Status ;
 
-    auto addHandler(EventId eventId, uint32_t seqNum, details::NormalFunction handler) -> Status;
-    auto addHandler(EventId eventId, uint32_t seqNum, details::MemberFunction handler) -> Status;
-
+private:
     OVERRIDE(matches(Event const& event) const -> bool);
 
 private:
+    ABSTRACT(doExec(TransactionInfo const&) -> Status);
+    ABSTRACT(getSequenceNum(TransactionInfo const&) -> uint32_t);
+
+private:
     uint32_t sequenceNum{0};
-
-protected:
-    template<typename M>
-    auto WAIT_ON(EventId eventId, uint32_t seqNum, M&& handler) -> Status {
-        if constexpr (MsgHandlerTrait<M>::IsNormalFunction) {
-            return addHandler(eventId, seqNum, handler);
-        } else {
-            static_assert(sizeof(M) == 1);
-            return addHandler(eventId, seqNum, extractP2MF(&M::operator()));
-        }
-    }
 };
-
-#define DEF_SEQ_ASYNC_ACTION(action) \
-struct action : TSL_NS::SequencedAsyncAction
 
 TSL_NS_END
 

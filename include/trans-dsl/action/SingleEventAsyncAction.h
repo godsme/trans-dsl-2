@@ -36,6 +36,21 @@ protected:
 protected:
     std::variant<std::monostate, details::MemberFunction, details::NormalFunction> handler;
     EventId eventId{INVALID_EVENT_ID};
+
+protected:
+    template<typename M>
+    auto WAIT_ON(
+            EventId eventId,
+            M&& handler
+    ) -> Status
+    {
+        if constexpr (MsgHandlerTrait<M>::IsNormalFunction) {
+            return addHandler(eventId, handler);
+        } else {
+            static_assert(sizeof(M) == 1);
+            return addHandler(eventId, extractP2MF(&M::operator()));
+        }
+    }
 };
 
 #define MSG_HANDLER(msg_type) []([[maybe_unused]] TSL_NS::TransactionInfo const& trans, [[maybe_unused]] msg_type const& msg) -> TSL_NS::Status

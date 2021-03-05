@@ -10,22 +10,15 @@ auto SequencedAsyncAction::matches(Event const& event) const -> bool {
     return eventId == event.getEventId() && sequenceNum == event.getSequenceNum();
 }
 
-template<typename HANDLER_TYPE>
-auto SequencedAsyncAction::doAddHandler(EventId eventId, uint32_t seqNum, HANDLER_TYPE handler) -> Status {
-    auto status = SingleEventAsyncAction::addHandler(eventId, handler);
-    if(status != Result::CONTINUE) return status;
+auto SequencedAsyncAction::exec(TransactionInfo const& trans) -> Status {
+    auto status = doExec(trans);
+    if(status != Result::CONTINUE) {
+        return status;
+    }
 
-    this->sequenceNum = seqNum;
+    sequenceNum = getSequenceNum(trans);
 
     return Result::CONTINUE;
-}
-
-auto SequencedAsyncAction::addHandler(EventId eventId, uint32_t seqNum, details::NormalFunction handler) -> Status {
-    return doAddHandler(eventId, seqNum, handler);
-}
-
-auto SequencedAsyncAction::addHandler(EventId eventId, uint32_t seqNum, details::MemberFunction handler) -> Status {
-    return doAddHandler(eventId, seqNum, handler);
 }
 
 TSL_NS_END

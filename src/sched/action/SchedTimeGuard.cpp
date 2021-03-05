@@ -80,7 +80,7 @@ auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const
    }
 
    if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
-      status = Result::TIMEOUT;
+      status = getTimeoutResult();
    }
 
    state = State::DONE;
@@ -143,7 +143,7 @@ auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
       status = stop_(context, Result::TIMEOUT);
       likely_branch
       if(status == Result::SUCCESS || status == Result::FORCE_STOPPED) {
-         return Result::TIMEOUT;
+         return getTimeoutResult();
       }
    }
 

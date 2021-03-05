@@ -40,6 +40,8 @@ private:
    bool externalForceStopped = false;
 
 private:
+    ABSTRACT(getTimeoutResult() const -> Status);
+private:
    USE_ROLE(RelativeTimer);
    USE_ROLE(SchedAction);
 };

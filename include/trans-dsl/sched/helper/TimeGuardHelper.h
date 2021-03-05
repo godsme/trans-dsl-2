@@ -16,7 +16,7 @@ TSL_NS_BEGIN
 
 namespace details {
 
-   template<TimerId V_TIMER_ID, typename T_ACTION>
+   template<TimerId V_TIMER_ID, typename T_ACTION, Status TIMEOUT_RESULT = Result::TIMEOUT>
    struct TimeGuard final {
       template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedTimeGuard {
@@ -28,14 +28,14 @@ namespace details {
 
          Action action;
          PlatformSpecifiedTimer timer{V_TIMER_ID};
-
+         OVERRIDE(getTimeoutResult() const -> Status) { return TIMEOUT_RESULT; }
       public:
          using ThreadActionCreator = ThreadCreator_t<Action>;
       };
    };
 
-   template<TimerId V_TIMER_ID, typename T_ACTION>
-   using TimeGuard_t = typename TimeGuard<V_TIMER_ID, T_ACTION>::template ActionRealType<EmptyAids>;
+   template<TimerId V_TIMER_ID, typename T_ACTION, Status TIMEOUT_RESULT = Result::TIMEOUT>
+   using TimeGuard_t = typename TimeGuard<V_TIMER_ID, T_ACTION, TIMEOUT_RESULT>::template ActionRealType<EmptyAids>;
 }
 
 TSL_NS_END

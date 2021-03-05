@@ -19,8 +19,8 @@ using P2MF = Status (T::*)(TransactionInfo const&, MSG_TYPE const&) const;
 
 template<typename T, typename MSG_TYPE>
 inline details::MemberFunction extractP2MF(P2MF<T, MSG_TYPE> const& p) {
-   // the size of a pointer-to-mem-function is double as normal one.
-   // 'coz it has to store offset of `this` pointer when multi-inheritance.
+   // the size of a pointer-to-mem-function is double of size of normal one.
+   // 'coz it has to store offset of `this` pointer in case of multi-inheritance.
    union U{
       U(P2MF<T, MSG_TYPE> const& v) : f(v) {}
 

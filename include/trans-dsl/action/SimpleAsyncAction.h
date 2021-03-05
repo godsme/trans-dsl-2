@@ -12,8 +12,7 @@ TSL_NS_BEGIN
 
 struct TransactionInfo;
 
-class SimpleAsyncAction : public SingleEventAsyncAction {
-};
+class SimpleAsyncAction : public SingleEventAsyncAction {};
 
 #define DEF_SIMPLE_ASYNC_ACTION(action) \
 struct action : TSL_NS::SimpleAsyncAction

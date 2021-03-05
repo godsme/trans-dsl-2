@@ -38,7 +38,7 @@ namespace {
 
    DEF_SIMPLE_ASYNC_ACTION(AsyncAction1) {
       auto exec(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-         return WAIN_ON(EV_MSG_1, [](TSL_NS::TransactionInfo const&, Msg1 const&) -> TSL_NS::Status {
+         return WAIT_ON(EV_MSG_1, MSG_HANDLER(Msg1) {
              return TSL_NS::Result::SUCCESS;
          });
       }
@@ -46,7 +46,7 @@ namespace {
 
    DEF_SIMPLE_ASYNC_ACTION(AsyncAction2) {
       auto exec(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-         return WAIN_ON(EV_MSG_2, MSG_HANDLER(Msg2) {
+         return WAIT_ON(EV_MSG_2, MSG_HANDLER(Msg2) {
              return TSL_NS::Result::SUCCESS;
          });
       }
@@ -54,7 +54,7 @@ namespace {
 
    DEF_SIMPLE_ASYNC_ACTION(FailedAsyncAction3) {
       auto exec(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-         return WAIN_ON(EV_MSG_3, MSG_HANDLER(Msg3) {
+         return WAIT_ON(EV_MSG_3, MSG_HANDLER(Msg3) {
              return TSL_NS::Result::FAILED;
          });
       }
@@ -62,7 +62,7 @@ namespace {
 
    DEF_SIMPLE_ASYNC_ACTION(AsyncAction4) {
       auto exec(TSL_NS::TransactionInfo const&) -> TSL_NS::Status {
-         return WAIN_ON(EV_MSG_4, MSG_HANDLER(Msg4) {
+         return WAIT_ON(EV_MSG_4, MSG_HANDLER(Msg4) {
              return TSL_NS::Result::SUCCESS;
          });
       }

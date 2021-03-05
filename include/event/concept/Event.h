@@ -53,6 +53,8 @@ struct Event
       return *info;
    }
 
+   auto getSequenceNum() const -> uint32_t;
+
    auto consume() const    -> void {
       consumed = true;
    }

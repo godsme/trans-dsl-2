@@ -22,7 +22,7 @@ struct SingleEventAsyncAction {
 
     virtual ~SingleEventAsyncAction() = default;
 private:
-    DEFAULT(matches(Event const&) const -> bool);
+    DEFAULT(matchesMore(Event const&) const -> bool);
 
     auto reset() -> void;
 

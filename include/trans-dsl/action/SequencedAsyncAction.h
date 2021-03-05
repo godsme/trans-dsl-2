@@ -17,7 +17,7 @@ struct SequencedAsyncAction : SingleEventAsyncAction {
     auto exec(TransactionInfo const&) -> Status ;
 
 private:
-    OVERRIDE(matches(Event const& event) const -> bool);
+    OVERRIDE(matchesMore(Event const& event) const -> bool);
 
 private:
     ABSTRACT(doExec(TransactionInfo const&) -> Status);

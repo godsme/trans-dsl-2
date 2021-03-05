@@ -11,7 +11,7 @@ auto SingleEventAsyncAction::handleEvent(TransactionInfo const& trans, Event con
         return USER_FATAL_BUG;
     }
 
-    if(!matches(event)) {
+    if(!(eventId == event.getEventId() && matchesMore(event))) {
         return Result::UNKNOWN_EVENT;
     }
 
@@ -34,8 +34,8 @@ auto SingleEventAsyncAction::handleEvent(TransactionInfo const& trans, Event con
     return status;
 }
 
-auto SingleEventAsyncAction::matches(Event const& event) const -> bool {
-    return eventId == event.getEventId();
+auto SingleEventAsyncAction::matchesMore(Event const& event) const -> bool {
+    return true;
 }
 
 auto SingleEventAsyncAction::kill(TransactionInfo const&, Status) -> Status {

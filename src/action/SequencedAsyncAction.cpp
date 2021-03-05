@@ -6,8 +6,8 @@
 
 TSL_NS_BEGIN
 
-auto SequencedAsyncAction::matches(Event const& event) const -> bool {
-    return eventId == event.getEventId() && sequenceNum == event.getSequenceNum();
+auto SequencedAsyncAction::matchesMore(Event const& event) const -> bool {
+    return sequenceNum == event.getSequenceNum();
 }
 
 auto SequencedAsyncAction::exec(TransactionInfo const& trans) -> Status {

@@ -3,19 +3,17 @@
 //
 
 #include <catch.hpp>
-
-
+#include <cub/dci/RoleExporter.h>
+#include <cub/dci/Role.h>
 
 namespace {
 #include <cub/dci/FwdDeclRolesInterp.h>
 #include "AllRoles.h"
 
-    struct ObjectRoles {
-        virtual ~ObjectRoles() = default;
+    DEFINE_ROLE(ObjectRoles) {
+        __DEF_ROLE_EXPORTER
 
         #include <cub/dci/DeclRolesInterp.h>
-
-        __DEF_ROLE_EXPORTER
         #include "AllRoles.h"
     };
 

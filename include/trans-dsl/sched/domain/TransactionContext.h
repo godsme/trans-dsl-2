@@ -6,8 +6,6 @@
 #define TRANS_DSL_2_TRANSACTIONCONTEXT_H
 
 #include <trans-dsl/tsl_ns.h>
-#include <cub/dci/Role.h>
-#include <assert.h>
 #include <trans-dsl/sched/domain/RuntimeContext.h>
 #include <trans-dsl/utils/ActionStatus.h>
 #include <trans-dsl/action/TransactionInfo.h>

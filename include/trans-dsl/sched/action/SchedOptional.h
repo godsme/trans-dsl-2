@@ -5,8 +5,6 @@
 #ifndef TRANS_DSL_2_SCHEDOPTIONAL_H
 #define TRANS_DSL_2_SCHEDOPTIONAL_H
 
-#include <trans-dsl/tsl_status.h>
-#include <cub/dci/Role.h>
 #include <trans-dsl/sched/domain/SchedAction.h>
 
 TSL_NS_BEGIN
@@ -14,7 +12,6 @@ TSL_NS_BEGIN
 struct TransactionContext;
 
 struct SchedOptional : SchedAction {
-
    OVERRIDE(exec(TransactionContext&)                      -> Status);
    OVERRIDE(handleEvent(TransactionContext&, Event const&) -> Status);
    OVERRIDE(stop(TransactionContext&, Status)              -> Status);

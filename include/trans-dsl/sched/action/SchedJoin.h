@@ -5,8 +5,6 @@
 #ifndef TRANS_DSL_2_SCHEDJOIN_H
 #define TRANS_DSL_2_SCHEDJOIN_H
 
-#include <trans-dsl/tsl_status.h>
-#include <cub/dci/Role.h>
 #include <trans-dsl/sched/domain/SchedAction.h>
 #include <trans-dsl/sched/domain/ThreadBitMap.h>
 

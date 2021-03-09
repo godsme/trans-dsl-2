@@ -3,7 +3,7 @@
 //
 
 #include <catch.hpp>
-#include <cub/dci/ObjectRoles.h>
+
 
 namespace {
     struct Role1 {
@@ -18,14 +18,16 @@ namespace {
         }
     };
 
+
     struct ObjectRoles {
+#include <cub/dci/DeclRoles.h>
         __HAS_ROLES(Role1, Role2);
         virtual ~ObjectRoles() = default;
     };
 
     struct RealObject : Role1, Role2, ObjectRoles {
-        IMPL_ROLE(Role1);
-        IMPL_ROLE(Role2);
+#include <cub/dci/ImplRoles.h>
+        __HAS_ROLES(Role1, Role2);
     };
 }
 

@@ -2,11 +2,11 @@
 // Created by godsme on 2021/3/9.
 //
 
-#ifndef TRANS_DSL_2_OBJECTROLES_H
-#define TRANS_DSL_2_OBJECTROLES_H
+#ifndef TRANS_DSL_2_OBJECT_ROLES_H
+#define TRANS_DSL_2_OBJECT_ROLES_H
 
 #include <maco/map.h>
-#include <cub/dci/Role.h>
+#include <cub/dci/RoleDef.h>
 
 #define __reflex_role_elem(x)                       \
     HAS_ROLE(x);                                    \
@@ -17,12 +17,9 @@
         }                                           \
     };                                              \
 
-#define __HAS_ROLES(...)                                                                \
-template<typename T> auto toRole() const -> T& {                                        \
-    return __SeCrEtE_field<std::remove_reference_t<decltype(*this)>, T>::toRole(*this); \
-}                                                                                       \
-template<typename T, typename X> struct __SeCrEtE_field;                                \
-__MACO_map(__reflex_role_elem, __VA_ARGS__)
+#endif //TRANS_DSL_2_OBJECT_ROLES_H
 
 
-#endif //TRANS_DSL_2_OBJECTROLES_H
+
+
+

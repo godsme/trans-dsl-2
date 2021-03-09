@@ -5,12 +5,10 @@
 #ifndef TRANS_DSL_2_RELATIVETIMER_H
 #define TRANS_DSL_2_RELATIVETIMER_H
 
-#include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/porting/timer/TimerId.h>
 #include <trans-dsl/porting/timer/TimeLength.h>
 #include <trans-dsl/tsl_status.h>
 #include <trans-dsl/sched/domain/Event.h>
-#include <cub/base/Keywords.h>
 #include <cub/dci/Role.h>
 
 TSL_NS_BEGIN

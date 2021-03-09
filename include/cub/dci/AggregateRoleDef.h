@@ -5,6 +5,6 @@
 #ifndef TRANS_DSL_2_AGGREGATEROLEDEF_H
 #define TRANS_DSL_2_AGGREGATEROLEDEF_H
 
-#define __aggregate_role(x) , private x
+#define __AgGrEgAtE_rOlE(x) , protected x
 
 #endif //TRANS_DSL_2_AGGREGATEROLEDEF_H

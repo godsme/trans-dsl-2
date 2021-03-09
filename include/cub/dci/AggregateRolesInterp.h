@@ -10,4 +10,4 @@
 #endif
 
 #define __HAS_ROLES(...) \
-__MACO_map(__aggregate_role, __VA_ARGS__)
+__MACO_map(__AgGrEgAtE_rOlE, __VA_ARGS__)

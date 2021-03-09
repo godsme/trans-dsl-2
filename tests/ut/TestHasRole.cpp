@@ -5,7 +5,20 @@
 #include <catch.hpp>
 
 
+
 namespace {
+#include <cub/dci/FwdDeclRolesInterp.h>
+#include "AllRoles.h"
+
+    struct ObjectRoles {
+        virtual ~ObjectRoles() = default;
+
+        #include <cub/dci/DeclRolesInterp.h>
+
+        __DEF_ROLE_EXPORTER
+        #include "AllRoles.h"
+    };
+
     struct Role1 {
         auto get() const -> int {
             return 1;
@@ -30,23 +43,21 @@ namespace {
         }
     };
 
+    struct Dummy {};
+    struct Group1Object : Dummy
+    #include <cub/dci/AggregateRolesInterp.h>
+    #include "RoleGroup1.h"
+    {};
 
-    struct ObjectRoles {
-#include <cub/dci/DeclRoles.h>
-        __DEF_ROLE_EXPORTER
-        __HAS_ROLES(Role1, Role2)
-        __HAS_ROLES(Role3, Role4)
-        virtual ~ObjectRoles() = default;
-    };
+    struct Group2Object : Dummy
+    #include <cub/dci/AggregateRolesInterp.h>
+    #include "RoleGroup2.h"
+    {};
 
-    struct RealObject : ObjectRoles
-#include <cub/dci/AggregateRoles.h>
-    __HAS_ROLES(Role1, Role2)
-    __HAS_ROLES(Role3, Role4)
+    struct RealObject : ObjectRoles, Group1Object, Group2Object
     {
-#include <cub/dci/ImplRoles.h>
-        __HAS_ROLES(Role1, Role2)
-        __HAS_ROLES(Role3, Role4)
+        #include <cub/dci/ImplRolesInterp.h>
+        #include "AllRoles.h"
     };
 }
 

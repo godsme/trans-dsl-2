@@ -10,4 +10,4 @@
 #endif
 
 #define __HAS_ROLES(...)                                                                \
-__MACO_map(__FWD_DECL_ROLE, __VA_ARGS__)
+__MACO_map(__FwD_dEcL_rOlE, __VA_ARGS__)

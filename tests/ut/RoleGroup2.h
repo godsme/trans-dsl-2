@@ -2,7 +2,5 @@
 // Created by godsme on 2021/3/9.
 //
 
-#ifndef TRANS_DSL_2_ROLEGROUP2_H
-#define TRANS_DSL_2_ROLEGROUP2_H
+__HAS_ROLES(Role3, Role4)
 
-#endif //TRANS_DSL_2_ROLEGROUP2_H

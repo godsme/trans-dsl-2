@@ -7,8 +7,8 @@
 #include <cub/dci/Role.h>
 
 namespace {
-#include <cub/dci/FwdDeclRolesInterp.h>
-#include "AllRoles.h"
+    #include <cub/dci/FwdDeclRolesInterp.h>
+    #include "AllRoles.h"
 
     DEFINE_ROLE(ObjectRoles) {
         __DEF_ROLE_EXPORTER
@@ -41,14 +41,13 @@ namespace {
         }
     };
 
+    #include <cub/dci/AggregateRolesInterp.h>
     struct Dummy {};
     struct Group1Object : Dummy
-    #include <cub/dci/AggregateRolesInterp.h>
     #include "RoleGroup1.h"
     {};
 
     struct Group2Object : Dummy
-    #include <cub/dci/AggregateRolesInterp.h>
     #include "RoleGroup2.h"
     {};
 

@@ -21,13 +21,16 @@ namespace {
 
     struct ObjectRoles {
 #include <cub/dci/DeclRoles.h>
-        __HAS_ROLES(Role1, Role2);
+        __HAS_ROLES(Role1, Role2)
         virtual ~ObjectRoles() = default;
     };
 
-    struct RealObject : Role1, Role2, ObjectRoles {
+    struct RealObject : ObjectRoles
+#include <cub/dci/AggregateRoles.h>
+    __HAS_ROLES(Role1, Role2)
+    {
 #include <cub/dci/ImplRoles.h>
-        __HAS_ROLES(Role1, Role2);
+        __HAS_ROLES(Role1, Role2)
     };
 }
 

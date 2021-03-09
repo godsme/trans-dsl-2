@@ -8,7 +8,7 @@
 #include <maco/map.h>
 #include <cub/dci/RoleDef.h>
 
-#define __reflex_role_elem(x)                       \
+#define __ReFlEx_RoLe_ElEm(x)                       \
     HAS_ROLE(x);                                    \
     template <typename T>                           \
     struct __SeCrEtE_field<T, x> {                  \

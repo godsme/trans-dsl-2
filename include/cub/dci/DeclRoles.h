@@ -18,10 +18,10 @@
     };                                              \
 
 #define __DEF_ROLE_EXPORTER \
-    template<typename T> auto toRole() const -> T& {                                        \
+template<typename T, typename X> struct __SeCrEtE_field;                                \
+template<typename T> auto toRole() const -> T& {                                        \
     return __SeCrEtE_field<std::remove_reference_t<decltype(*this)>, T>::toRole(*this); \
-}                                                                                       \
-template<typename T, typename X> struct __SeCrEtE_field;
+}
 
 #endif //TRANS_DSL_2_OBJECT_ROLES_H
 

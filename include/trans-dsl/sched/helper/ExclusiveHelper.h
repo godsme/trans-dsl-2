@@ -24,7 +24,7 @@ namespace details {
     template<typename ... T_ACTIONS>
     struct Exclusive final  : MultiAction<SchedExclusive, T_ACTIONS...>{
         static constexpr size_t Num_Of_Actions = sizeof...(T_ACTIONS);
-        static_assert(Num_Of_Actions >= 2, "# of concurrent actions should be at least 2");
+        static_assert(Num_Of_Actions >= 2, "# of exclusive actions should be at least 2");
     };
 
     template<typename ... Ts>

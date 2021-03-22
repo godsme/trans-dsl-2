@@ -34,7 +34,7 @@ auto SingleEventAsyncAction::handleEvent(TransactionInfo const& trans, Event con
     return status;
 }
 
-auto SingleEventAsyncAction::matchesMore(Event const& event) const -> bool {
+auto SingleEventAsyncAction::matchesMore(Event const&) const -> bool {
     return true;
 }
 

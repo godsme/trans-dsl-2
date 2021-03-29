@@ -222,9 +222,8 @@ stop的设计原则
    ``stop`` (立即结束的情况) 或随后的 ``handleEvent`` （经多次消息激励后的情况）的返回值原则如下：
 
    - 如果 ``stop`` 并没有导致一个Action处理失败，即Action依然完成了它本来的职责， 则依然返回 ``SUCCESS`` ；
-   - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``FORCE_STOPPED`` ；
-   - 如果 ``stop`` 导致了的其它失败，则返回其它错误；
-   - 如果一个Action从未被调用过 ``stop`` ，或者即便被调用，但错误被阻断，则永远也不应该返回 ``FORCE_STOPPED`` 。
+   - 如果 ``stop`` 本身没有失败，但Action并没有完成它本来应该完成的任务，则返回 ``stop cause`` ；
+   - 如果 ``stop`` 导致了的其它失败，则返回其它错误(`Loop` 除外)；
 
 
 部分 **Action** 行为定义
@@ -237,7 +236,7 @@ stop的设计原则
    当一个 ``__asyn`` 处于 :ref:`I-WORKING <I-WORKING>` 状态，即其正在等待消息激励时，如果被调用 ``stop`` ：
 
    - 如果用户实现有错误（返回 ``CONTINUE`` 却发现其并没有等待任何消息），直接返回 ``USER_FATAL_BUG`` 。
-   - 否则，返回 ``FORCE_STOPPED`` 。
+   - 否则，返回 ``stop cause`` 。
 
 
 .. attention::
@@ -256,7 +255,7 @@ stop的设计原则
    3. 如果立即返回 ``SUCCESS`` ，也进入 :ref:`I-DONE <I-DONE>` 状态：
 
      - 如果这是 ``__sequential`` 序列的最后一个action，则返回 ``SUCCESS`` ；
-     - 否则，返回 ``FORCE_STOPPED`` 。
+     - 否则，返回 ``stop cause`` 。
 
    4. 如果当前action并未直接结束，而是返回 ``CONTINUE`` ，则进入 :ref:`孤岛模式 <island-mode>` ；
    5. 等某次调用 ``handleEvent`` 返回 ``SUCCESS`` 或错误时，其处理与 2，3所描述的方式相同。
@@ -283,16 +282,16 @@ stop的设计原则
 
    - 记录下此错误；
    - 对其余任何还处于 :ref:`I-WORKING <I-WORKING>` 状态的线程，调用其 ``stop`` ，原因为刚刚发生的错误；
-   - 如果某个线程最终返回 ``FORCE_STOPPED`` ，忽略此错误；
+   - 如果某个线程最终返回 ``stop cause`` ，忽略此错误；
    - 在整个 ``stop`` 过程中，坚持使用同一个原因值；哪怕某些线程立即返回其它错误值；
-   - 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``FORCE_STOPPED`` )，
+   - 如果在整个 ``stop`` 过程中，有一个或多个直接返回其它错误值（非 ``stop cause`` )，
      等 ``stop`` 调用完成后，将最后一个错误记录下来，更新原来的错误值；
    - 如果所有线程都在调用 ``stop`` 后立即结束，则直接返回最后一个错误值；进入 :ref:`I-DONE <I-DONE>` 状态；
    - 如果仍然有一个或多个线程，其 ``stop`` 调用返回 ``CONTINUE`` ，则 ``__concurrent`` 应
      直接给外层上下文通报最后一个错误，并返回 ``CONTINUE`` ，
      由此进入 :ref:`孤岛模式 <island-mode>` 以及 :ref:`I-STOPPING <I-STOPPING>` 状态。
    - 随后在 ``handleEvent`` 的过程中，返回的每一个错误，都即不向外扩散，也不向内扩散；
-     仅仅更新自己的last error（ ``FORCE_UPDATE`` 除外）；
+     仅仅更新自己的last error；
    - 最终结束后，返回最后一个错误值。进入 :ref:`I-DONE <I-DONE>` 状态。
 
 
@@ -331,7 +330,6 @@ stop的设计原则
      可能是 :ref:`孤岛模式 <island-mode>` ）；
    - 在进入 ``__finally`` 之后，如果仅仅是 :ref:`免疫模式 <immune-mode>` ，
      而不是 :ref:`孤岛模式 <island-mode>` ， 则依然可以给外围环境通报错误；
-   - 在 ``__finally`` 里，如果读到的错误码是 ``FORCE_STOPPED`` ，可再读取 ``stop_cause`` 。
 
 
 **protected __procedure**
@@ -357,13 +355,11 @@ stop的设计原则
       进入 :ref:`免疫模式 <immune-mode>` ；``stop`` 之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；
-     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEOUT`` 。
 
 .. attention::
    一个处于 :ref:`I-WORKING <I-WORKING>` 状态的 ``__time_guard`` 在运行期间，监测到一个由action上报的一个内部错误，
    则立即进入 :ref:`免疫模式 <immune-mode>` 。之后，经过一系列的消息激励，直到运行结束：
 
      - 如果期间没有timeout，则以action的最终返回值做为 ``__time_guard`` 的返回值；
-     - 如果期间发生了timeout，而action的最终返回值为 ``SUCCESS`` 或者 ``FORCE_STOPPED`` ，则返回 ``TIMEOUT`` 。
 
 

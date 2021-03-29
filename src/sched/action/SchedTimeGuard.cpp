@@ -80,7 +80,7 @@ auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event
    case State::STOPPING: {
       auto status = ROLE(SchedAction).handleEvent(context, event);
       likely_branch
-      if(likely(Result::__WORKING_STATUS_BEGIN & status)) {
+      if(likely(is_working_status(status))) {
          // Timeout is an exception, we test it unless the decorated action
          // did accept an event. This would speed-up the happy path, although
          // it might slow down the exceptional case (i.e, when it's actually the

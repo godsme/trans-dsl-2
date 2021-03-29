@@ -21,7 +21,7 @@ inline auto SchedSequential::getFinalStatus(Status status) -> Status {
    if(likely(is_working_status(status))) return status;
 
    unlikely_branch
-   if(unlikely(THE_LAST_STOPPED)) status = Result::FORCE_STOPPED;
+   if(unlikely(THE_LAST_STOPPED)) status = stopCause;
 
    state = State::DONE;
 
@@ -93,6 +93,7 @@ auto SchedSequential::stop(TransactionContext& context, Status cause) -> Status 
       likely_branch
       case State::WORKING: {
          state = State::STOPPING;
+         stopCause = cause;
          return getFinalStatus(current->stop(context, cause));
       }
       unlikely_branch

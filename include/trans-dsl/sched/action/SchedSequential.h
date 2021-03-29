@@ -25,6 +25,7 @@ private:
 
 private:
    SchedAction* current = nullptr;
+   Status stopCause{Result::SUCCESS};
    SeqInt index = 0;
    enum class State : uint8_t {
       INIT,

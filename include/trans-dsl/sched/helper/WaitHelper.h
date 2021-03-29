@@ -11,12 +11,9 @@ TSL_NS_BEGIN
 
 namespace details {
    template<bool V_IS_WAIT, EV_NS::EventId V_EVENT_ID>
-   struct Wait  {
-       template<TransListenerObservedAids const& AIDs>
-       class ActionRealType :  public SchedWait {
-           OVERRIDE(getEventId() const -> EV_NS::EventId) { return V_EVENT_ID; }
-           OVERRIDE(isWait() const -> bool) { return V_IS_WAIT; }
-       };
+   class Wait : public SchedWait  {
+       OVERRIDE(getEventId() const -> EV_NS::EventId) { return V_EVENT_ID; }
+       OVERRIDE(isWait() const -> bool) { return V_IS_WAIT; }
    };
 }
 

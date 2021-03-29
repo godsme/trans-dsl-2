@@ -5,8 +5,6 @@
 #ifndef TRANS_DSL_2_SCHEDFORK_H
 #define TRANS_DSL_2_SCHEDFORK_H
 
-#include <trans-dsl/tsl_status.h>
-#include <cub/dci/Role.h>
 #include <trans-dsl/sched/action/SchedSyncAction.h>
 #include <trans-dsl/sched/domain/ThreadId.h>
 

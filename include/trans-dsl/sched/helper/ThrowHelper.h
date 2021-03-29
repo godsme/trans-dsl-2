@@ -11,10 +11,13 @@ TSL_NS_BEGIN
 
 namespace details {
    template<Status V_CODE = Result::UNSPECIFIED>
-   class Throw : public SchedThrow {
-       auto getStatus() const -> Status override {
-           return V_CODE;
-       }
+   struct Throw {
+       template<TransListenerObservedAids const& AIDs>
+       class ActionRealType :  public SchedThrow {
+           OVERRIDE(getStatus() const -> Status) {
+               return V_CODE;
+           }
+       };
    };
 }
 

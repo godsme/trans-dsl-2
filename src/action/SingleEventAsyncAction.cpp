@@ -43,7 +43,7 @@ auto SingleEventAsyncAction::kill(TransactionInfo const&, Status) -> Status {
         reset();
         return Result::SUCCESS;
     }
-    return Result::NOTHING_CHANGED;
+    return Result::USER_FATAL_BUG;
 }
 
 auto SingleEventAsyncAction::reset() -> void {

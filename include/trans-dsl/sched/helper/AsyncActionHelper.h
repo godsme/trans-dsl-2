@@ -28,8 +28,8 @@ namespace details {
       }
 
       OVERRIDE(stop(TransactionContext & context, Status cause)->Status) {
-         Status status = action.kill(context, cause);
-         return status == Result::SUCCESS ? Result::FORCE_STOPPED : Result::USER_FATAL_BUG;
+         Status result = action.kill(context, cause);
+         return result == Result::SUCCESS ? cause : result;
       }
 
       OVERRIDE(kill(TransactionContext & context, Status cause)-> void) {

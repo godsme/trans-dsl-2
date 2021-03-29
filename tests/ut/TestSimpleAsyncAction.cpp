@@ -50,8 +50,8 @@ namespace {
                REQUIRE(true == event.isConsumed());
             }
 
-            THEN("if trying to kill it, should return NOTHING_CHANGED") {
-               REQUIRE(Result::NOTHING_CHANGED == action.kill(context, Result::TIMEOUT));
+            THEN("if trying to kill it, should return USER_FATAL_BUG") {
+               REQUIRE(Result::USER_FATAL_BUG == action.kill(context, Result::TIMEOUT));
             }
          }
 

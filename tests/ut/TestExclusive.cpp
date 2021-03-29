@@ -51,8 +51,8 @@ namespace {
             WHEN("received msg2, should return SUCCESS") {
                 REQUIRE(Result::SUCCESS == action.handleEvent(context, event2));
             }
-            WHEN("stop, should return FORCE_STOPPED") {
-                REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+            WHEN("stop, should return OUT_OF_SCOPE") {
+                REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
             }
         }
     }
@@ -101,8 +101,8 @@ namespace {
             }
             WHEN("stop, should return CONTINUE") {
                 REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
-                WHEN("received msg2, should return FORCE_STOPPED") {
-                    REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event2));
+                WHEN("received msg2, should return OUT_OF_SCOPE") {
+                    REQUIRE(Result::OUT_OF_SCOPE == action.handleEvent(context, event2));
                 }
             }
         }

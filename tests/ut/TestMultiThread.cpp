@@ -180,7 +180,7 @@ namespace {
          }
 
          WHEN("stop, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
+            REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
             WHEN("event 1 received, should return FATAL_BUG") {
                REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }
@@ -253,8 +253,8 @@ namespace {
 
          REQUIRE(Result::CONTINUE == action.exec(context));
 
-         WHEN("stop, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
+         WHEN("stop, should return DUPTID") {
+            REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
             THEN("event 4 received, should return FATAL_BUG") {
                REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
             }
@@ -291,8 +291,8 @@ namespace {
                   REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }
             }
-            AND_WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
+            AND_WHEN("stop, should return DUPTID") {
+               REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
                THEN("event 4 received, should return FATAL_BUG") {
                   REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
                }
@@ -460,8 +460,8 @@ namespace {
                   REQUIRE(Result::SUCCESS == action.handleEvent(context, event4));
                }
             }
-            AND_WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
+            AND_WHEN("stop, should return DUPTID") {
+               REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
                THEN("event 4 received, should return FATAL_BUG") {
                   REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event4));
                }
@@ -527,7 +527,7 @@ namespace {
             __fork(1, __asyn(AsyncAction1)),
             __procedure
               ( __asyn(AsyncAction2)
-              , __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction4)))),
+              , __finally(__on_status(Result::DUPTID, __asyn(AsyncAction4)))),
             __join());
 
          __def_multi_thread(MainAction) action;
@@ -554,8 +554,8 @@ namespace {
                REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event2));
                THEN("event 1 received, should return UNKNOWN_EVENT") {
                   REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event1));
-                  THEN("event 4 received, should return SUCCESS") {
-                     REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event4));
+                  THEN("event 4 received, should return DUPTID") {
+                     REQUIRE(Result::DUPTID == action.handleEvent(context, event4));
                   }
                }
             }
@@ -634,8 +634,8 @@ namespace {
             }
          }
 
-         THEN("stop it, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::TIMEOUT));
+         THEN("stop it, should return TIMEOUT") {
+            REQUIRE(Result::TIMEOUT == action.stop(context, Result::TIMEOUT));
             AND_THEN("if event 1 received, should return FATAL_BUG") {
                REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }

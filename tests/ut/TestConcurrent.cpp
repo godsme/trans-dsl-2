@@ -43,8 +43,8 @@ namespace {
          }
       }
 
-      WHEN("invoking stop, should return FORCE_STOPPED") {
-         REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+      WHEN("invoking stop, should return OUT_OF_SCOPE") {
+         REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
          AND_WHEN("exec again, should return FATAL_BUG") {
             REQUIRE(Result::FATAL_BUG == action.exec(context));
          }
@@ -117,7 +117,7 @@ namespace {
    };
 
    using ProcedureAction =
-   __procedure(__asyn(AsyncAction4), __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
+   __procedure(__asyn(AsyncAction4), __finally(__on_status(Result::OUT_OF_SCOPE, __asyn(AsyncAction2))));
 
    SCENARIO("__concurrent with a immediate-stopped procedure ") {
       __def_concurrent(__sync(FailedSyncAction4), ProcedureAction) action;
@@ -130,7 +130,9 @@ namespace {
    };
 
    SCENARIO("__concurrent with a failed async action") {
-      __def_concurrent(__asyn(FailedAsyncAction3), ProcedureAction) action;
+        using ProcedureAction1 =
+        __procedure(__asyn(AsyncAction4), __finally(__on_status(Result::FAILED, __asyn(AsyncAction2))));
+      __def_concurrent(__asyn(FailedAsyncAction3), ProcedureAction1) action;
 
       StupidTransactionContext context{};
 
@@ -160,9 +162,9 @@ namespace {
                }
             }
             THEN("if stop, should return CONTINUE") {
-               REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
-               AND_WHEN("if event 2 received, should return FORCE_STOPPED") {
-                  REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event2));
+               REQUIRE(Result::CONTINUE == action.stop(context, Result::FAILED));
+               AND_WHEN("if event 2 received, should return FAILED") {
+                  REQUIRE(Result::FAILED == action.handleEvent(context, event2));
                }
                AND_WHEN("if event 3 received, should return UNKNOWN_EVENT") {
                   REQUIRE(Result::UNKNOWN_EVENT == action.handleEvent(context, event3));
@@ -178,7 +180,7 @@ namespace {
    using ProcedureAction2 =
    __procedure(
       __asyn(AsyncAction4),
-      __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction2))));
+      __finally(__on_status(Result::OUT_OF_SCOPE, __asyn(AsyncAction2))));
 
    SCENARIO("__concurrent without internal error") {
       __def_concurrent(__asyn(FailedAsyncAction3), ProcedureAction2) action;
@@ -192,8 +194,8 @@ namespace {
       REQUIRE(Result::CONTINUE == action.exec(context));
       WHEN("after stop, event3 should return CONTINUE") {
          REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
-         AND_WHEN("event 2 received, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event2));
+         AND_WHEN("event 2 received, should return OUT_OF_SCOPE") {
+            REQUIRE(Result::OUT_OF_SCOPE == action.handleEvent(context, event2));
          }
       }
    };

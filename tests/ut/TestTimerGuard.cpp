@@ -25,8 +25,8 @@ namespace {
          REQUIRE(Result::TIMEOUT == action.handleEvent(context, timerEvent));
      }
 
-      WHEN("stop should return FORCE_STOPPED") {
-         REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::TIMEOUT));
+      WHEN("stop should return TIMEOUT") {
+         REQUIRE(Result::TIMEOUT == action.stop(context, Result::TIMEOUT));
      }
    };
 
@@ -96,8 +96,8 @@ namespace {
       REQUIRE(Result::CONTINUE == action.exec(context));
       WHEN("stop should return CONTINUE") {
          REQUIRE(Result::CONTINUE == action.stop(context, Result::TIMEOUT));
-         THEN("if event 1 received, should return FORCE_STOPPED") {
-            REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event1));
+         THEN("if event 1 received, should return TIMEOUT") {
+            REQUIRE(Result::TIMEOUT == action.handleEvent(context, event1));
             AND_THEN("stop again, will return FATAL_BUG") {
                REQUIRE(Result::FATAL_BUG == action.stop(context, Result::TIMEOUT));
             }
@@ -154,8 +154,8 @@ namespace {
          REQUIRE(Result::CONTINUE == action.stop(context, Result::OUT_OF_SCOPE));
          WHEN("timeout event received, handleEvent should return CONTINUE") {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, timerEvent));
-            AND_WHEN("event 1 received, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == action.handleEvent(context, event1));
+            AND_WHEN("event 1 received, should return OUT_OF_SCOPE") {
+               REQUIRE(Result::OUT_OF_SCOPE == action.handleEvent(context, event1));
             }
          }
       }

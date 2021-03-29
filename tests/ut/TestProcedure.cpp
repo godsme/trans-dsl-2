@@ -224,14 +224,14 @@ namespace {
             REQUIRE(Result::CONTINUE == procedure.exec(context));
             REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
             REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
-            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::OUT_OF_SCOPE == procedure.handleEvent(context, event1));
         }
 
         WHEN("after success, if handleEvent, should return FATAL_BUG") {
             REQUIRE(Result::CONTINUE == procedure.exec(context));
             REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
             REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
-            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::OUT_OF_SCOPE == procedure.handleEvent(context, event1));
             REQUIRE(Result::FATAL_BUG == procedure.handleEvent(context, event1));
         }
 
@@ -239,7 +239,7 @@ namespace {
             REQUIRE(Result::CONTINUE == procedure.exec(context));
             REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
             REQUIRE(Result::CONTINUE == procedure.handleEvent(context, event2));
-            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::OUT_OF_SCOPE == procedure.handleEvent(context, event1));
             REQUIRE(Result::FATAL_BUG == procedure.stop(context, Result::OUT_OF_SCOPE));
         }
    };
@@ -271,7 +271,7 @@ namespace {
     SCENARIO("TestProcedure5") {
       __def_procedure(
          __asyn(AsyncAction2),
-         __finally(__on_status(Result::FORCE_STOPPED, __asyn(AsyncAction1)))
+         __finally(__on_status(Result::OUT_OF_SCOPE, __asyn(AsyncAction1)))
       ) procedure;
 
       StupidTransactionContext context{};
@@ -289,10 +289,10 @@ namespace {
             REQUIRE(Result::SUCCESS  == procedure.handleEvent(context, event2));
         }
 
-        WHEN("after exec, if stop, should return INVALID_DATA") {
+        WHEN("after exec, if stop, should return OUT_OF_SCOPE") {
             REQUIRE(Result::CONTINUE == procedure.exec(context));
             REQUIRE(Result::CONTINUE == procedure.stop(context, Result::OUT_OF_SCOPE));
-            REQUIRE(Result::FORCE_STOPPED == procedure.handleEvent(context, event1));
+            REQUIRE(Result::OUT_OF_SCOPE == procedure.handleEvent(context, event1));
       }
 
         WHEN("abc") {

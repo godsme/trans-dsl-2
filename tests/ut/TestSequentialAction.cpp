@@ -65,13 +65,13 @@ namespace {
         WHEN("handleEvent(event1) -> stop should return FORCE_STOPPED") {
             REQUIRE(Result::CONTINUE == action.exec(context));
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
         }
 
         WHEN("after stop, handleEvent should return FATAL_BUG") {
             REQUIRE(Result::CONTINUE == action.exec(context));
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
             REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event2));
         }
 
@@ -98,7 +98,7 @@ namespace {
         WHEN("after stop, call exec will return FATAL_BUG") {
             REQUIRE(Result::CONTINUE == action.exec(context));
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event1));
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
             REQUIRE(Result::FATAL_BUG == action.exec(context));
         }
 

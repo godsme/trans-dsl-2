@@ -20,10 +20,6 @@ struct RuntimeContext {
       return finalStatus;
    }
 
-   auto getStopCause() const -> Status {
-      return finalStatus == Result::SUCCESS ? Result::FORCE_STOPPED : finalStatus;
-   }
-
    auto  hasFailure() const -> bool {
       return finalStatus != Result::SUCCESS;
    }

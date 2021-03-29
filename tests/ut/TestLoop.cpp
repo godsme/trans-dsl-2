@@ -190,7 +190,7 @@ namespace {
         WHEN("should return SUCCESS") {
             REQUIRE(Result::CONTINUE == action.exec(context));
             context.getRuntimeContext().reportFailure(Result::INVALID_DATA);
-            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::DUPTID));
+            REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
         }
    };
 }

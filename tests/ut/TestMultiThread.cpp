@@ -563,8 +563,8 @@ namespace {
 
          THEN("event 2 received, should return CONTINUE") {
             REQUIRE(Result::CONTINUE == action.handleEvent(context, event2));
-            WHEN("stop, should return FORCE_STOPPED") {
-               REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::DUPTID));
+            WHEN("stop, should return DUPTID") {
+               REQUIRE(Result::DUPTID == action.stop(context, Result::DUPTID));
             }
          }
       }

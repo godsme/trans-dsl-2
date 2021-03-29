@@ -52,9 +52,9 @@ auto SchedJoin::handleEvent(TransactionContext&, Event const& event) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedJoin::stop(TransactionContext&, Status) -> Status {
+auto SchedJoin::stop(TransactionContext&, Status cause) -> Status {
    bitMap = 0;
-   return Result::FORCE_STOPPED;
+   return cause;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

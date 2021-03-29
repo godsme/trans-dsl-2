@@ -100,6 +100,10 @@ auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) ->
       return status;
    }
 
+   if(stopping) {
+       return getStatus();
+   }
+
    if(cub::is_failed_status(status)) {
       reportFailure(status);
    }
@@ -127,7 +131,13 @@ auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
    stopping = true;
 
    AUTO_SWITCH();
-   return action->stop(context, cause);
+   Status status = action->stop(context, cause);
+   if (is_working_status(status)) {
+      reportFailure(cause);
+      return status;
+   }
+
+   return cause;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,6 @@
 #include <trans-dsl/trans-dsl.h>
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
-#include <iostream>
 
 namespace {
    using namespace TSL_NS;
@@ -113,5 +112,16 @@ namespace {
             REQUIRE(Result::CONTINUE == trans.start());
          }
       }
+
+        GIVEN("a transaction has multi-with-id actions") {
+            __def(Trans4) __as_trans
+            ( __with_id(4, __apply(Fork2, __with(AsyncAction1, AsyncAction4)))
+            , __with_id(3, __wait(EV_MSG_2)), __join()
+            );
+
+            using Trans2WithListener = __bind_listener(Trans4, Listeners);
+            Trans2WithListener trans;
+            REQUIRE(Result::CONTINUE == trans.start());
+        }
    }
 }

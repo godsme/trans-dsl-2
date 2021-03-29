@@ -132,7 +132,7 @@ namespace {
         }
 
         WHEN("invoking stop, should return OUT_OF_SCOPE") {
-            REQUIRE(Result::FORCE_STOPPED == action.stop(context, Result::OUT_OF_SCOPE));
+            REQUIRE(Result::OUT_OF_SCOPE == action.stop(context, Result::OUT_OF_SCOPE));
             AND_WHEN("exec again, should return FATAL_BUG") {
                 REQUIRE(Result::FATAL_BUG == action.exec(context));
             }

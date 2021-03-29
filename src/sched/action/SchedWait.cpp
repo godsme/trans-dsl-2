@@ -24,8 +24,8 @@ auto SchedWait::handleEvent(TransactionContext&, Event const& event) -> Status {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-auto SchedWait::stop(TransactionContext&, Status) -> Status {
-   return Result::FORCE_STOPPED;
+auto SchedWait::stop(TransactionContext&, Status cause) -> Status {
+   return cause;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

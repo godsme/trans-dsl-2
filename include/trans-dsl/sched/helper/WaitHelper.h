@@ -11,15 +11,18 @@ TSL_NS_BEGIN
 
 namespace details {
    template<bool V_IS_WAIT, EV_NS::EventId V_EVENT_ID>
-   class Wait_ final : public SchedWait {
-      OVERRIDE(getEventId() const -> EV_NS::EventId) { return V_EVENT_ID; }
-      OVERRIDE(isWait() const -> bool) { return V_IS_WAIT; }
+   struct Wait  {
+       template<TransListenerObservedAids const& AIDs>
+       class ActionRealType :  public SchedWait {
+           OVERRIDE(getEventId() const -> EV_NS::EventId) { return V_EVENT_ID; }
+           OVERRIDE(isWait() const -> bool) { return V_IS_WAIT; }
+       };
    };
 }
 
 TSL_NS_END
 
-#define __wait(eventId) TSL_NS::details::Wait_<true, eventId>
-#define __peek(eventId) TSL_NS::details::Wait_<false, eventId>
+#define __wait(eventId) TSL_NS::details::Wait<true, eventId>
+#define __peek(eventId) TSL_NS::details::Wait<false, eventId>
 
 #endif //TRANS_DSL_2_WAITHELPER_H

@@ -127,7 +127,7 @@ auto SchedExclusive::stop(TransactionContext& context, Status cause) -> Status {
         likely_branch
         case State::Selecting: {
             (void)cleanUp(context, cause);
-            return Result::FORCE_STOPPED;
+            return cause;
         }
         case State::Working: {
             return stopOnSelected(context, cause);

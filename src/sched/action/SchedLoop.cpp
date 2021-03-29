@@ -104,10 +104,6 @@ auto SchedLoop::handleEvent_(TransactionContext& context, Event const& event) ->
       reportFailure(status);
    }
 
-   if(stopping) {
-      return Result::FORCE_STOPPED;
-   }
-
    return looping(context);
 }
 

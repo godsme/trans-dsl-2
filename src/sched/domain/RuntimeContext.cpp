@@ -8,8 +8,7 @@ TSL_NS_BEGIN
 
 namespace {
    bool shouldUpdate(Status current, Status newStatus) {
-      if(current == newStatus || !cub::is_failed_status(newStatus)) return false;
-      return (newStatus == Result::FORCE_STOPPED) ? current == Result::SUCCESS : true;
+      return (current != newStatus && cub::is_failed_status(newStatus));
    }
 }
 

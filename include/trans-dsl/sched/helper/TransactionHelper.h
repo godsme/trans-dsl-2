@@ -58,7 +58,7 @@ namespace details {
          }
 
          auto stop(Status cause) -> Status {
-            return action.stop(*this, cause);
+            return action.stop(*this, cause == Result::SUCCESS ? Result::FORCE_STOPPED : cause);
          }
 
          auto kill(Status cause) {

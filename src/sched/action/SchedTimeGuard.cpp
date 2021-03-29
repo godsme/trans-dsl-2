@@ -16,20 +16,11 @@ inline auto SchedTimeGuard::isStillWorking() const -> bool {
    switch (state) {
       likely_branch
       case State::WORKING:
-         return true;
       case State::STOPPING:
       case State::TIMEOUT:
          return true;
       default:
          return false;
-   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
-inline auto SchedTimeGuard::checkInternalError(TransactionContext& context) -> void {
-   unlikely_branch
-   if(state == State::WORKING && context.hasFailure()) {
-      state = State::STOPPING;
    }
 }
 
@@ -45,13 +36,6 @@ auto SchedTimeGuard::startTimer(TransactionContext& context) -> Status {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::stopAction(TransactionContext& context) -> Status {
-    auto status = ROLE(SchedAction).stop(context, Result::FATAL_BUG);
-    state = (status == Result::CONTINUE) ? State::STOPPING : State::DONE;
-    return status;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
    unlikely_branch
    if(unlikely(state != State::INIT)) return Result::FATAL_BUG;
@@ -62,11 +46,10 @@ auto SchedTimeGuard::exec(TransactionContext& context)  -> Status {
       return status;
    } else {
       unlikely_branch
-      if(auto status = startTimer(context); unlikely(cub::is_failed_status(status))) {
-          return stopAction(context) == Result::CONTINUE ? Result::CONTINUE : status;
+      if(auto status = startTimer(context); unlikely(status != Result::SUCCESS)) {
+          return stop_(context, Result::START_TIMER_FAIL, true);
       }
       state = State::WORKING;
-      checkInternalError(context);
       return Result::CONTINUE;
    }
 }
@@ -79,11 +62,11 @@ auto SchedTimeGuard::handleEventTimeout(TransactionContext& context, Event const
       return status;
    }
 
-   if(status == Result::SUCCESS || (status == Result::FORCE_STOPPED && !externalForceStopped)) {
-      status = getTimeoutResult();
-   }
-
    state = State::DONE;
+
+   if(status == Result::SUCCESS) {
+       return getTimeoutResult();
+   }
 
    return status;
 }
@@ -123,10 +106,11 @@ auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
-auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status {
+auto SchedTimeGuard::stop_(TransactionContext& context, Status cause, bool report)  -> Status {
    auto status = ROLE(SchedAction).stop(context, cause);
    if(status == Result::CONTINUE) {
       state = State::STOPPING;
+      if(report) context.reportFailure(cause);
    } else {
       state = State::DONE;
       ROLE(RelativeTimer).stop();
@@ -135,18 +119,20 @@ auto SchedTimeGuard::stop_(TransactionContext& context, Status cause)  -> Status
    return status;
 }
 
+auto SchedTimeGuard::stopOnTimeout(TransactionContext& context) -> Status {
+    likely_branch
+    switch (state) {
+        case State::WORKING:
+            return stop_(context, getTimeoutResult(), true);
+        case State::STOPPING:
+            return Result::CONTINUE;
+        default:
+            return Result::FATAL_BUG;
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////////
 auto SchedTimeGuard::onTimeout(TransactionContext& context) -> Status {
-   Status status = Result::CONTINUE;
-   likely_branch
-   if(state == State::WORKING) {
-      status = stop_(context, Result::TIMEOUT);
-      likely_branch
-      if(status == Result::SUCCESS || status == Result::FORCE_STOPPED) {
-         return getTimeoutResult();
-      }
-   }
-
+   auto status = stopOnTimeout(context);
    if(status == Result::CONTINUE) {
       state = State::TIMEOUT;
    }
@@ -159,8 +145,7 @@ auto SchedTimeGuard::stop(TransactionContext& context, Status cause)  -> Status 
    switch (state) {
    likely_branch
    case State::WORKING:
-      externalForceStopped = true;
-      return stop_(context, cause);
+      return stop_(context, cause, false);
    case State::STOPPING: [[fallthrough]];
    case State::TIMEOUT:
       return Result::CONTINUE;
@@ -176,7 +161,6 @@ auto  SchedTimeGuard::kill(TransactionContext& context, Status cause) -> void {
    if(!isStillWorking()) return;
 
    ROLE(RelativeTimer).stop();
-
    ROLE(SchedAction).kill(context, cause);
    state = State::DONE;
 }

@@ -20,11 +20,10 @@ struct SchedTimeGuard : SchedAction {
 private:
    auto isStillWorking() const -> bool;
    auto handleEventTimeout(TransactionContext& context, Event const& event) -> Status;
-   auto stop_(TransactionContext&, Status cause)  -> Status;
-   auto checkInternalError(TransactionContext& context) -> void;
+   auto stop_(TransactionContext&, Status cause, bool report)  -> Status;
    auto startTimer(TransactionContext& context) -> Status;
    auto onTimeout(TransactionContext& context) -> Status;
-   auto stopAction(TransactionContext& context) -> Status;
+   auto stopOnTimeout(TransactionContext& context) -> Status;
 
 private:
    enum class State : uint8_t {
@@ -37,7 +36,6 @@ private:
       DONE
    };
    State state = State::INIT;
-   bool externalForceStopped = false;
 
 private:
     ABSTRACT(getTimeoutResult() const -> Status);

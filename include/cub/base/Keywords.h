@@ -23,7 +23,7 @@ namespace details
 #define DEFAULT(...) virtual auto __VA_ARGS__
 #define ABSTRACT(...) virtual auto __VA_ARGS__ = 0
 
-#define OVERRIDE(...) virtual auto __VA_ARGS__ override
+#define OVERRIDE(...) auto __VA_ARGS__ override
 
 #define EXTENDS(...) , ##__VA_ARGS__
 #define IMPLEMENTS(...) EXTENDS(__VA_ARGS__)

@@ -31,6 +31,7 @@ enum Result : Status {
    NOTHING_CHANGED,
 
    FORCE_STOPPED,
+   START_TIMER_FAIL,
 
    ////////////////////////////////////////////////////
    __WORKING_STATUS_BEGIN = 0x4000'0000,

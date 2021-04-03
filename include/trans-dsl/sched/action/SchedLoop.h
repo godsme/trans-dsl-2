@@ -32,7 +32,7 @@ private:
    auto loopOnce(TransactionContext &context) -> Status;
    auto looping(TransactionContext& context) -> Status;
    auto handleEvent_(TransactionContext& context, Event const& event) -> Status;
-   auto checkActionStatus(Status status) -> Status;
+   auto stop_(TransactionContext& context, Status cause) -> Status;
    auto getResult(Status status) const -> Status;
 
 private:

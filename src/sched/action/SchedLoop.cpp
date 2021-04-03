@@ -120,6 +120,19 @@ auto SchedLoop::handleEvent(TransactionContext& context, Event const& event) -> 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
+auto SchedLoop::stop_(TransactionContext& context, Status cause) -> Status {
+    reportFailure(cause);
+    stopping = true;
+
+    Status status = action->stop(context, cause);
+    if (is_working_status(status)) {
+        return status;
+    }
+
+    return getResult(looping(context));
+}
+
+////////////////////////////////////////////////////////////////////////////////////////
 auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
    BUG_CHECK(action != nullptr);
 
@@ -128,16 +141,10 @@ auto SchedLoop::stop(TransactionContext& context, Status cause) -> Status {
       return Result::CONTINUE;
    }
 
-   stopping = true;
+
 
    AUTO_SWITCH();
-   Status status = action->stop(context, cause);
-   if (is_working_status(status)) {
-      reportFailure(cause);
-      return status;
-   }
-
-   return cause;
+   return stop_(context, cause);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////

@@ -8,13 +8,14 @@
 #include "StupidTransactionContext.h"
 #include "SimpleActionsDefs.h"
 #include <trans-dsl/sched/helper/SequentialHelper.h>
+#include <trans-dsl/sched/helper/SafeHelper.h>
 #include <trans-dsl/sched/helper/SyncActionHelper.h>
 #include <iostream>
 
 namespace {
    using namespace TSL_NS;
 
-   SCENARIO("TestSequentialAction") {
+   SCENARIO("SequentialAction") {
         using Action =
         __def_sequential(
          __sync(SyncAction1),
@@ -108,4 +109,59 @@ namespace {
             REQUIRE(Result::FATAL_BUG == action.exec(context));
         }
    };
+
+   SCENARIO("Last Safe Sequential") {
+        using Action =
+        __def_sequential(
+                __sync(SyncAction1),
+                __safe(__asyn(AsyncAction1))
+        );
+
+        Action action;
+        StupidTransactionContext context{};
+
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
+
+        WHEN("exec should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+
+            WHEN("Stop, should return CONTINUE") {
+                REQUIRE(Result::CONTINUE == action.stop(context, Result::DUPTID));
+
+                WHEN("recved Msg1, should return SUCCESS") {
+                    REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
+                }
+            }
+        }
+   }
+
+    SCENARIO("First Safe Sequential") {
+        using Action =
+        __def_sequential(
+                __safe(__asyn(AsyncAction1)),
+                __sync(SyncAction1),
+                __sync(SyncAction2)
+        );
+
+        Action action;
+        StupidTransactionContext context{};
+
+        const Msg1 msg1{ 10, 20 };
+        const EV_NS::ConsecutiveEventInfo eventInfo1{EV_MSG_1, msg1};
+        TSL_NS::Event event1{eventInfo1};
+
+        WHEN("exec should return CONTINUE") {
+            REQUIRE(Result::CONTINUE == action.exec(context));
+
+            WHEN("Stop, should return CONTINUE") {
+                REQUIRE(Result::CONTINUE == action.stop(context, Result::DUPTID));
+
+                WHEN("recved Msg1, should return DUPTID") {
+                    REQUIRE(Result::DUPTID == action.handleEvent(context, event1));
+                }
+            }
+        }
+    }
 }

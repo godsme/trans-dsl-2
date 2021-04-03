@@ -10,18 +10,14 @@
 TSL_NS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////
-#define THE_LAST_STOPPED \
-   state == State::STOPPING && \
-   status == Result::SUCCESS && \
-   getNumOfActions() == index + 1
-
-///////////////////////////////////////////////////////////////////////////////
 inline auto SchedSequential::getFinalStatus(Status status) -> Status {
    likely_branch
    if(likely(is_working_status(status))) return status;
 
    unlikely_branch
-   if(unlikely(THE_LAST_STOPPED)) status = stopCause;
+   if(unlikely(state == State::STOPPING &&
+           status == Result::SUCCESS &&
+           getNumOfActions() > index)) status = stopCause;
 
    state = State::DONE;
 

@@ -30,6 +30,23 @@ namespace {
      }
    };
 
+    SCENARIO("__time_guard_r") {
+        __def_time_guard(TIMER_1, Result::DUPTID, __asyn(AsyncAction1)) action;
+
+        StupidTransactionContext context{};
+
+        const EV_NS::SimpleEventInfo timerEvent{TIMER_EVENT_ID_1};
+
+        REQUIRE(Result::CONTINUE == action.exec(context));
+        WHEN("timeout event received, should return DUPTID") {
+            REQUIRE(Result::DUPTID == action.handleEvent(context, timerEvent));
+        }
+
+        WHEN("stop should return INVALID_DATA") {
+            REQUIRE(Result::INVALID_DATA == action.stop(context, Result::INVALID_DATA));
+        }
+    };
+
 
    SCENARIO("__time_guard non-stoppable scenario") {
       using ProcedureAction =

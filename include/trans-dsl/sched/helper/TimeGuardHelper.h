@@ -34,16 +34,19 @@ namespace details {
       };
    };
 
-   template<TimerId V_TIMER_ID, typename T_ACTION, Status TIMEOUT_RESULT = Result::TIMEOUT>
-   using TimeGuard_t = typename TimeGuard<V_TIMER_ID, T_ACTION, TIMEOUT_RESULT>::template ActionRealType<EmptyAids>;
+   template<TimerId V_TIMER_ID, Status TIMEOUT_RESULT, typename ... ACTIONS>
+   auto deduceTimeGuard() -> TSL_NS::details::TimeGuard<V_TIMER_ID, TSL_NS::details::AutoAction::SequentialTrait_t<ACTIONS...>, TIMEOUT_RESULT>;
+
+   template<TimerId V_TIMER_ID, typename ... ACTIONS>
+   auto deduceTimeGuard() -> TSL_NS::details::TimeGuard<V_TIMER_ID, TSL_NS::details::AutoAction::SequentialTrait_t<ACTIONS...>>;
 }
 
 TSL_NS_END
 
 #define __time_guard(timerId, ...) \
-TSL_NS::details::TimeGuard<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+decltype(TSL_NS::details::deduceTimeGuard<timerId, __VA_ARGS__>())
 
 #define __def_time_guard(timerId, ...) \
-TSL_NS::details::TimeGuard_t<timerId, TSL_NS::details::AutoAction::SequentialTrait_t<__VA_ARGS__>>
+__time_guard(timerId, __VA_ARGS__)::template ActionRealType<EmptyAids>
 
 #endif //TRANS_DSL_2_TIMEGUARDHELPER_H

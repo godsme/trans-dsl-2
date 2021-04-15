@@ -5,9 +5,8 @@
 #ifndef TRANS_DSL_2_MULTIACTION_H
 #define TRANS_DSL_2_MULTIACTION_H
 
-#include <trans-dsl/tsl_config.h>
-#include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/utils/SeqInt.h>
+#include <trans-dsl/sched/helper/ActionRealTypeTraits.h>
 #include <trans-dsl/sched/helper/ActionTuple.h>
 #include <trans-dsl/sched/concepts/SchedActionConcept.h>
 #include <trans-dsl/utils/ThreadActionTrait.h>

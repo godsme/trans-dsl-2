@@ -41,26 +41,33 @@ class DualRing {
         return ring.Front(buff);
     }
 
-    auto MakeRoom() -> Status {
-        if(ring1.tail != ring2.tail) {
-            return Result::SUCCESS;
-        }
-
-        if(Increase(ring2.head) == ring1.head) {
-            return Result::FAILED;
-        }
-
-        MoveSpace();
-
-        return Result::SUCCESS;
+    auto HasDirectRoom() const -> bool {
+        return ring1.tail != ring2.tail;
     }
 
-    auto MoveSpace() -> void {
+    auto HasIndirectRoom() const -> bool {
+        return Increase(ring2.head) != ring1.head;
+    }
+
+    auto Rearrange() -> void {
         if(ring1.GetSize() > ring2.GetSize()) {
             ring2.MoveTo(Decrease(ring1.head), buff);
         } else {
             ring1.MoveTo(Increase(ring2.head), buff);
         }
+    }
+
+    auto MakeRoom() -> Status {
+        if(HasDirectRoom()) {
+            return Result::SUCCESS;
+        }
+
+        if(HasIndirectRoom()) {
+            Rearrange();
+            return Result::SUCCESS;
+        }
+
+        return Result::FAILED;
     }
 
 private:
@@ -195,7 +202,7 @@ public:
     }
 
     auto IsFull() const -> bool {
-        return ring1.GetSize() + ring2.GetSize() == MAX_SIZE;
+        return !(HasDirectRoom() || HasIndirectRoom());
     }
 
 private:

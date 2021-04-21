@@ -51,9 +51,9 @@ class DualRing {
 
     auto Rearrange() -> void {
         if(ring1.GetSize() > ring2.GetSize()) {
-            ring2.MoveTo(Decrease(ring1.head), buff);
+            ring2.MoveTo(ring1.head, buff);
         } else {
-            ring1.MoveTo(Increase(ring2.head), buff);
+            ring1.MoveTo(ring2.head, buff);
         }
     }
 
@@ -83,6 +83,10 @@ private:
         return (end1 + SIZE - end2) % SIZE;
     }
 
+    static auto ApplyOp(OpType op, IndexType& value) -> void {
+        value = op(value);
+    }
+
 private:
     struct RingBase {
         RingBase(IndexType init) : head{init}, tail{init} {}
@@ -101,10 +105,10 @@ private:
     protected:
         auto MoveTo(IndexType newHead, ElemType* buff, OpType op) -> void {
             auto newTail = newHead;
-            for(auto i = head; i < tail; i = op(i)) {
+            for(auto i = head; i < tail; ApplyOp(op, i)) {
                 buff[newTail].Emplace(*buff[i]);
                 buff[i].Destroy();
-                newTail = op(newTail);
+                ApplyOp(op, newTail);
             }
             head = newHead;
             tail = newTail;
@@ -113,15 +117,14 @@ private:
         template<typename ... ARGS>
         auto Push(ElemType* buff, OpType op, ARGS&& ... args) -> void {
             buff[tail].Emplace(std::forward<ARGS>(args)...);
-            tail = op(tail);
+            ApplyOp(op, tail);
         }
 
         auto Pop(ElemType* buff, OpType op) -> void {
-            if(IsEmpty()) {
-                return;
+            if(head != tail) {
+                buff[head].Destroy();
+                ApplyOp(op, head);
             }
-            buff[head].Destroy();
-            head = op(head);
         }
     };
 
@@ -141,17 +144,19 @@ private:
 
     template<typename POLICY>
     struct GenericRing : RingBase {
+        using Base = RingBase;
+
         template<typename ... ARGS>
         auto Push(ElemType* buff, ARGS&& ... args) -> void {
-            RingBase::Push(buff, POLICY::Op, std::forward<ARGS>(args)...);
+            Base::Push(buff, POLICY::Op, std::forward<ARGS>(args)...);
         }
 
-        auto MoveTo(IndexType newHead, ElemType* buff) -> void {
-            RingBase::MoveTo(newHead, buff, POLICY::Op);
+        auto MoveTo(IndexType peerHead, ElemType* buff) -> void {
+            Base::MoveTo(POLICY::Op(peerHead), buff, POLICY::Op);
         }
 
         auto Pop(ElemType* buff) -> void {
-            RingBase::Pop(buff, POLICY::Op);
+            Base::Pop(buff, POLICY::Op);
         }
 
         auto GetSize() const -> IndexType {

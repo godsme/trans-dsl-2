@@ -18,8 +18,8 @@ namespace {
       StupidTransactionContext context{};
 
       GIVEN("exec has not been invoked") {
-         WHEN("event1 is received, should return USER_FATAL_BUG") {
-            REQUIRE(Result::USER_FATAL_BUG == action.handleEvent(context, event1));
+         WHEN("event1 is received, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
          }
       }
 
@@ -32,8 +32,8 @@ namespace {
          WHEN("event1 received, should return SUCCESS") {
             REQUIRE(Result::SUCCESS == action.handleEvent(context, event1));
 
-            AND_WHEN("event1 received again, should return USER_FATAL_BUG") {
-               REQUIRE(Result::USER_FATAL_BUG == action.handleEvent(context, event1));
+            AND_WHEN("event1 received again, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }
          }
 
@@ -50,16 +50,16 @@ namespace {
                REQUIRE(true == event.isConsumed());
             }
 
-            THEN("if trying to kill it, should return USER_FATAL_BUG") {
-               REQUIRE(Result::USER_FATAL_BUG == action.kill(context, Result::TIMEOUT));
+            THEN("if trying to kill it, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == action.kill(context, Result::TIMEOUT));
             }
          }
 
          WHEN("the action is killed") {
             REQUIRE(Result::SUCCESS == action.kill(context, Result::DUPTID));
 
-            THEN("if event1 is received, should return USER_FATAL_BUG") {
-               REQUIRE(Result::USER_FATAL_BUG == action.handleEvent(context, event1));
+            THEN("if event1 is received, should return FATAL_BUG") {
+               REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
             }
          }
       }
@@ -70,12 +70,12 @@ namespace {
       StupidTransactionContext context{};
 
       GIVEN("exec has not been invoked") {
-         WHEN("event1 is received, should return USER_FATAL_BUG") {
-            REQUIRE(Result::USER_FATAL_BUG == action.handleEvent(context, event1));
+         WHEN("event1 is received, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.handleEvent(context, event1));
          }
 
-         WHEN("stop it, should return USER_FATAL_BUG") {
-            REQUIRE(Result::USER_FATAL_BUG == action.stop(context, Result::DUPTID));
+         WHEN("stop it, should return FATAL_BUG") {
+            REQUIRE(Result::FATAL_BUG == action.stop(context, Result::DUPTID));
          }
       }
    }

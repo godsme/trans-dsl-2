@@ -8,7 +8,7 @@ TSL_NS_BEGIN
 
 auto SingleEventAsyncAction::handleEvent(TransactionInfo const& trans, Event const& event) -> Status {
     if(handler.index() == 0) {
-        return USER_FATAL_BUG;
+        return Result::FATAL_BUG;
     }
 
     if(!(eventId == event.getEventId() && matchesMore(event))) {
@@ -16,7 +16,7 @@ auto SingleEventAsyncAction::handleEvent(TransactionInfo const& trans, Event con
     }
 
     event.consume();
-    Status status = FATAL_BUG;
+    Status status = Result::FATAL_BUG;
     switch (handler.index()) {
         case 1: {
             status = std::get<1>(handler)(nullptr, trans, *reinterpret_cast<details::DummyMsgType const*>(event.getMsg()));
@@ -43,7 +43,7 @@ auto SingleEventAsyncAction::kill(TransactionInfo const&, Status) -> Status {
         reset();
         return Result::SUCCESS;
     }
-    return Result::USER_FATAL_BUG;
+    return Result::FATAL_BUG;
 }
 
 auto SingleEventAsyncAction::reset() -> void {

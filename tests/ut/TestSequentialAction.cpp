@@ -139,11 +139,11 @@ namespace {
 
     SCENARIO("First Safe Sequential") {
         using Action =
-        __def_sequential(
-                __safe(__asyn(AsyncAction1)),
-                __sync(SyncAction1),
-                __sync(SyncAction2)
-        );
+        __def_sequential
+        ( __sequential
+            ( __sync(SyncAction1)
+            , __safe(__asyn(AsyncAction1)))
+        , __sync(SyncAction2));
 
         Action action;
         StupidTransactionContext context{};

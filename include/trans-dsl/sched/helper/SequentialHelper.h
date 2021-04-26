@@ -24,7 +24,6 @@ namespace details {
    class Sequential final {
       enum { Num_Of_Actions = sizeof...(T_ACTIONS) };
       static_assert(Num_Of_Actions >= 2, "__sequential must contain at least 2 actions");
-      static_assert(Num_Of_Actions <= 50, "too many actions in a __sequential");
 
       ///////////////////////////////////////////////////////////////////////////////////////////
       template<TransListenerObservedAids const& AIDs>
@@ -36,6 +35,10 @@ namespace details {
          struct RealBase : CUB_NS::Flattenable<Ts...>, protected VolatileSeq<SchedAction, Ts...> {
             // for thread-resource-transfer
             using ThreadActionCreator = ThreadCreator_t<Ts...>;
+            enum {
+                Actual_Num_Of_Actions = sizeof...(Ts)
+            };
+            static_assert(Actual_Num_Of_Actions <= 50, "too many actions in a __sequential");
          };
 
       public:
@@ -46,7 +49,7 @@ namespace details {
    public:
       template<TransListenerObservedAids const& AIDs>
       class ActionRealType : public SchedSequential, public Trait<AIDs>::Base {
-         OVERRIDE(getNumOfActions()->SeqInt) { return Num_Of_Actions; }
+         OVERRIDE(getNumOfActions()->SeqInt) { return Trait<AIDs>::Base::Actual_Num_Of_Actions; }
          OVERRIDE(getNext(SeqInt seq) -> SchedAction*) { return Trait<AIDs>::Base::get(seq); }
       };
    };

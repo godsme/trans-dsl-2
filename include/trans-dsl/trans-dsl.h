@@ -10,6 +10,8 @@
 #include <trans-dsl/sched/helper/SequentialHelper.h>
 #include <trans-dsl/sched/helper/ConcurrentHelper.h>
 #include <trans-dsl/sched/helper/ExclusiveHelper.h>
+#include <trans-dsl/sched/helper/AnyOfHelper.h>
+#include <trans-dsl/sched/helper/IgnoreEventWhenHelper.h>
 #include <trans-dsl/sched/helper/TimeGuardHelper.h>
 #include <trans-dsl/sched/helper/OptionalHelper.h>
 #include <trans-dsl/sched/helper/SwitchCaseHelper.h>

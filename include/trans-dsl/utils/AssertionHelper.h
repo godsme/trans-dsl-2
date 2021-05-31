@@ -13,8 +13,7 @@
 } while(0)
 
 #define BUG_CHECK(expr) do {    \
-   unlikely_branch              \
-   if(unlikely(!(expr)))        \
+   if(unlikely(!(expr))) unlikely_branch \
       return Result::FATAL_BUG; \
 } while(0)
 

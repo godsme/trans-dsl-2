@@ -137,8 +137,7 @@ auto SchedMultiThread::handleEvent_(
 
 ///////////////////////////////////////////////////////////////////////////////////////
 #define CHECK_FAILURE() do { \
-   unlikely_branch           \
-   if(unlikely(state == State::WORKING && context.hasFailure())) \
+   if(unlikely(state == State::WORKING && context.hasFailure())) unlikely_branch \
       EXPECT_CONTINUE(stopAll(context, context.getRuntimeEnvStatus())); \
 } while(0)
 

@@ -98,13 +98,11 @@ auto SchedAnyOf::stopAll(TransactionContext& context, Status cause) -> Status {
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedAnyOf::stop(TransactionContext& context, Status cause) -> Status {
     switch (state) {
-        likely_branch
         case State::Working: {
             return stopAll(context, cause);
         }
         case State::Stopping:
             return Result::CONTINUE;
-        unlikely_branch
         default:
             return Result::FATAL_BUG;
     }

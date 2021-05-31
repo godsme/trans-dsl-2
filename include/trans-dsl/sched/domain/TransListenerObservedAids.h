@@ -6,12 +6,12 @@
 #define TRANS_DSL_2_TRANSLISTENEROBSERVEDAIDS_H
 
 #include <trans-dsl/tsl_ns.h>
-#include <cub/base/BitSet.h>
+#include <cub/base/BitS.h>
 #include <cstdint>
 
 TSL_NS_BEGIN
 
-using TransListenerObservedAids = cub::BitSet<uint64_t>;
+using TransListenerObservedAids = cub::BitS<uint64_t>;
 
 inline constexpr TransListenerObservedAids EmptyAids{0};
 

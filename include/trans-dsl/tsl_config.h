@@ -6,7 +6,7 @@
 #define TRANS_DSL_2_TSL_CONFIG_H
 
 #if __has_include(<concepts>)
-#define __CONCEPT_ENABLED 1
+#define __CONCEPT_ENABLED 0
 #else
 #define __CONCEPT_ENABLED 0
 #endif

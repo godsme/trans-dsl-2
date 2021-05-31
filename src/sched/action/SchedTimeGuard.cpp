@@ -88,7 +88,8 @@ auto SchedTimeGuard::handleEvent(TransactionContext& context, Event const& event
          // (might be less helpful in multi-thread case)
          unlikely_branch
          if (unlikely(status == Result::UNKNOWN_EVENT && ROLE(RelativeTimer).matches(event))) {
-            return onTimeout(context);
+             event.consume();
+             return onTimeout(context);
          }
       } else {
          ROLE(RelativeTimer).stop();

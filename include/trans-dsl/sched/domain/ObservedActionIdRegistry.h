@@ -7,7 +7,7 @@
 
 #include <trans-dsl/tsl_ns.h>
 #include <trans-dsl/sched/domain/ActionId.h>
-#include <cub/base/BitSet.h>
+#include <cub/base/BitS.h>
 #include <trans-dsl/sched/domain/TransListenerObservedAids.h>
 
 TSL_NS_BEGIN

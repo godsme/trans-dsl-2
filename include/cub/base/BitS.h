@@ -2,8 +2,8 @@
 // Created by Darwin Yuan on 2020/7/4.
 //
 
-#ifndef TRANS_DSL_2_BITSET_H
-#define TRANS_DSL_2_BITSET_H
+#ifndef TRANS_DSL_2_BITS_H
+#define TRANS_DSL_2_BITS_H
 
 #include <cub/cub_ns.h>
 #include <type_traits>
@@ -12,9 +12,9 @@
 CUB_NS_BEGIN
 
 template<typename T, typename = std::enable_if<std::is_integral_v<T>>>
-struct BitSet {
+struct BitS {
 public:
-   constexpr BitSet(T value = 0) : value{value} {}
+   constexpr BitS(T value = 0) : value{value} {}
 
    auto enable(unsigned char n) -> void {
       value |= T(T(1) << n);
@@ -50,7 +50,7 @@ public:
       return i;
    }
 
-   friend constexpr BitSet operator|(const BitSet& lhs, const BitSet& rhs) {
+   friend constexpr BitS operator|(const BitS& lhs, const BitS& rhs) {
       return lhs.value | rhs.value;
    }
 
@@ -63,4 +63,4 @@ private:
 
 CUB_NS_END
 
-#endif //TRANS_DSL_2_BITSET_H
+#endif //TRANS_DSL_2_BITS_H

@@ -29,7 +29,7 @@ release = '1'
 # ones.
 sys.path.append(os.path.abspath("_extensions"))
 extensions = [
-    #"sphinx_tabs.tabs",
+    "sphinx_tabs.tabs",
     "sphinx.ext.imgmath",
     'sphinx.ext.todo',
     'sphinx.ext.githubpages',

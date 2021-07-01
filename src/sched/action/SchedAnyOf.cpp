@@ -23,7 +23,7 @@ inline auto SchedAnyOf::stillWorking() const -> bool {
     return stateStillWorking(state);
 }
 
-#define IS_CHILD_WORKING(i) stateStillWorking(children[i])
+#define IS_CHILD_WORKING(i) stateStillWorking(getChildren()[i])
 
 ///////////////////////////////////////////////////////////////////////////////
 auto SchedAnyOf::cleanUp(TransactionContext& context, Status status) -> void {
@@ -49,7 +49,7 @@ auto SchedAnyOf::exec(TransactionContext& context) -> Status {
             cleanUp(context, status);
             return status;
         }
-        children[i] = State::Working;
+        getChildren()[i] = State::Working;
     }
 
     state = State::Working;
@@ -65,7 +65,7 @@ auto SchedAnyOf::handleEvent(TransactionContext& context, Event const& event) ->
         if(!IS_CHILD_WORKING(i)) continue;
         Status status = get(i)->handleEvent(context, event);
         if(!(status & __WORKING_STATUS_BEGIN)) {
-            children[i] = State::Done;
+            getChildren()[i] = State::Done;
             cleanUp(context, status);
             return status;
         }
@@ -84,7 +84,7 @@ auto SchedAnyOf::stopAll(TransactionContext& context, Status cause) -> Status {
         if(!IS_CHILD_WORKING(i)) continue;
         Status status = get(i)->stop(context, cause);
         if(!(status & __WORKING_STATUS_BEGIN)) {
-            children[i] = State::Done;
+            getChildren()[i] = State::Done;
             cleanUp(context, status);
             return status;
         }

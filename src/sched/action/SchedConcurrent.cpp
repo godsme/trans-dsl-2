@@ -22,7 +22,7 @@ namespace {
    }
 }
 
-#define IS_CHILD_WORKING(i) stillWorking(children[i])
+#define IS_CHILD_WORKING(i) stillWorking(getChildren()[i])
 
 ///////////////////////////////////////////////////////////////////////////////
 inline auto SchedConcurrent::notWorking() -> bool {
@@ -44,9 +44,9 @@ auto SchedConcurrent::startUp(TransactionContext& context) -> Status {
       likely_branch
       if(likely(status == Result::CONTINUE)) {
          hasWorkingChildren = true;
-         children[i] = State::Working;
+         getChildren()[i] = State::Working;
       } else {
-         children[i] = State::Done;
+          getChildren()[i] = State::Done;
          unlikely_branch
          if(unlikely(cub::is_failed_status(status))) {
             return status;
@@ -69,14 +69,14 @@ auto SchedConcurrent::cleanUp(TransactionContext& context, Status cause) -> Stat
       Status status = get(i)->stop(context, cause);
       unlikely_branch
       if(unlikely(status == Result::CONTINUE)) {
-         hasWorking = true;
-         children[i] = State::Stopping;
+          hasWorking = true;
+          getChildren()[i] = State::Stopping;
       } else {
-         children[i] = State::Done;
-         likely_branch
-         if(likely(cub::is_failed_status(status))) {
-            reportFailure(status);
-         }
+          getChildren()[i] = State::Done;
+          likely_branch
+          if(likely(cub::is_failed_status(status))) {
+             reportFailure(status);
+          }
       }
    }
 
@@ -137,11 +137,11 @@ auto SchedConcurrent::handleEvent__(TransactionContext& context, Event const& ev
 
          unlikely_branch
          if(unlikely(status == Result::CONTINUE && hasReportedError())) {
-            children[i] = State::Stopping;
-            break;
+             getChildren()[i] = State::Stopping;
+             break;
          }
       } else {
-         children[i] = State::Done;
+          getChildren()[i] = State::Done;
 
          unlikely_branch
          if(unlikely(cub::is_failed_status(status))) {

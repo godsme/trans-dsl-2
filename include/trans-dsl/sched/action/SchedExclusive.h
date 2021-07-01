@@ -29,7 +29,7 @@ private:
     auto handleEventOnSelected(TransactionContext & context, const Event & event) -> Status;
     auto stopOnSelected(TransactionContext & context, Status cause) -> Status;
 
-private:
+protected:
     enum class State : uint8_t {
         Idle,
         Selecting,
@@ -38,10 +38,7 @@ private:
         Done
     };
 
-protected:
-    enum {
-        Max_Num_Of_Children = 6
-    };
+    constexpr static bool Children_State_Required = false;
 
 private:
     SchedAction* selected{};
@@ -50,6 +47,8 @@ private:
 
 private:
     ABSTRACT(getNumOfActions() const -> SeqInt);
+    ABSTRACT(getChildren() -> State*);
+    ABSTRACT(getChildren() const -> State const*);
     ABSTRACT(get(SeqInt index) -> SchedAction*);
 };
 

@@ -38,17 +38,16 @@ public:
    };
 
 protected:
-   enum {
-      Max_Num_Of_Children = 6
-   };
+    constexpr static bool Children_State_Required = true;
 
 private:
    SeqInt total = 0;
    State state = State::Idle;
-   State children[Max_Num_Of_Children]{};
 
 private:
    ABSTRACT(getNumOfActions() const -> SeqInt);
+   ABSTRACT(getChildren() -> State*);
+   ABSTRACT(getChildren() const -> State const*);
    ABSTRACT(get(SeqInt index) -> SchedAction*);
 };
 

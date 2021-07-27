@@ -121,10 +121,21 @@ namespace details {
       enum { Expanded_Num_Of_Entries = sizeof...(T_ENTRIES) };
 
       alignas(Align) char cache[Size];
+      bool present{false};
+
+      auto destroy() -> void {
+          if(present) {
+              SchedAction* elem = reinterpret_cast<SchedAction*>(cache);
+              elem->~SchedAction();
+              present = false;
+          }
+      }
 
       template <SeqInt N>
       auto get(bool& isAction) -> SchedAction* {
+         destroy();
          if constexpr(N < Expanded_Num_Of_Entries) {
+            present = true;
             return CUB_NS::Drop_t<N, LoopEntry, T_ENTRIES...>::get(cache, isAction);
          } else {
             return nullptr;
@@ -132,6 +143,10 @@ namespace details {
       }
 
    public:
+      ~LoopBase() {
+          destroy();
+      }
+
       using ThreadActionCreator = ThreadCreator_t<T_ENTRIES...>;
    };
 

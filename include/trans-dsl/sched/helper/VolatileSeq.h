@@ -22,12 +22,23 @@ namespace details {
          Align = ( MaxSize{} << ... << alignof(Ts) )
       };
       alignas(Align) char cache[Size];
+      bool present{false};
+
+      auto destroy() -> void {
+          if(present) {
+              T_ELEM* elem = reinterpret_cast<T_ELEM*>(cache);
+              elem->~T_ELEM();
+              present = false;
+          }
+      }
 
       template <SeqInt N>
       auto get() -> T_ELEM* {
+         destroy();
          if constexpr(N < sizeof...(Ts)) {
             using Elem = CUB_NS::Elem_t<N, Ts...>;
             CONCEPT_ASSERT(std::is_base_of_v<T_ELEM, Elem>);
+            present = true;
             return new (cache) Elem;
          } else {
             return nullptr;
@@ -42,6 +53,10 @@ namespace details {
       ///////////////////////////////////////////////////////////////////
 
    public:
+      ~VolatileSeq() {
+          destroy();
+      }
+
       // Use if-constexpr to avoid unnecessary function template instantiation.
       // Use switch-case to avoid recursion, and the generated jump-table by
       // switch-case is fast.

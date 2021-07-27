@@ -29,11 +29,25 @@ namespace details {
                static constexpr ThreadId threadId = TID;
                static constexpr uint8_t  numOfThreads = 1;
                auto createThreadAction(ThreadId tid) -> SchedAction * {
-                  return (tid == TID) ? new(cache) ActionType : nullptr;
+                  if (tid == TID) {
+                      present = true;
+                      return new(cache) ActionType;
+                  }
+
+                  return nullptr;
+               }
+
+               ~ThreadActionCreator() {
+                   if(present) {
+                       ActionType* elem = reinterpret_cast<ActionType*>(cache);
+                       elem->~ActionType();
+                       present = false;
+                   }
                }
 
             private:
                alignas(alignof(ActionType)) char cache[sizeof(ActionType)];
+               bool present{false};
             };
          };
 

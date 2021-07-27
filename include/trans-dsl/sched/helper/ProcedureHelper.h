@@ -51,16 +51,31 @@ namespace details {
          static_assert(SchedActionConcept<MainAction>);
          static_assert(SchedActionConcept<FinalAction>);
 
+         auto destroy() -> void {
+             if(present) {
+                 SchedAction* elem = reinterpret_cast<SchedAction*>(cache);
+                 elem->~SchedAction();
+                 present = false;
+             }
+         }
+
       public:
          using ThreadActionCreator = ThreadCreator_t<MainAction, FinalAction>;
 
+         ~ActionRealType() {
+             destroy();
+         }
+
       private:
          OVERRIDE(getAction()->SchedAction *) {
+             present = true;
             return new(cache) MainAction;
          }
 
          OVERRIDE(getFinalAction()->SchedAction *) {
-            return new(cache) FinalAction;
+             destroy();
+             present = true;
+             return new(cache) FinalAction;
          }
 
          OVERRIDE(isProtected() const -> bool) {
@@ -74,6 +89,7 @@ namespace details {
          };
 
          alignas(alignment) unsigned char cache[size];
+         bool present{false};
       };
    };
 
